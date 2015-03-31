@@ -59,5 +59,9 @@ namespace Santase.Logic.Players
         public abstract PlayerAction GetTurn(
             PlayerTurnContext context,
             IPlayerActionValidater actionValidater);
+
+        public virtual void EndTurn(PlayerTurnContext context)
+        {
+        }
     }
 }
