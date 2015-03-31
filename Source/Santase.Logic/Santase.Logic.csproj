@@ -43,6 +43,11 @@
     <Compile Include="Cards\CardExtensions.cs" />
     <Compile Include="Cards\CardSuit.cs" />
     <Compile Include="Cards\CardType.cs" />
+    <Compile Include="Cards\Deck.cs" />
+    <Compile Include="Cards\IDeck.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\RandomProvider.cs" />
+    <Compile Include="InternalGameException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
