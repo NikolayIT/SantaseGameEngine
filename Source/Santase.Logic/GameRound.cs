@@ -27,6 +27,8 @@ namespace Santase.Logic
 
         private BaseRoundState state;
 
+        private PlayerPosition gameClosedBy;
+
         public GameRound(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay)
         {
             this.deck = new Deck();
@@ -43,6 +45,8 @@ namespace Santase.Logic
             this.firstToPlay = firstToPlay;
 
             this.SetState(new StartRoundState(this));
+
+            this.gameClosedBy = PlayerPosition.NoOne;
         }
 
         public void Start()
@@ -73,6 +77,24 @@ namespace Santase.Logic
             }
 
             this.firstToPlay = hand.Winner;
+
+            this.firstPlayerCards.Remove(hand.FirstPlayerCard);
+            this.secondPlayerCards.Remove(hand.SecondPlayerCard);
+
+            this.DrawNewCards();
+
+            this.state.PlayHand(this.deck.CardsLeft);
+
+            if (hand.GameClosedBy == PlayerPosition.FirstPlayer
+                || hand.GameClosedBy == PlayerPosition.SecondPlayer)
+            {
+                this.state.Close();
+                this.gameClosedBy = hand.GameClosedBy;
+            }
+        }
+
+        private void DrawNewCards()
+        {
             if (this.state.ShouldDrawCard)
             {
                 if (this.firstToPlay == PlayerPosition.FirstPlayer)
@@ -185,7 +207,7 @@ namespace Santase.Logic
 
         public PlayerPosition ClosedByPlayer
         {
-            get { throw new NotImplementedException(); }
+            get { return this.gameClosedBy; }
         }
 
 

@@ -24,7 +24,7 @@ namespace Santase.Logic
         }
 
 
-        public Cards.Card FirstPlayerCard
+        public Card FirstPlayerCard
         {
             get { throw new NotImplementedException(); }
         }
@@ -40,6 +40,11 @@ namespace Santase.Logic
         }
 
         public Announce SecondPlayerAnnounce
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public PlayerPosition GameClosedBy
         {
             get { throw new NotImplementedException(); }
         }

@@ -78,5 +78,11 @@ namespace Santase.Logic.Cards
                 CardSuit.Spade,
             };
         }
+
+
+        public int CardsLeft
+        {
+            get { return this.listOfCards.Count; }
+        }
     }
 }
