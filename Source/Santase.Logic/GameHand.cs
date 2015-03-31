@@ -53,15 +53,21 @@ namespace Santase.Logic
         {
             IPlayer firstToPlay;
             IPlayer secondToPlay;
+            IList<Card> firstToPlayCards;
+            IList<Card> secondToPlayCards;
             if (this.whoWillPlayFirst == PlayerPosition.FirstPlayer)
             {
                 firstToPlay = this.firstPlayer;
+                firstToPlayCards = this.firstPlayerCards;
                 secondToPlay = this.secondPlayer;
+                secondToPlayCards = this.secondPlayerCards;
             }
             else
             {
                 firstToPlay = this.secondPlayer;
+                firstToPlayCards = this.secondPlayerCards;
                 secondToPlay = this.firstPlayer;
+                secondToPlayCards = this.firstPlayerCards;
             }
 
             var context = new PlayerTurnContext(this.state, deck.GetTrumpCard, deck.CardsLeft);
@@ -72,7 +78,7 @@ namespace Santase.Logic
                 firstPlayerAction =
                     this.FirstPlayerTurn(firstToPlay, context);
 
-                if (!this.actionValidater.IsValid(firstPlayerAction, context))
+                if (!this.actionValidater.IsValid(firstPlayerAction, context, firstToPlayCards))
                 {
                     // TODO: Do something more graceful?
                     throw new InternalGameException("Invalid turn!");
@@ -84,8 +90,14 @@ namespace Santase.Logic
             context.FirstPlayedCard = firstPlayerAction.Card;
 
             PlayerAction secondPlayerAction = secondToPlay.GetTurn(
-                new PlayerTurnContext(this.state, deck.GetTrumpCard, deck.CardsLeft),
+                context,
                 this.actionValidater);
+
+            if (!this.actionValidater.IsValid(secondPlayerAction, context, secondToPlayCards))
+            {
+                // TODO: Do something more graceful?
+                throw new InternalGameException("Invalid turn!");
+            }
 
             context.SecondPlayedCard = secondPlayerAction.Card;
 
@@ -133,6 +145,8 @@ namespace Santase.Logic
             if (firstToPlayTurn.Type == PlayerActionType.CloseGame)
             {
                 this.state.Close();
+                context.State = new FinalRoundState();
+                this.state = new FinalRoundState();
                 if (firstToPlay == this.firstPlayer)
                 {
                     this.whoClosedTheGame = PlayerPosition.FirstPlayer;
@@ -147,12 +161,21 @@ namespace Santase.Logic
             {
                 var changeTrump = new Card(this.deck.GetTrumpCard.Suit, CardType.Nine);
                 var oldTrump = this.deck.GetTrumpCard;
+                context.TrumpCard = oldTrump;
                 this.deck.ChangeTrumpCard(changeTrump);
 
-                this.firstPlayerCards.Remove(changeTrump);
-                this.firstPlayerCards.Add(oldTrump);
-
-                this.firstPlayer.AddCard(oldTrump);
+                if (firstToPlay == this.firstPlayer)
+                {
+                    this.firstPlayerCards.Remove(changeTrump);
+                    this.firstPlayerCards.Add(oldTrump);
+                    this.firstPlayer.AddCard(oldTrump);
+                }
+                else
+                {
+                    this.secondPlayerCards.Remove(changeTrump);
+                    this.secondPlayerCards.Add(oldTrump);
+                    this.secondPlayer.AddCard(oldTrump);
+                }
             }
 
             return firstToPlayTurn;

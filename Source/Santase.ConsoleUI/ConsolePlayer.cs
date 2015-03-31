@@ -44,6 +44,8 @@ namespace Santase.ConsoleUI
                 PlayerAction playerAction = null;
 
                 Console.SetCursorPosition(0, this.row + 1);
+                Console.Write(new string(' ', 79));
+                Console.SetCursorPosition(0, this.row + 1);
                 Console.Write("Turn? [1-{0}]=Card{1}",
                     this.cards.Count,
                     context.AmITheFirstPlayer ? "; [T]=Change trump; [C]=Close: " : ": ");
@@ -129,10 +131,20 @@ namespace Santase.ConsoleUI
                     continue;
                 }
 
-                if (actionValidater.IsValid(playerAction, context))
+                if (actionValidater.IsValid(playerAction, context, this.cards))
                 {
+                    if (playerAction.Type == PlayerActionType.PlayCard)
+                    {
+                        this.cards.Remove(playerAction.Card);
+                    }
+
+                    if (playerAction.Type == PlayerActionType.ChangeTrump)
+                    {
+                        this.cards.Remove(new Card(context.TrumpCard.Suit, CardType.Nine));
+                    }
 
                     this.PrintGameInfo(context);
+
                     return playerAction;
                 }
                 else

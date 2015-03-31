@@ -22,6 +22,6 @@ namespace Santase.Logic.Players
 
         public Card Card { get; private set; }
 
-        public Announce Announce { get; private set; }
+        public Announce Announce { get; internal set; }
     }
 }

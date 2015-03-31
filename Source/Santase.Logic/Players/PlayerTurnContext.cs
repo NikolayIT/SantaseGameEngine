@@ -19,9 +19,9 @@ namespace Santase.Logic.Players
             this.CardsLeftInDeck = cardsLeftInDeck;
         }
 
-        public BaseRoundState State { get; private set; }
+        public BaseRoundState State { get; internal set; }
 
-        public Card TrumpCard { get; private set; }
+        public Card TrumpCard { get; internal set; }
 
         public int CardsLeftInDeck { get; private set; }
 
