@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Santase.Logic
+namespace Santase.Logic.Cards
 {
-    public class Class1
+    public enum CardSuit
     {
+        Club,
+        Diamond,
+        Heart,
+        Spade,
     }
 }
