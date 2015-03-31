@@ -13,12 +13,27 @@ namespace Santase.Logic
             throw new NotImplementedException();
         }
 
-        public int TotalPointsWonByFirstPlayer
+        public int FirstPlayerPoints
         {
             get { throw new NotImplementedException(); }
         }
 
-        public int TotalPointsWonBySecondPlayer
+        public int SecondPlayerPoints
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool FirstPlayerHasHand
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool SecondPlayerHasHand
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public PlayerPosition ClosedByPlayer
         {
             get { throw new NotImplementedException(); }
         }

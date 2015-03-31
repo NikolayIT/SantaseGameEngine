@@ -51,6 +51,7 @@
     <Compile Include="IGameRound.cs" />
     <Compile Include="InternalGameException.cs" />
     <Compile Include="ISantaseGame.cs" />
+    <Compile Include="PlayerPosition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SantaseGame.cs" />
   </ItemGroup>
