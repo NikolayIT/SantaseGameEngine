@@ -12,8 +12,11 @@ namespace Santase.ConsoleUI
     {
         public static void Main()
         {
+            Console.BufferHeight = Console.WindowHeight = 17;
+            Console.BufferWidth = Console.WindowWidth = 50;
+
             ISantaseGame game = new SantaseGame(
-                new ConsolePlayer(6, 10),
+                new ConsolePlayer(5, 10),
                 new ConsolePlayer(10, 10),
                 PlayerPosition.FirstPlayer);
             game.Start();

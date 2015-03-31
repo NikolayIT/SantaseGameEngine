@@ -10,6 +10,8 @@ namespace Santase.Logic.Players
     {
         void AddCard(Card card);
 
-        PlayerAction GetTurn(PlayerTurnContext context);
+        PlayerAction GetTurn(
+            PlayerTurnContext context,
+            IPlayerActionValidater actionValidator);
     }
 }

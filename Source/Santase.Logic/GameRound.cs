@@ -64,7 +64,8 @@ namespace Santase.Logic
                 this.firstToPlay,
                 this.firstPlayer,
                 this.secondPlayer,
-                this.state);
+                this.state,
+                this.deck);
             hand.Start();
 
             this.UpdatePoints(hand);

@@ -14,17 +14,20 @@ namespace Santase.Logic
         private IPlayer firstPlayer;
         private IPlayer secondPlayer;
         private BaseRoundState state;
+        private IDeck deck;
 
         public GameHand(
             PlayerPosition whoWillPlayFirst,
             IPlayer firstPlayer,
             IPlayer secondPlayer,
-            BaseRoundState state)
+            BaseRoundState state,
+            IDeck deck)
         {
             this.whoWillPlayFirst = whoWillPlayFirst;
             this.firstPlayer = firstPlayer;
             this.secondPlayer = secondPlayer;
             this.state = state;
+            this.deck = deck;
         }
 
         public void Start()
@@ -53,7 +56,9 @@ namespace Santase.Logic
             while (firstPlayerAction.Type !=
                 PlayerActionType.PlayCard);
 
-            PlayerAction secondPlayerAction = firstToPlay.GetTurn(new PlayerTurnContext());
+            PlayerAction secondPlayerAction = firstToPlay.GetTurn(
+                new PlayerTurnContext(this.state, deck.GetTrumpCard, deck.CardsLeft),
+                new PlayerActionValidater());
 
             // TODO: prepare PlayerTurnContext
             // TODO: turn == close => close, change state, ask first
@@ -66,7 +71,9 @@ namespace Santase.Logic
         /// <returns>True => played card; False => another action</returns>
         private PlayerAction FirstPlayerTurn(IPlayer firstToPlay)
         {
-            var firstToPlayTurn = firstToPlay.GetTurn(new PlayerTurnContext());
+            var firstToPlayTurn = firstToPlay.GetTurn(
+                new PlayerTurnContext(this.state, deck.GetTrumpCard, deck.CardsLeft),
+                new PlayerActionValidater());
 
             if (firstToPlayTurn.Type == PlayerActionType.CloseGame)
             {
