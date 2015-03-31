@@ -12,24 +12,41 @@ namespace Santase.Logic
     {
         private PlayerPosition whoWillPlayFirst;
         private IPlayer firstPlayer;
+        private IList<Card> firstPlayerCards;
         private IPlayer secondPlayer;
+        private IList<Card> secondPlayerCards;
         private BaseRoundState state;
         private IDeck deck;
         private IPlayerActionValidater actionValidater;
 
+        private PlayerPosition whoClosedTheGame;
+
+        private Card firstPlayerCard;
+        private Card secondPlayerCard;
+
+        private Announce firstPlayerAnnounce;
+        private Announce secondPlayerAnnounce;
+
+        private PlayerPosition winner;
+
         public GameHand(
             PlayerPosition whoWillPlayFirst,
             IPlayer firstPlayer,
+            IList<Card> firstPlayerCards,
             IPlayer secondPlayer,
+            IList<Card> secondPlayerCards,
             BaseRoundState state,
             IDeck deck)
         {
             this.whoWillPlayFirst = whoWillPlayFirst;
             this.firstPlayer = firstPlayer;
+            this.firstPlayerCards = firstPlayerCards;
             this.secondPlayer = secondPlayer;
+            this.secondPlayerCards = secondPlayerCards;
             this.state = state;
             this.deck = deck;
             this.actionValidater = new PlayerActionValidater();
+            this.whoClosedTheGame = PlayerPosition.NoOne;
         }
 
         public void Start()
@@ -72,13 +89,33 @@ namespace Santase.Logic
 
             context.SecondPlayedCard = secondPlayerAction.Card;
 
+            if (firstToPlay == this.firstPlayer)
+            {
+                this.firstPlayerCard = firstPlayerAction.Card;
+                this.firstPlayerAnnounce = firstPlayerAction.Announce;
+                this.secondPlayerCard = secondPlayerAction.Card;
+                this.secondPlayerAnnounce = secondPlayerAction.Announce;
+            }
+            else
+            {
+                this.firstPlayerCard = secondPlayerAction.Card;
+                this.firstPlayerAnnounce = secondPlayerAction.Announce;
+                this.secondPlayerCard = firstPlayerAction.Card;
+                this.secondPlayerAnnounce = firstPlayerAction.Announce;
+            }
+
             firstToPlay.EndTurn(context);
             secondToPlay.EndTurn(context);
-            // TODO: turn == close => close, change state, ask first
-            // TODO: turn == trumpChnage => change, ask first
-            
 
-            // TODO: determine who wins the hand
+            ICardWinner cardWinner = new CardWinner();
+            if (firstToPlay == this.firstPlayer)
+            {
+                this.winner = cardWinner.Winner(firstPlayerAction.Card, secondPlayerAction.Card);
+            }
+            else
+            {
+                this.winner = cardWinner.Winner(secondPlayerAction.Card, firstPlayerAction.Card);
+            }
         }
 
         /// <returns>True => played card; False => another action</returns>
@@ -90,17 +127,26 @@ namespace Santase.Logic
             if (firstToPlayTurn.Type == PlayerActionType.CloseGame)
             {
                 this.state.Close();
-                // TODO: who closed the game
+                if (firstToPlay == this.firstPlayer)
+                {
+                    this.whoClosedTheGame = PlayerPosition.FirstPlayer;
+                }
+                else
+                {
+                    this.whoClosedTheGame = PlayerPosition.SecondPlayer;
+                }
             }
 
             if (firstToPlayTurn.Type == PlayerActionType.ChangeTrump)
             {
-                // TODO: Change trump
-            }
+                var changeTrump = new Card(this.deck.GetTrumpCard.Suit, CardType.Nine);
+                var oldTrump = this.deck.GetTrumpCard;
+                this.deck.ChangeTrumpCard(changeTrump);
 
-            if (firstToPlayTurn.Type ==  PlayerActionType.PlayCard)
-            {
-                // TODO: Card played
+                this.firstPlayerCards.Remove(changeTrump);
+                this.firstPlayerCards.Add(oldTrump);
+
+                this.firstPlayer.AddCard(oldTrump);
             }
 
             return firstToPlayTurn;
@@ -108,33 +154,33 @@ namespace Santase.Logic
 
         public PlayerPosition Winner
         {
-            get { throw new NotImplementedException(); }
+            get { return this.winner; }
         }
 
 
         public Card FirstPlayerCard
         {
-            get { throw new NotImplementedException(); }
+            get { return this.firstPlayerCard; }
         }
 
         public Announce FirstPlayerAnnounce
         {
-            get { throw new NotImplementedException(); }
+            get { return this.firstPlayerAnnounce; }
         }
 
         public Card SecondPlayerCard
         {
-            get { throw new NotImplementedException(); }
+            get { return this.secondPlayerCard; }
         }
 
         public Announce SecondPlayerAnnounce
         {
-            get { throw new NotImplementedException(); }
+            get { return this.secondPlayerAnnounce; }
         }
 
         public PlayerPosition GameClosedBy
         {
-            get { throw new NotImplementedException(); }
+            get { return this.whoClosedTheGame; }
         }
     }
 }
