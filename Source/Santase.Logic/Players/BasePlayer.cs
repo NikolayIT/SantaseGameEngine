@@ -21,6 +21,43 @@ namespace Santase.Logic.Players
             this.cards.Add(card);
         }
 
-        public abstract PlayerAction GetTurn(PlayerTurnContext context);
+        protected Announce PossibleAnnounce(Card cardToBePlayed, Card trumpCard)
+        {
+            CardType cardTypeToSearch;
+            if (cardToBePlayed.Type == CardType.Queen)
+            {
+                cardTypeToSearch = CardType.King;
+            }
+            else if (cardToBePlayed.Type == CardType.King)
+            {
+                cardTypeToSearch = CardType.Queen;
+            }
+            else
+            {
+                return Announce.None;
+            }
+
+            var cardToSearch = new Card(
+                cardToBePlayed.Suit,
+                cardTypeToSearch);
+
+            if (!this.cards.Contains(cardToSearch))
+            {
+                return Announce.None;
+            }
+
+            if (cardToBePlayed.Suit == trumpCard.Suit)
+            {
+                return Announce.Fourty;
+            }
+            else
+            {
+                return Announce.Twenty;
+            }
+        }
+
+        public abstract PlayerAction GetTurn(
+            PlayerTurnContext context,
+            IPlayerActionValidater actionValidater);
     }
 }
