@@ -53,7 +53,9 @@
     <Compile Include="IGameHand.cs" />
     <Compile Include="IGameRound.cs" />
     <Compile Include="InternalGameException.cs" />
+    <Compile Include="IPlayerActionValidater.cs" />
     <Compile Include="ISantaseGame.cs" />
+    <Compile Include="PlayerActionValidater.cs" />
     <Compile Include="PlayerPosition.cs" />
     <Compile Include="Players\BasePlayer.cs" />
     <Compile Include="Players\IPlayer.cs" />
