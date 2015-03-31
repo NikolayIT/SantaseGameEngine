@@ -110,11 +110,17 @@ namespace Santase.Logic
             ICardWinner cardWinner = new CardWinner();
             if (firstToPlay == this.firstPlayer)
             {
-                this.winner = cardWinner.Winner(firstPlayerAction.Card, secondPlayerAction.Card);
+                this.winner = cardWinner.Winner(
+                    firstPlayerAction.Card,
+                    secondPlayerAction.Card,
+                    this.deck.GetTrumpCard.Suit);
             }
             else
             {
-                this.winner = cardWinner.Winner(secondPlayerAction.Card, firstPlayerAction.Card);
+                this.winner = cardWinner.Winner(
+                    secondPlayerAction.Card,
+                    firstPlayerAction.Card,
+                    this.deck.GetTrumpCard.Suit);
             }
         }
 

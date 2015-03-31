@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Santase.Logic.Cards;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,26 @@ namespace Santase.Logic
 {
     public class CardWinner : ICardWinner
     {
-        public PlayerPosition Winner(Cards.Card firstPlayerCard, Cards.Card secondPlayerCard)
+        public PlayerPosition Winner(Card firstPlayerCard, Card secondPlayerCard, CardSuit trumpSuit)
         {
-            throw new NotImplementedException();
+            if (firstPlayerCard.Suit == secondPlayerCard.Suit)
+            {
+                if (firstPlayerCard.GetValue() > secondPlayerCard.GetValue())
+                {
+                    return PlayerPosition.FirstPlayer;
+                }
+                else
+                {
+                    return PlayerPosition.SecondPlayer;
+                }
+            }
+
+            if (secondPlayerCard.Suit == trumpSuit)
+            {
+                return PlayerPosition.SecondPlayer;
+            }
+
+            return PlayerPosition.FirstPlayer;
         }
     }
 }
