@@ -18,6 +18,7 @@ namespace Santase.ConsoleUI
             Console.WriteLine("{0} - {1}",
                 game.FirstPlayerTotalPoints,
                 game.SecondPlayerTotalPoints);
+            Console.WriteLine("Round: {0}", game.RoundsPlayed);
         }
     }
 }
