@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Announce.cs" />
     <Compile Include="Cards\Card.cs" />
     <Compile Include="Cards\CardExtensions.cs" />
     <Compile Include="Cards\CardSuit.cs" />

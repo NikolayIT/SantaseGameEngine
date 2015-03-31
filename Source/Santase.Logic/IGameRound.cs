@@ -21,5 +21,7 @@ namespace Santase.Logic
         bool SecondPlayerHasHand { get; }
 
         PlayerPosition ClosedByPlayer { get; }
+
+        PlayerPosition LastHandInPlayer { get; }
     }
 }

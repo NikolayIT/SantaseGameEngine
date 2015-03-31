@@ -59,11 +59,64 @@ namespace Santase.Logic
             IGameHand hand = new GameHand();
             hand.Start();
 
-            // TODO: Update points
-            // TODO: Add one more card to both players
-            // TODO: Update firstPlayerCollectedCards and secondPlayerCollectedCards
-            
+            this.UpdatePoints(hand);
+
+            if (hand.Winner == PlayerPosition.FirstPlayer)
+            {
+                firstPlayerCollectedCards.Add(hand.FirstPlayerCard);
+                firstPlayerCollectedCards.Add(hand.SecondPlayerCard);
+            }
+            else
+            {
+                secondPlayerCollectedCards.Add(hand.FirstPlayerCard);
+                secondPlayerCollectedCards.Add(hand.SecondPlayerCard);
+            }
+
             this.firstToPlay = hand.Winner;
+            if (this.state.ShouldDrawCard)
+            {
+                if (this.firstToPlay == PlayerPosition.FirstPlayer)
+                {
+                    this.GiveCardToFirstPlayer();
+                    this.GiveCardToSecondPlayer();
+                }
+                else
+                {
+                    this.GiveCardToSecondPlayer();
+                    this.GiveCardToFirstPlayer();
+                }
+            }
+        }
+
+        private void UpdatePoints(IGameHand hand)
+        {
+            if (hand.Winner == PlayerPosition.FirstPlayer)
+            {
+                this.firstPlayerPoints += hand.FirstPlayerCard.GetValue();
+                this.firstPlayerPoints += hand.SecondPlayerCard.GetValue();
+            }
+            else
+            {
+                this.secondPlayerPoints += hand.FirstPlayerCard.GetValue();
+                this.secondPlayerPoints += hand.SecondPlayerCard.GetValue();
+            }
+
+            this.firstPlayerPoints += (int)hand.FirstPlayerAnnounce;
+            this.secondPlayerPoints += (int)hand.SecondPlayerAnnounce;
+        }
+
+        private void GiveCardToFirstPlayer()
+        {
+            var card = this.deck.GetNextCard();
+            this.firstPlayer.AddCard(card);
+            this.firstPlayerCards.Add(card);
+        }
+
+        private void GiveCardToSecondPlayer()
+        {
+            var card = this.deck.GetNextCard();
+            this.secondPlayer.AddCard(card);
+            this.secondPlayerCards.Add(card);
         }
 
         private bool IsFinished()
@@ -91,26 +144,22 @@ namespace Santase.Logic
         {
             for (int i = 0; i < 3; i++)
             {
-                var card = this.deck.GetNextCard();
-                this.firstPlayer.AddCard(card);
+                this.GiveCardToFirstPlayer();
             }
 
             for (int i = 0; i < 3; i++)
             {
-                var card = this.deck.GetNextCard();
-                this.secondPlayer.AddCard(card);
+                this.GiveCardToSecondPlayer();
             }
 
             for (int i = 0; i < 3; i++)
             {
-                var card = this.deck.GetNextCard();
-                this.firstPlayer.AddCard(card);
+                this.GiveCardToFirstPlayer();
             }
 
             for (int i = 0; i < 3; i++)
             {
-                var card = this.deck.GetNextCard();
-                this.secondPlayer.AddCard(card);
+                this.GiveCardToSecondPlayer();
             }
         }
 
@@ -143,6 +192,12 @@ namespace Santase.Logic
         public void SetState(BaseRoundState newState)
         {
             this.state = newState;
+        }
+
+
+        public PlayerPosition LastHandInPlayer
+        {
+            get { return this.firstToPlay; }
         }
     }
 }
