@@ -37,7 +37,7 @@ namespace Santase.Logic.RoundStates
             get { return false; }
         }
 
-        public override void PlayHand(int cardsLeftInDeck)
+        internal override void PlayHand(int cardsLeftInDeck)
         {
         }
     }

@@ -38,7 +38,7 @@ namespace Santase.Logic.RoundStates
             get { return true; }
         }
 
-        public override void PlayHand(int cardsLeftInDeck)
+        internal override void PlayHand(int cardsLeftInDeck)
         {
             this.round.SetState(new MoreThanTwoCardsLeftRoundState(this.round));
         }
