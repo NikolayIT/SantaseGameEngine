@@ -13,7 +13,7 @@ namespace Santase.Logic
     {
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {
-            if (context.AmITheFirstPlayer)
+            if (!context.AmITheFirstPlayer)
             {
                 action.Announce = Announce.None;
             }
