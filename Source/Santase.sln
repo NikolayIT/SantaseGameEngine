@@ -5,11 +5,15 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Logic", "Santase.Logic\Santase.Logic.csproj", "{76FD6AC0-6F00-4F92-8857-876E60AA9FE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.ConsoleUI", "Santase.ConsoleUI\Santase.ConsoleUI.csproj", "{D955B803-9058-49A4-B97C-6C13B01B4C70}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.ConsoleUI", "UI\Santase.ConsoleUI\Santase.ConsoleUI.csproj", "{D955B803-9058-49A4-B97C-6C13B01B4C70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EAD448DC-3B01-425B-862C-05D3B30FDDD1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Logic.Tests", "Santase.Logic.Tests\Santase.Logic.Tests.csproj", "{E5F1BEA5-92A9-447E-9EC4-980F5D75BB80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Logic.Tests", "Tests\Santase.Logic.Tests\Santase.Logic.Tests.csproj", "{E5F1BEA5-92A9-447E-9EC4-980F5D75BB80}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AI", "AI", "{2985437A-F7EF-4113-ACC2-91346A4F65CF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{2DE5F77F-C30E-4EA1-8ED7-F66B85071BCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +38,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{D955B803-9058-49A4-B97C-6C13B01B4C70} = {2DE5F77F-C30E-4EA1-8ED7-F66B85071BCF}
 		{E5F1BEA5-92A9-447E-9EC4-980F5D75BB80} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
 	EndGlobalSection
 EndGlobal

@@ -49,7 +49,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Santase.Logic\Santase.Logic.csproj">
+    <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
       <Project>{76fd6ac0-6f00-4f92-8857-876e60aa9fe6}</Project>
       <Name>Santase.Logic</Name>
     </ProjectReference>
