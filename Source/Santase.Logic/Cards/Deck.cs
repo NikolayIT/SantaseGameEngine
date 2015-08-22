@@ -7,7 +7,7 @@ namespace Santase.Logic.Cards
 {
     public class Deck : IDeck
     {
-        private IList<Card> listOfCards;
+        private readonly IList<Card> listOfCards;
 
         private Card trumpCard;
 

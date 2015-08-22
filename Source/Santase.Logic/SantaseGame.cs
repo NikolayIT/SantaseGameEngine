@@ -8,8 +8,8 @@ namespace Santase.Logic
         int secondPlayerTotalPoints;
         int roundsCount;
 
-        private IPlayer firstPlayer;
-        private IPlayer secondPlayer;
+        private readonly IPlayer firstPlayer;
+        private readonly IPlayer secondPlayer;
 
         private PlayerPosition firstToPlay;
 

@@ -8,8 +8,9 @@ namespace Santase.ConsoleUI
 {
     public class ConsolePlayer : BasePlayer
     {
-        int row;
-        int col;
+        readonly int row;
+
+        readonly int col;
 
         public ConsolePlayer(int row, int col)
         {

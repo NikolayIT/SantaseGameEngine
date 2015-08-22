@@ -6,7 +6,7 @@ namespace Santase.Logic.Players
 {
     public abstract class BasePlayer : IPlayer
     {
-        protected IList<Card> cards;
+        protected readonly IList<Card> cards;
 
         protected BasePlayer()
         {

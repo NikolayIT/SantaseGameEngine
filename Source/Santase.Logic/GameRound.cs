@@ -8,16 +8,16 @@ namespace Santase.Logic
 {
     public class GameRound : IGameRound
     {
-        private IDeck deck;
+        private readonly IDeck deck;
 
-        private IPlayer firstPlayer;
+        private readonly IPlayer firstPlayer;
         private int firstPlayerPoints;
-        private IList<Card> firstPlayerCards;
+        private readonly IList<Card> firstPlayerCards;
         private bool firstPlayerHasCollectedCards;
 
-        private IPlayer secondPlayer;
+        private readonly IPlayer secondPlayer;
         private int secondPlayerPoints;
-        private IList<Card> secondPlayerCards;
+        private readonly IList<Card> secondPlayerCards;
         private bool secondPlayerHasCollectedCards;
 
         private PlayerPosition firstToPlay;

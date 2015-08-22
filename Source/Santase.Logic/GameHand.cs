@@ -8,14 +8,15 @@ namespace Santase.Logic
 {
     public class GameHand : IGameHand
     {
-        private PlayerPosition whoWillPlayFirst;
-        private IPlayer firstPlayer;
-        private IList<Card> firstPlayerCards;
-        private IPlayer secondPlayer;
-        private IList<Card> secondPlayerCards;
+        // TODO: Order properties in a more meaningful way
+        private readonly PlayerPosition whoWillPlayFirst;
+        private readonly IPlayer firstPlayer;
+        private readonly IList<Card> firstPlayerCards;
+        private readonly IPlayer secondPlayer;
+        private readonly IList<Card> secondPlayerCards;
         private BaseRoundState state;
-        private IDeck deck;
-        private IPlayerActionValidater actionValidater;
+        private readonly IDeck deck;
+        private readonly IPlayerActionValidater actionValidater;
 
         private PlayerPosition whoClosedTheGame;
 

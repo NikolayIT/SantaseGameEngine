@@ -2,7 +2,7 @@
 {
     public abstract class BaseRoundState
     {
-        protected IGameRound round;
+        protected readonly IGameRound round;
 
         protected BaseRoundState(IGameRound round)
         {
