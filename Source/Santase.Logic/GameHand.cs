@@ -145,14 +145,7 @@ namespace Santase.Logic
                 this.state.Close();
                 context.State = new FinalRoundState();
                 this.state = new FinalRoundState();
-                if (firstToPlay == this.firstPlayer)
-                {
-                    this.whoClosedTheGame = PlayerPosition.FirstPlayer;
-                }
-                else
-                {
-                    this.whoClosedTheGame = PlayerPosition.SecondPlayer;
-                }
+                this.whoClosedTheGame = firstToPlay == this.firstPlayer ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer;
             }
 
             if (firstToPlayTurn.Type == PlayerActionType.ChangeTrump)
@@ -179,35 +172,16 @@ namespace Santase.Logic
             return firstToPlayTurn;
         }
 
-        public PlayerPosition Winner
-        {
-            get { return this.winner; }
-        }
+        public PlayerPosition Winner => this.winner;
 
+        public Card FirstPlayerCard => this.firstPlayerCard;
 
-        public Card FirstPlayerCard
-        {
-            get { return this.firstPlayerCard; }
-        }
+        public Announce FirstPlayerAnnounce => this.firstPlayerAnnounce;
 
-        public Announce FirstPlayerAnnounce
-        {
-            get { return this.firstPlayerAnnounce; }
-        }
+        public Card SecondPlayerCard => this.secondPlayerCard;
 
-        public Card SecondPlayerCard
-        {
-            get { return this.secondPlayerCard; }
-        }
+        public Announce SecondPlayerAnnounce => this.secondPlayerAnnounce;
 
-        public Announce SecondPlayerAnnounce
-        {
-            get { return this.secondPlayerAnnounce; }
-        }
-
-        public PlayerPosition GameClosedBy
-        {
-            get { return this.whoClosedTheGame; }
-        }
+        public PlayerPosition GameClosedBy => this.whoClosedTheGame;
     }
 }

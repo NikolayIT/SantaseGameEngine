@@ -12,17 +12,6 @@ namespace Santase.Logic.Extensions
         /// <summary>
         /// The instance of the random class
         /// </summary>
-        public static Random Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new Random();
-                }
-
-                return instance;
-            }
-        }
+        public static Random Instance => instance ?? (instance = new Random());
     }
 }

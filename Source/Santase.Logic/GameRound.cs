@@ -186,41 +186,21 @@ namespace Santase.Logic
             }
         }
 
-        public int FirstPlayerPoints
-        {
-            get { return this.firstPlayerPoints; }
-        }
+        public int FirstPlayerPoints => this.firstPlayerPoints;
 
-        public int SecondPlayerPoints
-        {
-            get { return this.secondPlayerPoints; }
-        }
+        public int SecondPlayerPoints => this.secondPlayerPoints;
 
-        public bool FirstPlayerHasHand
-        {
-            get { return this.firstPlayerHasCollectedCards; }
-        }
+        public bool FirstPlayerHasHand => this.firstPlayerHasCollectedCards;
 
-        public bool SecondPlayerHasHand
-        {
-            get { return this.secondPlayerHasCollectedCards; }
-        }
+        public bool SecondPlayerHasHand => this.secondPlayerHasCollectedCards;
 
-        public PlayerPosition ClosedByPlayer
-        {
-            get { return this.gameClosedBy; }
-        }
-
+        public PlayerPosition ClosedByPlayer => this.gameClosedBy;
 
         public void SetState(BaseRoundState newState)
         {
             this.state = newState;
         }
-
-
-        public PlayerPosition LastHandInPlayer
-        {
-            get { return this.firstToPlay; }
-        }
+        
+        public PlayerPosition LastHandInPlayer => this.firstToPlay;
     }
 }

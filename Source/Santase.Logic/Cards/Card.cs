@@ -47,9 +47,7 @@
 
         public override string ToString()
         {
-            return string.Format("{0}{1}",
-                this.Type.ToFriendlyString(),
-                this.Suit.ToFriendlyString());
+            return $"{this.Type.ToFriendlyString()}{this.Suit.ToFriendlyString()}";
         }
     }
 }

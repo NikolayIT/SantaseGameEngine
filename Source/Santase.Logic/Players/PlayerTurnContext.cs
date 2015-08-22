@@ -25,12 +25,6 @@ namespace Santase.Logic.Players
 
         public Card SecondPlayedCard { get; internal set; }
 
-        public bool AmITheFirstPlayer
-        {
-            get
-            {
-                return this.FirstPlayedCard == null;
-            }
-        }
+        public bool AmITheFirstPlayer => this.FirstPlayedCard == null;
     }
 }

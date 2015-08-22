@@ -130,20 +130,10 @@ namespace Santase.Logic
                 || this.SecondPlayerTotalPoints >= 11;
         }
 
-        public int FirstPlayerTotalPoints
-        {
-            get { return this.firstPlayerTotalPoints; }
-        }
+        public int FirstPlayerTotalPoints => this.firstPlayerTotalPoints;
 
-        public int SecondPlayerTotalPoints
-        {
-            get { return this.secondPlayerTotalPoints; }
-        }
+        public int SecondPlayerTotalPoints => this.secondPlayerTotalPoints;
 
-
-        public int RoundsPlayed
-        {
-            get { return this.roundsCount; }
-        }
+        public int RoundsPlayed => this.roundsCount;
     }
 }

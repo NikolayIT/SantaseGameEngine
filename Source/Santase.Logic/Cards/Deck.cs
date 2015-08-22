@@ -39,10 +39,7 @@ namespace Santase.Logic.Cards
             return card;
         }
 
-        public Card GetTrumpCard
-        {
-            get { return this.trumpCard; }
-        }
+        public Card GetTrumpCard => this.trumpCard;
 
         public void ChangeTrumpCard(Card newCard)
         {
@@ -78,9 +75,6 @@ namespace Santase.Logic.Cards
         }
 
 
-        public int CardsLeft
-        {
-            get { return this.listOfCards.Count; }
-        }
+        public int CardsLeft => this.listOfCards.Count;
     }
 }
