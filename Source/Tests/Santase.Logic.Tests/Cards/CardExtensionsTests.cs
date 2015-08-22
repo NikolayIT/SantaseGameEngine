@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using NUnit.Framework;
 
@@ -27,6 +28,15 @@
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CardSuitToFriendlyStringShouldThrowAnExceptionWhenCalledOnAnInvalidValue()
+        {
+            var cardSuits = Enum.GetValues(typeof(CardSuit));
+            var cardSuit = cardSuits.OfType<CardSuit>().Max() + 1;
+            cardSuit.ToFriendlyString();
+        }
+
+        [Test]
         public void CardTypeToFriendlyStringShouldReturnDifferentValidValueForEachPossibleParameter()
         {
             var values = new HashSet<string>();
@@ -40,6 +50,15 @@
 
                 values.Add(stringValue);
             }
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CardTypeToFriendlyStringShouldThrowAnExceptionWhenCalledOnAnInvalidValue()
+        {
+            var cardTypes = Enum.GetValues(typeof(CardType));
+            var cardType = cardTypes.OfType<CardType>().Max() + 1;
+            cardType.ToFriendlyString();
         }
     }
 }

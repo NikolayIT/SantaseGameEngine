@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using NUnit.Framework;
 
@@ -27,6 +28,16 @@
                 var value = card.GetValue(); // Not expecting exceptions here
                 Assert.IsTrue(value >= 0);
             }
+        }
+
+        [Test]
+        [ExpectedException(typeof(InternalGameException))]
+        public void GetValueShouldThrowAnExceptionWhenGivenInvalidCardType()
+        {
+            var cardTypes = Enum.GetValues(typeof(CardType));
+            var cardTypeValue = cardTypes.OfType<CardType>().Max() + 1;
+            var card = new Card(CardSuit.Club, cardTypeValue);
+            card.GetValue();
         }
 
         [TestCase(true, CardSuit.Spade, CardType.Ace, CardSuit.Spade, CardType.Ace)]
