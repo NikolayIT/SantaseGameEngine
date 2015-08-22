@@ -22,9 +22,7 @@
             PlayerTurnContext context,
             IPlayerActionValidater actionValidater);
 
-        public virtual void EndTurn(PlayerTurnContext context)
-        {
-        }
+        public abstract void EndTurn(PlayerTurnContext context);
 
         protected Announce PossibleAnnounce(Card cardToBePlayed, Card trumpCard)
         {

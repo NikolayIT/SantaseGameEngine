@@ -152,6 +152,10 @@
             }
         }
 
+        public override void EndTurn(PlayerTurnContext context)
+        {
+        }
+
         private void PrintGameInfo(PlayerTurnContext context)
         {
             Console.SetCursorPosition(0, 0);
