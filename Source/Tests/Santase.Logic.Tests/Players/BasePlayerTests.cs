@@ -12,7 +12,14 @@
         public void CardsShouldNotBeNull()
         {
             var basePlayerImplementation = new BasePlayerImpl();
-            Assert.IsTrue(basePlayerImplementation.IsListNotNull);
+            Assert.IsTrue(basePlayerImplementation.ListIsNotNull);
+        }
+
+        [Test]
+        public void AnnounceValidatorShouldNotBeNull()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            Assert.IsTrue(basePlayerImplementation.AnnounceValidatorIsNotNull);
         }
 
         [Test]
@@ -30,7 +37,9 @@
 
         private class BasePlayerImpl : BasePlayer
         {
-            public bool IsListNotNull => this.Cards != null;
+            public bool ListIsNotNull => this.Cards != null;
+
+            public bool AnnounceValidatorIsNotNull => this.AnnounceValidator != null;
 
             public int CardsCount => this.Cards.Count;
 

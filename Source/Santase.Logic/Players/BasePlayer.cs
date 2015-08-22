@@ -9,9 +9,12 @@
         protected BasePlayer()
         {
             this.Cards = new List<Card>();
+            this.AnnounceValidator = new AnnounceValidator();
         }
 
         protected IList<Card> Cards { get; }
+
+        protected IAnnounceValidator AnnounceValidator { get; }
 
         public virtual void AddCard(Card card)
         {
@@ -23,41 +26,5 @@
             IPlayerActionValidater actionValidater);
 
         public abstract void EndTurn(PlayerTurnContext context);
-
-        protected Announce PossibleAnnounce(Card cardToBePlayed, Card trumpCard)
-        {
-            // TODO: Extract logic in separate class in order to unit test it
-            CardType cardTypeToSearch;
-            if (cardToBePlayed.Type == CardType.Queen)
-            {
-                cardTypeToSearch = CardType.King;
-            }
-            else if (cardToBePlayed.Type == CardType.King)
-            {
-                cardTypeToSearch = CardType.Queen;
-            }
-            else
-            {
-                return Announce.None;
-            }
-
-            var cardToSearch = new Card(
-                cardToBePlayed.Suit,
-                cardTypeToSearch);
-
-            if (!this.Cards.Contains(cardToSearch))
-            {
-                return Announce.None;
-            }
-
-            if (cardToBePlayed.Suit == trumpCard.Suit)
-            {
-                return Announce.Fourty;
-            }
-            else
-            {
-                return Announce.Twenty;
-            }
-        }
     }
 }

@@ -71,7 +71,10 @@
 
                     if (context.AmITheFirstPlayer)
                     {
-                        possibleAnnounce = this.PossibleAnnounce(card, context.TrumpCard);
+                        possibleAnnounce = this.AnnounceValidator.GetPossibleAnnounce(
+                            this.Cards,
+                            card,
+                            context.TrumpCard);
                         if (possibleAnnounce != Announce.None)
                         {
                             while (true)
