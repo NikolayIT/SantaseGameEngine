@@ -14,9 +14,9 @@
             this.Announce = announce;
         }
 
-        public PlayerActionType Type { get; private set; }
+        public PlayerActionType Type { get; }
 
-        public Card Card { get; private set; }
+        public Card Card { get; }
 
         public Announce Announce { get; internal set; }
     }

@@ -28,6 +28,7 @@
 
         protected Announce PossibleAnnounce(Card cardToBePlayed, Card trumpCard)
         {
+            // TODO: Extract logic in separate class in order to unit test it
             CardType cardTypeToSearch;
             if (cardToBePlayed.Type == CardType.Queen)
             {
