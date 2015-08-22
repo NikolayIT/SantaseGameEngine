@@ -24,7 +24,7 @@ namespace Santase.ConsoleUI
             Console.SetCursorPosition(this.col, this.row);
             foreach (var item in this.cards)
             {
-                Console.Write("{0} ", item.ToString());
+                Console.Write("{0} ", item);
             }
 
             Thread.Sleep(150);
