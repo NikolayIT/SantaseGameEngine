@@ -8,9 +8,9 @@
             this.Type = type;
         }
 
-        public CardSuit Suit { get; private set; }
+        public CardSuit Suit { get; }
 
-        public CardType Type { get; private set; }
+        public CardType Type { get; }
 
         public int GetValue()
         {
@@ -41,8 +41,20 @@
                 return false;
             }
 
-            return this.Suit == anotherCard.Suit
-                && this.Type == anotherCard.Type;
+            return this.Equals(anotherCard);
+        }
+
+        private bool Equals(Card other)
+        {
+            return this.Suit == other.Suit && this.Type == other.Type;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((int)this.Suit * 397) ^ (int)this.Type;
+            }
         }
 
         public override string ToString()
