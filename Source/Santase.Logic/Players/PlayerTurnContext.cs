@@ -1,9 +1,5 @@
 ﻿using Santase.Logic.Cards;
 using Santase.Logic.RoundStates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Santase.Logic.Players
 {

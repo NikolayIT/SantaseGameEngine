@@ -1,11 +1,8 @@
 ﻿using Santase.Logic.Cards;
 using Santase.Logic.Players;
 using Santase.Logic.RoundStates;
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Santase.Logic
 {

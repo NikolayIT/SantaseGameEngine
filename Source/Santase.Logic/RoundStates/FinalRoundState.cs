@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Santase.Logic.RoundStates
+﻿namespace Santase.Logic.RoundStates
 {
     public class FinalRoundState : BaseRoundState
     {
