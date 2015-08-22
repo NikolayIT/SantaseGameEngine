@@ -6,16 +6,24 @@
 
     public abstract class BasePlayer : IPlayer
     {
-        protected readonly IList<Card> Cards;
-
         protected BasePlayer()
         {
             this.Cards = new List<Card>();
         }
 
+        protected IList<Card> Cards { get; }
+
         public virtual void AddCard(Card card)
         {
             this.Cards.Add(card);
+        }
+
+        public abstract PlayerAction GetTurn(
+            PlayerTurnContext context,
+            IPlayerActionValidater actionValidater);
+
+        public virtual void EndTurn(PlayerTurnContext context)
+        {
         }
 
         protected Announce PossibleAnnounce(Card cardToBePlayed, Card trumpCard)
@@ -51,14 +59,6 @@
             {
                 return Announce.Twenty;
             }
-        }
-
-        public abstract PlayerAction GetTurn(
-            PlayerTurnContext context,
-            IPlayerActionValidater actionValidater);
-
-        public virtual void EndTurn(PlayerTurnContext context)
-        {
         }
     }
 }

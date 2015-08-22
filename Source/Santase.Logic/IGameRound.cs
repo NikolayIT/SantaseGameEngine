@@ -4,10 +4,6 @@
 
     public interface IGameRound
     {
-        void Start();
-
-        void SetState(BaseRoundState newState);
-
         int FirstPlayerPoints { get; }
 
         int SecondPlayerPoints { get; }
@@ -19,5 +15,9 @@
         PlayerPosition ClosedByPlayer { get; }
 
         PlayerPosition LastHandInPlayer { get; }
+
+        void Start();
+
+        void SetState(BaseRoundState newState);
     }
 }

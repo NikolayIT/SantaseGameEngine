@@ -4,12 +4,12 @@
 
     public class SantaseGame : ISantaseGame
     {
-        int firstPlayerTotalPoints;
-        int secondPlayerTotalPoints;
-        int roundsCount;
-
         private readonly IPlayer firstPlayer;
         private readonly IPlayer secondPlayer;
+
+        private int firstPlayerTotalPoints;
+        private int secondPlayerTotalPoints;
+        private int roundsCount;
 
         private PlayerPosition firstToPlay;
 
@@ -22,6 +22,12 @@
             this.secondPlayer = secondPlayer;
             this.firstToPlay = firstToPlay;
         }
+
+        public int FirstPlayerTotalPoints => this.firstPlayerTotalPoints;
+
+        public int SecondPlayerTotalPoints => this.secondPlayerTotalPoints;
+
+        public int RoundsPlayed => this.roundsCount;
 
         public void Start()
         {
@@ -129,11 +135,5 @@
                 this.FirstPlayerTotalPoints >= 11
                 || this.SecondPlayerTotalPoints >= 11;
         }
-
-        public int FirstPlayerTotalPoints => this.firstPlayerTotalPoints;
-
-        public int SecondPlayerTotalPoints => this.secondPlayerTotalPoints;
-
-        public int RoundsPlayed => this.roundsCount;
     }
 }

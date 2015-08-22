@@ -2,8 +2,6 @@
 {
     public abstract class BaseRoundState
     {
-        protected readonly IGameRound Round;
-
         protected BaseRoundState(IGameRound round)
         {
             this.Round = round;
@@ -18,6 +16,8 @@
         public abstract bool ShouldObserveRules { get; }
 
         public abstract bool ShouldDrawCard { get; }
+
+        protected IGameRound Round { get; }
 
         internal abstract void PlayHand(int cardsLeftInDeck);
 

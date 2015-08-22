@@ -9,9 +9,9 @@
 
     public class ConsolePlayer : BasePlayer
     {
-        readonly int row;
+        private readonly int row;
 
-        readonly int col;
+        private readonly int col;
 
         public ConsolePlayer(int row, int col)
         {

@@ -1,23 +1,25 @@
 ﻿namespace Santase.Logic
 {
+    using System.Collections.Generic;
+
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
-
-    using System.Collections.Generic;
 
     public class GameRound : IGameRound
     {
         private readonly IDeck deck;
 
         private readonly IPlayer firstPlayer;
-        private int firstPlayerPoints;
         private readonly IList<Card> firstPlayerCards;
-        private bool firstPlayerHasCollectedCards;
 
         private readonly IPlayer secondPlayer;
-        private int secondPlayerPoints;
         private readonly IList<Card> secondPlayerCards;
+
+        private int firstPlayerPoints;
+        private bool firstPlayerHasCollectedCards;
+
+        private int secondPlayerPoints;
         private bool secondPlayerHasCollectedCards;
 
         private PlayerPosition firstToPlay;
@@ -46,6 +48,18 @@
             this.gameClosedBy = PlayerPosition.NoOne;
         }
 
+        public int FirstPlayerPoints => this.firstPlayerPoints;
+
+        public int SecondPlayerPoints => this.secondPlayerPoints;
+
+        public bool FirstPlayerHasHand => this.firstPlayerHasCollectedCards;
+
+        public bool SecondPlayerHasHand => this.secondPlayerHasCollectedCards;
+
+        public PlayerPosition ClosedByPlayer => this.gameClosedBy;
+
+        public PlayerPosition LastHandInPlayer => this.firstToPlay;
+
         public void Start()
         {
             this.DealFirstCards();
@@ -53,6 +67,11 @@
             {
                 this.PlayHand();
             }
+        }
+
+        public void SetState(BaseRoundState newState)
+        {
+            this.state = newState;
         }
 
         private void PlayHand()
@@ -185,22 +204,5 @@
                 this.GiveCardToSecondPlayer();
             }
         }
-
-        public int FirstPlayerPoints => this.firstPlayerPoints;
-
-        public int SecondPlayerPoints => this.secondPlayerPoints;
-
-        public bool FirstPlayerHasHand => this.firstPlayerHasCollectedCards;
-
-        public bool SecondPlayerHasHand => this.secondPlayerHasCollectedCards;
-
-        public PlayerPosition ClosedByPlayer => this.gameClosedBy;
-
-        public void SetState(BaseRoundState newState)
-        {
-            this.state = newState;
-        }
-
-        public PlayerPosition LastHandInPlayer => this.firstToPlay;
     }
 }

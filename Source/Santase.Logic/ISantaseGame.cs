@@ -2,12 +2,12 @@
 {
     public interface ISantaseGame
     {
-        void Start();
-
         int FirstPlayerTotalPoints { get; }
 
         int SecondPlayerTotalPoints { get; }
 
         int RoundsPlayed { get; }
+
+        void Start();
     }
 }

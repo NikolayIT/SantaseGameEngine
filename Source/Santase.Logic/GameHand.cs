@@ -1,10 +1,10 @@
 ﻿namespace Santase.Logic
 {
+    using System.Collections.Generic;
+
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
-
-    using System.Collections.Generic;
 
     public class GameHand : IGameHand
     {
@@ -14,9 +14,9 @@
         private readonly IList<Card> firstPlayerCards;
         private readonly IPlayer secondPlayer;
         private readonly IList<Card> secondPlayerCards;
-        private BaseRoundState state;
         private readonly IDeck deck;
         private readonly IPlayerActionValidater actionValidater;
+        private BaseRoundState state;
 
         private PlayerPosition whoClosedTheGame;
 
@@ -47,6 +47,18 @@
             this.actionValidater = new PlayerActionValidater();
             this.whoClosedTheGame = PlayerPosition.NoOne;
         }
+
+        public PlayerPosition Winner => this.winner;
+
+        public Card FirstPlayerCard => this.firstPlayerCard;
+
+        public Announce FirstPlayerAnnounce => this.firstPlayerAnnounce;
+
+        public Card SecondPlayerCard => this.secondPlayerCard;
+
+        public Announce SecondPlayerAnnounce => this.secondPlayerAnnounce;
+
+        public PlayerPosition GameClosedBy => this.whoClosedTheGame;
 
         public void Start()
         {
@@ -135,7 +147,6 @@
             }
         }
 
-        /// <returns>True => played card; False => another action</returns>
         private PlayerAction FirstPlayerTurn(IPlayer firstToPlay, PlayerTurnContext context)
         {
             var firstToPlayTurn = firstToPlay.GetTurn(
@@ -172,17 +183,5 @@
 
             return firstToPlayTurn;
         }
-
-        public PlayerPosition Winner => this.winner;
-
-        public Card FirstPlayerCard => this.firstPlayerCard;
-
-        public Announce FirstPlayerAnnounce => this.firstPlayerAnnounce;
-
-        public Card SecondPlayerCard => this.secondPlayerCard;
-
-        public Announce SecondPlayerAnnounce => this.secondPlayerAnnounce;
-
-        public PlayerPosition GameClosedBy => this.whoClosedTheGame;
     }
 }

@@ -4,8 +4,6 @@
 
     public interface IGameHand
     {
-        void Start();
-
         PlayerPosition Winner { get; }
 
         Card FirstPlayerCard { get; }
@@ -17,5 +15,7 @@
         Announce SecondPlayerAnnounce { get; }
 
         PlayerPosition GameClosedBy { get; }
+
+        void Start();
     }
 }

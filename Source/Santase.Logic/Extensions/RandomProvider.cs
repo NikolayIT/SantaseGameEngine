@@ -12,6 +12,9 @@
         /// <summary>
         /// The instance of the random class
         /// </summary>
+        /// <value>
+        /// The instance of the random class
+        /// </value>
         public static Random Instance => instance ?? (instance = new Random());
     }
 }

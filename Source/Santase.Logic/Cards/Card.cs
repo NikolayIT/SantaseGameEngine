@@ -44,11 +44,6 @@
             return this.Equals(anotherCard);
         }
 
-        private bool Equals(Card other)
-        {
-            return this.Suit == other.Suit && this.Type == other.Type;
-        }
-
         public override int GetHashCode()
         {
             unchecked
@@ -60,6 +55,11 @@
         public override string ToString()
         {
             return $"{this.Type.ToFriendlyString()}{this.Suit.ToFriendlyString()}";
+        }
+
+        private bool Equals(Card other)
+        {
+            return this.Suit == other.Suit && this.Type == other.Type;
         }
     }
 }

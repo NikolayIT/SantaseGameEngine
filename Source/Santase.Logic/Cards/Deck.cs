@@ -27,6 +27,10 @@
             this.trumpCard = this.listOfCards[0];
         }
 
+        public Card GetTrumpCard => this.trumpCard;
+
+        public int CardsLeft => this.listOfCards.Count;
+
         public Card GetNextCard()
         {
             if (this.listOfCards.Count == 0)
@@ -38,8 +42,6 @@
             this.listOfCards.RemoveAt(this.listOfCards.Count - 1);
             return card;
         }
-
-        public Card GetTrumpCard => this.trumpCard;
 
         public void ChangeTrumpCard(Card newCard)
         {
@@ -73,8 +75,5 @@
                 CardSuit.Spade,
             };
         }
-
-
-        public int CardsLeft => this.listOfCards.Count;
     }
 }
