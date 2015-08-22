@@ -25,7 +25,7 @@
         {
             if (this.CanClose)
             {
-                round.SetState(new FinalRoundState(this.round));
+                this.round.SetState(new FinalRoundState(this.round));
             }
         }
     }

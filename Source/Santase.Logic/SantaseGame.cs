@@ -39,7 +39,7 @@ namespace Santase.Logic
                 this.secondPlayer,
                 this.firstToPlay);
             round.Start();
-            UpdatePoints(round);
+            this.UpdatePoints(round);
         }
 
         private void UpdatePoints(IGameRound round)

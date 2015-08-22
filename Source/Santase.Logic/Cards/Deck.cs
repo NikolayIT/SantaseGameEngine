@@ -24,7 +24,7 @@ namespace Santase.Logic.Cards
 
             this.listOfCards = this.listOfCards.Shuffle().ToList();
 
-            this.trumpCard = listOfCards[0];
+            this.trumpCard = this.listOfCards[0];
         }
 
         public Card GetNextCard()

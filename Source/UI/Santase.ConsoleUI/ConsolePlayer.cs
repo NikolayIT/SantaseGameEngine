@@ -34,10 +34,10 @@ namespace Santase.ConsoleUI
             PlayerTurnContext context,
             IPlayerActionValidater actionValidater)
         {
-            PrintGameInfo(context);
+            this.PrintGameInfo(context);
             while (true)
             {
-                PlayerAction playerAction = null;
+                PlayerAction playerAction;
 
                 Console.SetCursorPosition(0, this.row + 1);
                 Console.Write(new string(' ', 79));
@@ -93,7 +93,6 @@ namespace Santase.ConsoleUI
                                 else
                                 {
                                     Console.WriteLine("Please enter [Y] or [N]         ");
-                                    continue;
                                 }
                             }
                         }
@@ -146,7 +145,6 @@ namespace Santase.ConsoleUI
                 else
                 {
                     Console.WriteLine("Invalid action!                  ");
-                    continue;
                 }
             }
         }

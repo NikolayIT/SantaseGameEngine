@@ -68,9 +68,9 @@ namespace Santase.Logic
                 secondToPlayCards = this.firstPlayerCards;
             }
 
-            var context = new PlayerTurnContext(this.state, deck.GetTrumpCard, deck.CardsLeft);
+            var context = new PlayerTurnContext(this.state, this.deck.GetTrumpCard, this.deck.CardsLeft);
 
-            PlayerAction firstPlayerAction = null;
+            PlayerAction firstPlayerAction;
             do
             {
                 firstPlayerAction =
