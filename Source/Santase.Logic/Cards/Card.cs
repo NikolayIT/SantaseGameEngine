@@ -48,7 +48,7 @@
         {
             unchecked
             {
-                return ((int)this.Suit * 397) ^ (int)this.Type;
+                return ((int)this.Suit * 13) + (int)this.Type;
             }
         }
 
