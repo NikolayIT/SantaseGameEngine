@@ -1,9 +1,9 @@
-﻿using Santase.Logic;
-
-using System;
-
-namespace Santase.ConsoleUI
+﻿namespace Santase.ConsoleUI
 {
+    using System;
+
+    using Santase.Logic;
+
     public static class Program
     {
         public static void Main()
@@ -17,9 +17,7 @@ namespace Santase.ConsoleUI
                 PlayerPosition.FirstPlayer);
             game.Start();
             Console.WriteLine("Game finished!");
-            Console.WriteLine("{0} - {1}",
-                game.FirstPlayerTotalPoints,
-                game.SecondPlayerTotalPoints);
+            Console.WriteLine("{0} - {1}", game.FirstPlayerTotalPoints, game.SecondPlayerTotalPoints);
             Console.WriteLine("Round: {0}", game.RoundsPlayed);
         }
     }

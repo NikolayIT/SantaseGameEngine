@@ -1,11 +1,11 @@
-﻿using Santase.Logic.Cards;
-using Santase.Logic.Players;
-using Santase.Logic.RoundStates;
-
-using System.Collections.Generic;
-
-namespace Santase.Logic
+﻿namespace Santase.Logic
 {
+    using Santase.Logic.Cards;
+    using Santase.Logic.Players;
+    using Santase.Logic.RoundStates;
+
+    using System.Collections.Generic;
+
     public class GameHand : IGameHand
     {
         // TODO: Order properties in a more meaningful way

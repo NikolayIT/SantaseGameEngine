@@ -1,7 +1,7 @@
-﻿using Santase.Logic.Cards;
-
-namespace Santase.Logic.Players
+﻿namespace Santase.Logic.Players
 {
+    using Santase.Logic.Cards;
+
     public class PlayerAction
     {
         public PlayerAction(

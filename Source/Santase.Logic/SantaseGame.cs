@@ -1,7 +1,7 @@
-﻿using Santase.Logic.Players;
-
-namespace Santase.Logic
+﻿namespace Santase.Logic
 {
+    using Santase.Logic.Players;
+
     public class SantaseGame : ISantaseGame
     {
         int firstPlayerTotalPoints;
@@ -25,7 +25,7 @@ namespace Santase.Logic
 
         public void Start()
         {
-            while(!this.IsGameFinished())
+            while (!this.IsGameFinished())
             {
                 this.PlayRound();
                 this.roundsCount++;
@@ -80,7 +80,7 @@ namespace Santase.Logic
                     return;
                 }
             }
-            
+
             if (round.FirstPlayerPoints > round.SecondPlayerPoints)
             {
                 if (round.SecondPlayerPoints >= 33)

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Santase.Logic.Extensions
+﻿namespace Santase.Logic.Extensions
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class EnumerableExtensions
     {
         /// <summary>

@@ -1,12 +1,12 @@
-﻿using System;
-
-namespace Santase.Logic.Cards
+﻿namespace Santase.Logic.Cards
 {
+    using System;
+
     public static class CardExtensions
     {
         public static string ToFriendlyString(this CardSuit cardSuit)
         {
-            switch(cardSuit)
+            switch (cardSuit)
             {
                 case CardSuit.Club:
                     return "♣";
@@ -23,7 +23,7 @@ namespace Santase.Logic.Cards
 
         public static string ToFriendlyString(this CardType cardType)
         {
-            switch(cardType)
+            switch (cardType)
             {
                 case CardType.Nine:
                     return "9";

@@ -1,8 +1,8 @@
-﻿using Santase.Logic.Cards;
-using Santase.Logic.RoundStates;
-
-namespace Santase.Logic.Players
+﻿namespace Santase.Logic.Players
 {
+    using Santase.Logic.Cards;
+    using Santase.Logic.RoundStates;
+
     public class PlayerTurnContext
     {
         public PlayerTurnContext(

@@ -1,12 +1,12 @@
-﻿using Santase.Logic.Cards;
-using Santase.Logic.Players;
-using Santase.Logic.RoundStates;
-
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Santase.Logic
+﻿namespace Santase.Logic
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Santase.Logic.Cards;
+    using Santase.Logic.Players;
+    using Santase.Logic.RoundStates;
+
     public class PlayerActionValidater : IPlayerActionValidater
     {
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)

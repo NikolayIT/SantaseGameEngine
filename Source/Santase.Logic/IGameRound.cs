@@ -1,7 +1,7 @@
-﻿using Santase.Logic.RoundStates;
-
-namespace Santase.Logic
+﻿namespace Santase.Logic
 {
+    using Santase.Logic.RoundStates;
+
     public interface IGameRound
     {
         void Start();

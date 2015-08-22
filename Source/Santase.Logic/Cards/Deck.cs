@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using Santase.Logic.Extensions;
-
-namespace Santase.Logic.Cards
+﻿namespace Santase.Logic.Cards
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Santase.Logic.Extensions;
+
     public class Deck : IDeck
     {
         private readonly IList<Card> listOfCards;

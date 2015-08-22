@@ -1,7 +1,7 @@
-﻿using Santase.Logic.Cards;
-
-namespace Santase.Logic
+﻿namespace Santase.Logic
 {
+    using Santase.Logic.Cards;
+
     public interface ICardWinner
     {
         PlayerPosition Winner(

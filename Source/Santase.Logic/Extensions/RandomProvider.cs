@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Santase.Logic.Extensions
+﻿namespace Santase.Logic.Extensions
 {
+    using System;
+
     /// <summary>
     /// Static class representing a single instance of the Random class
     /// </summary>

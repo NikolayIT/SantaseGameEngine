@@ -1,9 +1,9 @@
-﻿using Santase.Logic.Cards;
-
-using System.Collections.Generic;
-
-namespace Santase.Logic.Players
+﻿namespace Santase.Logic.Players
 {
+    using System.Collections.Generic;
+
+    using Santase.Logic.Cards;
+
     public abstract class BasePlayer : IPlayer
     {
         protected readonly IList<Card> Cards;

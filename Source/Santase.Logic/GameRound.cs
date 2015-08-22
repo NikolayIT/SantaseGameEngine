@@ -1,11 +1,11 @@
-﻿using Santase.Logic.Cards;
-using Santase.Logic.Players;
-using Santase.Logic.RoundStates;
-
-using System.Collections.Generic;
-
-namespace Santase.Logic
+﻿namespace Santase.Logic
 {
+    using Santase.Logic.Cards;
+    using Santase.Logic.Players;
+    using Santase.Logic.RoundStates;
+
+    using System.Collections.Generic;
+
     public class GameRound : IGameRound
     {
         private readonly IDeck deck;
@@ -49,7 +49,7 @@ namespace Santase.Logic
         public void Start()
         {
             this.DealFirstCards();
-            while(!this.IsFinished())
+            while (!this.IsFinished())
             {
                 this.PlayHand();
             }
@@ -200,7 +200,7 @@ namespace Santase.Logic
         {
             this.state = newState;
         }
-        
+
         public PlayerPosition LastHandInPlayer => this.firstToPlay;
     }
 }

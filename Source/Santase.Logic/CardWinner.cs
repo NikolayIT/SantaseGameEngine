@@ -1,7 +1,7 @@
-﻿using Santase.Logic.Cards;
-
-namespace Santase.Logic
+﻿namespace Santase.Logic
 {
+    using Santase.Logic.Cards;
+
     public class CardWinner : ICardWinner
     {
         public PlayerPosition Winner(Card firstPlayerCard, Card secondPlayerCard, CardSuit trumpSuit)

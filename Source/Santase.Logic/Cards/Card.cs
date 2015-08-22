@@ -14,7 +14,7 @@
 
         public int GetValue()
         {
-            switch(this.Type)
+            switch (this.Type)
             {
                 case CardType.Nine:
                     return 0;

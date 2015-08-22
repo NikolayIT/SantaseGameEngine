@@ -1,11 +1,12 @@
-﻿using Santase.Logic;
-using Santase.Logic.Cards;
-using Santase.Logic.Players;
-using System;
-using System.Threading;
-
-namespace Santase.ConsoleUI
+﻿namespace Santase.ConsoleUI
 {
+    using System;
+    using System.Threading;
+
+    using Santase.Logic;
+    using Santase.Logic.Cards;
+    using Santase.Logic.Players;
+
     public class ConsolePlayer : BasePlayer
     {
         readonly int row;
@@ -43,7 +44,8 @@ namespace Santase.ConsoleUI
                 Console.SetCursorPosition(0, this.row + 1);
                 Console.Write(new string(' ', 79));
                 Console.SetCursorPosition(0, this.row + 1);
-                Console.Write("Turn? [1-{0}]=Card{1}",
+                Console.Write(
+                    "Turn? [1-{0}]=Card{1}",
                     this.Cards.Count,
                     context.AmITheFirstPlayer ? "; [T]=Change trump; [C]=Close: " : ": ");
                 var userActionAsString = Console.ReadLine();
