@@ -76,7 +76,7 @@
                     var cardHashCode = card.GetHashCode();
                     if (values.Contains(cardHashCode))
                     {
-                        Assert.Fail($"Duplicate hash code: {cardHashCode} for card {card}");
+                        Assert.Fail($"Duplicate hash code \"{cardHashCode}\" for card \"{card}\"");
                     }
 
                     values.Add(cardHashCode);
@@ -96,7 +96,7 @@
                     var cardToString = card.ToString();
                     if (values.Contains(cardToString))
                     {
-                        Assert.Fail($"Duplicate string value: {cardToString} for card {card}");
+                        Assert.Fail($"Duplicate string value \"{cardToString}\" for card \"{card}\"");
                     }
 
                     values.Add(cardToString);
