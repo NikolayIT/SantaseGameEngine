@@ -16,7 +16,10 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void ShuffleShouldThrowAnExceptionWhenCalledOnNull()
         {
-            ((IEnumerable<object>)null).Shuffle();
+            IEnumerable<object> collection = null;
+
+            // ReSharper disable once ExpressionIsAlwaysNull
+            collection.Shuffle();
         }
 
         [Test]
