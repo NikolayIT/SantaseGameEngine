@@ -2,11 +2,11 @@
 {
     public abstract class BaseRoundState
     {
-        protected readonly IGameRound round;
+        protected readonly IGameRound Round;
 
         protected BaseRoundState(IGameRound round)
         {
-            this.round = round;
+            this.Round = round;
         }
 
         public abstract bool CanAnnounce20Or40 { get; }
@@ -25,7 +25,7 @@
         {
             if (this.CanClose)
             {
-                this.round.SetState(new FinalRoundState(this.round));
+                this.Round.SetState(new FinalRoundState(this.Round));
             }
         }
     }

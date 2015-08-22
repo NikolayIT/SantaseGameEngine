@@ -6,16 +6,16 @@ namespace Santase.Logic.Players
 {
     public abstract class BasePlayer : IPlayer
     {
-        protected readonly IList<Card> cards;
+        protected readonly IList<Card> Cards;
 
         protected BasePlayer()
         {
-            this.cards = new List<Card>();
+            this.Cards = new List<Card>();
         }
 
         public virtual void AddCard(Card card)
         {
-            this.cards.Add(card);
+            this.Cards.Add(card);
         }
 
         protected Announce PossibleAnnounce(Card cardToBePlayed, Card trumpCard)
@@ -38,7 +38,7 @@ namespace Santase.Logic.Players
                 cardToBePlayed.Suit,
                 cardTypeToSearch);
 
-            if (!this.cards.Contains(cardToSearch))
+            if (!this.Cards.Contains(cardToSearch))
             {
                 return Announce.None;
             }

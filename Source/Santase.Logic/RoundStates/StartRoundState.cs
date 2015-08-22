@@ -19,7 +19,7 @@
 
         internal override void PlayHand(int cardsLeftInDeck)
         {
-            this.round.SetState(new MoreThanTwoCardsLeftRoundState(this.round));
+            this.Round.SetState(new MoreThanTwoCardsLeftRoundState(this.Round));
         }
     }
 }

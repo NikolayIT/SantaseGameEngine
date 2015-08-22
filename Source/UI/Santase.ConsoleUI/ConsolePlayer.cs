@@ -23,7 +23,7 @@ namespace Santase.ConsoleUI
             base.AddCard(card);
 
             Console.SetCursorPosition(this.col, this.row);
-            foreach (var item in this.cards)
+            foreach (var item in this.Cards)
             {
                 Console.Write("{0} ", item);
             }
@@ -44,7 +44,7 @@ namespace Santase.ConsoleUI
                 Console.Write(new string(' ', 79));
                 Console.SetCursorPosition(0, this.row + 1);
                 Console.Write("Turn? [1-{0}]=Card{1}",
-                    this.cards.Count,
+                    this.Cards.Count,
                     context.AmITheFirstPlayer ? "; [T]=Change trump; [C]=Close: " : ": ");
                 var userActionAsString = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(userActionAsString))
@@ -58,13 +58,13 @@ namespace Santase.ConsoleUI
                 {
                     var cardIndex =
                         int.Parse(userActionAsString[0].ToString()) - 1;
-                    if (cardIndex >= this.cards.Count)
+                    if (cardIndex >= this.Cards.Count)
                     {
                         Console.WriteLine("Invalid card!              ");
                         continue;
                     }
 
-                    var card = this.cards[cardIndex];
+                    var card = this.Cards[cardIndex];
                     var possibleAnnounce = Announce.None;
 
                     if (context.AmITheFirstPlayer)
@@ -127,16 +127,16 @@ namespace Santase.ConsoleUI
                     continue;
                 }
 
-                if (actionValidater.IsValid(playerAction, context, this.cards))
+                if (actionValidater.IsValid(playerAction, context, this.Cards))
                 {
                     if (playerAction.Type == PlayerActionType.PlayCard)
                     {
-                        this.cards.Remove(playerAction.Card);
+                        this.Cards.Remove(playerAction.Card);
                     }
 
                     if (playerAction.Type == PlayerActionType.ChangeTrump)
                     {
-                        this.cards.Remove(new Card(context.TrumpCard.Suit, CardType.Nine));
+                        this.Cards.Remove(new Card(context.TrumpCard.Suit, CardType.Nine));
                     }
 
                     this.PrintGameInfo(context);

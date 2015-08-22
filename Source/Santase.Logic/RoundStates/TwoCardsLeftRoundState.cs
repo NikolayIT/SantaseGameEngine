@@ -19,7 +19,7 @@
 
         internal override void PlayHand(int cardsLeftInDeck)
         {
-            this.round.SetState(new FinalRoundState(this.round));
+            this.Round.SetState(new FinalRoundState(this.Round));
         }
     }
 }

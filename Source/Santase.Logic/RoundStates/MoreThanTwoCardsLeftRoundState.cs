@@ -21,7 +21,7 @@
         {
             if (cardsLeftInDeck == 2)
             {
-                this.round.SetState(new TwoCardsLeftRoundState(this.round));
+                this.Round.SetState(new TwoCardsLeftRoundState(this.Round));
             }
         }
     }
