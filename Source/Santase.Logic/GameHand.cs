@@ -81,7 +81,7 @@
                 secondToPlayCards = this.firstPlayerCards;
             }
 
-            var context = new PlayerTurnContext(this.state, this.deck.GetTrumpCard, this.deck.CardsLeft);
+            var context = new PlayerTurnContext(this.state, this.deck.TrumpCard, this.deck.CardsLeft);
 
             PlayerAction firstPlayerAction;
             do
@@ -136,14 +136,14 @@
                 this.winner = cardWinner.Winner(
                     firstPlayerAction.Card,
                     secondPlayerAction.Card,
-                    this.deck.GetTrumpCard.Suit);
+                    this.deck.TrumpCard.Suit);
             }
             else
             {
                 this.winner = cardWinner.Winner(
                     secondPlayerAction.Card,
                     firstPlayerAction.Card,
-                    this.deck.GetTrumpCard.Suit);
+                    this.deck.TrumpCard.Suit);
             }
         }
 
@@ -162,8 +162,8 @@
 
             if (firstToPlayTurn.Type == PlayerActionType.ChangeTrump)
             {
-                var changeTrump = new Card(this.deck.GetTrumpCard.Suit, CardType.Nine);
-                var oldTrump = this.deck.GetTrumpCard;
+                var changeTrump = new Card(this.deck.TrumpCard.Suit, CardType.Nine);
+                var oldTrump = this.deck.TrumpCard;
                 context.TrumpCard = oldTrump;
                 this.deck.ChangeTrumpCard(changeTrump);
 

@@ -2,7 +2,7 @@
 {
     public interface IDeck
     {
-        Card GetTrumpCard { get; }
+        Card TrumpCard { get; }
 
         int CardsLeft { get; }
 

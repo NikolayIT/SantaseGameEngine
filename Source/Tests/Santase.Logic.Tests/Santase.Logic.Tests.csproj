@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Cards\CardExtensionsTests.cs" />
     <Compile Include="Cards\CardTests.cs" />
+    <Compile Include="Cards\DeckTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

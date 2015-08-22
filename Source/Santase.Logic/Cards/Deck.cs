@@ -9,14 +9,12 @@
     {
         private readonly IList<Card> listOfCards;
 
-        private Card trumpCard;
-
         public Deck()
         {
             this.listOfCards = new List<Card>();
-            foreach (var cardSuit in this.GetAllCardSuits())
+            foreach (var cardSuit in GetAllCardSuits())
             {
-                foreach (var cardType in this.GetAllCardTypes())
+                foreach (var cardType in GetAllCardTypes())
                 {
                     this.listOfCards.Add(new Card(cardSuit, cardType));
                 }
@@ -24,10 +22,10 @@
 
             this.listOfCards = this.listOfCards.Shuffle().ToList();
 
-            this.trumpCard = this.listOfCards[0];
+            this.TrumpCard = this.listOfCards[0];
         }
 
-        public Card GetTrumpCard => this.trumpCard;
+        public Card TrumpCard { get; private set; }
 
         public int CardsLeft => this.listOfCards.Count;
 
@@ -45,14 +43,14 @@
 
         public void ChangeTrumpCard(Card newCard)
         {
-            this.trumpCard = newCard;
+            this.TrumpCard = newCard;
             if (this.listOfCards.Count > 0)
             {
                 this.listOfCards[0] = newCard;
             }
         }
 
-        private IEnumerable<CardType> GetAllCardTypes()
+        private static IEnumerable<CardType> GetAllCardTypes()
         {
             return new List<CardType>
             {
@@ -61,18 +59,18 @@
                 CardType.Jack,
                 CardType.Queen,
                 CardType.King,
-                CardType.Ace,
+                CardType.Ace
             };
         }
 
-        private IEnumerable<CardSuit> GetAllCardSuits()
+        private static IEnumerable<CardSuit> GetAllCardSuits()
         {
             return new List<CardSuit>
             {
                 CardSuit.Club,
                 CardSuit.Diamond,
                 CardSuit.Heart,
-                CardSuit.Spade,
+                CardSuit.Spade
             };
         }
     }
