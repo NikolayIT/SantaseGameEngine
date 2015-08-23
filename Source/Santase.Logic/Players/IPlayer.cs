@@ -6,9 +6,7 @@
     {
         void AddCard(Card card);
 
-        PlayerAction GetTurn(
-            PlayerTurnContext context,
-            IPlayerActionValidater actionValidator);
+        PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidater actionValidator);
 
         void EndTurn(PlayerTurnContext context);
     }

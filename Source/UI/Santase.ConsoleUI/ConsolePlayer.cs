@@ -55,8 +55,7 @@
                     continue;
                 }
 
-                if (userActionAsString[0] >= '1'
-                    && userActionAsString[0] <= '6')
+                if (userActionAsString[0] >= '1' && userActionAsString[0] <= '6')
                 {
                     var cardIndex =
                         int.Parse(userActionAsString[0].ToString()) - 1;
@@ -104,27 +103,15 @@
                         }
                     }
 
-                    playerAction =
-                        new PlayerAction(
-                            PlayerActionType.PlayCard,
-                            card,
-                            possibleAnnounce);
+                    playerAction = PlayerAction.PlayCard(card, possibleAnnounce);
                 }
                 else if (userActionAsString[0] == 'T')
                 {
-                    playerAction =
-                        new PlayerAction(
-                            PlayerActionType.ChangeTrump,
-                            null,
-                            Announce.None);
+                    playerAction = PlayerAction.ChangeTrump();
                 }
                 else if (userActionAsString[0] == 'C')
                 {
-                    playerAction =
-                        new PlayerAction(
-                            PlayerActionType.CloseGame,
-                            null,
-                            Announce.None);
+                    playerAction = PlayerAction.CloseGame();
                 }
                 else
                 {
