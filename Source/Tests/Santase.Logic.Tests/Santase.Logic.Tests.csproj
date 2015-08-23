@@ -46,6 +46,7 @@
     <Compile Include="Cards\DeckTests.cs" />
     <Compile Include="Extensions\EnumerableExtensionsTests.cs" />
     <Compile Include="Extensions\RandomProviderTests.cs" />
+    <Compile Include="Players\AnnounceValidatorTests.cs" />
     <Compile Include="Players\BasePlayerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
