@@ -65,9 +65,7 @@ If neither player goes out and the cards are played out to the very end, then th
 
 ### Nine of Trumps
 
-A player who holds the nine of trumps may, if he wishes, exchange it for the trump card under the talon just before leading to a trick, provided that he has already won at least one trick. He takes the trump card from under the talon and places the nine of trumps from his hand face up in its place. Note that if you receive the nine of trumps as the card you draw after losing a trick, you have to win a new trick before you can exchange it: it is not possible to exchange the nine when you are not the first player to a trick, except in one case: when your opponent closes the talon.
-
-When a player closes the talon ([see below](#closing)), his opponent may immediately exchange the nine of trumps if he has it, even if he has not yet won a trick. In this case the player shows the nine of trumps, takes the face down trump from the top of the talon, and places the nine of trumps face down on top of the talon in its place. He is not obliged to exchange the nine, but if he decides to do so, it must be done immediately the talon is closed.
+A player who holds the **nine of trumps** may, if he wishes, **exchange it for the trump card** under the talon just before leading to a trick, **provided that he has already won at least one trick**. He takes the trump card from under the talon and places the nine of trumps from his hand face up in its place. Note that if you receive the nine of trumps as the card you draw after losing a trick, you have to win a new trick before you can exchange it: it is not possible to exchange the nine when you are not the first player to a trick.
 
 ### Marriages
 
