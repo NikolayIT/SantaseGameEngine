@@ -1,14 +1,14 @@
 ## Introduction
 
-In Germany, the two-player game 66 (Sechsundsechzig) is probably as well-known as _Skat_. In contrast to Skat, however, 66 is usually thought of as a simple game suitable for children. This reputation may be partly due to the lack of any standard set of 66 rules laid down by an official body or tournament organisation. Even the "66 Research Circle" in Paderborn [[3]] referred to by David Parlett in his Card Games for Two [[1]] does not take on this task. Most game book authors fail to take this game seriously, and are satisfied simply to copy an incomplete description by another author from an earlier book.
+In Germany, the two-player game 66 (Sechsundsechzig, known as Santase (Сантасе) in Bulgaria) is probably as well-known as _Skat_. In contrast to Skat, however, 66 is usually thought of as a simple game suitable for children. This reputation may be partly due to the lack of any standard set of 66 rules laid down by an official body or tournament organisation. Even the "66 Research Circle" in Paderborn [3] referred to by David Parlett in his Card Games for Two [1] does not take on this task. Most game book authors fail to take this game seriously, and are satisfied simply to copy an incomplete description by another author from an earlier book.
 
-The game is named 66 because the objective of each hand is to be the first to collect 66 card points in tricks and melds. It is said to have originated around 1652 in the town of Paderborn. The inn where it was first played has not survived, but its invention is commemorated by a plaque on the bank which has replaced it. In some old books the game is called Paderbornern rather than 66\. [[2]]
+The game is named 66 because the objective of each hand is to be the first to collect 66 card points in tricks and melds. It is said to have originated around 1652 in the town of Paderborn. The inn where it was first played has not survived, but its invention is commemorated by a plaque on the bank which has replaced it. In some old books the game is called Paderbornern rather than 66\. [2]
 
-A great number of variants of 66 and similar games are played in many European countries. The closely related game [Schnapsen](schnaps.html) is very popular in Austria, and because the rules differ from those of 66 in several important details, it is described on a separate page of this site. A list of the main [differences between German 66 and Austrian Schnapsen](#schnapsen) can be found below.
+A great number of variants of 66 and similar games are played in many European countries. The closely related game Schnapsen is very popular in Austria, and because the rules differ from those of 66 in several important details, it is described on a separate page of this site. A list of the main [differences between German 66 and Austrian Schnapsen](#differences-from-schnapsen) can be found below.
 
 ## Players and Cards
 
-Sechsundsechzig is played with a 24-card pack: in North Germany with French suited cards and in South Germany with German suited cards. The rank of the cards is:
+Sechsundsechzig (Santase) is played with a 24-card pack: in North Germany with French suited cards and in South Germany with German suited cards. The rank of the cards is:
 
 *   With French suits: Ace (high), Ten, King, Queen, Jack, Nine (low) in the suits clubs, spades, hearts and diamonds.
 *   With German suits: Deuce (high, often called Ace), Ten, King, Over, Under, Nine in the suits acorns, leaves, hearts and bells.
@@ -31,9 +31,9 @@ The play of the cards takes place in two phases.
 
 <dt>First Phase:</dt>
 
-<dd>The non-dealer plays any of his six cards, placing it face up on the table. The dealer's opponent responds by playing any card face up. These two cards form a **trick**. If both players play the same suit, the higher card wins. If just one player plays a trump, the trump wins. If the players play non-trumps of different suits the card played by the first player wins.</dd>
+<dd>The non-dealer plays any of his six cards, placing it face up on the table. The dealer's opponent responds by playing any card face up. These two cards form a <b>trick</b>. If both players play the same suit, the higher card wins. If just one player plays a trump, the trump wins. If the players play non-trumps of different suits the card played by the first player wins.</dd>
 
-<dd>In this first phase there is **no** requirement to follow suit, nor to try to win the trick.</dd>
+<dd>In this first phase there is <b>no</b> requirement to follow suit, nor to try to win the trick.</dd>
 
 <dd>The player who wins the trick takes both cards and stores them face down in front of him. The trick winner draws the top card from the talon and adds it to his hand, without showing it to his opponent. The other player then does the same, so that both players again have 6 cards in their hands. Then the winner of the trick leads a card face up to the next trick, and the other player responds with a card of his choice.</dd>
 
@@ -159,7 +159,7 @@ A master player, who can accurately remember every detail of the cards played, h
 4.  It can also be worth closing when you have valuable non-trump winners: by doing so you hope to force your opponent to follow suit to these cards rather than trumping them.
 5.  If you can remember all the cards played in the first half of the deal, you can play the last six tricks very accurately, knowing all your opponent's cards.
 
-## Variants and Other 66 Web Pages
+## Variants of the Game
 
 Some play that after a drawn hand, in which the card points split 65-65, the winner of the the next hand scores an additional game point.
 
@@ -194,13 +194,15 @@ A comparative analysis of the 66 variants described in various sources can be fo
 
 The [Wikipedia page on 66](https://en.wikipedia.org/wiki/Sixty-six_(card_game)) describes some other variants of 66, including Schnapsen.
 
-## 66 Online
+### 66 Online
 
 You can play [66 or Schnapsen](http://www.kqzyfj.com/click-4373756-11122162)![](http://www.tqlkg.com/image-4373756-11122162) online at GameDuell.
 
 At SolitaireOnline you can [play 66 online against the server](http://www.solitaireonline.com/solitairegame.php?solitaire=66&game=175).
 
-## References
+### References
+
+Source: http://www.pagat.com/marriage/66.html
 
 1.  Parlett, David: _Card Games for Two_ – Hodder and Stoughton – 1980, 2nd edition, pp 97 – 101
 2.  Beck, Fritz: _Schnapsen (Sechsundsechzig), Preisschnapsen_ – Pechans Perlen-Reihe volume 639 - Vienna 1961
