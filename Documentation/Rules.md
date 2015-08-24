@@ -1,19 +1,19 @@
 ## Introduction
 
-In Germany, the two-player game 66 (Sechsundsechzig, known as Santase (Сантасе) in Bulgaria) is probably as well-known as _Skat_. In contrast to Skat, however, 66 is usually thought of as a simple game suitable for children. This reputation may be partly due to the lack of any standard set of 66 rules laid down by an official body or tournament organisation. Even the "66 Research Circle" in Paderborn [3] referred to by David Parlett in his Card Games for Two [1] does not take on this task. Most game book authors fail to take this game seriously, and are satisfied simply to copy an incomplete description by another author from an earlier book.
+Santase (Сантасе or 66) in a popular two-player card game in Bulgaria (variants of the game are also popular in Germany (Sechsundsechzig) and Austria (Schnapsen)).
 
 The game is named 66 because the objective of each hand is to be the first to collect 66 card points in tricks and melds. It is said to have originated around 1652 in the town of Paderborn. The inn where it was first played has not survived, but its invention is commemorated by a plaque on the bank which has replaced it. In some old books the game is called Paderbornern rather than 66\. [2]
 
-A great number of variants of 66 and similar games are played in many European countries. The closely related game Schnapsen is very popular in Austria, and because the rules differ from those of 66 in several important details, it is described on a separate page of this site. A list of the main [differences between German 66 and Austrian Schnapsen](#differences-from-schnapsen) can be found below.
+A great number of variants of 66 and similar games are played in many European countries. The closely related game Schnapsen is very popular in Austria, and because the rules differ from those of 66 in several important details, it is considered different. A list of the main [differences between German 66 and Austrian Schnapsen](#differences-from-schnapsen) can be found below.
 
 ## Players and Cards
 
-Sechsundsechzig (Santase) is played with a 24-card pack: in North Germany with French suited cards and in South Germany with German suited cards. The rank of the cards is:
+Santase is played with a 24-card pack: in North Germany with French suited cards and in South Germany with German suited cards. The rank of the cards is:
 
 *   With French suits: Ace (high), Ten, King, Queen, Jack, Nine (low) in the suits clubs, spades, hearts and diamonds.
 *   With German suits: Deuce (high, often called Ace), Ten, King, Over, Under, Nine in the suits acorns, leaves, hearts and bells.
 
-The cards have point values: the Ace (Deuce) counts 11, the Ten counts 10, the King 4, the Queen (Over) 3, the Jack (Under) 2, and the Nine counts 0 points.
+The cards have point values: the **Ace** (Deuce) counts 11, the **Ten** counts 10, the **King** 4, the **Queen** (Over) 3, the **Jack** (Under) 2, and the **Nine** counts 0 points.
 
 There are two players. (Variants for three or four players also exist.)
 
@@ -71,11 +71,11 @@ When a player closes the talon ([see below](#closing)), his opponent may immedia
 
 ### Marriages
 
-When leading to a trick, a player who has the King and Queen (King and Over) of the same suit in hand can **meld** them as a **marriage**. This is worth 40 points in trumps, or 20 points in any of the other three suits. The player shows the cards of the marriage, saying "20" or "40", and leads one of the cards to the trick. Only one marriage can be melded when leading to a trick: if you are lucky enough to hold more than one marriage, then in order to meld the second one you will need to win a trick to gain the lead again, while keeping both marriage cards in your hand. Once the talon is exhausted, no further marriages can be melded: the last possible occasion for declaring a marriage is when leading to the 6th trick.
+When leading to a trick, a player who has the King and Queen of the same suit in hand can **meld** them as a **marriage**. This is worth 40 points in trumps, or 20 points in any of the other three suits. The player shows the cards of the marriage, saying "20" or "40", and leads one of the cards to the trick. Only one marriage can be melded when leading to a trick: if you are lucky enough to hold more than one marriage, then in order to meld the second one you will need to win a trick to gain the lead again, while keeping both marriage cards in your hand. The only exception is that during the first hand no marriage can be announced.
 
 If it is your lead and you have a marriage to meld whose 20 or 40 card points take you over the target of 66, you can show the marriage and immediately declare "out" to win the deal. This ends the play, so you do not lead a card.
 
-Since it is possible to declare a marriage when leading to any trick before the talon is exhausted, it is also possible for the non-dealer to declare one in the first trick. However, the 20 or 40 card points only count if the player subsequently wins at least one trick. Even a zero-point trick consisting of two nines is sufficient to validate the marriage, but a player who begins by announcing 20 or 40 and then wins no tricks at all is Schwarz, and the opponent will score 3 game points when he reaches 66 points and declares "out".
+It is not possible to declare 20 or 40 when not leading a trick.
 
 ### Closing
 
