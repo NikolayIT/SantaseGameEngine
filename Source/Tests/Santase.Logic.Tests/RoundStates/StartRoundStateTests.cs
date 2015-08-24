@@ -67,6 +67,7 @@
         [Test]
         public void CloseShouldNotChangeGameState()
         {
+            // It is not allowed to close the game in this state
             var haveStateMock = new Mock<IHaveState>();
             var roundState = new StartRoundState(haveStateMock.Object);
             roundState.Close();

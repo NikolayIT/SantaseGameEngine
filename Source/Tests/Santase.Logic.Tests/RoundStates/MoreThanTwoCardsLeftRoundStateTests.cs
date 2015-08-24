@@ -75,7 +75,5 @@
             roundState.Close();
             haveStateMock.Verify(x => x.SetState(It.IsAny<FinalRoundState>()), Times.Once);
         }
-
-        // TODO: PlayHand
     }
 }
