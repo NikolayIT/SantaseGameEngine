@@ -1,6 +1,6 @@
 ## Introduction
 
-Santase (Сантасе or 66) in a popular two-player card game in Bulgaria (variants of the game are also popular in Germany (Sechsundsechzig) and Austria (Schnapsen)).
+**Santase (Сантасе or 66)** is a popular two-player card game in Bulgaria (variants of the game are also popular in Germany (Sechsundsechzig) and Austria (Schnapsen)).
 
 The game is named 66 because the objective of each hand is to be the first to collect 66 card points in tricks and melds. It is said to have originated around 1652 in the town of Paderborn. The inn where it was first played has not survived, but its invention is commemorated by a plaque on the bank which has replaced it. In some old books the game is called Paderbornern rather than 66\. [2]
 
@@ -79,9 +79,11 @@ It is not possible to declare 20 or 40 when not leading a trick.
 
 ### Closing
 
-If the talon is not yet exhausted, the player whose turn it is to lead can "cover" or "close" the talon. This is a commitment to reach 66 or more points and declare "out" without drawing any more cards from the talon. Before leading, the player takes the face up trump card from under the talon and lays it face down on top of the talon. From this moment onward, the "second phase" rules of play apply: players must follow suit and win the trick when possible. The closing player can meld a marriage immediately before closing, but no marriages can be melded in subsequent tricks.
+If the talon is not yet exhausted and have more than 2 cards in it, the player whose turn it is to lead can "cover" or **"close"** the talon. This is a commitment to reach 66 or more points and declare "out" without drawing any more cards from the talon. Before leading, the player takes the face up trump card from under the talon and lays it face down on top of the talon. From this moment onward, the "second phase" rules of play apply: players must follow suit and win the trick when possible.
 
-It is possible to close immediately after winning a trick, when both players have only five cards in their hands. Alternatively the winner of a trick can draw from the talon and then close, with each player holding six cards. It is also possible for the non-dealer to close at the start of the play, before leading to the first trick. The last opportunity to close is immediately after the fifth trick: the winner of this trick can close before the last two cards are drawn from the talon.
+The winner of a trick can close immediately after draw from the talon, with each player holding six cards. The last opportunity to close is when 4 cards are present in the talon (before the fifth trick).
+
+It is not possible to close the game before any cards are played.
 
 Note that it is possible to carry out several actions when leading. In an extreme case, having won the first trick, a player might draw from the talon, exchange the nine of trumps for the King, use this to declare a trump marriage for 40, close the talon and then lead the Queen of trumps to the second trick.
 
