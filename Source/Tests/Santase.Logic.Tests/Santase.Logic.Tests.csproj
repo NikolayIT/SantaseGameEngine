@@ -49,6 +49,7 @@
     <Compile Include="Players\AnnounceValidatorTests.cs" />
     <Compile Include="Players\BasePlayerTests.cs" />
     <Compile Include="Players\PlayerActionTests.cs" />
+    <Compile Include="Players\PlayerTurnContextTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

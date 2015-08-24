@@ -5,10 +5,7 @@
 
     public class PlayerTurnContext
     {
-        public PlayerTurnContext(
-            BaseRoundState state,
-            Card trumpCard,
-            int cardsLeftInDeck)
+        public PlayerTurnContext(BaseRoundState state, Card trumpCard, int cardsLeftInDeck)
         {
             this.State = state;
             this.TrumpCard = trumpCard;
@@ -19,7 +16,7 @@
 
         public Card TrumpCard { get; internal set; }
 
-        public int CardsLeftInDeck { get; private set; }
+        public int CardsLeftInDeck { get; }
 
         public Card FirstPlayedCard { get; internal set; }
 
