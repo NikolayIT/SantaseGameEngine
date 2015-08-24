@@ -1,9 +1,13 @@
 # Santase Game Engine
 Santase game engine
 
-https://bg.wikipedia.org/wiki/%D0%A1%D0%B0%D0%BD%D1%82%D0%B0%D1%81%D0%B5
+### Rules of the game
 
-Very similar to https://en.wikipedia.org/wiki/Sixty-six_(card_game)
+https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md
+
+Wikipedia: https://en.wikipedia.org/wiki/Sixty-six_(card_game)
+
+Bulgarian: https://bg.wikipedia.org/wiki/%D0%A1%D0%B0%D0%BD%D1%82%D0%B0%D1%81%D0%B5
 
 ### Build info
 

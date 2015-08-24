@@ -1,8 +1,8 @@
 ## Introduction
 
-In Germany, the two-player game 66 (Sechsundsechzig) is probably as well-known as [Skat](../schafk/skat.html). In contrast to Skat, however, 66 is usually thought of as a simple game suitable for children. This reputation may be partly due to the lack of any standard set of 66 rules laid down by an official body or tournament organisation. Even the "66 Research Circle" in Paderborn [[3]](#ref3) referred to by David Parlett in his Card Games for Two [[1]](#ref1) does not take on this task. Most game book authors fail to take this game seriously, and are satisfied simply to copy an incomplete description by another author from an earlier book.
+In Germany, the two-player game 66 (Sechsundsechzig) is probably as well-known as _Skat_. In contrast to Skat, however, 66 is usually thought of as a simple game suitable for children. This reputation may be partly due to the lack of any standard set of 66 rules laid down by an official body or tournament organisation. Even the "66 Research Circle" in Paderborn [[3]] referred to by David Parlett in his Card Games for Two [[1]] does not take on this task. Most game book authors fail to take this game seriously, and are satisfied simply to copy an incomplete description by another author from an earlier book.
 
-The game is named 66 because the objective of each hand is to be the first to collect 66 card points in tricks and melds. It is said to have originated around 1652 in the town of Paderborn. The inn where it was first played has not survived, but its invention is commemorated by a plaque on the bank which has replaced it. In some old books the game is called Paderbornern rather than 66\. [[2]](#ref2)
+The game is named 66 because the objective of each hand is to be the first to collect 66 card points in tricks and melds. It is said to have originated around 1652 in the town of Paderborn. The inn where it was first played has not survived, but its invention is commemorated by a plaque on the bank which has replaced it. In some old books the game is called Paderbornern rather than 66\. [[2]]
 
 A great number of variants of 66 and similar games are played in many European countries. The closely related game [Schnapsen](schnaps.html) is very popular in Austria, and because the rules differ from those of 66 in several important details, it is described on a separate page of this site. A list of the main [differences between German 66 and Austrian Schnapsen](#schnapsen) can be found below.
 
@@ -49,7 +49,7 @@ The play of the cards takes place in two phases.
 
 </dl>
 
-Usually the cards are not played to the end, because one of the players reaches 66 and stops the play earlier by [going out](#out), as described below. If neither player goes out, the very last trick is worth 10 card points extra, which makes a total of 130 points in the pack, plus the value of any [marriages](#declarations) that have been melded. In this case, the player with the higher card point total wins. If the players have equal card point totals the hand is a draw. No game points are scored, and the same dealer deals again. A draw occurs when the players take 65 card points each, and could also happen at higher totals such as 75 each if one of the players loses count of points and misses the opportunity to go out,
+Usually the cards are not played to the end, because one of the players reaches 66 and stops the play earlier by [going out](#going-out), as described below. If neither player goes out, the very last trick is worth 10 card points extra, which makes a total of 130 points in the pack, plus the value of any [marriages](#marriages) that have been melded. In this case, the player with the higher card point total wins. If the players have equal card point totals the hand is a draw. No game points are scored, and the same dealer deals again. A draw occurs when the players take 65 card points each, and could also happen at higher totals such as 75 each if one of the players loses count of points and misses the opportunity to go out,
 
 ### Going Out
 
@@ -202,6 +202,6 @@ At SolitaireOnline you can [play 66 online against the server](http://www.solita
 
 ## References
 
-1.  Parlett, David: _Card Games for Two_ – Hodder and Stoughton – 1980, 2nd edition, pp 97 – 101
-2.  Beck, Fritz: _Schnapsen (Sechsundsechzig), Preisschnapsen_ – Pechans Perlen-Reihe volume 639 - Vienna 1961
-3.  Tolle, Hermann: _Das Paderborner 66\. Eine humoristisch-historische Abhandlung._ Paderborn 1966 (6th edition, the first edition appeared in 1853) (30 pages, rules and advice on play. On page 24 is the statement: “Seit 1959 besteht in Paderborn der Forschungskreis „66“)
+1.  Parlett, David: _Card Games for Two_ â€“ Hodder and Stoughton â€“ 1980, 2nd edition, pp 97 â€“ 101
+2.  Beck, Fritz: _Schnapsen (Sechsundsechzig), Preisschnapsen_ â€“ Pechans Perlen-Reihe volume 639 - Vienna 1961
+3.  Tolle, Hermann: _Das Paderborner 66\. Eine humoristisch-historische Abhandlung._ Paderborn 1966 (6th edition, the first edition appeared in 1853) (30 pages, rules and advice on play. On page 24 is the statement: â€œSeit 1959 besteht in Paderborn der Forschungskreis â€ž66â€œ)
