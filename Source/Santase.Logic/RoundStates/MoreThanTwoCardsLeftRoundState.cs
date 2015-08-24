@@ -1,6 +1,6 @@
 ﻿namespace Santase.Logic.RoundStates
 {
-    public class MoreThanTwoCardsLeftRoundState : BaseRoundState
+    public class MoreThanTwoCardsLeftRoundState : FirstGamePhaseRoundState
     {
         public MoreThanTwoCardsLeftRoundState(IGameRound round)
             : base(round)
@@ -12,10 +12,6 @@
         public override bool CanClose => true;
 
         public override bool CanChangeTrump => true;
-
-        public override bool ShouldObserveRules => false;
-
-        public override bool ShouldDrawCard => true;
 
         internal override void PlayHand(int cardsLeftInDeck)
         {
