@@ -55,6 +55,7 @@
     <Compile Include="Players\PlayerActionTests.cs" />
     <Compile Include="Players\PlayerTurnContextTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RoundStates\MoreThanTwoCardsLeftRoundStateTests.cs" />
     <Compile Include="RoundStates\StartRoundStateTests.cs" />
   </ItemGroup>
   <ItemGroup>
