@@ -2,7 +2,7 @@
 {
     public class MoreThanTwoCardsLeftRoundState : FirstGamePhaseRoundState
     {
-        public MoreThanTwoCardsLeftRoundState(IGameRound round)
+        public MoreThanTwoCardsLeftRoundState(IHaveState round)
             : base(round)
         {
         }

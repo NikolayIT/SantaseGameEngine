@@ -52,6 +52,7 @@
     <Compile Include="ICardWinner.cs" />
     <Compile Include="IGameHand.cs" />
     <Compile Include="IGameRound.cs" />
+    <Compile Include="IHaveState.cs" />
     <Compile Include="InternalGameException.cs" />
     <Compile Include="IPlayerActionValidater.cs" />
     <Compile Include="ISantaseGame.cs" />

@@ -1,8 +1,9 @@
 ﻿namespace Santase.Logic.RoundStates
 {
+    // https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md#the-play
     public class FinalRoundState : BaseRoundState
     {
-        public FinalRoundState(IGameRound round)
+        public FinalRoundState(IHaveState round)
             : base(round)
         {
         }

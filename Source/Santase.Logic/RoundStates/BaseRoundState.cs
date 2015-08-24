@@ -2,7 +2,7 @@
 {
     public abstract class BaseRoundState
     {
-        protected BaseRoundState(IGameRound round)
+        protected BaseRoundState(IHaveState round)
         {
             this.Round = round;
         }
@@ -17,7 +17,7 @@
 
         public abstract bool ShouldDrawCard { get; }
 
-        protected IGameRound Round { get; }
+        protected IHaveState Round { get; }
 
         internal abstract void PlayHand(int cardsLeftInDeck);
 
