@@ -44,12 +44,12 @@
     <Compile Include="Cards\CardType.cs" />
     <Compile Include="Cards\Deck.cs" />
     <Compile Include="Cards\IDeck.cs" />
-    <Compile Include="CardWinner.cs" />
+    <Compile Include="CardWinnerLogic.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\RandomProvider.cs" />
     <Compile Include="GameHand.cs" />
     <Compile Include="GameRound.cs" />
-    <Compile Include="ICardWinner.cs" />
+    <Compile Include="ICardWinnerLogic.cs" />
     <Compile Include="IGameHand.cs" />
     <Compile Include="IGameRound.cs" />
     <Compile Include="IHaveState.cs" />

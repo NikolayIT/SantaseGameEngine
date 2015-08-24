@@ -130,17 +130,17 @@
             firstToPlay.EndTurn(context);
             secondToPlay.EndTurn(context);
 
-            ICardWinner cardWinner = new CardWinner();
+            ICardWinnerLogic cardWinnerLogic = new CardWinnerLogic();
             if (firstToPlay == this.firstPlayer)
             {
-                this.winner = cardWinner.Winner(
+                this.winner = cardWinnerLogic.Winner(
                     firstPlayerAction.Card,
                     secondPlayerAction.Card,
                     this.deck.TrumpCard.Suit);
             }
             else
             {
-                this.winner = cardWinner.Winner(
+                this.winner = cardWinnerLogic.Winner(
                     secondPlayerAction.Card,
                     firstPlayerAction.Card,
                     this.deck.TrumpCard.Suit);
