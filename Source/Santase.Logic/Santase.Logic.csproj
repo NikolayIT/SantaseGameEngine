@@ -54,6 +54,10 @@
     <Compile Include="IGameRound.cs" />
     <Compile Include="IHaveState.cs" />
     <Compile Include="InternalGameException.cs" />
+    <Compile Include="Logger\ConsoleLogger.cs" />
+    <Compile Include="Logger\ILogger.cs" />
+    <Compile Include="Logger\MemoryLogger.cs" />
+    <Compile Include="Logger\NoLogger.cs" />
     <Compile Include="PlayerActionValidate\ChangeTrumpActionValidator.cs" />
     <Compile Include="PlayerActionValidate\CloseGameActionValidator.cs" />
     <Compile Include="PlayerActionValidate\IPlayerActionValidator.cs" />
