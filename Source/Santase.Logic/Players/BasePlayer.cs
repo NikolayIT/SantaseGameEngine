@@ -22,9 +22,7 @@
             this.Cards.Add(card);
         }
 
-        public abstract PlayerAction GetTurn(
-            PlayerTurnContext context,
-            IPlayerActionValidator actionValidator);
+        public abstract PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator);
 
         public abstract void EndTurn(PlayerTurnContext context);
     }
