@@ -51,6 +51,7 @@
     <Compile Include="CardWinnerLogicTests.cs" />
     <Compile Include="Extensions\EnumerableExtensionsTests.cs" />
     <Compile Include="Extensions\RandomProviderTests.cs" />
+    <Compile Include="PlayerActionValidate\CloseGameActionValidatorTests.cs" />
     <Compile Include="Players\AnnounceValidatorTests.cs" />
     <Compile Include="Players\BasePlayerTests.cs" />
     <Compile Include="Players\PlayerActionTests.cs" />

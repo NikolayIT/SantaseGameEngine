@@ -1,17 +1,13 @@
 ﻿namespace Santase.Logic.PlayerActionValidate
 {
     using Santase.Logic.Players;
+    using Santase.Logic.RoundStates;
 
     public class CloseGameActionValidator
     {
-        public bool CanCloseGame(PlayerTurnContext context)
+        public bool CanCloseGame(bool isThePlayerFirst, BaseRoundState state)
         {
-            if (!context.State.CanClose || !context.AmITheFirstPlayer)
-            {
-                return false;
-            }
-
-            return true;
+            return isThePlayerFirst && state.CanClose;
         }
     }
 }

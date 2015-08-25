@@ -26,7 +26,7 @@
                     return changeTrumpActionValidator.CanChangeTrump(context, playerCards);
                 case PlayerActionType.CloseGame:
                     var closeGameActionValidator = new CloseGameActionValidator();
-                    return closeGameActionValidator.CanCloseGame(context);
+                    return closeGameActionValidator.CanCloseGame(context.AmITheFirstPlayer, context.State);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
