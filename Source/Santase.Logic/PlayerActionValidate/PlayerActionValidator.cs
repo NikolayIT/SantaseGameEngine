@@ -6,7 +6,7 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
-    public class PlayerActionValidater : IPlayerActionValidater
+    public class PlayerActionValidator : IPlayerActionValidator
     {
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {

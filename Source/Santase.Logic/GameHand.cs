@@ -11,7 +11,7 @@
     {
         private readonly PlayerPosition whoWillPlayFirst;
         private readonly IDeck deck;
-        private readonly IPlayerActionValidater actionValidater;
+        private readonly IPlayerActionValidator actionValidator;
 
         private readonly IPlayer firstPlayer;
         private readonly IList<Card> firstPlayerCards;
@@ -37,7 +37,7 @@
             this.secondPlayerCards = secondPlayerCards;
             this.state = state;
             this.deck = deck;
-            this.actionValidater = new PlayerActionValidater();
+            this.actionValidator = new PlayerActionValidator();
             this.GameClosedBy = PlayerPosition.NoOne;
         }
 
@@ -81,7 +81,7 @@
             {
                 firstPlayerAction = this.FirstPlayerTurn(firstToPlay, context);
 
-                if (!this.actionValidater.IsValid(firstPlayerAction, context, firstToPlayCards))
+                if (!this.actionValidator.IsValid(firstPlayerAction, context, firstToPlayCards))
                 {
                     // TODO: Do something more graceful?
                     throw new InternalGameException("Invalid turn!");
@@ -91,9 +91,9 @@
 
             context.FirstPlayedCard = firstPlayerAction.Card;
 
-            var secondPlayerAction = secondToPlay.GetTurn(context, this.actionValidater);
+            var secondPlayerAction = secondToPlay.GetTurn(context, this.actionValidator);
 
-            if (!this.actionValidater.IsValid(secondPlayerAction, context, secondToPlayCards))
+            if (!this.actionValidator.IsValid(secondPlayerAction, context, secondToPlayCards))
             {
                 // TODO: Do something more graceful?
                 throw new InternalGameException("Invalid turn!");
@@ -139,7 +139,7 @@
         private PlayerAction FirstPlayerTurn(IPlayer firstToPlay, PlayerTurnContext context)
         {
             var firstToPlayTurn = firstToPlay.GetTurn(
-                context, this.actionValidater);
+                context, this.actionValidator);
 
             if (firstToPlayTurn.Type == PlayerActionType.CloseGame)
             {

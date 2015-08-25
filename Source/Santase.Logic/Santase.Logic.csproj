@@ -56,10 +56,10 @@
     <Compile Include="InternalGameException.cs" />
     <Compile Include="PlayerActionValidate\ChangeTrumpActionValidator.cs" />
     <Compile Include="PlayerActionValidate\CloseGameActionValidator.cs" />
-    <Compile Include="PlayerActionValidate\IPlayerActionValidater.cs" />
+    <Compile Include="PlayerActionValidate\IPlayerActionValidator.cs" />
     <Compile Include="ISantaseGame.cs" />
     <Compile Include="PlayerActionValidate\PlayCardActionValidator.cs" />
-    <Compile Include="PlayerActionValidate\PlayerActionValidater.cs" />
+    <Compile Include="PlayerActionValidate\PlayerActionValidator.cs" />
     <Compile Include="PlayerPosition.cs" />
     <Compile Include="Players\AnnounceValidator.cs" />
     <Compile Include="Players\BasePlayer.cs" />

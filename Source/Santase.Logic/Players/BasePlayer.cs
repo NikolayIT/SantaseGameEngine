@@ -24,7 +24,7 @@
 
         public abstract PlayerAction GetTurn(
             PlayerTurnContext context,
-            IPlayerActionValidater actionValidater);
+            IPlayerActionValidator actionValidator);
 
         public abstract void EndTurn(PlayerTurnContext context);
     }

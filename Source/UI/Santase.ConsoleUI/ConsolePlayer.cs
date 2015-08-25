@@ -35,7 +35,7 @@
 
         public override PlayerAction GetTurn(
             PlayerTurnContext context,
-            IPlayerActionValidater actionValidater)
+            IPlayerActionValidator actionValidator)
         {
             this.PrintGameInfo(context);
             while (true)
@@ -120,7 +120,7 @@
                     continue;
                 }
 
-                if (actionValidater.IsValid(playerAction, context, this.Cards))
+                if (actionValidator.IsValid(playerAction, context, this.Cards))
                 {
                     if (playerAction.Type == PlayerActionType.PlayCard)
                     {
