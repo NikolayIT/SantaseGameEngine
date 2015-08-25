@@ -79,13 +79,7 @@
             PlayerAction firstPlayerAction;
             do
             {
-                firstPlayerAction = this.FirstPlayerTurn(firstToPlay, context);
-
-                if (!this.actionValidator.IsValid(firstPlayerAction, context, firstToPlayCards))
-                {
-                    // TODO: Do something more graceful?
-                    throw new InternalGameException("Invalid turn!");
-                }
+                firstPlayerAction = this.FirstPlayerTurn(firstToPlay, context, firstToPlayCards);
             }
             while (firstPlayerAction.Type != PlayerActionType.PlayCard);
 
@@ -136,10 +130,14 @@
             }
         }
 
-        private PlayerAction FirstPlayerTurn(IPlayer firstToPlay, PlayerTurnContext context)
+        private PlayerAction FirstPlayerTurn(IPlayer firstToPlay, PlayerTurnContext context, IList<Card> firstToPlayCards)
         {
-            var firstToPlayTurn = firstToPlay.GetTurn(
-                context, this.actionValidator);
+            var firstToPlayTurn = firstToPlay.GetTurn(context, this.actionValidator);
+            if (!this.actionValidator.IsValid(firstToPlayTurn, context, firstToPlayCards))
+            {
+                // TODO: Do something more graceful?
+                throw new InternalGameException("Invalid turn!");
+            }
 
             if (firstToPlayTurn.Type == PlayerActionType.CloseGame)
             {

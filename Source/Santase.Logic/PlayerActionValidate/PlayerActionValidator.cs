@@ -22,23 +22,28 @@
                 case PlayerActionType.PlayCard:
                     {
                         var playCardActionValidator = new PlayCardActionValidator();
-                        return playCardActionValidator.CanPlayCard(action, context, playerCards);
+                        var canPlayCard = playCardActionValidator.CanPlayCard(action, context, playerCards);
+                        return canPlayCard;
                     }
 
                 case PlayerActionType.ChangeTrump:
                     {
                         var changeTrumpActionValidator = new ChangeTrumpActionValidator();
-                        return changeTrumpActionValidator.CanChangeTrump(
+                        var canChangeTrump = changeTrumpActionValidator.CanChangeTrump(
                             context.AmITheFirstPlayer,
                             context.State,
                             context.TrumpCard,
                             playerCards);
+                        return canChangeTrump;
                     }
 
                 case PlayerActionType.CloseGame:
                     {
                         var closeGameActionValidator = new CloseGameActionValidator();
-                        return closeGameActionValidator.CanCloseGame(context.AmITheFirstPlayer, context.State);
+                        var canCloseGame = closeGameActionValidator.CanCloseGame(
+                            context.AmITheFirstPlayer,
+                            context.State);
+                        return canCloseGame;
                     }
 
                 default:
