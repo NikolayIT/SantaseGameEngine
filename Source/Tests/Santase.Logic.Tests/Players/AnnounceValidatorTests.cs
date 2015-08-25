@@ -99,5 +99,17 @@
                 new Card(CardSuit.Heart, CardType.Nine));
             Assert.AreEqual(Announce.Fourty, announce);
         }
+
+        [Test]
+        public void GetPossibleAnnounceShouldReturnFalseWhenThePlayerIsNotFirst()
+        {
+            IAnnounceValidator validator = new AnnounceValidator();
+            var announce = validator.GetPossibleAnnounce(
+                this.playerCards,
+                new Card(CardSuit.Heart, CardType.King),
+                new Card(CardSuit.Heart, CardType.Nine),
+                false);
+            Assert.AreEqual(Announce.None, announce);
+        }
     }
 }

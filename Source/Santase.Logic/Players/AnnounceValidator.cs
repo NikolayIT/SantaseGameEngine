@@ -7,8 +7,13 @@
 
     public class AnnounceValidator : IAnnounceValidator
     {
-        public Announce GetPossibleAnnounce(IEnumerable<Card> playerCards, Card cardToBePlayed, Card trumpCard)
+        public Announce GetPossibleAnnounce(IEnumerable<Card> playerCards, Card cardToBePlayed, Card trumpCard, bool amITheFirstPlayer = true)
         {
+            if (!amITheFirstPlayer)
+            {
+                return Announce.None;
+            }
+
             CardType cardTypeToSearch;
             switch (cardToBePlayed.Type)
             {

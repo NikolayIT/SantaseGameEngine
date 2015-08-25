@@ -10,21 +10,12 @@
     {
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {
-            // TODO: Replace with AnnounceValidator
-            if (!context.AmITheFirstPlayer)
-            {
-                action.Announce = Announce.None;
-            }
-
-            if (action.Announce != Announce.None)
-            {
-                if (action.Card.Type != CardType.Queen && action.Card.Type != CardType.King)
-                {
-                    action.Announce = Announce.None;
-                }
-
-                // TODO: Check for another card
-            }
+            var announceValidator = new AnnounceValidator();
+            action.Announce = announceValidator.GetPossibleAnnounce(
+                playerCards,
+                action.Card,
+                context.TrumpCard,
+                context.AmITheFirstPlayer);
 
             switch (action.Type)
             {
