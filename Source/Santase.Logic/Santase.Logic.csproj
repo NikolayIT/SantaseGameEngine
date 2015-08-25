@@ -54,9 +54,10 @@
     <Compile Include="IGameRound.cs" />
     <Compile Include="IHaveState.cs" />
     <Compile Include="InternalGameException.cs" />
-    <Compile Include="IPlayerActionValidater.cs" />
+    <Compile Include="PlayerActionValidate\IPlayerActionValidater.cs" />
     <Compile Include="ISantaseGame.cs" />
-    <Compile Include="PlayerActionValidater.cs" />
+    <Compile Include="PlayerActionValidate\PlayerActionValidater.cs" />
+    <Compile Include="PlayerActionValidate\CanCloseGameValidator.cs" />
     <Compile Include="PlayerPosition.cs" />
     <Compile Include="Players\AnnounceValidator.cs" />
     <Compile Include="Players\BasePlayer.cs" />
@@ -80,6 +81,7 @@
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0-beta008\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

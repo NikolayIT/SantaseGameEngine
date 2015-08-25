@@ -3,6 +3,7 @@
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
+    using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
 
     [TestFixture]
