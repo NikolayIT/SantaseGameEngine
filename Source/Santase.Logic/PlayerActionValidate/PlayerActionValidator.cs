@@ -20,16 +20,31 @@
             switch (action.Type)
             {
                 case PlayerActionType.PlayCard:
-                    var playCardActionValidator = new PlayCardActionValidator();
-                    return playCardActionValidator.CanPlayCard(action, context, playerCards);
+                    {
+                        var playCardActionValidator = new PlayCardActionValidator();
+                        return playCardActionValidator.CanPlayCard(action, context, playerCards);
+                    }
+
                 case PlayerActionType.ChangeTrump:
-                    var changeTrumpActionValidator = new ChangeTrumpActionValidator();
-                    return changeTrumpActionValidator.CanChangeTrump(context, playerCards);
+                    {
+                        var changeTrumpActionValidator = new ChangeTrumpActionValidator();
+                        return changeTrumpActionValidator.CanChangeTrump(
+                            context.AmITheFirstPlayer,
+                            context.State,
+                            context.TrumpCard,
+                            playerCards);
+                    }
+
                 case PlayerActionType.CloseGame:
-                    var closeGameActionValidator = new CloseGameActionValidator();
-                    return closeGameActionValidator.CanCloseGame(context.AmITheFirstPlayer, context.State);
+                    {
+                        var closeGameActionValidator = new CloseGameActionValidator();
+                        return closeGameActionValidator.CanCloseGame(context.AmITheFirstPlayer, context.State);
+                    }
+
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    {
+                        throw new ArgumentOutOfRangeException();
+                    }
             }
         }
     }
