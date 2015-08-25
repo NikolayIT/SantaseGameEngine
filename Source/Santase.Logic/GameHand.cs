@@ -8,25 +8,17 @@
 
     public class GameHand : IGameHand
     {
-        // TODO: Order properties in a more meaningful way
         private readonly PlayerPosition whoWillPlayFirst;
-        private readonly IPlayer firstPlayer;
-        private readonly IList<Card> firstPlayerCards;
-        private readonly IPlayer secondPlayer;
-        private readonly IList<Card> secondPlayerCards;
         private readonly IDeck deck;
         private readonly IPlayerActionValidater actionValidater;
+
+        private readonly IPlayer firstPlayer;
+        private readonly IList<Card> firstPlayerCards;
+
+        private readonly IPlayer secondPlayer;
+        private readonly IList<Card> secondPlayerCards;
+
         private BaseRoundState state;
-
-        private PlayerPosition whoClosedTheGame;
-
-        private Card firstPlayerCard;
-        private Card secondPlayerCard;
-
-        private Announce firstPlayerAnnounce;
-        private Announce secondPlayerAnnounce;
-
-        private PlayerPosition winner;
 
         public GameHand(
             PlayerPosition whoWillPlayFirst,
@@ -45,20 +37,20 @@
             this.state = state;
             this.deck = deck;
             this.actionValidater = new PlayerActionValidater();
-            this.whoClosedTheGame = PlayerPosition.NoOne;
+            this.GameClosedBy = PlayerPosition.NoOne;
         }
 
-        public PlayerPosition Winner => this.winner;
+        public PlayerPosition Winner { get; private set; }
 
-        public Card FirstPlayerCard => this.firstPlayerCard;
+        public Card FirstPlayerCard { get; private set; }
 
-        public Announce FirstPlayerAnnounce => this.firstPlayerAnnounce;
+        public Announce FirstPlayerAnnounce { get; private set; }
 
-        public Card SecondPlayerCard => this.secondPlayerCard;
+        public Card SecondPlayerCard { get; private set; }
 
-        public Announce SecondPlayerAnnounce => this.secondPlayerAnnounce;
+        public Announce SecondPlayerAnnounce { get; private set; }
 
-        public PlayerPosition GameClosedBy => this.whoClosedTheGame;
+        public PlayerPosition GameClosedBy { get; private set; }
 
         public void Start()
         {
@@ -86,8 +78,7 @@
             PlayerAction firstPlayerAction;
             do
             {
-                firstPlayerAction =
-                    this.FirstPlayerTurn(firstToPlay, context);
+                firstPlayerAction = this.FirstPlayerTurn(firstToPlay, context);
 
                 if (!this.actionValidater.IsValid(firstPlayerAction, context, firstToPlayCards))
                 {
@@ -95,14 +86,11 @@
                     throw new InternalGameException("Invalid turn!");
                 }
             }
-            while (firstPlayerAction.Type !=
-                PlayerActionType.PlayCard);
+            while (firstPlayerAction.Type != PlayerActionType.PlayCard);
 
             context.FirstPlayedCard = firstPlayerAction.Card;
 
-            PlayerAction secondPlayerAction = secondToPlay.GetTurn(
-                context,
-                this.actionValidater);
+            var secondPlayerAction = secondToPlay.GetTurn(context, this.actionValidater);
 
             if (!this.actionValidater.IsValid(secondPlayerAction, context, secondToPlayCards))
             {
@@ -114,17 +102,17 @@
 
             if (firstToPlay == this.firstPlayer)
             {
-                this.firstPlayerCard = firstPlayerAction.Card;
-                this.firstPlayerAnnounce = firstPlayerAction.Announce;
-                this.secondPlayerCard = secondPlayerAction.Card;
-                this.secondPlayerAnnounce = secondPlayerAction.Announce;
+                this.FirstPlayerCard = firstPlayerAction.Card;
+                this.FirstPlayerAnnounce = firstPlayerAction.Announce;
+                this.SecondPlayerCard = secondPlayerAction.Card;
+                this.SecondPlayerAnnounce = secondPlayerAction.Announce;
             }
             else
             {
-                this.firstPlayerCard = secondPlayerAction.Card;
-                this.firstPlayerAnnounce = secondPlayerAction.Announce;
-                this.secondPlayerCard = firstPlayerAction.Card;
-                this.secondPlayerAnnounce = firstPlayerAction.Announce;
+                this.FirstPlayerCard = secondPlayerAction.Card;
+                this.FirstPlayerAnnounce = secondPlayerAction.Announce;
+                this.SecondPlayerCard = firstPlayerAction.Card;
+                this.SecondPlayerAnnounce = firstPlayerAction.Announce;
             }
 
             firstToPlay.EndTurn(context);
@@ -133,14 +121,14 @@
             ICardWinnerLogic cardWinnerLogic = new CardWinnerLogic();
             if (firstToPlay == this.firstPlayer)
             {
-                this.winner = cardWinnerLogic.Winner(
+                this.Winner = cardWinnerLogic.Winner(
                     firstPlayerAction.Card,
                     secondPlayerAction.Card,
                     this.deck.TrumpCard.Suit);
             }
             else
             {
-                this.winner = cardWinnerLogic.Winner(
+                this.Winner = cardWinnerLogic.Winner(
                     secondPlayerAction.Card,
                     firstPlayerAction.Card,
                     this.deck.TrumpCard.Suit);
@@ -157,7 +145,7 @@
                 this.state.Close();
                 context.State = new FinalRoundState();
                 this.state = new FinalRoundState();
-                this.whoClosedTheGame = firstToPlay == this.firstPlayer ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer;
+                this.GameClosedBy = firstToPlay == this.firstPlayer ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer;
             }
 
             if (firstToPlayTurn.Type == PlayerActionType.ChangeTrump)
