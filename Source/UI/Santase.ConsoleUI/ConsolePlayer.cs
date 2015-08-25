@@ -3,7 +3,6 @@
     using System;
     using System.Threading;
 
-    using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
@@ -33,9 +32,7 @@
             Thread.Sleep(150);
         }
 
-        public override PlayerAction GetTurn(
-            PlayerTurnContext context,
-            IPlayerActionValidator actionValidator)
+        public override PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator)
         {
             this.PrintGameInfo(context);
             while (true)
@@ -58,8 +55,7 @@
 
                 if (userActionAsString[0] >= '1' && userActionAsString[0] <= '6')
                 {
-                    var cardIndex =
-                        int.Parse(userActionAsString[0].ToString()) - 1;
+                    var cardIndex = int.Parse(userActionAsString[0].ToString()) - 1;
                     if (cardIndex >= this.Cards.Count)
                     {
                         Console.WriteLine("Invalid card!              ");
@@ -67,42 +63,11 @@
                     }
 
                     var card = this.Cards[cardIndex];
-                    var possibleAnnounce = Announce.None;
-
-                    if (context.AmITheFirstPlayer)
-                    {
-                        possibleAnnounce = this.AnnounceValidator.GetPossibleAnnounce(
-                            this.Cards,
-                            card,
-                            context.TrumpCard);
-                        if (possibleAnnounce != Announce.None)
-                        {
-                            while (true)
-                            {
-                                Console.SetCursorPosition(0, this.row + 2);
-                                Console.Write("Announce {0} [Y]/[N]?         ", possibleAnnounce.ToString());
-                                var userInput = Console.ReadLine();
-                                if (string.IsNullOrWhiteSpace(userInput))
-                                {
-                                    Console.WriteLine("Please enter [Y] or [N]         ");
-                                    continue;
-                                }
-
-                                if (userInput[0] == 'N')
-                                {
-                                    possibleAnnounce = Announce.None;
-                                }
-                                else if (userInput[0] == 'Y')
-                                {
-                                    break;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Please enter [Y] or [N]         ");
-                                }
-                            }
-                        }
-                    }
+                    var possibleAnnounce = this.AnnounceValidator.GetPossibleAnnounce(
+                        this.Cards,
+                        card,
+                        context.TrumpCard,
+                        context.AmITheFirstPlayer);
 
                     playerAction = PlayerAction.PlayCard(card, possibleAnnounce);
                 }

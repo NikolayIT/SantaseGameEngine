@@ -1,6 +1,5 @@
 ﻿namespace Santase.Logic.PlayerActionValidate
 {
-    using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
 
     public class CloseGameActionValidator
