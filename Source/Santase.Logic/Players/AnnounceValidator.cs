@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic.Players
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -13,6 +14,11 @@
             Card trumpCard,
             bool amITheFirstPlayer = true)
         {
+            if (cardToBePlayed == null)
+            {
+                return Announce.None;
+            }
+
             if (!amITheFirstPlayer)
             {
                 return Announce.None;

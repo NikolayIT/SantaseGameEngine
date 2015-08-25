@@ -20,6 +20,14 @@
                                                                  new Card(CardSuit.Heart, CardType.King)
                                                              };
 
+        [Test]
+        public void GetPossibleAnnounceShouldReturnNoAnnounceWhenGivenNullCard()
+        {
+            IAnnounceValidator validator = new AnnounceValidator();
+            var announce = validator.GetPossibleAnnounce(this.playerCards, null, new Card(CardSuit.Heart, CardType.Ace));
+            Assert.AreEqual(Announce.None, announce);
+        }
+
         [TestCase(CardType.Nine)]
         [TestCase(CardType.Ten)]
         [TestCase(CardType.Jack)]
