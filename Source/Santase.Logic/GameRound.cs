@@ -11,54 +11,46 @@
         private readonly IDeck deck;
 
         private readonly IPlayer firstPlayer;
+
         private readonly IList<Card> firstPlayerCards;
 
         private readonly IPlayer secondPlayer;
+
         private readonly IList<Card> secondPlayerCards;
 
-        private int firstPlayerPoints;
-        private bool firstPlayerHasCollectedCards;
-
-        private int secondPlayerPoints;
-        private bool secondPlayerHasCollectedCards;
-
-        private PlayerPosition firstToPlay;
-
         private BaseRoundState state;
-
-        private PlayerPosition gameClosedBy;
 
         public GameRound(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay)
         {
             this.deck = new Deck();
             this.firstPlayer = firstPlayer;
-            this.firstPlayerPoints = 0;
+            this.FirstPlayerPoints = 0;
             this.firstPlayerCards = new List<Card>();
-            this.firstPlayerHasCollectedCards = false;
+            this.FirstPlayerHasHand = false;
 
             this.secondPlayer = secondPlayer;
-            this.secondPlayerPoints = 0;
+            this.SecondPlayerPoints = 0;
             this.secondPlayerCards = new List<Card>();
-            this.secondPlayerHasCollectedCards = false;
+            this.SecondPlayerHasHand = false;
 
-            this.firstToPlay = firstToPlay;
+            this.LastHandInPlayer = firstToPlay;
 
             this.SetState(new StartRoundState(this));
 
-            this.gameClosedBy = PlayerPosition.NoOne;
+            this.ClosedByPlayer = PlayerPosition.NoOne;
         }
 
-        public int FirstPlayerPoints => this.firstPlayerPoints;
+        public int FirstPlayerPoints { get; private set; }
 
-        public int SecondPlayerPoints => this.secondPlayerPoints;
+        public int SecondPlayerPoints { get; private set; }
 
-        public bool FirstPlayerHasHand => this.firstPlayerHasCollectedCards;
+        public bool FirstPlayerHasHand { get; private set; }
 
-        public bool SecondPlayerHasHand => this.secondPlayerHasCollectedCards;
+        public bool SecondPlayerHasHand { get; private set; }
 
-        public PlayerPosition ClosedByPlayer => this.gameClosedBy;
+        public PlayerPosition ClosedByPlayer { get; private set; }
 
-        public PlayerPosition LastHandInPlayer => this.firstToPlay;
+        public PlayerPosition LastHandInPlayer { get; private set; }
 
         public void Start()
         {
@@ -77,7 +69,7 @@
         private void PlayHand()
         {
             IGameHand hand = new GameHand(
-                this.firstToPlay,
+                this.LastHandInPlayer,
                 this.firstPlayer,
                 this.firstPlayerCards,
                 this.secondPlayer,
@@ -90,22 +82,21 @@
 
             if (hand.Winner == PlayerPosition.FirstPlayer)
             {
-                this.firstPlayerHasCollectedCards = true;
+                this.FirstPlayerHasHand = true;
             }
             else
             {
-                this.secondPlayerHasCollectedCards = true;
+                this.SecondPlayerHasHand = true;
             }
 
-            this.firstToPlay = hand.Winner;
+            this.LastHandInPlayer = hand.Winner;
 
             this.firstPlayerCards.Remove(hand.FirstPlayerCard);
             this.secondPlayerCards.Remove(hand.SecondPlayerCard);
 
-            if (hand.GameClosedBy == PlayerPosition.FirstPlayer
-                || hand.GameClosedBy == PlayerPosition.SecondPlayer)
+            if (hand.GameClosedBy == PlayerPosition.FirstPlayer || hand.GameClosedBy == PlayerPosition.SecondPlayer)
             {
-                this.gameClosedBy = hand.GameClosedBy;
+                this.ClosedByPlayer = hand.GameClosedBy;
                 this.state.Close();
             }
 
@@ -115,18 +106,20 @@
 
         private void DrawNewCards()
         {
-            if (this.state.ShouldDrawCard)
+            if (!this.state.ShouldDrawCard)
             {
-                if (this.firstToPlay == PlayerPosition.FirstPlayer)
-                {
-                    this.GiveCardToFirstPlayer();
-                    this.GiveCardToSecondPlayer();
-                }
-                else
-                {
-                    this.GiveCardToSecondPlayer();
-                    this.GiveCardToFirstPlayer();
-                }
+                return;
+            }
+
+            if (this.LastHandInPlayer == PlayerPosition.FirstPlayer)
+            {
+                this.GiveCardToFirstPlayer();
+                this.GiveCardToSecondPlayer();
+            }
+            else
+            {
+                this.GiveCardToSecondPlayer();
+                this.GiveCardToFirstPlayer();
             }
         }
 
@@ -134,17 +127,17 @@
         {
             if (hand.Winner == PlayerPosition.FirstPlayer)
             {
-                this.firstPlayerPoints += hand.FirstPlayerCard.GetValue();
-                this.firstPlayerPoints += hand.SecondPlayerCard.GetValue();
+                this.FirstPlayerPoints += hand.FirstPlayerCard.GetValue();
+                this.FirstPlayerPoints += hand.SecondPlayerCard.GetValue();
             }
             else
             {
-                this.secondPlayerPoints += hand.FirstPlayerCard.GetValue();
-                this.secondPlayerPoints += hand.SecondPlayerCard.GetValue();
+                this.SecondPlayerPoints += hand.FirstPlayerCard.GetValue();
+                this.SecondPlayerPoints += hand.SecondPlayerCard.GetValue();
             }
 
-            this.firstPlayerPoints += (int)hand.FirstPlayerAnnounce;
-            this.secondPlayerPoints += (int)hand.SecondPlayerAnnounce;
+            this.FirstPlayerPoints += (int)hand.FirstPlayerAnnounce;
+            this.SecondPlayerPoints += (int)hand.SecondPlayerAnnounce;
         }
 
         private void GiveCardToFirstPlayer()
@@ -163,18 +156,17 @@
 
         private bool IsFinished()
         {
-            if (this.firstPlayerPoints >= 66)
+            if (this.FirstPlayerPoints >= 66)
             {
                 return true;
             }
 
-            if (this.secondPlayerPoints >= 66)
+            if (this.SecondPlayerPoints >= 66)
             {
                 return true;
             }
 
-            if (this.firstPlayerCards.Count == 0
-                || this.secondPlayerCards.Count == 0)
+            if (this.firstPlayerCards.Count == 0 || this.secondPlayerCards.Count == 0)
             {
                 return true;
             }
@@ -184,22 +176,22 @@
 
         private void DealFirstCards()
         {
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 this.GiveCardToFirstPlayer();
             }
 
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 this.GiveCardToSecondPlayer();
             }
 
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 this.GiveCardToFirstPlayer();
             }
 
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 this.GiveCardToSecondPlayer();
             }
