@@ -15,44 +15,40 @@
                 return false;
             }
 
-            if (action.Announce != Announce.None)
+            if (!context.State.ShouldObserveRules)
             {
-                if (action.Card.Type != CardType.Queen && action.Card.Type != CardType.King)
-                {
-                    action.Announce = Announce.None;
-                }
-
-                // TODO: Check for another card
+                // When rules does not apply every card is valid
+                return true;
             }
 
-            if (context.State.ShouldObserveRules)
+            if (context.AmITheFirstPlayer)
             {
-                if (!context.AmITheFirstPlayer)
-                {
-                    var firstCard = context.FirstPlayedCard;
-                    var ourCard = action.Card;
+                // When the player is first he can play every card
+                return true;
+            }
 
-                    if (firstCard.Suit != ourCard.Suit)
+            var firstCard = context.FirstPlayedCard;
+            var ourCard = action.Card;
+
+            if (firstCard.Suit != ourCard.Suit)
+            {
+                if (ourCard.Suit != context.TrumpCard.Suit)
+                {
+                    var hasTrump = playerCards.Any(c => c.Suit == context.TrumpCard.Suit);
+                    if (hasTrump)
                     {
-                        if (ourCard.Suit != context.TrumpCard.Suit)
-                        {
-                            var hasTrump = playerCards.Any(c => c.Suit == context.TrumpCard.Suit);
-                            if (hasTrump)
-                            {
-                                return false;
-                            }
-                        }
+                        return false;
                     }
-                    else
+                }
+            }
+            else
+            {
+                if (ourCard.GetValue() < firstCard.GetValue())
+                {
+                    var hasBigger = playerCards.Any(c => c.GetValue() > firstCard.GetValue());
+                    if (hasBigger)
                     {
-                        if (ourCard.GetValue() < firstCard.GetValue())
-                        {
-                            var hasBigger = playerCards.Any(c => c.GetValue() > firstCard.GetValue());
-                            if (hasBigger)
-                            {
-                                return false;
-                            }
-                        }
+                        return false;
                     }
                 }
             }

@@ -10,10 +10,20 @@
     {
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {
-            // TODO: Replace with announces validator
+            // TODO: Replace with AnnounceValidator
             if (!context.AmITheFirstPlayer)
             {
                 action.Announce = Announce.None;
+            }
+
+            if (action.Announce != Announce.None)
+            {
+                if (action.Card.Type != CardType.Queen && action.Card.Type != CardType.King)
+                {
+                    action.Announce = Announce.None;
+                }
+
+                // TODO: Check for another card
             }
 
             switch (action.Type)
