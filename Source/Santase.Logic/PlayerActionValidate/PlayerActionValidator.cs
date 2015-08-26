@@ -22,7 +22,13 @@
                 case PlayerActionType.PlayCard:
                     {
                         var playCardActionValidator = new PlayCardActionValidator();
-                        var canPlayCard = playCardActionValidator.CanPlayCard(action, context, playerCards);
+                        var canPlayCard = playCardActionValidator.CanPlayCard(
+                            context.AmITheFirstPlayer,
+                            action.Card,
+                            context.FirstPlayedCard,
+                            context.TrumpCard,
+                            playerCards,
+                            context.State.ShouldObserveRules);
                         return canPlayCard;
                     }
 
