@@ -48,8 +48,7 @@
             }
 
             // Should never happen
-            this.logger.LogLine($"Out of possible cards to play! This should never happen!");
-            return PlayerAction.PlayCard(this.Cards[0], Announce.None);
+            throw new InternalGameException("Out of possible cards to play!");
         }
 
         public override void EndTurn(PlayerTurnContext context)

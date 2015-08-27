@@ -7,34 +7,30 @@
         private readonly IPlayer firstPlayer;
         private readonly IPlayer secondPlayer;
 
-        private int firstPlayerTotalPoints;
-        private int secondPlayerTotalPoints;
-        private int roundsCount;
-
         private PlayerPosition firstToPlay;
 
         public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay)
         {
-            this.firstPlayerTotalPoints = 0;
-            this.secondPlayerTotalPoints = 0;
-            this.roundsCount = 0;
+            this.FirstPlayerTotalPoints = 0;
+            this.SecondPlayerTotalPoints = 0;
+            this.RoundsPlayed = 0;
             this.firstPlayer = firstPlayer;
             this.secondPlayer = secondPlayer;
             this.firstToPlay = firstToPlay;
         }
 
-        public int FirstPlayerTotalPoints => this.firstPlayerTotalPoints;
+        public int FirstPlayerTotalPoints { get; private set; }
 
-        public int SecondPlayerTotalPoints => this.secondPlayerTotalPoints;
+        public int SecondPlayerTotalPoints { get; private set; }
 
-        public int RoundsPlayed => this.roundsCount;
+        public int RoundsPlayed { get; private set; }
 
         public void Start()
         {
             while (!this.IsGameFinished())
             {
                 this.PlayRound();
-                this.roundsCount++;
+                this.RoundsPlayed++;
             }
         }
 
@@ -54,7 +50,7 @@
             {
                 if (round.FirstPlayerPoints < 66)
                 {
-                    this.secondPlayerTotalPoints += 3;
+                    this.SecondPlayerTotalPoints += 3;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
                     return;
                 }
@@ -64,7 +60,7 @@
             {
                 if (round.SecondPlayerPoints < 66)
                 {
-                    this.firstPlayerTotalPoints += 3;
+                    this.FirstPlayerTotalPoints += 3;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
                     return;
                 }
@@ -75,13 +71,13 @@
                 var winner = round.LastHandInPlayer;
                 if (winner == PlayerPosition.FirstPlayer)
                 {
-                    this.firstPlayerTotalPoints += 1;
+                    this.FirstPlayerTotalPoints += 1;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
                     return;
                 }
                 else
                 {
-                    this.secondPlayerTotalPoints += 1;
+                    this.SecondPlayerTotalPoints += 1;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
                     return;
                 }
@@ -91,17 +87,17 @@
             {
                 if (round.SecondPlayerPoints >= 33)
                 {
-                    this.firstPlayerTotalPoints += 1;
+                    this.FirstPlayerTotalPoints += 1;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
                 }
                 else if (round.SecondPlayerHasHand)
                 {
-                    this.firstPlayerTotalPoints += 2;
+                    this.FirstPlayerTotalPoints += 2;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
                 }
                 else
                 {
-                    this.firstPlayerTotalPoints += 3;
+                    this.FirstPlayerTotalPoints += 3;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
                 }
             }
@@ -109,17 +105,17 @@
             {
                 if (round.FirstPlayerPoints >= 33)
                 {
-                    this.secondPlayerTotalPoints += 1;
+                    this.SecondPlayerTotalPoints += 1;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
                 }
                 else if (round.FirstPlayerHasHand)
                 {
-                    this.secondPlayerTotalPoints += 2;
+                    this.SecondPlayerTotalPoints += 2;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
                 }
                 else
                 {
-                    this.secondPlayerTotalPoints += 3;
+                    this.SecondPlayerTotalPoints += 3;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
                 }
             }
@@ -131,9 +127,7 @@
 
         private bool IsGameFinished()
         {
-            return
-                this.FirstPlayerTotalPoints >= 11
-                || this.SecondPlayerTotalPoints >= 11;
+            return this.FirstPlayerTotalPoints >= 11 || this.SecondPlayerTotalPoints >= 11;
         }
     }
 }

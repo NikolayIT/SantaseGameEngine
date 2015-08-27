@@ -144,7 +144,9 @@
                 this.state.Close();
                 context.State = new FinalRoundState();
                 this.state = new FinalRoundState();
-                this.GameClosedBy = firstToPlay == this.firstPlayer ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer;
+                this.GameClosedBy = firstToPlay == this.firstPlayer
+                                        ? PlayerPosition.FirstPlayer
+                                        : PlayerPosition.SecondPlayer;
             }
 
             if (firstToPlayTurn.Type == PlayerActionType.ChangeTrump)
