@@ -4,7 +4,6 @@
     using System.Linq;
 
     using Santase.Logic.Cards;
-    using Santase.Logic.Players;
 
     public class PlayCardActionValidator
     {
@@ -33,29 +32,45 @@
                 return true;
             }
 
-            if (otherPlayerCard.Suit != playedCard.Suit)
+            if (otherPlayerCard.Suit == playedCard.Suit)
             {
-                if (playedCard.Suit != trumpCard.Suit)
+                // Played bigger card of the same suit - OK
+                if (playedCard.GetValue() > otherPlayerCard.GetValue())
                 {
-                    var hasTrump = playerCards.Any(c => c.Suit == trumpCard.Suit);
-                    if (hasTrump)
-                    {
-                        return false;
-                    }
+                    return true;
+                }
+
+                // When a card is led, the opponent must play a higher card of the same suit if possible
+                var hasBigger = playerCards.Any(c => c.GetValue() > otherPlayerCard.GetValue());
+                if (hasBigger)
+                {
+                    return false;
                 }
             }
             else
             {
-                if (playedCard.GetValue() < otherPlayerCard.GetValue())
+                // Having no higher card, the second player MUST play a lower card of the suit that was led
+                var hasSameSuit = playerCards.Any(c => c.Suit == otherPlayerCard.Suit);
+                if (hasSameSuit)
                 {
-                    var hasBigger = playerCards.Any(c => c.GetValue() > otherPlayerCard.GetValue());
-                    if (hasBigger)
-                    {
-                        return false;
-                    }
+                    return false;
+                }
+
+                // Player has no card of the same suit and plays trump - OK
+                if (playedCard.Suit == trumpCard.Suit)
+                {
+                    return true;
+                }
+
+                // If the player has no card of the suit played by the first player he must play a trump if possible
+                var hasTrump = playerCards.Any(c => c.Suit == trumpCard.Suit);
+                if (hasTrump)
+                {
+                    return false;
                 }
             }
 
+            // Having no cards of the suit led and no trumps, the second player may throw any card.
             return true;
         }
     }
