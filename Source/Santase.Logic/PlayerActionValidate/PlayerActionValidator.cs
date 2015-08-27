@@ -15,7 +15,7 @@
                 playerCards,
                 action.Card,
                 context.TrumpCard,
-                context.AmITheFirstPlayer);
+                context.IsFirstPlayerTurn);
 
             switch (action.Type)
             {
@@ -23,7 +23,7 @@
                     {
                         var playCardActionValidator = new PlayCardActionValidator();
                         var canPlayCard = playCardActionValidator.CanPlayCard(
-                            context.AmITheFirstPlayer,
+                            context.IsFirstPlayerTurn,
                             action.Card,
                             context.FirstPlayedCard,
                             context.TrumpCard,
@@ -36,7 +36,7 @@
                     {
                         var changeTrumpActionValidator = new ChangeTrumpActionValidator();
                         var canChangeTrump = changeTrumpActionValidator.CanChangeTrump(
-                            context.AmITheFirstPlayer,
+                            context.IsFirstPlayerTurn,
                             context.State,
                             context.TrumpCard,
                             playerCards);
@@ -47,7 +47,7 @@
                     {
                         var closeGameActionValidator = new CloseGameActionValidator();
                         var canCloseGame = closeGameActionValidator.CanCloseGame(
-                            context.AmITheFirstPlayer,
+                            context.IsFirstPlayerTurn,
                             context.State);
                         return canCloseGame;
                     }

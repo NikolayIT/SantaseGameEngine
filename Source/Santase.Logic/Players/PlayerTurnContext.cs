@@ -22,6 +22,6 @@
 
         public Card SecondPlayedCard { get; internal set; }
 
-        public bool AmITheFirstPlayer => this.FirstPlayedCard == null;
+        public bool IsFirstPlayerTurn => this.FirstPlayedCard == null;
     }
 }

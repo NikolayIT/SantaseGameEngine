@@ -52,7 +52,7 @@
                 new FinalRoundState(),
                 new Card(CardSuit.Club, CardType.Ace),
                 0);
-            Assert.IsTrue(playerTurnContext.AmITheFirstPlayer);
+            Assert.IsTrue(playerTurnContext.IsFirstPlayerTurn);
         }
 
         [Test]
@@ -62,7 +62,7 @@
                 new FinalRoundState(),
                 new Card(CardSuit.Club, CardType.Ace),
                 0) { FirstPlayedCard = new Card(CardSuit.Diamond, CardType.Ten) };
-            Assert.IsFalse(playerTurnContext.AmITheFirstPlayer);
+            Assert.IsFalse(playerTurnContext.IsFirstPlayerTurn);
         }
     }
 }

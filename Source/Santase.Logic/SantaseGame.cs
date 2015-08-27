@@ -5,6 +5,7 @@
     public class SantaseGame : ISantaseGame
     {
         private readonly IPlayer firstPlayer;
+
         private readonly IPlayer secondPlayer;
 
         private PlayerPosition firstToPlay;
@@ -36,10 +37,7 @@
 
         private void PlayRound()
         {
-            IGameRound round = new GameRound(
-                this.firstPlayer,
-                this.secondPlayer,
-                this.firstToPlay);
+            IGameRound round = new GameRound(this.firstPlayer, this.secondPlayer, this.firstToPlay);
             round.Start();
             this.UpdatePoints(round);
         }
