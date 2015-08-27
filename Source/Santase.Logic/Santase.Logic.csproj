@@ -51,11 +51,7 @@
     <Compile Include="RoundStates\StateManager.cs" />
     <Compile Include="Round\Round.cs" />
     <Compile Include="Round\RoundResult.cs" />
-    <Compile Include="Trick\GameTrick.cs" />
-    <Compile Include="Round\GameRound.cs" />
     <Compile Include="ICardWinnerLogic.cs" />
-    <Compile Include="Trick\IGameTrick.cs" />
-    <Compile Include="Round\IGameRound.cs" />
     <Compile Include="RoundStates\IStateManager.cs" />
     <Compile Include="InternalGameException.cs" />
     <Compile Include="Logger\ConsoleLogger.cs" />
