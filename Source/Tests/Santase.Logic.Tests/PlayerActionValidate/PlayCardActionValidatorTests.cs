@@ -188,5 +188,26 @@
             var canPlayCard = validator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
             Assert.IsTrue(canPlayCard);
         }
+
+        [Test]
+        public void CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDontHaveBiggerCardFromTheSameSuit()
+        {
+            var playerCards = new List<Card>
+                                  {
+                                      new Card(CardSuit.Spade, CardType.Nine),
+                                      new Card(CardSuit.Heart, CardType.King),
+                                      new Card(CardSuit.Heart, CardType.Ace),
+                                      new Card(CardSuit.Club, CardType.Jack),
+                                      new Card(CardSuit.Diamond, CardType.Queen),
+                                      new Card(CardSuit.Heart, CardType.Nine)
+                                  };
+            var playerCard = new Card(CardSuit.Spade, CardType.Nine);
+            var otherPlayerCard = new Card(CardSuit.Spade, CardType.Ten);
+            var trumpCard = new Card(CardSuit.Diamond, CardType.Nine);
+
+            var validator = new PlayCardActionValidator();
+            var canPlayCard = validator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
+            Assert.IsTrue(canPlayCard);
+        }
     }
 }
