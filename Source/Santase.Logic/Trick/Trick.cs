@@ -45,6 +45,8 @@
                 this.deck.TrumpCard.Suit);
 
             var winner = winnerPosition == PlayerPosition.FirstPlayer ? this.firstToPlay : this.secondToPlay;
+            winner.TrickCards.Add(firstPlayerAction.Card);
+            winner.TrickCards.Add(secondPlayerAction.Card);
 
             // Inform players for end turn
             this.firstToPlay.Player.EndTurn(context);
