@@ -11,7 +11,7 @@
 
         private PlayerPosition firstToPlay;
 
-        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay)
+        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
         {
             this.FirstPlayerTotalPoints = 0;
             this.SecondPlayerTotalPoints = 0;
@@ -38,12 +38,17 @@
 
         private void PlayRound()
         {
-            IGameRound round = new GameRound(this.firstPlayer, this.secondPlayer, this.firstToPlay);
-            round.Start();
-            this.UpdatePoints(round);
+            var round = this.firstToPlay == PlayerPosition.SecondPlayer
+                            ? new Santase.Logic.Round.Round(this.secondPlayer, this.firstPlayer)
+                            : new Santase.Logic.Round.Round(this.firstPlayer, this.secondPlayer);
+
+            var roundResult = round.Play();
+
+            // TODO: this.UpdatePoints(roundResult);
         }
 
-        private void UpdatePoints(IGameRound round)
+        /*
+        private void UpdatePoints(RoundResult round)
         {
             if (round.ClosedByPlayer == PlayerPosition.FirstPlayer)
             {
@@ -123,7 +128,7 @@
                 // Equal points => 0 points to each
             }
         }
-
+        */
         private bool IsGameFinished()
         {
             return this.FirstPlayerTotalPoints >= 11 || this.SecondPlayerTotalPoints >= 11;

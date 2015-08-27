@@ -28,7 +28,7 @@
             this.lastTrickWinner = PlayerPosition.NoOne;
         }
 
-        public void Play()
+        public RoundResult Play()
         {
             this.DealFirstCards();
 
@@ -37,6 +37,8 @@
             {
                 this.PlayTrick();
             }
+
+            return new RoundResult(this.firstPlayer, this.secondPlayer);
         }
 
         private void PlayTrick()
