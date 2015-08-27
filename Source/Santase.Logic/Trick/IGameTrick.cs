@@ -1,8 +1,8 @@
-﻿namespace Santase.Logic
+﻿namespace Santase.Logic.Trick
 {
     using Santase.Logic.Cards;
 
-    public interface IGameHand
+    public interface IGameTrick
     {
         PlayerPosition Winner { get; }
 

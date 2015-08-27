@@ -5,6 +5,7 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
+    using Santase.Logic.Trick;
 
     public class GameRound : IGameRound
     {
@@ -68,7 +69,7 @@
 
         private void PlayHand()
         {
-            IGameHand hand = new GameHand(
+            IGameTrick trick = new GameTrick(
                 this.LastHandInPlayer,
                 this.firstPlayer,
                 this.firstPlayerCards,
@@ -76,11 +77,11 @@
                 this.secondPlayerCards,
                 this.state,
                 this.deck);
-            hand.Start();
+            trick.Start();
 
-            this.UpdatePoints(hand);
+            this.UpdatePoints(trick);
 
-            if (hand.Winner == PlayerPosition.FirstPlayer)
+            if (trick.Winner == PlayerPosition.FirstPlayer)
             {
                 this.FirstPlayerHasHand = true;
             }
@@ -89,14 +90,14 @@
                 this.SecondPlayerHasHand = true;
             }
 
-            this.LastHandInPlayer = hand.Winner;
+            this.LastHandInPlayer = trick.Winner;
 
-            this.firstPlayerCards.Remove(hand.FirstPlayerCard);
-            this.secondPlayerCards.Remove(hand.SecondPlayerCard);
+            this.firstPlayerCards.Remove(trick.FirstPlayerCard);
+            this.secondPlayerCards.Remove(trick.SecondPlayerCard);
 
-            if (hand.GameClosedBy == PlayerPosition.FirstPlayer || hand.GameClosedBy == PlayerPosition.SecondPlayer)
+            if (trick.GameClosedBy == PlayerPosition.FirstPlayer || trick.GameClosedBy == PlayerPosition.SecondPlayer)
             {
-                this.ClosedByPlayer = hand.GameClosedBy;
+                this.ClosedByPlayer = trick.GameClosedBy;
                 this.state.Close();
             }
 
@@ -123,21 +124,21 @@
             }
         }
 
-        private void UpdatePoints(IGameHand hand)
+        private void UpdatePoints(IGameTrick trick)
         {
-            if (hand.Winner == PlayerPosition.FirstPlayer)
+            if (trick.Winner == PlayerPosition.FirstPlayer)
             {
-                this.FirstPlayerPoints += hand.FirstPlayerCard.GetValue();
-                this.FirstPlayerPoints += hand.SecondPlayerCard.GetValue();
+                this.FirstPlayerPoints += trick.FirstPlayerCard.GetValue();
+                this.FirstPlayerPoints += trick.SecondPlayerCard.GetValue();
             }
             else
             {
-                this.SecondPlayerPoints += hand.FirstPlayerCard.GetValue();
-                this.SecondPlayerPoints += hand.SecondPlayerCard.GetValue();
+                this.SecondPlayerPoints += trick.FirstPlayerCard.GetValue();
+                this.SecondPlayerPoints += trick.SecondPlayerCard.GetValue();
             }
 
-            this.FirstPlayerPoints += (int)hand.FirstPlayerAnnounce;
-            this.SecondPlayerPoints += (int)hand.SecondPlayerAnnounce;
+            this.FirstPlayerPoints += (int)trick.FirstPlayerAnnounce;
+            this.SecondPlayerPoints += (int)trick.SecondPlayerAnnounce;
         }
 
         private void GiveCardToFirstPlayer()

@@ -47,10 +47,10 @@
     <Compile Include="CardWinnerLogic.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\RandomProvider.cs" />
-    <Compile Include="GameHand.cs" />
+    <Compile Include="Trick\GameTrick.cs" />
     <Compile Include="GameRound.cs" />
     <Compile Include="ICardWinnerLogic.cs" />
-    <Compile Include="IGameHand.cs" />
+    <Compile Include="Trick\IGameTrick.cs" />
     <Compile Include="IGameRound.cs" />
     <Compile Include="IHaveState.cs" />
     <Compile Include="InternalGameException.cs" />

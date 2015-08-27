@@ -1,4 +1,4 @@
-﻿namespace Santase.Logic
+﻿namespace Santase.Logic.Trick
 {
     using System.Collections.Generic;
 
@@ -7,7 +7,7 @@
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
 
-    public class GameHand : IGameHand
+    public class GameTrick : IGameTrick
     {
         private readonly PlayerPosition whoWillPlayFirst;
         private readonly IDeck deck;
@@ -21,7 +21,7 @@
 
         private BaseRoundState state;
 
-        public GameHand(
+        public GameTrick(
             PlayerPosition whoWillPlayFirst,
             IPlayer firstPlayer,
             IList<Card> firstPlayerCards,
