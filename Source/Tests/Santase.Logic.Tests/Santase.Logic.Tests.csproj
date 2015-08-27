@@ -51,6 +51,8 @@
     <Compile Include="CardWinnerLogicTests.cs" />
     <Compile Include="Extensions\EnumerableExtensionsTests.cs" />
     <Compile Include="Extensions\RandomProviderTests.cs" />
+    <Compile Include="Logger\MemoryLoggerTests.cs" />
+    <Compile Include="Logger\NoLoggerTests.cs" />
     <Compile Include="PlayerActionValidate\ChangeTrumpActionValidatorTests.cs" />
     <Compile Include="PlayerActionValidate\CloseGameActionValidatorTests.cs" />
     <Compile Include="PlayerActionValidate\PlayCardActionValidatorTests.cs" />

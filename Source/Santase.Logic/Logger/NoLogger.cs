@@ -9,5 +9,10 @@
         public void LogLine(string message)
         {
         }
+
+        public override string ToString()
+        {
+            return string.Empty;
+        }
     }
 }
