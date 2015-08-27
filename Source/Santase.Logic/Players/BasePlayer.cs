@@ -27,5 +27,10 @@
         public abstract PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator);
 
         public abstract void EndTurn(PlayerTurnContext context);
+
+        public virtual void EndRound()
+        {
+            this.Cards.Clear();
+        }
     }
 }

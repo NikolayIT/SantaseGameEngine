@@ -38,6 +38,9 @@
                 this.PlayTrick();
             }
 
+            this.firstPlayer.Player.EndRound();
+            this.secondPlayer.Player.EndRound();
+
             return new RoundResult(this.firstPlayer, this.secondPlayer);
         }
 

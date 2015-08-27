@@ -13,5 +13,7 @@
         PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator);
 
         void EndTurn(PlayerTurnContext context);
+
+        void EndRound();
     }
 }

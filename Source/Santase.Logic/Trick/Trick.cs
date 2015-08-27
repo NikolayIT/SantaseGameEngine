@@ -32,10 +32,12 @@
             // First player
             var firstPlayerAction = this.GetFirstPlayerAction(this.firstToPlay, context);
             context.FirstPlayedCard = firstPlayerAction.Card;
+            this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
             // Second player
             var secondPlayerAction = GetPlayerAction(this.secondToPlay, context);
             context.SecondPlayedCard = secondPlayerAction.Card;
+            this.secondToPlay.Cards.Remove(secondPlayerAction.Card);
 
             // Determine winner
             ICardWinnerLogic cardWinnerLogic = new CardWinnerLogic();
@@ -84,6 +86,8 @@
                             context.TrumpCard = newTrumpCard;
 
                             playerInfo.Cards.Remove(newTrumpCard);
+
+                            // TODO: Add single Add method in playerInfo
                             playerInfo.Cards.Add(oldTrumpCard);
                             playerInfo.Player.AddCard(oldTrumpCard);
 
