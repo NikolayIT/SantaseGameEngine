@@ -30,7 +30,7 @@
         [Test]
         public void CanChangeTrumpShouldReturnFalseWhenThePlayerIsNotFirstButTheStatePermitsChanging()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
             var validator = new ChangeTrumpActionValidator();
@@ -41,7 +41,7 @@
         [Test]
         public void CanChangeTrumpShouldReturnFalseWhenThePlayerIsFirstButTheStateDoesNotPermitChanging()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
 
             var validator = new ChangeTrumpActionValidator();
@@ -52,7 +52,7 @@
         [Test]
         public void CanChangeTrumpShouldReturnFalseWhenThePlayerIsNotFirstAndTheStateDoesNotPermitChanging()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
 
             var validator = new ChangeTrumpActionValidator();
@@ -63,7 +63,7 @@
         [Test]
         public void CanChangeTrumpShouldReturnFalseWhenThePlayerIsFirstAndTheStatePermitsChangingButNineOfTrumpsIsNotPresent()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
             var validator = new ChangeTrumpActionValidator();
@@ -74,7 +74,7 @@
         [Test]
         public void CanChangeTrumpShouldReturnTrueWhenThePlayerIsFirstTheStatePermitsChangingAndNineOfTrumpsIsPresent()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
             var validator = new ChangeTrumpActionValidator();

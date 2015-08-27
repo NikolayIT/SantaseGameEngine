@@ -2,7 +2,7 @@
 {
     public class StartRoundState : FirstGamePhaseRoundState
     {
-        public StartRoundState(IHaveState round)
+        public StartRoundState(IStateManager round)
             : base(round)
         {
         }

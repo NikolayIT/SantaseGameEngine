@@ -3,7 +3,7 @@
     // https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md#the-play
     public class FinalRoundState : BaseRoundState
     {
-        public FinalRoundState(IHaveState round)
+        public FinalRoundState(IStateManager round)
             : base(round)
         {
         }

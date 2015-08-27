@@ -1,6 +1,6 @@
 ﻿namespace Santase.Logic
 {
-    public interface IGameRound : IHaveState
+    public interface IGameRound
     {
         int FirstPlayerPoints { get; }
 

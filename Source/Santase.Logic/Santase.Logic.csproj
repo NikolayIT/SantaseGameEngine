@@ -47,12 +47,14 @@
     <Compile Include="CardWinnerLogic.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\RandomProvider.cs" />
+    <Compile Include="PlayerInfo.cs" />
+    <Compile Include="RoundStates\StateManager.cs" />
     <Compile Include="Trick\GameTrick.cs" />
     <Compile Include="GameRound.cs" />
     <Compile Include="ICardWinnerLogic.cs" />
     <Compile Include="Trick\IGameTrick.cs" />
     <Compile Include="IGameRound.cs" />
-    <Compile Include="IHaveState.cs" />
+    <Compile Include="RoundStates\IStateManager.cs" />
     <Compile Include="InternalGameException.cs" />
     <Compile Include="Logger\ConsoleLogger.cs" />
     <Compile Include="Logger\ILogger.cs" />
@@ -80,6 +82,8 @@
     <Compile Include="RoundStates\StartRoundState.cs" />
     <Compile Include="RoundStates\TwoCardsLeftRoundState.cs" />
     <Compile Include="SantaseGame.cs" />
+    <Compile Include="Trick\Trick.cs" />
+    <Compile Include="Trick\TrickResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

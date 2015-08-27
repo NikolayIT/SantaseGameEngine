@@ -19,7 +19,7 @@
 
         private readonly IList<Card> secondPlayerCards;
 
-        private BaseRoundState state;
+        private IStateManager stateManager;
 
         public GameRound(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay)
         {
@@ -36,7 +36,8 @@
 
             this.LastHandInPlayer = firstToPlay;
 
-            this.SetState(new StartRoundState(this));
+            this.stateManager = new StateManagerManager();
+            this.stateManager.SetState(new StartRoundState(this.stateManager));
 
             this.ClosedByPlayer = PlayerPosition.NoOne;
         }
@@ -62,11 +63,6 @@
             }
         }
 
-        public void SetState(BaseRoundState newState)
-        {
-            this.state = newState;
-        }
-
         private void PlayHand()
         {
             IGameTrick trick = new GameTrick(
@@ -75,7 +71,7 @@
                 this.firstPlayerCards,
                 this.secondPlayer,
                 this.secondPlayerCards,
-                this.state,
+                this.stateManager.State,
                 this.deck);
             trick.Start();
 
@@ -98,16 +94,16 @@
             if (trick.GameClosedBy == PlayerPosition.FirstPlayer || trick.GameClosedBy == PlayerPosition.SecondPlayer)
             {
                 this.ClosedByPlayer = trick.GameClosedBy;
-                this.state.Close();
+                this.stateManager.State.Close();
             }
 
             this.DrawNewCards();
-            this.state.PlayHand(this.deck.CardsLeft);
+            this.stateManager.State.PlayHand(this.deck.CardsLeft);
         }
 
         private void DrawNewCards()
         {
-            if (!this.state.ShouldDrawCard)
+            if (!this.stateManager.State.ShouldDrawCard)
             {
                 return;
             }

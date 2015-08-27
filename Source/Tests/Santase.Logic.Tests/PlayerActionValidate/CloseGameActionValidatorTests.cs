@@ -13,7 +13,7 @@
         [Test]
         public void CanCloseGameShouldReturnFalseWhenThePlayerIsNotFirstButTheStatePermitsClosing()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
             var validator = new CloseGameActionValidator();
@@ -24,7 +24,7 @@
         [Test]
         public void CanCloseGameShouldReturnFalseWhenThePlayerIsNotFirstAndTheStateDoesNotPermitClosing()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
 
             var validator = new CloseGameActionValidator();
@@ -35,7 +35,7 @@
         [Test]
         public void CanCloseGameShouldReturnFalseWhenThePlayerIsFirstButTheStateDoesNotPermitClosing()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new TwoCardsLeftRoundState(haveStateMock.Object);
 
             var validator = new CloseGameActionValidator();
@@ -46,7 +46,7 @@
         [Test]
         public void CanCloseGameShouldReturnTrueWhenThePlayerIsFirsAndTheStatePermitsClosing()
         {
-            var haveStateMock = new Mock<IHaveState>();
+            var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
             var validator = new CloseGameActionValidator();

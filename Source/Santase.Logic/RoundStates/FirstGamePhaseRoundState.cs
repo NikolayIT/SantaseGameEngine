@@ -3,7 +3,7 @@
     // https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md#the-play
     public abstract class FirstGamePhaseRoundState : BaseRoundState
     {
-        protected FirstGamePhaseRoundState(IHaveState round)
+        protected FirstGamePhaseRoundState(IStateManager round)
             : base(round)
         {
         }
