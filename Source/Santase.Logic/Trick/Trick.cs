@@ -45,6 +45,7 @@
 
             var winner = winnerPosition == PlayerPosition.FirstPlayer ? this.firstToPlay : this.secondToPlay;
 
+            // Inform players for end turn
             this.firstToPlay.Player.EndTurn(context);
             this.secondToPlay.Player.EndTurn(context);
 

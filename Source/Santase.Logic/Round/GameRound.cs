@@ -1,4 +1,4 @@
-﻿namespace Santase.Logic
+﻿namespace Santase.Logic.Round
 {
     using System.Collections.Generic;
 
