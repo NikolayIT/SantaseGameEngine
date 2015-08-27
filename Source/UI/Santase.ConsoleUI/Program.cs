@@ -14,8 +14,8 @@
             //// Console.BufferHeight = Console.WindowHeight = 17;
             //// Console.BufferWidth = Console.WindowWidth = 50;
 
-            IPlayer firstPlayer = new DummyPlayer(new ConsoleLogger("[1] ")); // new ConsolePlayer(5, 10);
-            IPlayer secondPlayer = new DummyPlayer(new ConsoleLogger("[2] ")); // new ConsolePlayer(10, 10);
+            IPlayer firstPlayer = new DummyPlayer("First Dummy Player", new ConsoleLogger("[1] ")); // new ConsolePlayer(5, 10);
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new ConsoleLogger("[2] ")); // new ConsolePlayer(10, 10);
 
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer);
             game.Start();

@@ -13,6 +13,8 @@
             this.AnnounceValidator = new AnnounceValidator();
         }
 
+        public abstract string Name { get; }
+
         protected IList<Card> Cards { get; }
 
         protected IAnnounceValidator AnnounceValidator { get; }

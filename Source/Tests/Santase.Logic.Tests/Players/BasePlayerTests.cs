@@ -44,6 +44,8 @@
 
             public int CardsCount => this.Cards.Count;
 
+            public override string Name => string.Empty;
+
             public override PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator)
             {
                 throw new System.NotImplementedException();

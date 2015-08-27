@@ -5,6 +5,8 @@
 
     public interface IPlayer
     {
+        string Name { get; }
+
         void AddCard(Card card);
 
         PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator);

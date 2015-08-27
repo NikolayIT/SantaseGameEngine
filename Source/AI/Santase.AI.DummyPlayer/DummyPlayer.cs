@@ -11,15 +11,18 @@
     {
         private readonly ILogger logger;
 
-        public DummyPlayer()
-            : this(new NoLogger())
+        public DummyPlayer(string name)
+            : this(name, new NoLogger())
         {
         }
 
-        public DummyPlayer(ILogger logger)
+        public DummyPlayer(string name, ILogger logger)
         {
+            this.Name = name;
             this.logger = logger;
         }
+
+        public override string Name { get; }
 
         public override void AddCard(Card card)
         {

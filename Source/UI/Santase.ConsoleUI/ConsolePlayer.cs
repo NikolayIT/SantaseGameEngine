@@ -19,6 +19,8 @@
             this.col = col;
         }
 
+        public override string Name => "Console Player";
+
         public override void AddCard(Card card)
         {
             base.AddCard(card);
@@ -45,7 +47,7 @@
                 Console.Write(
                     "Turn? [1-{0}]=Card{1}",
                     this.Cards.Count,
-                    context.AmITheFirstPlayer ? "; [T]=Change trump; [C]=Close: " : ": ");
+                    context.IsFirstPlayerTurn ? "; [T]=Change trump; [C]=Close: " : ": "); // TODO: Replace with context.State.CanChangeTrump
                 var userActionAsString = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(userActionAsString))
                 {
@@ -67,7 +69,7 @@
                         this.Cards,
                         card,
                         context.TrumpCard,
-                        context.AmITheFirstPlayer);
+                        context.IsFirstPlayerTurn);
 
                     playerAction = PlayerAction.PlayCard(card, possibleAnnounce);
                 }
