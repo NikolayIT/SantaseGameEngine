@@ -9,6 +9,7 @@
 
         void AddCard(Card card);
 
+        // TODO: Reconsider removing IPlayerActionValidator as a parameter
         PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator);
 
         void EndTurn(PlayerTurnContext context);
