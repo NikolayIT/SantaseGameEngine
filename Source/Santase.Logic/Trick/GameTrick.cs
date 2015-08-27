@@ -55,25 +55,22 @@
 
         public void Start()
         {
-            IPlayer firstToPlay;
-            IPlayer secondToPlay;
-            IList<Card> firstToPlayCards;
-            IList<Card> secondToPlayCards;
             if (this.whoWillPlayFirst == PlayerPosition.FirstPlayer)
             {
-                firstToPlay = this.firstPlayer;
-                firstToPlayCards = this.firstPlayerCards;
-                secondToPlay = this.secondPlayer;
-                secondToPlayCards = this.secondPlayerCards;
+                this.PlayTrick(this.firstPlayer, this.firstPlayerCards, this.secondPlayer, this.secondPlayerCards);
             }
             else
             {
-                firstToPlay = this.secondPlayer;
-                firstToPlayCards = this.secondPlayerCards;
-                secondToPlay = this.firstPlayer;
-                secondToPlayCards = this.firstPlayerCards;
+                this.PlayTrick(this.secondPlayer, this.secondPlayerCards, this.firstPlayer, this.firstPlayerCards);
             }
+        }
 
+        public void PlayTrick(
+            IPlayer firstToPlay,
+            IList<Card> firstToPlayCards,
+            IPlayer secondToPlay,
+            IList<Card> secondToPlayCards)
+        {
             var context = new PlayerTurnContext(this.state, this.deck.TrumpCard, this.deck.CardsLeft);
 
             PlayerAction firstPlayerAction;

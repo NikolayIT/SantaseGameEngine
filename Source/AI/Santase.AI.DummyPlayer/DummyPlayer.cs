@@ -36,7 +36,8 @@
                 return PlayerAction.ChangeTrump();
             }
 
-            foreach (var card in this.Cards.Shuffle())
+            var shuffledCards = this.Cards.Shuffle();
+            foreach (var card in shuffledCards)
             {
                 var action = PlayerAction.PlayCard(card, Announce.None);
                 if (actionValidator.IsValid(action, context, this.Cards))
