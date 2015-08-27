@@ -47,8 +47,9 @@
     <Compile Include="CardWinnerLogic.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\RandomProvider.cs" />
-    <Compile Include="RoundPlayerInfo.cs" />
+    <Compile Include="Round\RoundPlayerInfo.cs" />
     <Compile Include="RoundStates\StateManager.cs" />
+    <Compile Include="Round\Round.cs" />
     <Compile Include="Trick\GameTrick.cs" />
     <Compile Include="Round\GameRound.cs" />
     <Compile Include="ICardWinnerLogic.cs" />
