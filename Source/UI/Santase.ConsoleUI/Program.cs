@@ -14,15 +14,16 @@
             //// Console.BufferHeight = Console.WindowHeight = 17;
             //// Console.BufferWidth = Console.WindowWidth = 50;
 
-            IPlayer firstPlayer = new DummyPlayer("First Dummy Player", new ConsoleLogger("[1] ")); // new ConsolePlayer(5, 10);
-            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new ConsoleLogger("[2] ")); // new ConsolePlayer(10, 10);
+            IPlayer firstPlayer = new DummyPlayer("First Dummy Player", new NoLogger()); // new ConsoleLogger("[1] ")); // new ConsolePlayer(5, 10);
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] ")); // new ConsolePlayer(10, 10);
 
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer);
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer); // , PlayerPosition.FirstPlayer, new ConsoleLogger("[0]"));
+
             game.Start();
 
             Console.WriteLine("Game finished!");
             Console.WriteLine("{0} - {1}", game.FirstPlayerTotalPoints, game.SecondPlayerTotalPoints);
-            Console.WriteLine("Round: {0}", game.RoundsPlayed);
+            Console.WriteLine("Rounds: {0}", game.RoundsPlayed);
         }
     }
 }

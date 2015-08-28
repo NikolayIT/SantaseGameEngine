@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic
 {
+    using Santase.Logic.Logger;
     using Santase.Logic.Players;
     using Santase.Logic.Round;
 
@@ -9,9 +10,11 @@
 
         private readonly IPlayer secondPlayer;
 
+        private readonly ILogger logger;
+
         private PlayerPosition firstToPlay;
 
-        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
+        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay, ILogger logger)
         {
             this.FirstPlayerTotalPoints = 0;
             this.SecondPlayerTotalPoints = 0;
@@ -19,6 +22,15 @@
             this.firstPlayer = firstPlayer;
             this.secondPlayer = secondPlayer;
             this.firstToPlay = firstToPlay;
+            this.logger = logger;
+        }
+
+        public SantaseGame(
+            IPlayer firstPlayer,
+            IPlayer secondPlayer,
+            PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
+            : this(firstPlayer, secondPlayer, firstToPlay, new NoLogger())
+        {
         }
 
         public int FirstPlayerTotalPoints { get; private set; }
@@ -43,7 +55,9 @@
                             : new Santase.Logic.Round.Round(this.firstPlayer, this.secondPlayer);
 
             var roundResult = round.Play();
+            this.logger.LogLine($"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}");
 
+            // TODO: Update this.firstToPlay
             // TODO: this.UpdatePoints(roundResult);
         }
 
