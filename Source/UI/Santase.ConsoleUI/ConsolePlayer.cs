@@ -70,8 +70,9 @@
                         card,
                         context.TrumpCard,
                         context.IsFirstPlayerTurn);
+                    Console.WriteLine(possibleAnnounce);
 
-                    playerAction = PlayerAction.PlayCard(card, possibleAnnounce);
+                    playerAction = PlayerAction.PlayCard(card);
                 }
                 else if (userActionAsString[0] == 'T')
                 {

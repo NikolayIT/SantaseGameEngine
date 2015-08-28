@@ -6,11 +6,11 @@
 
     public sealed class PlayerAction
     {
-        private PlayerAction(PlayerActionType type, Card card, Announce announce)
+        private PlayerAction(PlayerActionType type, Card card)
         {
             this.Type = type;
             this.Card = card;
-            this.Announce = announce;
+            this.Announce = Announce.None;
         }
 
         public PlayerActionType Type { get; }
@@ -19,28 +19,20 @@
 
         public Announce Announce { get; internal set; }
 
-        public static PlayerAction PlayCard(Card card, Announce announce)
+        public static PlayerAction PlayCard(Card card)
         {
-            // TODO: Remove announces validation from other places
-            if (announce != Announce.None && card.Type != CardType.Queen && card.Type != CardType.King)
-            {
-                throw new ArgumentException(
-                    "When announcing twenty or fourty the card should be Queen or King.",
-                    nameof(card));
-            }
-
-            return new PlayerAction(PlayerActionType.PlayCard, card, announce);
+            return new PlayerAction(PlayerActionType.PlayCard, card);
         }
 
         public static PlayerAction ChangeTrump()
         {
             // TODO: Consider validation for 9 here?
-            return new PlayerAction(PlayerActionType.ChangeTrump, null, Announce.None);
+            return new PlayerAction(PlayerActionType.ChangeTrump, null);
         }
 
         public static PlayerAction CloseGame()
         {
-            return new PlayerAction(PlayerActionType.CloseGame, null, Announce.None);
+            return new PlayerAction(PlayerActionType.CloseGame, null);
         }
     }
 }

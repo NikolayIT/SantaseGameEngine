@@ -42,7 +42,7 @@
             var shuffledCards = this.Cards.Shuffle();
             foreach (var card in shuffledCards)
             {
-                var action = PlayerAction.PlayCard(card, Announce.None);
+                var action = PlayerAction.PlayCard(card);
                 if (actionValidator.IsValid(action, context, this.Cards))
                 {
                     this.logger.LogLine($"Playing {card}");
