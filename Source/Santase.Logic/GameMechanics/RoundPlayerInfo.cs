@@ -40,5 +40,12 @@
         }
 
         public bool HasAtLeastOneTrick => this.TrickCards.Count > 0;
+
+        public void AddCard(Card card)
+        {
+            // We are adding the card in two different places to control what an AI player can play
+            this.Cards.Add(card);
+            this.Player.AddCard(card);
+        }
     }
 }

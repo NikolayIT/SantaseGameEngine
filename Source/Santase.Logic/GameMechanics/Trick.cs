@@ -85,11 +85,7 @@
                             context.TrumpCard = newTrumpCard;
 
                             playerInfo.Cards.Remove(newTrumpCard);
-
-                            // TODO: Add single Add method in playerInfo
-                            playerInfo.Cards.Add(oldTrumpCard);
-                            playerInfo.Player.AddCard(oldTrumpCard);
-
+                            playerInfo.AddCard(oldTrumpCard);
                             continue;
                         }
 

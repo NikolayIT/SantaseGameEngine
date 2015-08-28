@@ -106,12 +106,8 @@
 
         private void GiveCardToPlayer(RoundPlayerInfo player)
         {
-            // We are adding the card in two different places to control what an AI player can play
             var card = this.deck.GetNextCard();
-
-            // TODO: Add method "AddCard" in RoundPlayerInfo
-            player.Cards.Add(card);
-            player.Player.AddCard(card);
+            player.AddCard(card);
         }
     }
 }
