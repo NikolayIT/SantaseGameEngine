@@ -11,12 +11,15 @@
     {
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {
-            var announceValidator = new AnnounceValidator();
-            action.Announce = announceValidator.GetPossibleAnnounce(
-                playerCards,
-                action.Card,
-                context.TrumpCard,
-                context.IsFirstPlayerTurn);
+            if (context.State.CanAnnounce20Or40)
+            {
+                var announceValidator = new AnnounceValidator();
+                action.Announce = announceValidator.GetPossibleAnnounce(
+                    playerCards,
+                    action.Card,
+                    context.TrumpCard,
+                    context.IsFirstPlayerTurn);
+            }
 
             switch (action.Type)
             {
