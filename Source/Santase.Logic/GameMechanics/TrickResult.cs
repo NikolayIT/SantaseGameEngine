@@ -1,7 +1,5 @@
-﻿namespace Santase.Logic.Trick
+﻿namespace Santase.Logic.GameMechanics
 {
-    using Santase.Logic.Round;
-
     public class TrickResult
     {
         public TrickResult(RoundPlayerInfo winner)

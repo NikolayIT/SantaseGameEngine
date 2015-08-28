@@ -47,10 +47,10 @@
     <Compile Include="CardWinnerLogic.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\RandomProvider.cs" />
-    <Compile Include="Round\RoundPlayerInfo.cs" />
+    <Compile Include="GameMechanics\RoundPlayerInfo.cs" />
     <Compile Include="RoundStates\StateManager.cs" />
-    <Compile Include="Round\Round.cs" />
-    <Compile Include="Round\RoundResult.cs" />
+    <Compile Include="GameMechanics\Round.cs" />
+    <Compile Include="GameMechanics\RoundResult.cs" />
     <Compile Include="ICardWinnerLogic.cs" />
     <Compile Include="RoundStates\IStateManager.cs" />
     <Compile Include="InternalGameException.cs" />
@@ -61,7 +61,7 @@
     <Compile Include="PlayerActionValidate\ChangeTrumpActionValidator.cs" />
     <Compile Include="PlayerActionValidate\CloseGameActionValidator.cs" />
     <Compile Include="PlayerActionValidate\IPlayerActionValidator.cs" />
-    <Compile Include="ISantaseGame.cs" />
+    <Compile Include="GameMechanics\ISantaseGame.cs" />
     <Compile Include="PlayerActionValidate\PlayCardActionValidator.cs" />
     <Compile Include="PlayerActionValidate\PlayerActionValidator.cs" />
     <Compile Include="PlayerPosition.cs" />
@@ -79,9 +79,9 @@
     <Compile Include="RoundStates\MoreThanTwoCardsLeftRoundState.cs" />
     <Compile Include="RoundStates\StartRoundState.cs" />
     <Compile Include="RoundStates\TwoCardsLeftRoundState.cs" />
-    <Compile Include="SantaseGame.cs" />
-    <Compile Include="Trick\Trick.cs" />
-    <Compile Include="Trick\TrickResult.cs" />
+    <Compile Include="GameMechanics\SantaseGame.cs" />
+    <Compile Include="GameMechanics\Trick.cs" />
+    <Compile Include="GameMechanics\TrickResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

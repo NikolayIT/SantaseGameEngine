@@ -1,4 +1,4 @@
-﻿namespace Santase.Logic.Round
+﻿namespace Santase.Logic.GameMechanics
 {
     public class RoundResult
     {

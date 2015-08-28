@@ -1,9 +1,8 @@
-﻿namespace Santase.Logic.Trick
+﻿namespace Santase.Logic.GameMechanics
 {
     using Santase.Logic.Cards;
     using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
-    using Santase.Logic.Round;
     using Santase.Logic.RoundStates;
 
     // TODO: Unit test this class

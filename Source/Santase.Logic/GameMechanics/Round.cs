@@ -1,9 +1,8 @@
-﻿namespace Santase.Logic.Round
+﻿namespace Santase.Logic.GameMechanics
 {
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
-    using Santase.Logic.Trick;
 
     public class Round
     {

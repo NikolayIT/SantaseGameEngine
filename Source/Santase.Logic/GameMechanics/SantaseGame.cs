@@ -1,8 +1,7 @@
-﻿namespace Santase.Logic
+﻿namespace Santase.Logic.GameMechanics
 {
     using Santase.Logic.Logger;
     using Santase.Logic.Players;
-    using Santase.Logic.Round;
 
     public class SantaseGame : ISantaseGame
     {
@@ -51,8 +50,8 @@
         private void PlayRound()
         {
             var round = this.firstToPlay == PlayerPosition.SecondPlayer
-                            ? new Santase.Logic.Round.Round(this.secondPlayer, this.firstPlayer)
-                            : new Santase.Logic.Round.Round(this.firstPlayer, this.secondPlayer);
+                            ? new GameMechanics.Round(this.secondPlayer, this.firstPlayer)
+                            : new GameMechanics.Round(this.firstPlayer, this.secondPlayer);
 
             var roundResult = round.Play();
             this.logger.LogLine($"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}");
