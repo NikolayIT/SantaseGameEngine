@@ -57,9 +57,17 @@
 
             if (this.stateManager.State.ShouldDrawCard)
             {
-                // TODO: Should the second player take card first when win last trick?
-                this.GiveCardToPlayer(this.firstPlayer);
-                this.GiveCardToPlayer(this.secondPlayer);
+                // The player who wins last trick takes card first
+                if (this.lastTrickWinner == PlayerPosition.FirstPlayer)
+                {
+                    this.GiveCardToPlayer(this.firstPlayer);
+                    this.GiveCardToPlayer(this.secondPlayer);
+                }
+                else
+                {
+                    this.GiveCardToPlayer(this.secondPlayer);
+                    this.GiveCardToPlayer(this.firstPlayer);
+                }
             }
 
             this.stateManager.State.PlayHand(this.deck.CardsLeft);
