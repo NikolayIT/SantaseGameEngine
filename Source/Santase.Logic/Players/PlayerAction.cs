@@ -1,7 +1,5 @@
 ﻿namespace Santase.Logic.Players
 {
-    using System;
-
     using Santase.Logic.Cards;
 
     public sealed class PlayerAction
@@ -26,7 +24,6 @@
 
         public static PlayerAction ChangeTrump()
         {
-            // TODO: Consider validation for 9 here?
             return new PlayerAction(PlayerActionType.ChangeTrump, null);
         }
 

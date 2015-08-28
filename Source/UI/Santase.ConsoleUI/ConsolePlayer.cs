@@ -4,7 +4,6 @@
     using System.Threading;
 
     using Santase.Logic.Cards;
-    using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
 
     public class ConsolePlayer : BasePlayer
@@ -44,10 +43,18 @@
                 Console.SetCursorPosition(0, this.row + 1);
                 Console.Write(new string(' ', 79));
                 Console.SetCursorPosition(0, this.row + 1);
-                Console.Write(
-                    "Turn? [1-{0}]=Card{1}",
-                    this.Cards.Count,
-                    context.IsFirstPlayerTurn ? "; [T]=Change trump; [C]=Close: " : ": "); // TODO: Replace with context.State.CanChangeTrump
+                Console.Write("Turn? [1-{0}]=Card", this.Cards.Count);
+                if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
+                {
+                    Console.Write("; [T]=Change trump");
+                }
+
+                if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
+                {
+                    Console.Write("; [C]=Close");
+                }
+
+                Console.Write(": ");
                 var userActionAsString = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(userActionAsString))
                 {
