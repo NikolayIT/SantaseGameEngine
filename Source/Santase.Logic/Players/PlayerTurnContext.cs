@@ -18,6 +18,7 @@
 
         public int CardsLeftInDeck { get; }
 
+        // TODO: Add FirstPlayerAnnounce?
         public Card FirstPlayedCard { get; internal set; }
 
         public Card SecondPlayedCard { get; internal set; }

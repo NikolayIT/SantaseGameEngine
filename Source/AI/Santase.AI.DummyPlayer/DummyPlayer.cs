@@ -30,9 +30,9 @@
             base.AddCard(card);
         }
 
-        public override PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator)
+        public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            if (actionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
+            if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
                 this.logger.LogLine("Changing trump.");
                 this.Cards.Remove(new Card(context.TrumpCard.Suit, CardType.Nine));
@@ -43,7 +43,7 @@
             foreach (var card in shuffledCards)
             {
                 var action = PlayerAction.PlayCard(card);
-                if (actionValidator.IsValid(action, context, this.Cards))
+                if (this.PlayerActionValidator.IsValid(action, context, this.Cards))
                 {
                     this.logger.LogLine($"Playing {card}");
                     this.Cards.Remove(card);

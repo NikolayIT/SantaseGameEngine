@@ -12,6 +12,7 @@
         {
             this.Cards = new List<Card>();
             this.AnnounceValidator = new AnnounceValidator();
+            this.PlayerActionValidator = new PlayerActionValidator();
         }
 
         public abstract string Name { get; }
@@ -20,12 +21,14 @@
 
         protected IAnnounceValidator AnnounceValidator { get; }
 
+        protected IPlayerActionValidator PlayerActionValidator { get; }
+
         public virtual void AddCard(Card card)
         {
             this.Cards.Add(card);
         }
 
-        public abstract PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator);
+        public abstract PlayerAction GetTurn(PlayerTurnContext context);
 
         public abstract void EndTurn(PlayerTurnContext context);
 

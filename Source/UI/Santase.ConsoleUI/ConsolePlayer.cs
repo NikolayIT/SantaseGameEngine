@@ -34,7 +34,7 @@
             Thread.Sleep(150);
         }
 
-        public override PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator)
+        public override PlayerAction GetTurn(PlayerTurnContext context)
         {
             this.PrintGameInfo(context);
             while (true)
@@ -88,7 +88,7 @@
                     continue;
                 }
 
-                if (actionValidator.IsValid(playerAction, context, this.Cards))
+                if (this.PlayerActionValidator.IsValid(playerAction, context, this.Cards))
                 {
                     if (playerAction.Type == PlayerActionType.PlayCard)
                     {

@@ -46,7 +46,7 @@
 
             public override string Name => string.Empty;
 
-            public override PlayerAction GetTurn(PlayerTurnContext context, IPlayerActionValidator actionValidator)
+            public override PlayerAction GetTurn(PlayerTurnContext context)
             {
                 throw new System.NotImplementedException();
             }
