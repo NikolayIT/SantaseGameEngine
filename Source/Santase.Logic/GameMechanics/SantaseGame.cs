@@ -62,7 +62,7 @@
             this.logger.LogLine(
                 this.firstToPlay == PlayerPosition.FirstPlayer
                     ? $"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}"
-                    : $"{roundResult.SecondPlayer.RoundPoints} - {roundResult.FirstPlayer.RoundPoints}");   
+                    : $"{roundResult.SecondPlayer.RoundPoints} - {roundResult.FirstPlayer.RoundPoints}");
 
             var gameWinnerLogic = new GameWinnerLogic();
             this.firstToPlay = this.firstToPlay == PlayerPosition.FirstPlayer
