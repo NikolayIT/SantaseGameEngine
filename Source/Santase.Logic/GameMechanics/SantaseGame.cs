@@ -3,6 +3,7 @@
     using Santase.Logic.Logger;
     using Santase.Logic.Players;
 
+    // TODO: Unit test this class
     public class SantaseGame : ISantaseGame
     {
         private readonly IPlayer firstPlayer;

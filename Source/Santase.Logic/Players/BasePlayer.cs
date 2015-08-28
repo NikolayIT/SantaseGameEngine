@@ -5,6 +5,7 @@
     using Santase.Logic.Cards;
     using Santase.Logic.PlayerActionValidate;
 
+    // TODO: Unit test this class
     public abstract class BasePlayer : IPlayer
     {
         protected BasePlayer()

@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic.GameMechanics
 {
+    // TODO: Unit test this class
     public class TrickResult
     {
         public TrickResult(RoundPlayerInfo winner)

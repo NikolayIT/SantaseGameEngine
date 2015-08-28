@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic.RoundStates
 {
+    // TODO: Unit test this class
     public class StateManagerManager : IStateManager
     {
         public StateManagerManager()

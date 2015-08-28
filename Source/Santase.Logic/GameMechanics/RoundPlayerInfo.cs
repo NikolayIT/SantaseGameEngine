@@ -6,6 +6,7 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
+    // TODO: Unit test this class
     public class RoundPlayerInfo
     {
         public RoundPlayerInfo(IPlayer player)
