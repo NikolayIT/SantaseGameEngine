@@ -50,8 +50,8 @@
         private void PlayRound()
         {
             var round = this.firstToPlay == PlayerPosition.SecondPlayer
-                            ? new GameMechanics.Round(this.secondPlayer, this.firstPlayer)
-                            : new GameMechanics.Round(this.firstPlayer, this.secondPlayer);
+                            ? new Round(this.secondPlayer, this.firstPlayer)
+                            : new Round(this.firstPlayer, this.secondPlayer);
 
             var roundResult = round.Play();
             this.logger.LogLine($"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}");

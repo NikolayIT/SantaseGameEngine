@@ -3,7 +3,7 @@
     using System;
 
     using Santase.AI.DummyPlayer;
-    using Santase.Logic;
+    using Santase.Logic.GameMechanics;
     using Santase.Logic.Logger;
     using Santase.Logic.Players;
 

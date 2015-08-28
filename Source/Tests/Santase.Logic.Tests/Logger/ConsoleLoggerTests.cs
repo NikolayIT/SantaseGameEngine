@@ -18,7 +18,7 @@
             var textWriter = new StringWriter();
             Console.SetOut(textWriter);
 
-            var logger = new ConsoleLogger();
+            ILogger logger = new ConsoleLogger();
             logger.Log(Message);
 
             Assert.AreEqual(Message, textWriter.ToString());
@@ -32,7 +32,7 @@
             var textWriter = new StringWriter();
             Console.SetOut(textWriter);
 
-            var logger = new ConsoleLogger();
+            ILogger logger = new ConsoleLogger();
             logger.LogLine(Message);
 
             Assert.AreEqual(Message + Environment.NewLine, textWriter.ToString());
@@ -47,7 +47,7 @@
             var textWriter = new StringWriter();
             Console.SetOut(textWriter);
 
-            var logger = new ConsoleLogger(Prefix);
+            ILogger logger = new ConsoleLogger(Prefix);
             logger.Log(Message);
 
             Assert.AreEqual(Prefix + Message, textWriter.ToString());
@@ -62,7 +62,7 @@
             var textWriter = new StringWriter();
             Console.SetOut(textWriter);
 
-            var logger = new ConsoleLogger(Prefix);
+            ILogger logger = new ConsoleLogger(Prefix);
             logger.LogLine(Message);
 
             Assert.AreEqual(Prefix + Message + Environment.NewLine, textWriter.ToString());

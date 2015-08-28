@@ -2,20 +2,20 @@
 {
     using System.Collections.Generic;
 
-    using Moq;
-
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
     using Santase.Logic.PlayerActionValidate;
-    using Santase.Logic.RoundStates;
 
     [TestFixture]
     public class PlayCardActionValidatorTests
     {
         private static readonly Card JackOfHeart = new Card(CardSuit.Heart, CardType.Jack);
+
         private static readonly Card PlayerCard = new Card(CardSuit.Heart, CardType.Ace);
+
         private static readonly Card NonExistingCard = new Card(CardSuit.Diamond, CardType.Ace);
+
         private static readonly IList<Card> PlayerCards = new List<Card>
                                                               {
                                                                   new Card(CardSuit.Heart, CardType.Nine),
@@ -33,8 +33,12 @@
                     {
                         // When required play trump card
                         new Card(CardSuit.Diamond, CardType.Ace),
-                        new Card(CardSuit.Diamond, CardType.Jack),
-                        new Card(CardSuit.Diamond, CardType.Nine)
+                        new Card(
+                            CardSuit.Diamond,
+                            CardType.Jack),
+                        new Card(
+                            CardSuit.Diamond,
+                            CardType.Nine)
                     },
                 new object[]
                     {
@@ -46,9 +50,13 @@
                 new object[]
                     {
                         // Play bigger trump card when available
-                        new Card(CardSuit.Diamond, CardType.King),
+                        new Card(
+                            CardSuit.Diamond,
+                            CardType.King),
                         new Card(CardSuit.Diamond, CardType.Ten),
-                        new Card(CardSuit.Diamond, CardType.Nine)
+                        new Card(
+                            CardSuit.Diamond,
+                            CardType.Nine)
                     },
                 new object[]
                     {
@@ -84,9 +92,15 @@
                 new object[]
                     {
                         // Player has Diamond but plays trump.
-                        new Card(CardSuit.Diamond, CardType.Ace),
-                        new Card(CardSuit.Heart, CardType.Queen),
-                        new Card(CardSuit.Heart, CardType.Jack)
+                        new Card(
+                            CardSuit.Diamond,
+                            CardType.Ace),
+                        new Card(
+                            CardSuit.Heart,
+                            CardType.Queen),
+                        new Card(
+                            CardSuit.Heart,
+                            CardType.Jack)
                     },
                 new object[]
                     {
@@ -104,8 +118,12 @@
                     {
                         // Player has trump but plays other suit
                         new Card(CardSuit.Club, CardType.King),
-                        new Card(CardSuit.Spade, CardType.King),
-                        new Card(CardSuit.Diamond, CardType.Nine)
+                        new Card(
+                            CardSuit.Spade,
+                            CardType.King),
+                        new Card(
+                            CardSuit.Diamond,
+                            CardType.Nine)
                     },
             };
 
@@ -123,7 +141,13 @@
             const bool ObserveRules = false;
             const bool First = false;
             var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(First, PlayerCard, NonExistingCard, JackOfHeart, PlayerCards, ObserveRules);
+            var canPlayCard = validator.CanPlayCard(
+                First,
+                PlayerCard,
+                NonExistingCard,
+                JackOfHeart,
+                PlayerCards,
+                ObserveRules);
             Assert.IsTrue(canPlayCard);
         }
 
@@ -190,7 +214,8 @@
         }
 
         [Test]
-        public void CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDontHaveBiggerCardFromTheSameSuit()
+        public void
+            CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDontHaveBiggerCardFromTheSameSuit()
         {
             var playerCards = new List<Card>
                                   {

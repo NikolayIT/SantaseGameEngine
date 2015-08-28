@@ -10,7 +10,7 @@
         [Test]
         public void LogShouldNotLogAnything()
         {
-            var logger = new NoLogger();
+            ILogger logger = new NoLogger();
             logger.Log("test");
             Assert.AreEqual(string.Empty, logger.ToString());
         }
@@ -18,7 +18,7 @@
         [Test]
         public void LogLineShouldNotLogAnything()
         {
-            var logger = new NoLogger();
+            ILogger logger = new NoLogger();
             logger.LogLine("test");
             Assert.AreEqual(string.Empty, logger.ToString());
         }
