@@ -120,10 +120,16 @@
 
         public override void EndTurn(PlayerTurnContext context)
         {
+            Console.SetCursorPosition(20, 9);
+            Console.WriteLine($"{context.FirstPlayedCard} - {context.SecondPlayedCard}");
+            Thread.Sleep(3000);
         }
 
         private void PrintGameInfo(PlayerTurnContext context)
         {
+            Console.SetCursorPosition(20, 9);
+            Console.WriteLine($"{context.FirstPlayedCard} - {context.SecondPlayedCard}");
+
             Console.SetCursorPosition(0, 0);
             Console.WriteLine("Trump card: {0}            ", context.TrumpCard);
             Console.SetCursorPosition(0, 1);
