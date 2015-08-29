@@ -65,6 +65,7 @@
     <Compile Include="RoundStates\FinalRoundStateTests.cs" />
     <Compile Include="RoundStates\MoreThanTwoCardsLeftRoundStateTests.cs" />
     <Compile Include="RoundStates\StartRoundStateTests.cs" />
+    <Compile Include="RoundStates\StateManagerTests.cs" />
     <Compile Include="RoundStates\TwoCardsLeftRoundStateTests.cs" />
   </ItemGroup>
   <ItemGroup>

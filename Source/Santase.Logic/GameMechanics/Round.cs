@@ -20,7 +20,7 @@
         public Round(IPlayer firstPlayer, IPlayer secondPlayer)
         {
             this.deck = new Deck();
-            this.stateManager = new StateManagerManager();
+            this.stateManager = new StateManager();
 
             this.firstPlayer = new RoundPlayerInfo(firstPlayer);
             this.secondPlayer = new RoundPlayerInfo(secondPlayer);
