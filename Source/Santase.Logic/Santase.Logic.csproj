@@ -82,7 +82,6 @@
     <Compile Include="RoundStates\TwoCardsLeftRoundState.cs" />
     <Compile Include="GameMechanics\SantaseGame.cs" />
     <Compile Include="GameMechanics\Trick.cs" />
-    <Compile Include="GameMechanics\TrickResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

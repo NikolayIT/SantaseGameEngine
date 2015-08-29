@@ -47,13 +47,13 @@
         private void PlayTrick()
         {
             var trick = this.lastTrickWinner == PlayerPosition.SecondPlayer
-                            ? new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck)
-                            : new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck);
+                ? new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck)
+                : new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck);
 
             var trickResult = trick.Play();
-            this.lastTrickWinner = trickResult.Winner == this.firstPlayer
-                                       ? PlayerPosition.FirstPlayer
-                                       : PlayerPosition.SecondPlayer;
+            this.lastTrickWinner = trickResult == this.firstPlayer
+                ? PlayerPosition.FirstPlayer
+                : PlayerPosition.SecondPlayer;
 
             if (this.stateManager.State.ShouldDrawCard)
             {

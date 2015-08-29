@@ -24,7 +24,7 @@
             this.deck = deck;
         }
 
-        public TrickResult Play()
+        public RoundPlayerInfo Play()
         {
             var context = new PlayerTurnContext(this.stateManager.State, this.deck.TrumpCard, this.deck.CardsLeft);
 
@@ -53,7 +53,7 @@
             this.firstToPlay.Player.EndTurn(context);
             this.secondToPlay.Player.EndTurn(context);
 
-            return new TrickResult(winner);
+            return winner;
         }
 
         private static PlayerAction GetPlayerAction(RoundPlayerInfo playerInfo, PlayerTurnContext context)
