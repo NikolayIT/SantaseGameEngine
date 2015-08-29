@@ -35,11 +35,28 @@
             Assert.AreEqual(CardsCount, basePlayerImplementation.CardsCount);
         }
 
+        [Test]
+        public void EndRoundShouldClearCards()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            basePlayerImplementation.EndRound();
+            Assert.AreEqual(0, basePlayerImplementation.CardsCount);
+        }
+
+        [Test]
+        public void PlayerActionValidatorShouldNotBeNull()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            Assert.IsTrue(basePlayerImplementation.PlayerActionValidatorIsNotNull);
+        }
+
         private class BasePlayerImpl : BasePlayer
         {
             public bool ListIsNotNull => this.Cards != null;
 
             public bool AnnounceValidatorIsNotNull => this.AnnounceValidator != null;
+
+            public bool PlayerActionValidatorIsNotNull => this.PlayerActionValidator != null;
 
             public int CardsCount => this.Cards.Count;
 
