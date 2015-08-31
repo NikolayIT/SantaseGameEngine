@@ -52,6 +52,10 @@
       <Project>{F452D536-573D-4CA0-B24C-17E9E2B425BF}</Project>
       <Name>Santase.AI.DummyPlayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj">
+      <Project>{9709FC6D-11E3-475F-817C-DE64ADC90C58}</Project>
+      <Name>Santase.AI.SmartPlayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
       <Project>{76fd6ac0-6f00-4f92-8857-876e60aa9fe6}</Project>
       <Name>Santase.Logic</Name>

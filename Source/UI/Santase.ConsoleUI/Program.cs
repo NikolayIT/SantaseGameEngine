@@ -3,6 +3,7 @@
     using System;
 
     using Santase.AI.DummyPlayer;
+    using Santase.AI.SmartPlayer;
     using Santase.Logic;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Logger;
@@ -17,7 +18,7 @@
             var secondPlayerWins = 0;
             for (var i = 0; i < GamesToPlay; i++)
             {
-                var game = CreateGameWithBots();
+                var game = CreateGameSmartVsDummyBots();
                 var winner = game.Start();
 
                 if (winner == PlayerPosition.FirstPlayer)
@@ -64,6 +65,15 @@
         private static ISantaseGame CreateGameWithBots()
         {
             IPlayer firstPlayer = new DummyPlayer("First Dummy Player", new NoLogger()); // new ConsoleLogger("[1] "));
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] "));
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new ConsoleLogger("[game] "));
+            return game;
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static ISantaseGame CreateGameSmartVsDummyBots()
+        {
+            IPlayer firstPlayer = new SmartPlayer();
             IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] "));
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new ConsoleLogger("[game] "));
             return game;
