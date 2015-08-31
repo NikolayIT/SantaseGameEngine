@@ -13,7 +13,7 @@
     {
         public static void Main()
         {
-            const int GamesToPlay = 1000;
+            const int GamesToPlay = 10000;
             var firstPlayerWins = 0;
             var secondPlayerWins = 0;
             for (var i = 0; i < GamesToPlay; i++)
@@ -30,10 +30,8 @@
                     secondPlayerWins++;
                 }
 
-                Console.WriteLine($"Game finished! Game score: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints}");
+                Console.WriteLine($"Game finished! Game score: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
                 Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins}");
-                Console.WriteLine($"Rounds: {game.RoundsPlayed}");
-                Console.WriteLine(new string('-', 60));
             }
         }
 
@@ -75,7 +73,7 @@
         {
             IPlayer firstPlayer = new SmartPlayer();
             IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] "));
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new ConsoleLogger("[game] "));
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }
     }
