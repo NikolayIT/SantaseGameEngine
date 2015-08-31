@@ -2,9 +2,9 @@
 {
     using Santase.Logic.GameMechanics;
 
+    // TODO: Unit test this class
     public class GameWinnerLogic
     {
-        // TODO: Unit test this class
         public PlayerPosition UpdatePointsAndGetFirstToPlay(RoundResult round, ref int firstPlayerPoints, ref int secondPlayerPoints)
         {
             if (round.FirstPlayer.GameCloser)
