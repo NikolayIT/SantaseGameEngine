@@ -1,6 +1,7 @@
 ﻿namespace Santase.AI.SmartPlayer
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using Santase.Logic;
     using Santase.Logic.Cards;
@@ -39,7 +40,7 @@
                 }
             }
 
-            var cardToPlay = possibleCardsToPlay[0];
+            var cardToPlay = possibleCardsToPlay.OrderBy(x => x.Type).First();
             this.Cards.Remove(cardToPlay);
             return PlayerAction.PlayCard(cardToPlay);
         }
