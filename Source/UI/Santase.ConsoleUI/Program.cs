@@ -12,12 +12,28 @@
     {
         public static void Main()
         {
-            var game = CreateGameVersusBot();
-            game.Start();
+            const int GamesToPlay = 1000;
+            var firstPlayerWins = 0;
+            var secondPlayerWins = 0;
+            for (var i = 0; i < GamesToPlay; i++)
+            {
+                var game = CreateGameWithBots();
+                var winner = game.Start();
 
-            Console.WriteLine("Game finished!");
-            Console.WriteLine("{0} - {1}", game.FirstPlayerTotalPoints, game.SecondPlayerTotalPoints);
-            Console.WriteLine("Rounds: {0}", game.RoundsPlayed);
+                if (winner == PlayerPosition.FirstPlayer)
+                {
+                    firstPlayerWins++;
+                }
+                else if (winner == PlayerPosition.SecondPlayer)
+                {
+                    secondPlayerWins++;
+                }
+
+                Console.WriteLine($"Game finished! Game score: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints}");
+                Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins}");
+                Console.WriteLine($"Rounds: {game.RoundsPlayed}");
+                Console.WriteLine(new string('-', 60));
+            }
         }
 
         // ReSharper disable once UnusedMember.Local

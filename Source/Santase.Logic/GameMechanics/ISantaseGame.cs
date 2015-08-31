@@ -8,6 +8,6 @@
 
         int RoundsPlayed { get; }
 
-        void Start();
+        PlayerPosition Start();
     }
 }

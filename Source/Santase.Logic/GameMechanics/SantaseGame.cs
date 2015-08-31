@@ -43,13 +43,15 @@
 
         public int RoundsPlayed { get; private set; }
 
-        public void Start()
+        public PlayerPosition Start()
         {
-            while (!this.IsGameFinished())
+            while (this.GameWinner() == PlayerPosition.NoOne)
             {
                 this.PlayRound();
                 this.RoundsPlayed++;
             }
+
+            return this.GameWinner();
         }
 
         private void PlayRound()
@@ -77,9 +79,19 @@
                                        ref this.firstPlayerTotalPoints);
         }
 
-        private bool IsGameFinished()
+        private PlayerPosition GameWinner()
         {
-            return this.FirstPlayerTotalPoints >= 11 || this.SecondPlayerTotalPoints >= 11;
+            if (this.FirstPlayerTotalPoints >= 11)
+            {
+                return PlayerPosition.FirstPlayer;
+            }
+
+            if (this.SecondPlayerTotalPoints >= 11)
+            {
+                return PlayerPosition.SecondPlayer;
+            }
+
+            return PlayerPosition.NoOne;
         }
     }
 }
