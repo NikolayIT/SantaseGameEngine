@@ -20,6 +20,7 @@
             Console.WriteLine("Rounds: {0}", game.RoundsPlayed);
         }
 
+        // ReSharper disable once UnusedMember.Local
         private static ISantaseGame CreateTwoPlayerGame()
         {
             Console.BufferHeight = Console.WindowHeight = 17;
@@ -31,6 +32,7 @@
             return game;
         }
 
+        // ReSharper disable once UnusedMember.Local
         private static ISantaseGame CreateGameVersusBot()
         {
             Console.BufferHeight = Console.WindowHeight = 17;
@@ -42,6 +44,7 @@
             return game;
         }
 
+        // ReSharper disable once UnusedMember.Local
         private static ISantaseGame CreateGameWithBots()
         {
             IPlayer firstPlayer = new DummyPlayer("First Dummy Player", new NoLogger()); // new ConsoleLogger("[1] "));

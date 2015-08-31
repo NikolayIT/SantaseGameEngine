@@ -10,6 +10,7 @@
     {
         private readonly ILogger logger;
 
+        // ReSharper disable once UnusedMember.Global
         public DummyPlayer(string name)
             : this(name, new NoLogger())
         {
