@@ -32,7 +32,6 @@
         {
             this.DealFirstCards();
 
-            // TODO: !!! When player announces something he may immediately become round winner !!!
             while (!this.IsFinished())
             {
                 this.PlayTrick();

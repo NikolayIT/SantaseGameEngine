@@ -33,6 +33,12 @@
             context.FirstPlayedCard = firstPlayerAction.Card;
             this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
+            // When player announces something he may immediately become round winner
+            if (this.firstToPlay.RoundPoints >= 66)
+            {
+                return this.firstToPlay;
+            }
+
             // Second player
             var secondPlayerAction = GetPlayerAction(this.secondToPlay, context);
             context.SecondPlayedCard = secondPlayerAction.Card;
