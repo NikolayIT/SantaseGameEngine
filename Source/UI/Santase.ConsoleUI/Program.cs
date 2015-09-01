@@ -18,15 +18,13 @@
             var secondPlayerWins = 0;
             for (var i = 0; i < GamesToPlay; i++)
             {
-                var firstToPlayFirst = i % 2 == 0;
-                var game = CreateGameSmartVsPreviousVersionOfSmartBots(firstToPlayFirst);
+                var game =
+                    CreateGameSmartVsPreviousVersionOfSmartBots(
+                        i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
+
                 var winner = game.Start();
 
-                if (winner == PlayerPosition.FirstPlayer && firstToPlayFirst)
-                {
-                    firstPlayerWins++;
-                }
-                else if (winner == PlayerPosition.SecondPlayer && !firstToPlayFirst)
+                if (winner == PlayerPosition.FirstPlayer)
                 {
                     firstPlayerWins++;
                 }
@@ -35,15 +33,11 @@
                     secondPlayerWins++;
                 }
 
-                if (firstToPlayFirst)
-                {
-                    Console.WriteLine($"Total: smart {firstPlayerWins} - {secondPlayerWins} old == Game: smart {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} old ({game.RoundsPlayed} rounds)");
-                }
-                else
-                {
-                    Console.WriteLine($"Total: smart {firstPlayerWins} - {secondPlayerWins} old == Game: old   {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} smart ({game.RoundsPlayed} rounds)");
-                }
+                // Console.Write('.');
+                // Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins} == Game: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
             }
+
+            Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins}");
         }
 
         // ReSharper disable once UnusedMember.Local
@@ -89,23 +83,11 @@
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static ISantaseGame CreateGameSmartVsPreviousVersionOfSmartBots(bool smartPlayerFirst)
+        private static ISantaseGame CreateGameSmartVsPreviousVersionOfSmartBots(PlayerPosition playerPosition)
         {
-            IPlayer firstPlayer;
-            IPlayer secondPlayer;
-
-            if (smartPlayerFirst)
-            {
-                firstPlayer = new SmartPlayer();
-                secondPlayer = new SmartPlayerOld();
-            }
-            else
-            {
-                firstPlayer = new SmartPlayerOld();
-                secondPlayer = new SmartPlayer();
-            }
-
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new NoLogger()); // new ConsoleLogger("[game] "));
+            IPlayer firstPlayer = new SmartPlayer();
+            IPlayer secondPlayer = new SmartPlayerOld();
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }
     }

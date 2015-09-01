@@ -41,7 +41,14 @@
                 }
             }
 
-            var cardToPlay = possibleCardsToPlay.First();
+            // Smallest non-trump card
+            var cardToPlay = possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
+            if (cardToPlay != null)
+            {
+                return this.PlayCard(cardToPlay);
+            }
+
+            cardToPlay = possibleCardsToPlay.OrderByDescending(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(cardToPlay);
         }
 
