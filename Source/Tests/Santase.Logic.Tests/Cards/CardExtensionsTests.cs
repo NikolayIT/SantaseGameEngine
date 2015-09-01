@@ -18,11 +18,7 @@
             foreach (CardSuit cardSuitValue in Enum.GetValues(typeof(CardSuit)))
             {
                 var stringValue = cardSuitValue.ToFriendlyString();
-                if (values.Contains(stringValue))
-                {
-                    Assert.Fail($"Duplicate string value \"{stringValue}\" for card suit \"{cardSuitValue}\"");
-                }
-
+                Assert.IsFalse(values.Contains(stringValue), $"Duplicate string value \"{stringValue}\" for card suit \"{cardSuitValue}\"");
                 values.Add(stringValue);
             }
         }
@@ -43,11 +39,7 @@
             foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
             {
                 var stringValue = cardTypeValue.ToFriendlyString();
-                if (values.Contains(stringValue))
-                {
-                    Assert.Fail($"Duplicate string value \"{stringValue}\" for card suit \"{cardTypeValue}\"");
-                }
-
+                Assert.IsFalse(values.Contains(stringValue), $"Duplicate string value \"{stringValue}\" for card suit \"{cardTypeValue}\"");
                 values.Add(stringValue);
             }
         }

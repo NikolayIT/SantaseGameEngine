@@ -85,11 +85,7 @@
                 {
                     var card = new Card(cardSuitValue, cardTypeValue);
                     var cardHashCode = card.GetHashCode();
-                    if (values.Contains(cardHashCode))
-                    {
-                        Assert.Fail($"Duplicate hash code \"{cardHashCode}\" for card \"{card}\"");
-                    }
-
+                    Assert.IsFalse(values.Contains(cardHashCode), $"Duplicate hash code \"{cardHashCode}\" for card \"{card}\"");
                     values.Add(cardHashCode);
                 }
             }
@@ -105,11 +101,7 @@
                 {
                     var card = new Card(cardSuitValue, cardTypeValue);
                     var cardToString = card.ToString();
-                    if (values.Contains(cardToString))
-                    {
-                        Assert.Fail($"Duplicate string value \"{cardToString}\" for card \"{card}\"");
-                    }
-
+                    Assert.IsFalse(values.Contains(cardToString), $"Duplicate string value \"{cardToString}\" for card \"{card}\"");
                     values.Add(cardToString);
                 }
             }

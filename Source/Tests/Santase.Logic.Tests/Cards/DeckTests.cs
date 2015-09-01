@@ -93,11 +93,7 @@
             {
                 var card = deck.GetNextCard();
                 Assert.IsNotNull(card);
-                if (cards.Contains(card))
-                {
-                    Assert.Fail($"Duplicate card drawn \"{card}\"");
-                }
-
+                Assert.IsFalse(cards.Contains(card), $"Duplicate card drawn \"{card}\"");
                 cards.Add(card);
             }
         }

@@ -182,11 +182,7 @@
         [TestCaseSource(nameof(InvalidCardToPlay))]
         public void CanPlayCardShouldReturnFalse(Card otherPlayerCard, Card playerCard, Card trumpCard)
         {
-            if (!PlayerCards.Contains(playerCard))
-            {
-                Assert.Fail("Invalid play card!");
-            }
-
+            Assert.IsTrue(PlayerCards.Contains(playerCard), "Invalid play card selected for the test!");
             var validator = new PlayCardActionValidator();
             var canPlayCard = validator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
             Assert.IsFalse(canPlayCard);
