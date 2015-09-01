@@ -13,24 +13,36 @@
     {
         public static void Main()
         {
-            const int GamesToPlay = 10000;
+            const int GamesToPlay = 5;
             var firstPlayerWins = 0;
             var secondPlayerWins = 0;
             for (var i = 0; i < GamesToPlay; i++)
             {
-                var game = CreateGameSmartVsPreviousVersionOfSmartBots(i % 2 == 0);
+                var firstToPlayFirst = i % 2 == 0;
+                var game = CreateGameSmartVsPreviousVersionOfSmartBots(firstToPlayFirst);
                 var winner = game.Start();
 
-                if (winner == PlayerPosition.FirstPlayer)
+                if (winner == PlayerPosition.FirstPlayer && firstToPlayFirst)
                 {
                     firstPlayerWins++;
                 }
-                else if (winner == PlayerPosition.SecondPlayer)
+                else if (winner == PlayerPosition.SecondPlayer && !firstToPlayFirst)
+                {
+                    firstPlayerWins++;
+                }
+                else
                 {
                     secondPlayerWins++;
                 }
 
-                Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins} == Game: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
+                if (firstToPlayFirst)
+                {
+                    Console.WriteLine($"Total: smart {firstPlayerWins} - {secondPlayerWins} old == Game: smart {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} old ({game.RoundsPlayed} rounds)");
+                }
+                else
+                {
+                    Console.WriteLine($"Total: smart {firstPlayerWins} - {secondPlayerWins} old == Game: old   {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} smart ({game.RoundsPlayed} rounds)");
+                }
             }
         }
 
