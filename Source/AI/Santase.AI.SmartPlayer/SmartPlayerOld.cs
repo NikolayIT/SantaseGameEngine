@@ -7,9 +7,9 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
-    public class SmartPlayer : BasePlayer
+    public class SmartPlayerOld : BasePlayer
     {
-        public override string Name => "Smart Player";
+        public override string Name => "Smart Player Old";
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {

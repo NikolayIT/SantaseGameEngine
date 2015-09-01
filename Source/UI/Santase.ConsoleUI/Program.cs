@@ -18,7 +18,7 @@
             var secondPlayerWins = 0;
             for (var i = 0; i < GamesToPlay; i++)
             {
-                var game = CreateGameSmartVsDummyBots();
+                var game = CreateGameSmartVsPreviousVersionOfSmartBots(i % 2 == 0);
                 var winner = game.Start();
 
                 if (winner == PlayerPosition.FirstPlayer)
@@ -30,8 +30,7 @@
                     secondPlayerWins++;
                 }
 
-                Console.WriteLine($"Game finished! Game score: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
-                Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins}");
+                Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins} == Game: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
             }
         }
 
@@ -73,6 +72,27 @@
         {
             IPlayer firstPlayer = new SmartPlayer();
             IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] "));
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new NoLogger()); // new ConsoleLogger("[game] "));
+            return game;
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static ISantaseGame CreateGameSmartVsPreviousVersionOfSmartBots(bool smartPlayerFirst)
+        {
+            IPlayer firstPlayer;
+            IPlayer secondPlayer;
+
+            if (smartPlayerFirst)
+            {
+                firstPlayer = new SmartPlayer();
+                secondPlayer = new SmartPlayerOld();
+            }
+            else
+            {
+                firstPlayer = new SmartPlayerOld();
+                secondPlayer = new SmartPlayer();
+            }
+
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }
