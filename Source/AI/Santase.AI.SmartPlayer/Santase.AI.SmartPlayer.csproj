@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\AlphaBetaPruning.cs" />
     <Compile Include="SmartPlayerOld.cs" />
     <Compile Include="SmartPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
