@@ -116,6 +116,14 @@
         }
 
         [Test]
+        public void CloneShouldReturnObjectOfTypeCard()
+        {
+            var card = new Card(CardSuit.Diamond, CardType.Queen);
+            var newCard = card.Clone();
+            Assert.IsInstanceOf<Card>(newCard);
+        }
+
+        [Test]
         public void CloneShouldReturnEqualObjectWithEqualProperties()
         {
             var card = new Card(CardSuit.Club, CardType.Ace);
