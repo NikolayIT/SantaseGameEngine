@@ -3,7 +3,7 @@
     using Santase.Logic.GameMechanics;
 
     // TODO: Unit test this class
-    public class GameWinnerLogic
+    public class GameWinnerLogic : IGameWinnerLogic
     {
         public PlayerPosition UpdatePointsAndGetFirstToPlay(RoundResult round, ref int firstPlayerPoints, ref int secondPlayerPoints)
         {
