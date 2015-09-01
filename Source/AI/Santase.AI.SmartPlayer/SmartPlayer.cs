@@ -18,8 +18,7 @@
             // Always change trump as this is always a good move
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
-                this.Cards.Remove(new Card(context.TrumpCard.Suit, CardType.Nine));
-                return PlayerAction.ChangeTrump();
+                return this.ChangeTrump(context.TrumpCard.Suit);
             }
 
             // TODO: Close the game?
@@ -35,15 +34,7 @@
             {
                 foreach (var card in possibleCardsToPlay)
                 {
-                    if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Fourty)
-                    {
-                        return this.PlayCard(card);
-                    }
-                }
-
-                foreach (var card in possibleCardsToPlay)
-                {
-                    if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Twenty)
+                    if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) != Announce.None)
                     {
                         return this.PlayCard(card);
                     }

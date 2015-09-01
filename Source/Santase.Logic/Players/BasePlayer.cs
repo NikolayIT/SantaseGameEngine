@@ -36,6 +36,12 @@
             this.Cards.Clear();
         }
 
+        protected PlayerAction ChangeTrump(CardSuit trumpCardSuit)
+        {
+            this.Cards.Remove(new Card(trumpCardSuit, CardType.Nine));
+            return PlayerAction.ChangeTrump();
+        }
+
         protected PlayerAction PlayCard(Card card)
         {
             this.Cards.Remove(card);
