@@ -9,6 +9,8 @@
 
     public class SmartPlayer : BasePlayer
     {
+        private readonly IList<Card> playedCards = new List<Card>();
+
         public override string Name => "Smart Player";
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
@@ -21,32 +23,56 @@
             }
 
             // TODO: Close the game?
-            // TODO: Choose appropriate card
+
+            return this.ChooseCard(context);
+        }
+
+        // TODO: Choose appropriate card
+        private PlayerAction ChooseCard(PlayerTurnContext context)
+        {
+            var possibleCardsToPlay = this.GetPossibleCardsToPlay(context);
+            if (context.IsFirstPlayerTurn)
+            {
+                foreach (var card in possibleCardsToPlay)
+                {
+                    if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Fourty)
+                    {
+                        return this.PlayCard(card);
+                    }
+                }
+
+                foreach (var card in possibleCardsToPlay)
+                {
+                    if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Twenty)
+                    {
+                        return this.PlayCard(card);
+                    }
+                }
+            }
+
+            var cardToPlay = possibleCardsToPlay.First();
+            return this.PlayCard(cardToPlay);
+        }
+
+        private IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context)
+        {
             var possibleCardsToPlay = new List<Card>();
             foreach (var card in this.Cards)
             {
                 var action = PlayerAction.PlayCard(card);
-
                 if (this.PlayerActionValidator.IsValid(action, context, this.Cards))
                 {
-                    // If 20 or 40 => return the card (Just for the test)
-                    if (action.Announce != Announce.None)
-                    {
-                        this.Cards.Remove(card);
-                        return action;
-                    }
-
                     possibleCardsToPlay.Add(card);
                 }
             }
 
-            var cardToPlay = possibleCardsToPlay.OrderBy(x => x.Type).First();
-            this.Cards.Remove(cardToPlay);
-            return PlayerAction.PlayCard(cardToPlay);
+            return possibleCardsToPlay;
         }
 
         public override void EndTurn(PlayerTurnContext context)
         {
+            this.playedCards.Add(context.FirstPlayedCard);
+            this.playedCards.Add(context.SecondPlayedCard);
             // TODO: Count the points of the other player
         }
     }

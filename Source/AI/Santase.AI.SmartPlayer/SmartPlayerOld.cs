@@ -40,7 +40,7 @@
                 }
             }
 
-            var cardToPlay = possibleCardsToPlay.OrderBy(x => x.Type).First();
+            var cardToPlay = possibleCardsToPlay.First();
             this.Cards.Remove(cardToPlay);
             return PlayerAction.PlayCard(cardToPlay);
         }
