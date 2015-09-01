@@ -20,8 +20,9 @@
 
         public int CardsLeftInDeck { get; }
 
-        // TODO: Add FirstPlayerAnnounce?
         public Card FirstPlayedCard { get; set; }
+
+        public Announce FirstPlayerAnnounce { get; set; }
 
         public Card SecondPlayedCard { get; set; }
 
@@ -32,6 +33,7 @@
             var newPlayerTurnContext = new PlayerTurnContext(this.State, this.TrumpCard, this.CardsLeftInDeck);
             newPlayerTurnContext.FirstPlayedCard = this.FirstPlayedCard?.Clone() as Card;
             newPlayerTurnContext.SecondPlayedCard = this.SecondPlayedCard?.Clone() as Card;
+            newPlayerTurnContext.FirstPlayerAnnounce = this.FirstPlayerAnnounce;
             return newPlayerTurnContext;
         }
     }

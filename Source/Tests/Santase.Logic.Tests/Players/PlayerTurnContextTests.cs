@@ -34,8 +34,22 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0) { FirstPlayedCard = card };
+                0)
+            { FirstPlayedCard = card };
             Assert.AreEqual(card, playerTurnContext.FirstPlayedCard);
+        }
+
+        [Test]
+        public void FirstPlayerAnnouncePropertyShouldWorkCorrectly()
+        {
+            const Announce Announce = Announce.Twenty;
+            var haveStateMock = new Mock<IStateManager>();
+            var playerTurnContext = new PlayerTurnContext(
+                new FinalRoundState(haveStateMock.Object),
+                new Card(CardSuit.Club, CardType.Ace),
+                0)
+            { FirstPlayerAnnounce = Announce };
+            Assert.AreEqual(Announce, playerTurnContext.FirstPlayerAnnounce);
         }
 
         [Test]
@@ -99,6 +113,7 @@
             var state = new StartRoundState(haveStateMock.Object);
             var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Club, CardType.Ten), 12);
             playerTurnContext.FirstPlayedCard = new Card(CardSuit.Spade, CardType.King);
+            playerTurnContext.FirstPlayerAnnounce = Announce.Fourty;
             playerTurnContext.SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine);
 
             var clonedPlayerTurnContext = playerTurnContext.Clone() as PlayerTurnContext;
@@ -107,6 +122,7 @@
             Assert.AreSame(playerTurnContext.State, clonedPlayerTurnContext.State);
             Assert.AreEqual(playerTurnContext.CardsLeftInDeck, clonedPlayerTurnContext.CardsLeftInDeck);
             Assert.AreEqual(playerTurnContext.FirstPlayedCard, clonedPlayerTurnContext.FirstPlayedCard);
+            Assert.AreEqual(playerTurnContext.FirstPlayerAnnounce, clonedPlayerTurnContext.FirstPlayerAnnounce);
             Assert.AreEqual(playerTurnContext.SecondPlayedCard, clonedPlayerTurnContext.SecondPlayedCard);
             Assert.AreEqual(playerTurnContext.TrumpCard, clonedPlayerTurnContext.TrumpCard);
         }

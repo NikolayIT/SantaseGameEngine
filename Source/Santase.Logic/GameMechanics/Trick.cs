@@ -31,6 +31,7 @@
             // First player
             var firstPlayerAction = this.GetFirstPlayerAction(this.firstToPlay, context);
             context.FirstPlayedCard = firstPlayerAction.Card;
+            context.FirstPlayerAnnounce = firstPlayerAction.Announce;
             this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
             // When player announces something he may immediately become round winner
