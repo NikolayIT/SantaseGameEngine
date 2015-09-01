@@ -14,16 +14,16 @@
             this.CardsLeftInDeck = cardsLeftInDeck;
         }
 
-        public BaseRoundState State { get; internal set; }
+        public BaseRoundState State { get; set; }
 
-        public Card TrumpCard { get; internal set; }
+        public Card TrumpCard { get; set; }
 
         public int CardsLeftInDeck { get; }
 
         // TODO: Add FirstPlayerAnnounce?
-        public Card FirstPlayedCard { get; internal set; }
+        public Card FirstPlayedCard { get; set; }
 
-        public Card SecondPlayedCard { get; internal set; }
+        public Card SecondPlayedCard { get; set; }
 
         public bool IsFirstPlayerTurn => this.FirstPlayedCard == null;
 

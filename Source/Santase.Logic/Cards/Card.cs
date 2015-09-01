@@ -2,6 +2,9 @@
 {
     using System;
 
+    /// <summary>
+    /// Immutable object to represent game card with suit and type.
+    /// </summary>
     public class Card : ICloneable
     {
         public Card(CardSuit suit, CardType type)
@@ -38,12 +41,7 @@
         public override bool Equals(object obj)
         {
             var anotherCard = obj as Card;
-            if (anotherCard == null)
-            {
-                return false;
-            }
-
-            return this.Equals(anotherCard);
+            return anotherCard != null && this.Equals(anotherCard);
         }
 
         public override int GetHashCode()
