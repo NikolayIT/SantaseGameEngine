@@ -33,8 +33,7 @@
                     secondPlayerWins++;
                 }
 
-                // Console.Write('.');
-                // Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins} == Game: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
+                Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins} == Game: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
             }
 
             Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins}");
@@ -86,7 +85,7 @@
         private static ISantaseGame CreateGameSmartVsPreviousVersionOfSmartBots(PlayerPosition playerPosition)
         {
             IPlayer firstPlayer = new SmartPlayer();
-            IPlayer secondPlayer = new SmartPlayerOld();
+            IPlayer secondPlayer = new SmartPlayerOld(); // new DummyPlayer("d");
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }

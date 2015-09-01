@@ -32,23 +32,51 @@
             var possibleCardsToPlay = this.GetPossibleCardsToPlay(context);
             if (context.IsFirstPlayerTurn)
             {
-                foreach (var card in possibleCardsToPlay)
+                return this.ChooseFirstCard(context, possibleCardsToPlay);
+            }
+            else
+            {
+                return this.ChooseSecondCard(context, possibleCardsToPlay);
+            }
+        }
+
+        private PlayerAction ChooseFirstCard(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        {
+            foreach (var card in possibleCardsToPlay)
+            {
+                if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) != Announce.None)
                 {
-                    if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) != Announce.None)
-                    {
-                        return this.PlayCard(card);
-                    }
+                    return this.PlayCard(card);
                 }
             }
 
-            // Smallest non-trump card
-            var cardToPlay = possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
+            // Biggest non-trump card
+            var cardToPlay =
+                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
             if (cardToPlay != null)
             {
                 return this.PlayCard(cardToPlay);
             }
 
             cardToPlay = possibleCardsToPlay.OrderByDescending(x => x.GetValue()).FirstOrDefault();
+            return this.PlayCard(cardToPlay);
+        }
+
+        private PlayerAction ChooseSecondCard(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        {
+            // Smallest non-trump card
+            var cardToPlay =
+                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
+                    .OrderBy(x => x.GetValue())
+                    .FirstOrDefault();
+            if (cardToPlay != null)
+            {
+                return this.PlayCard(cardToPlay);
+            }
+
+            cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(cardToPlay);
         }
 
