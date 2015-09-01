@@ -114,5 +114,33 @@
                 }
             }
         }
+
+        [Test]
+        public void CloneShouldReturnDifferentReference()
+        {
+            var card = new Card(CardSuit.Diamond, CardType.Queen);
+            var newCard = card.Clone();
+            Assert.AreNotSame(card, newCard);
+        }
+
+        [Test]
+        public void CloneShouldReturnEqualObjectWithEqualProperties()
+        {
+            var card = new Card(CardSuit.Club, CardType.Ace);
+            var newCard = card.Clone() as Card;
+            Assert.IsNotNull(newCard);
+            Assert.IsTrue(card.Equals(newCard));
+            Assert.AreEqual(card.Suit, newCard.Suit);
+            Assert.AreEqual(card.Type, newCard.Type);
+        }
+
+        [Test]
+        public void CloneShouldReturnObjectWithTheSameHashCode()
+        {
+            var card = new Card(CardSuit.Spade, CardType.Nine);
+            var newCard = card.Clone() as Card;
+            Assert.IsNotNull(newCard);
+            Assert.AreEqual(card.GetHashCode(), newCard.GetHashCode());
+        }
     }
 }
