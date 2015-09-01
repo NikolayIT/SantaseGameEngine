@@ -32,13 +32,6 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
-            {
-                this.logger.LogLine("Changing trump.");
-                this.Cards.Remove(new Card(context.TrumpCard.Suit, CardType.Nine));
-                return PlayerAction.ChangeTrump();
-            }
-
             var shuffledCards = this.Cards.Shuffle();
             foreach (var card in shuffledCards)
             {
@@ -46,8 +39,7 @@
                 if (this.PlayerActionValidator.IsValid(action, context, this.Cards))
                 {
                     this.logger.LogLine($"Playing {card}");
-                    this.Cards.Remove(card);
-                    return action;
+                    return this.PlayCard(card);
                 }
             }
 
