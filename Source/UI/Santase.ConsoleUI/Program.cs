@@ -13,7 +13,7 @@
     {
         public static void Main()
         {
-            const int GamesToPlay = 5;
+            const int GamesToPlay = 10000;
             var firstPlayerWins = 0;
             var secondPlayerWins = 0;
             for (var i = 0; i < GamesToPlay; i++)

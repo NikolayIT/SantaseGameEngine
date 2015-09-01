@@ -35,5 +35,11 @@
         {
             this.Cards.Clear();
         }
+
+        protected PlayerAction PlayCard(Card card)
+        {
+            this.Cards.Remove(card);
+            return PlayerAction.PlayCard(card);
+        }
     }
 }
