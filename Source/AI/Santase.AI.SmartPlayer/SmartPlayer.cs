@@ -30,14 +30,9 @@
         private PlayerAction ChooseCard(PlayerTurnContext context)
         {
             var possibleCardsToPlay = this.GetPossibleCardsToPlay(context);
-            if (context.IsFirstPlayerTurn)
-            {
-                return this.ChooseFirstCard(context, possibleCardsToPlay);
-            }
-            else
-            {
-                return this.ChooseSecondCard(context, possibleCardsToPlay);
-            }
+            return context.IsFirstPlayerTurn
+                       ? this.ChooseFirstCard(context, possibleCardsToPlay)
+                       : this.ChooseSecondCard(context, possibleCardsToPlay);
         }
 
         private PlayerAction ChooseFirstCard(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
@@ -93,6 +88,12 @@
             }
 
             return possibleCardsToPlay;
+        }
+
+        public override void EndRound()
+        {
+            this.playedCards.Clear();
+            base.EndRound();
         }
 
         public override void EndTurn(PlayerTurnContext context)

@@ -6,16 +6,21 @@
     using Santase.Logic.Logger;
     using Santase.Logic.Players;
 
+    /// <summary>
+    /// This dummy player follows the rules and always plays random card.
+    /// Dummy never changes the trump or closes the game.
+    /// </summary>
     public class DummyPlayer : BasePlayer
     {
         private readonly ILogger logger;
 
         // ReSharper disable once UnusedMember.Global
-        public DummyPlayer(string name)
-            : this(name, new NoLogger())
+        public DummyPlayer()
+            : this("Dummy Player", new NoLogger())
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public DummyPlayer(string name, ILogger logger)
         {
             this.Name = name;
