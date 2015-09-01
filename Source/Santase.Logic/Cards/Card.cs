@@ -1,6 +1,8 @@
 ﻿namespace Santase.Logic.Cards
 {
-    public class Card
+    using System;
+
+    public class Card : ICloneable
     {
         public Card(CardSuit suit, CardType type)
         {
@@ -50,6 +52,11 @@
             {
                 return ((int)this.Suit * 13) + (int)this.Type;
             }
+        }
+
+        public object Clone()
+        {
+            return new Card(this.Suit, this.Type);
         }
 
         public override string ToString()
