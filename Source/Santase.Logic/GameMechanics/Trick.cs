@@ -65,7 +65,7 @@
         private static PlayerAction GetPlayerAction(RoundPlayerInfo playerInfo, PlayerTurnContext context)
         {
             var playerActionValidator = new PlayerActionValidator();
-            var action = playerInfo.Player.GetTurn(context);
+            var action = playerInfo.Player.GetTurn(context.Clone() as PlayerTurnContext);
             var isActionValid = playerActionValidator.IsValid(action, context, playerInfo.Cards);
             if (!isActionValid)
             {

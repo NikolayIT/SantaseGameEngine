@@ -30,8 +30,8 @@
         public object Clone()
         {
             var newPlayerTurnContext = new PlayerTurnContext(this.State, this.TrumpCard, this.CardsLeftInDeck);
-            newPlayerTurnContext.FirstPlayedCard = this.FirstPlayedCard.Clone() as Card;
-            newPlayerTurnContext.SecondPlayedCard = this.SecondPlayedCard.Clone() as Card;
+            newPlayerTurnContext.FirstPlayedCard = this.FirstPlayedCard?.Clone() as Card;
+            newPlayerTurnContext.SecondPlayedCard = this.SecondPlayedCard?.Clone() as Card;
             return newPlayerTurnContext;
         }
     }
