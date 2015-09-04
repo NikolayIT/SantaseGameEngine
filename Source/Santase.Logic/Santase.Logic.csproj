@@ -48,8 +48,9 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\RandomProvider.cs" />
     <Compile Include="GameMechanics\RoundPlayerInfo.cs" />
-    <Compile Include="GameWinnerLogic.cs" />
-    <Compile Include="IGameWinnerLogic.cs" />
+    <Compile Include="RoundWinnerPointsLogic.cs" />
+    <Compile Include="IRoundWinnerPointsLogic.cs" />
+    <Compile Include="RoundWinnerPoints.cs" />
     <Compile Include="RoundStates\StateManager.cs" />
     <Compile Include="GameMechanics\Round.cs" />
     <Compile Include="GameMechanics\RoundResult.cs" />

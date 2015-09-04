@@ -3,16 +3,15 @@
     using Santase.Logic.GameMechanics;
 
     // TODO: Unit test this class
-    public class GameWinnerLogic : IGameWinnerLogic
+    public class RoundWinnerPointsPointsLogic : IRoundWinnerPointsLogic
     {
-        public PlayerPosition UpdatePointsAndGetFirstToPlay(RoundResult round, ref int firstPlayerPoints, ref int secondPlayerPoints)
+        public RoundWinnerPoints GetWinnerPoints(RoundResult round)
         {
             if (round.FirstPlayer.GameCloser)
             {
                 if (round.FirstPlayer.RoundPoints < 66)
                 {
-                    secondPlayerPoints += 3;
-                    return PlayerPosition.FirstPlayer;
+                    return RoundWinnerPoints.Second(3);
                 }
             }
 
@@ -20,67 +19,61 @@
             {
                 if (round.SecondPlayer.RoundPoints < 66)
                 {
-                    firstPlayerPoints += 3;
-                    return PlayerPosition.SecondPlayer;
+                    return RoundWinnerPoints.First(3);
                 }
+            }
+
+            if (round.FirstPlayer.RoundPoints == round.SecondPlayer.RoundPoints)
+            {
+                return RoundWinnerPoints.Draw();
             }
 
             if (round.FirstPlayer.RoundPoints < 66 && round.SecondPlayer.RoundPoints < 66)
             {
                 if (round.FirstPlayer.RoundPoints > round.SecondPlayer.RoundPoints)
                 {
-                    firstPlayerPoints += 1;
-                    return PlayerPosition.SecondPlayer;
+                    return RoundWinnerPoints.First(1);
                 }
                 else
                 {
-                    secondPlayerPoints += 1;
-                    return PlayerPosition.FirstPlayer;
+                    return RoundWinnerPoints.Second(1);
                 }
-
-                // TODO: What if equal points?
             }
 
             if (round.FirstPlayer.RoundPoints > round.SecondPlayer.RoundPoints)
             {
                 if (round.SecondPlayer.RoundPoints >= 33)
                 {
-                    firstPlayerPoints += 1;
-                    return PlayerPosition.SecondPlayer;
+                    return RoundWinnerPoints.First(1);
                 }
                 else if (round.SecondPlayer.HasAtLeastOneTrick)
                 {
-                    firstPlayerPoints += 2;
-                    return PlayerPosition.SecondPlayer;
+                    return RoundWinnerPoints.First(2);
                 }
                 else
                 {
-                    firstPlayerPoints += 3;
-                    return PlayerPosition.SecondPlayer;
+                    return RoundWinnerPoints.First(3);
                 }
             }
             else if (round.SecondPlayer.RoundPoints > round.FirstPlayer.RoundPoints)
             {
                 if (round.FirstPlayer.RoundPoints >= 33)
                 {
-                    secondPlayerPoints += 1;
-                    return PlayerPosition.FirstPlayer;
+                    return RoundWinnerPoints.Second(1);
                 }
                 else if (round.FirstPlayer.HasAtLeastOneTrick)
                 {
-                    secondPlayerPoints += 2;
-                    return PlayerPosition.FirstPlayer;
+                    return RoundWinnerPoints.Second(2);
                 }
                 else
                 {
-                    secondPlayerPoints += 3;
-                    return PlayerPosition.FirstPlayer;
+                    return RoundWinnerPoints.Second(3);
                 }
             }
             else
             {
                 // Equal points => 0 points to each
-                return PlayerPosition.NoOne;
+                return RoundWinnerPoints.Draw();
             }
         }
     }

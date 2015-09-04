@@ -67,16 +67,18 @@
                     ? $"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}"
                     : $"{roundResult.SecondPlayer.RoundPoints} - {roundResult.FirstPlayer.RoundPoints}");
 
-            var gameWinnerLogic = new GameWinnerLogic();
-            this.firstToPlay = this.firstToPlay == PlayerPosition.FirstPlayer
-                                   ? gameWinnerLogic.UpdatePointsAndGetFirstToPlay(
-                                       roundResult,
-                                       ref this.firstPlayerTotalPoints,
-                                       ref this.secondPlayerTotalPoints)
-                                   : gameWinnerLogic.UpdatePointsAndGetFirstToPlay(
-                                       roundResult,
-                                       ref this.secondPlayerTotalPoints,
-                                       ref this.firstPlayerTotalPoints);
+            IRoundWinnerPointsLogic roundWinnerPointsPointsLogic = new RoundWinnerPointsPointsLogic();
+            var roundWinnerPoints = roundWinnerPointsPointsLogic.GetWinnerPoints(roundResult);
+            if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
+            {
+                this.firstPlayerTotalPoints += roundWinnerPoints.Points;
+                this.firstToPlay = PlayerPosition.SecondPlayer;
+            }
+            else
+            {
+                this.secondPlayerTotalPoints += roundWinnerPoints.Points;
+                this.firstToPlay = PlayerPosition.FirstPlayer;
+            }
         }
 
         private PlayerPosition GameWinner()
