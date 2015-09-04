@@ -50,6 +50,40 @@
             Assert.IsTrue(basePlayerImplementation.PlayerActionValidatorIsNotNull);
         }
 
+        [Test]
+        public void PlayCardShouldReturnPlayerActionWithTypePlayCard()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            var action = basePlayerImplementation.PlayCardProxy(new Card(CardSuit.Heart, CardType.Ace));
+            Assert.AreEqual(PlayerActionType.PlayCard, action.Type);
+        }
+
+        [Test]
+        public void PlayCardShouldReturnPlayerActionWithPlayedCard()
+        {
+            var card = new Card(CardSuit.Heart, CardType.Ace);
+            var basePlayerImplementation = new BasePlayerImpl();
+            var action = basePlayerImplementation.PlayCardProxy(card);
+            Assert.AreEqual(card, action.Card);
+        }
+
+        [Test]
+        public void ChangeTrumpShouldReturnPlayerActionWithTypeChangeTrump()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            var action = basePlayerImplementation.ChangeTrumpProxy(CardSuit.Diamond);
+            Assert.AreEqual(PlayerActionType.ChangeTrump, action.Type);
+        }
+
+        [Test]
+        public void ChangeTrumpShouldRemoveNineOfTrumpFromThePlayersCards()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            basePlayerImplementation.AddCard(new Card(CardSuit.Diamond, CardType.Nine));
+            basePlayerImplementation.ChangeTrumpProxy(CardSuit.Diamond);
+            Assert.AreEqual(0, basePlayerImplementation.CardsCount);
+        }
+
         private class BasePlayerImpl : BasePlayer
         {
             public bool ListIsNotNull => this.Cards != null;
@@ -69,6 +103,16 @@
 
             public override void EndTurn(PlayerTurnContext context)
             {
+            }
+
+            public PlayerAction ChangeTrumpProxy(CardSuit trumpCardSuit)
+            {
+                return this.ChangeTrump(trumpCardSuit);
+            }
+
+            public PlayerAction PlayCardProxy(Card card)
+            {
+                return this.PlayCard(card);
             }
         }
     }
