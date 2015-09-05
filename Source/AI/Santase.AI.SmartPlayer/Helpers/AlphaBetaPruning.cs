@@ -15,13 +15,13 @@
 
         private readonly ICardWinnerLogic cardWinnerLogic;
 
-        private readonly IGameWinnerLogic gameWinnerLogic;
+        private readonly IRoundWinnerPointsLogic roundWinnerPointsLogic;
 
-        public AlphaBetaPruning(IPlayerActionValidator playerActionValidator, ICardWinnerLogic cardWinnerLogic, IGameWinnerLogic gameWinnerLogic)
+        public AlphaBetaPruning(IPlayerActionValidator playerActionValidator, ICardWinnerLogic cardWinnerLogic, IRoundWinnerPointsLogic roundWinnerPointsLogic)
         {
             this.playerActionValidator = playerActionValidator;
             this.cardWinnerLogic = cardWinnerLogic;
-            this.gameWinnerLogic = gameWinnerLogic;
+            this.roundWinnerPointsLogic = roundWinnerPointsLogic;
         }
 
         public IDictionary<Card, int> GetBestCard(
