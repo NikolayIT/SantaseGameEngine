@@ -7,7 +7,7 @@
     using Santase.Logic.WinnerLogic;
 
     // TODO: Unit test this class
-    public class Trick
+    internal class Trick
     {
         private readonly RoundPlayerInfo firstToPlay;
 

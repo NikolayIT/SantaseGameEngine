@@ -7,7 +7,7 @@
     using Santase.Logic.Players;
 
     // TODO: Unit test this class
-    public class RoundPlayerInfo
+    internal class RoundPlayerInfo
     {
         public RoundPlayerInfo(IPlayer player)
         {

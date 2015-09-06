@@ -1,6 +1,6 @@
 ﻿namespace Santase.Logic.GameMechanics
 {
-    public class RoundResult
+    internal class RoundResult
     {
         public RoundResult(RoundPlayerInfo firstPlayer, RoundPlayerInfo secondPlayer)
         {

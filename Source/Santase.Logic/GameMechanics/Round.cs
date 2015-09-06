@@ -5,7 +5,7 @@
     using Santase.Logic.RoundStates;
 
     // TODO: Unit test this class
-    public class Round
+    internal class Round
     {
         private readonly IDeck deck;
 
