@@ -111,10 +111,12 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new StartRoundState(haveStateMock.Object);
-            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Club, CardType.Ten), 12);
-            playerTurnContext.FirstPlayedCard = new Card(CardSuit.Spade, CardType.King);
-            playerTurnContext.FirstPlayerAnnounce = Announce.Fourty;
-            playerTurnContext.SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine);
+            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Club, CardType.Ten), 12)
+                                        {
+                                            FirstPlayedCard = new Card(CardSuit.Spade, CardType.King),
+                                            FirstPlayerAnnounce = Announce.Fourty,
+                                            SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine)
+                                        };
 
             var clonedPlayerTurnContext = playerTurnContext.Clone() as PlayerTurnContext;
 

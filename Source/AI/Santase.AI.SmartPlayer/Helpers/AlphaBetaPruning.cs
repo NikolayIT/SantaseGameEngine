@@ -1,11 +1,9 @@
 ﻿namespace Santase.AI.SmartPlayer.Helpers
 {
-    using System;
     using System.Collections.Generic;
 
     using Santase.Logic;
     using Santase.Logic.Cards;
-    using Santase.Logic.GameMechanics;
     using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
     using Santase.Logic.WinnerLogic;
