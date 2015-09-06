@@ -68,7 +68,7 @@
 
         public IEnumerable<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards)
         {
-            var possibleCardsToPlay = new List<Card>();
+            var possibleCardsToPlay = new List<Card>(playerCards.Count);
             foreach (var card in playerCards)
             {
                 if (PlayCardActionValidator.CanPlayCard(
