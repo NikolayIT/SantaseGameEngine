@@ -80,6 +80,11 @@
                 roundResult.GameClosedBy,
                 roundResult.NoTricksPlayer);
 
+            if (roundWinnerPoints.Winner == PlayerPosition.NoOne)
+            {
+                return;
+            }
+
             if (this.firstToPlay == PlayerPosition.FirstPlayer)
             {
                 if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)

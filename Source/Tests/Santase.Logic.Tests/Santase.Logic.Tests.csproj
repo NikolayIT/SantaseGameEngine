@@ -68,6 +68,7 @@
     <Compile Include="RoundStates\StartRoundStateTests.cs" />
     <Compile Include="RoundStates\StateManagerTests.cs" />
     <Compile Include="RoundStates\TwoCardsLeftRoundStateTests.cs" />
+    <Compile Include="WinnerLogic\RoundWinnerPointsPointsLogicTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
