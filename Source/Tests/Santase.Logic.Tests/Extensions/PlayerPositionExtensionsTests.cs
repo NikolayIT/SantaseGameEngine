@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Tests.Extensions
 {
+    using System;
+
     using NUnit.Framework;
 
     using Santase.Logic.Extensions;
@@ -29,6 +31,14 @@
             var position = PlayerPosition.NoOne;
             var result = position.OtherPlayer();
             Assert.AreEqual(PlayerPosition.NoOne, result);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void OtherPlayerShouldThrowAnExceptionWhenGivenInvalidValue()
+        {
+            var position = (PlayerPosition)99999;
+            position.OtherPlayer();
         }
     }
 }
