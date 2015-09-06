@@ -8,18 +8,16 @@
     public class RandomProviderTests
     {
         [Test]
-        public void InstanceShouldReturnNonNullableValue()
+        public void NextShouldReturnValue()
         {
-            var randomInstance = RandomProvider.Instance;
-            Assert.IsNotNull(randomInstance);
+            RandomProvider.Next();
         }
 
         [Test]
-        public void InstanceShouldReturnTheSameInstanceEveryTime()
+        public void NextWithParametersShouldReturnValue()
         {
-            var firstRandomInstance = RandomProvider.Instance;
-            var secondRandomInstance = RandomProvider.Instance;
-            Assert.AreSame(firstRandomInstance, secondRandomInstance);
+            var value = RandomProvider.Next(1, 2);
+            Assert.AreEqual(1, value);
         }
     }
 }

@@ -1,20 +1,26 @@
 ﻿namespace Santase.Logic.Extensions
 {
     using System;
+    using System.Threading;
 
     /// <summary>
     /// Static class representing a single instance of the Random class
     /// </summary>
     public static class RandomProvider
     {
-        private static Random instance;
+        private static readonly ThreadLocal<Random> Random =
+            new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
 
-        /// <summary>
-        /// The instance of the random class
-        /// </summary>
-        /// <value>
-        /// The instance of the random class
-        /// </value>
-        public static Random Instance => instance ?? (instance = new Random());
+        private static int seed = Environment.TickCount;
+
+        public static int Next()
+        {
+            return Random.Value.Next();
+        }
+
+        public static int Next(int minValue, int maxValue)
+        {
+            return Random.Value.Next(minValue, maxValue);
+        }
     }
 }
