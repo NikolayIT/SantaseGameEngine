@@ -58,7 +58,7 @@
             Console.BufferWidth = Console.WindowWidth = 50;
 
             IPlayer firstPlayer = new ConsolePlayer(5, 10);
-            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] "));
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player"); // new ConsoleLogger("[2] "));
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer);
             return game;
         }
@@ -66,8 +66,8 @@
         // ReSharper disable once UnusedMember.Local
         private static ISantaseGame CreateGameWithBots()
         {
-            IPlayer firstPlayer = new DummyPlayer("First Dummy Player", new NoLogger()); // new ConsoleLogger("[1] "));
-            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] "));
+            IPlayer firstPlayer = new DummyPlayer("First Dummy Player"); // new ConsoleLogger("[1] "));
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player"); // new ConsoleLogger("[2] "));
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new ConsoleLogger("[game] "));
             return game;
         }
@@ -76,7 +76,7 @@
         private static ISantaseGame CreateGameSmartVsDummyBots()
         {
             IPlayer firstPlayer = new SmartPlayer();
-            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player", new NoLogger()); // new ConsoleLogger("[2] "));
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player"); // new ConsoleLogger("[2] "));
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }
@@ -85,7 +85,7 @@
         private static ISantaseGame CreateGameSmartVsPreviousVersionOfSmartBots(PlayerPosition playerPosition)
         {
             IPlayer firstPlayer = new SmartPlayer();
-            IPlayer secondPlayer = new SmartPlayerOld(); // new DummyPlayer("d");
+            IPlayer secondPlayer = new SmartPlayerOld(); // new DummyPlayer();
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }

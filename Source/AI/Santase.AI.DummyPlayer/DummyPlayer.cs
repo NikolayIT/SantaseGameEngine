@@ -1,9 +1,7 @@
 ﻿namespace Santase.AI.DummyPlayer
 {
     using Santase.Logic;
-    using Santase.Logic.Cards;
     using Santase.Logic.Extensions;
-    using Santase.Logic.Logger;
     using Santase.Logic.Players;
 
     /// <summary>
@@ -12,28 +10,19 @@
     /// </summary>
     public class DummyPlayer : BasePlayer
     {
-        private readonly ILogger logger;
-
         // ReSharper disable once UnusedMember.Global
         public DummyPlayer()
-            : this("Dummy Player", new NoLogger())
+            : this("Dummy Player")
         {
         }
 
         // ReSharper disable once UnusedMember.Global
-        public DummyPlayer(string name, ILogger logger)
+        public DummyPlayer(string name)
         {
             this.Name = name;
-            this.logger = logger;
         }
 
         public override string Name { get; }
-
-        public override void AddCard(Card card)
-        {
-            this.logger.LogLine($"Got card {card}");
-            base.AddCard(card);
-        }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
@@ -43,7 +32,6 @@
                 var action = PlayerAction.PlayCard(card);
                 if (this.PlayerActionValidator.IsValid(action, context, this.Cards))
                 {
-                    this.logger.LogLine($"Playing {card}");
                     return this.PlayCard(card);
                 }
             }
@@ -54,7 +42,6 @@
 
         public override void EndTurn(PlayerTurnContext context)
         {
-            this.logger.LogLine($"End of turn {context.FirstPlayedCard} - {context.SecondPlayedCard}");
         }
     }
 }

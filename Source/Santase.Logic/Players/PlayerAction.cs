@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Players
 {
+    using System.Text;
+
     using Santase.Logic.Cards;
 
     public sealed class PlayerAction
@@ -30,6 +32,11 @@
         public static PlayerAction CloseGame()
         {
             return new PlayerAction(PlayerActionType.CloseGame, null);
+        }
+
+        public override string ToString()
+        {
+            return $"Action: {this.Type}; Card: {this.Card}; Announce: {this.Announce}";
         }
     }
 }
