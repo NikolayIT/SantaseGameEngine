@@ -29,7 +29,9 @@
 
         public abstract PlayerAction GetTurn(PlayerTurnContext context);
 
-        public abstract void EndTurn(PlayerTurnContext context);
+        public virtual void EndTurn(PlayerTurnContext context)
+        {
+        }
 
         public virtual void EndRound()
         {
