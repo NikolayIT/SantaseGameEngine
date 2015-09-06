@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Players
 {
+    using System;
+
     using Santase.Logic.Cards;
     using Santase.Logic.Logger;
 
@@ -25,7 +27,11 @@
 
         public PlayerAction GetTurn(PlayerTurnContext context)
         {
-            this.logger.LogLine($"GetTurn(); Trump: {context.TrumpCard}({context.CardsLeftInDeck}); State: {context.State}; First: {context.FirstPlayedCard}({context.FirstPlayerAnnounce}); I am first: {context.IsFirstPlayerTurn}");
+            this.logger.LogLine("GetTurn(); "
+                                + $"Trump: {context.TrumpCard}({context.CardsLeftInDeck}); "
+                                + $"State: {context.State.GetType().Name.Replace("RoundState", string.Empty)}; "
+                                + $"First: {context.FirstPlayedCard}({context.FirstPlayerAnnounce}); "
+                                + $"I am first: {context.IsFirstPlayerTurn}");
             var action = this.player.GetTurn(context);
             this.logger.LogLine($"Playing {action}");
             return action;
@@ -41,7 +47,8 @@
         public void EndRound()
         {
             this.player.EndRound();
-            this.logger.LogLine($"EndRound();");
+            this.logger.LogLine("EndRound();");
+            this.logger.LogLine(new string('-', 40));
         }
     }
 }
