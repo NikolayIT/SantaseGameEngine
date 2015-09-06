@@ -66,9 +66,8 @@
 
         private static PlayerAction GetPlayerAction(RoundPlayerInfo playerInfo, PlayerTurnContext context)
         {
-            var playerActionValidator = new PlayerActionValidator();
             var action = playerInfo.Player.GetTurn(context.Clone() as PlayerTurnContext);
-            var isActionValid = playerActionValidator.IsValid(action, context, playerInfo.Cards);
+            var isActionValid = PlayerActionValidator.Instance.IsValid(action, context, playerInfo.Cards);
             if (!isActionValid)
             {
                 throw new InternalGameException($"Invalid turn from {playerInfo.Player.Name}");

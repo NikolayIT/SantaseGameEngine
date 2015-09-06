@@ -9,7 +9,12 @@
     // TODO: Unit test this class
     public class PlayerActionValidator : IPlayerActionValidator
     {
+        private static readonly Lazy<PlayerActionValidator> Lazy =
+            new Lazy<PlayerActionValidator>(() => new PlayerActionValidator());
+
         private readonly AnnounceValidator announceValidator = new AnnounceValidator();
+
+        public static PlayerActionValidator Instance => Lazy.Value;
 
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {
