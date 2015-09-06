@@ -67,17 +67,44 @@
                     ? $"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}"
                     : $"{roundResult.SecondPlayer.RoundPoints} - {roundResult.FirstPlayer.RoundPoints}");
 
+            this.UpdatePoints(roundResult);
+        }
+
+        private void UpdatePoints(RoundResult roundResult)
+        {
             IRoundWinnerPointsLogic roundWinnerPointsPointsLogic = new RoundWinnerPointsPointsLogic();
-            var roundWinnerPoints = roundWinnerPointsPointsLogic.GetWinnerPoints(roundResult);
-            if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
+            var roundWinnerPoints = roundWinnerPointsPointsLogic.GetWinnerPoints(
+                roundResult.FirstPlayer.RoundPoints,
+                roundResult.SecondPlayer.RoundPoints,
+                roundResult.GameClosedBy,
+                roundResult.NoTricksPlayer);
+
+            if (this.firstToPlay == PlayerPosition.FirstPlayer)
             {
-                this.firstPlayerTotalPoints += roundWinnerPoints.Points;
-                this.firstToPlay = PlayerPosition.SecondPlayer;
+                if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
+                {
+                    this.firstPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.firstToPlay = PlayerPosition.SecondPlayer;
+                }
+                else
+                {
+                    this.secondPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.firstToPlay = PlayerPosition.FirstPlayer;
+                }
             }
             else
             {
-                this.secondPlayerTotalPoints += roundWinnerPoints.Points;
-                this.firstToPlay = PlayerPosition.FirstPlayer;
+                if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
+                {
+                    // It is actually our second player
+                    this.secondPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.firstToPlay = PlayerPosition.FirstPlayer;
+                }
+                else
+                {
+                    this.firstPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.firstToPlay = PlayerPosition.SecondPlayer;
+                }
             }
         }
 

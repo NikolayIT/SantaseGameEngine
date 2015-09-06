@@ -4,6 +4,10 @@
 
     public interface IRoundWinnerPointsLogic
     {
-        RoundWinnerPoints GetWinnerPoints(RoundResult round);
+        RoundWinnerPoints GetWinnerPoints(
+            int firstPlayerPoints,
+            int secondPlayerPoints,
+            PlayerPosition gameClosedBy,
+            PlayerPosition noTricksPlayer);
     }
 }
