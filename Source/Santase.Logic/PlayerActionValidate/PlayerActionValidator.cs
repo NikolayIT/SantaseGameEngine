@@ -9,12 +9,19 @@
     // TODO: Unit test this class
     public class PlayerActionValidator : IPlayerActionValidator
     {
+        private readonly AnnounceValidator announceValidator = new AnnounceValidator();
+
+        private readonly PlayCardActionValidator playCardActionValidator = new PlayCardActionValidator();
+
+        private readonly ChangeTrumpActionValidator changeTrumpActionValidator = new ChangeTrumpActionValidator();
+
+        private readonly CloseGameActionValidator closeGameActionValidator = new CloseGameActionValidator();
+
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {
             if (context.State.CanAnnounce20Or40)
             {
-                var announceValidator = new AnnounceValidator();
-                action.Announce = announceValidator.GetPossibleAnnounce(
+                action.Announce = this.announceValidator.GetPossibleAnnounce(
                     playerCards,
                     action.Card,
                     context.TrumpCard,
@@ -25,8 +32,7 @@
             {
                 case PlayerActionType.PlayCard:
                     {
-                        var playCardActionValidator = new PlayCardActionValidator();
-                        var canPlayCard = playCardActionValidator.CanPlayCard(
+                        var canPlayCard = this.playCardActionValidator.CanPlayCard(
                             context.IsFirstPlayerTurn,
                             action.Card,
                             context.FirstPlayedCard,
@@ -38,8 +44,7 @@
 
                 case PlayerActionType.ChangeTrump:
                     {
-                        var changeTrumpActionValidator = new ChangeTrumpActionValidator();
-                        var canChangeTrump = changeTrumpActionValidator.CanChangeTrump(
+                        var canChangeTrump = this.changeTrumpActionValidator.CanChangeTrump(
                             context.IsFirstPlayerTurn,
                             context.State,
                             context.TrumpCard,
@@ -49,8 +54,7 @@
 
                 case PlayerActionType.CloseGame:
                     {
-                        var closeGameActionValidator = new CloseGameActionValidator();
-                        var canCloseGame = closeGameActionValidator.CanCloseGame(
+                        var canCloseGame = this.closeGameActionValidator.CanCloseGame(
                             context.IsFirstPlayerTurn,
                             context.State);
                         return canCloseGame;

@@ -55,7 +55,7 @@
             });
 
             Console.WriteLine(stopwatch.Elapsed);
-            Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins}");
+            Console.WriteLine($"Total: {firstPlayerWins:0,0} - {secondPlayerWins:0,0}");
         }
 
         // ReSharper disable once UnusedMember.Local
