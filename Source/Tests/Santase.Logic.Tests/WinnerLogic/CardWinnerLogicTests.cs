@@ -1,8 +1,9 @@
-﻿namespace Santase.Logic.Tests
+﻿namespace Santase.Logic.Tests.WinnerLogic
 {
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
+    using Santase.Logic.WinnerLogic;
 
     [TestFixture]
     public class CardWinnerLogicTests

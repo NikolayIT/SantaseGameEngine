@@ -2,6 +2,7 @@
 {
     using Santase.Logic.Logger;
     using Santase.Logic.Players;
+    using Santase.Logic.WinnerLogic;
 
     // TODO: Unit test this class
     public class SantaseGame : ISantaseGame

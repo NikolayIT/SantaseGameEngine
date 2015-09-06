@@ -4,6 +4,7 @@
     using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
+    using Santase.Logic.WinnerLogic;
 
     // TODO: Unit test this class
     public class Trick

@@ -1,4 +1,4 @@
-﻿namespace Santase.Logic
+﻿namespace Santase.Logic.WinnerLogic
 {
     // TODO: Unit test this class
     public class RoundWinnerPointsPointsLogic : IRoundWinnerPointsLogic

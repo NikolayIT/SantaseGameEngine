@@ -1,7 +1,5 @@
-﻿namespace Santase.Logic
+﻿namespace Santase.Logic.WinnerLogic
 {
-    using Santase.Logic.GameMechanics;
-
     public interface IRoundWinnerPointsLogic
     {
         RoundWinnerPoints GetWinnerPoints(
