@@ -2,9 +2,9 @@
 {
     using Santase.Logic.RoundStates;
 
-    public class CloseGameActionValidator
+    internal static class CloseGameActionValidator
     {
-        public bool CanCloseGame(bool isThePlayerFirst, BaseRoundState state)
+        public static bool CanCloseGame(bool isThePlayerFirst, BaseRoundState state)
         {
             return isThePlayerFirst && state.CanClose;
         }

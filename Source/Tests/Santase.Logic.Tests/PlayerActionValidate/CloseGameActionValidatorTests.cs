@@ -16,8 +16,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
-            var validator = new CloseGameActionValidator();
-            var canCloseGame = validator.CanCloseGame(false, roundState);
+            var canCloseGame = CloseGameActionValidator.CanCloseGame(false, roundState);
             Assert.IsFalse(canCloseGame);
         }
 
@@ -27,8 +26,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
 
-            var validator = new CloseGameActionValidator();
-            var canCloseGame = validator.CanCloseGame(false, roundState);
+            var canCloseGame = CloseGameActionValidator.CanCloseGame(false, roundState);
             Assert.IsFalse(canCloseGame);
         }
 
@@ -38,8 +36,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new TwoCardsLeftRoundState(haveStateMock.Object);
 
-            var validator = new CloseGameActionValidator();
-            var canCloseGame = validator.CanCloseGame(true, roundState);
+            var canCloseGame = CloseGameActionValidator.CanCloseGame(true, roundState);
             Assert.IsFalse(canCloseGame);
         }
 
@@ -49,8 +46,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
-            var validator = new CloseGameActionValidator();
-            var canCloseGame = validator.CanCloseGame(true, roundState);
+            var canCloseGame = CloseGameActionValidator.CanCloseGame(true, roundState);
             Assert.IsTrue(canCloseGame);
         }
     }

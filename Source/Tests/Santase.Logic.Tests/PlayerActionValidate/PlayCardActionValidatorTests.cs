@@ -130,8 +130,7 @@
         [Test]
         public void CanPlayCardShouldReturnFalseWhenCardIsNotPresentInThePlayerCards()
         {
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(false, NonExistingCard, null, JackOfHeart, PlayerCards, true);
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(false, NonExistingCard, null, JackOfHeart, PlayerCards, true);
             Assert.IsFalse(canPlayCard);
         }
 
@@ -140,8 +139,7 @@
         {
             const bool ObserveRules = false;
             const bool First = false;
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(
                 First,
                 PlayerCard,
                 NonExistingCard,
@@ -156,8 +154,7 @@
         {
             const bool ObserveRules = false;
             const bool First = true;
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(First, PlayerCard, null, JackOfHeart, PlayerCards, ObserveRules);
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(First, PlayerCard, null, JackOfHeart, PlayerCards, ObserveRules);
             Assert.IsTrue(canPlayCard);
         }
 
@@ -166,16 +163,14 @@
         {
             const bool ObserveRules = true;
             const bool First = true;
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(First, PlayerCard, null, JackOfHeart, PlayerCards, ObserveRules);
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(First, PlayerCard, null, JackOfHeart, PlayerCards, ObserveRules);
             Assert.IsTrue(canPlayCard);
         }
 
         [TestCaseSource(nameof(ValidCardToPlay))]
         public void CanPlayCardShouldReturnTrue(Card otherPlayerCard, Card playerCard, Card trumpCard)
         {
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
             Assert.IsTrue(canPlayCard);
         }
 
@@ -183,8 +178,7 @@
         public void CanPlayCardShouldReturnFalse(Card otherPlayerCard, Card playerCard, Card trumpCard)
         {
             Assert.IsTrue(PlayerCards.Contains(playerCard), "Invalid play card selected for the test!");
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
             Assert.IsFalse(canPlayCard);
         }
 
@@ -204,8 +198,7 @@
             var otherPlayerCard = new Card(CardSuit.Heart, CardType.Nine);
             var trumpCard = new Card(CardSuit.Diamond, CardType.Nine);
 
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
             Assert.IsTrue(canPlayCard);
         }
 
@@ -226,8 +219,7 @@
             var otherPlayerCard = new Card(CardSuit.Spade, CardType.Ten);
             var trumpCard = new Card(CardSuit.Diamond, CardType.Nine);
 
-            var validator = new PlayCardActionValidator();
-            var canPlayCard = validator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
+            var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
             Assert.IsTrue(canPlayCard);
         }
     }

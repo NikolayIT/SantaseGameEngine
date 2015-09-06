@@ -5,9 +5,9 @@
     using Santase.Logic.Cards;
     using Santase.Logic.RoundStates;
 
-    public class ChangeTrumpActionValidator
+    internal static class ChangeTrumpActionValidator
     {
-        public bool CanChangeTrump(bool isThePlayerFirst, BaseRoundState state, Card trumpCard, IList<Card> playerCards)
+        public static bool CanChangeTrump(bool isThePlayerFirst, BaseRoundState state, Card trumpCard, IList<Card> playerCards)
         {
             if (!isThePlayerFirst)
             {

@@ -5,9 +5,9 @@
 
     using Santase.Logic.Cards;
 
-    public class PlayCardActionValidator
+    internal static class PlayCardActionValidator
     {
-        public bool CanPlayCard(
+        public static bool CanPlayCard(
             bool isThePlayerFirst,
             Card playedCard,
             Card otherPlayerCard,
@@ -41,7 +41,8 @@
                 }
 
                 // When a card is led, the opponent must play a higher card of the same suit if possible
-                var hasBigger = playerCards.Any(c => c.GetValue() > otherPlayerCard.GetValue() && c.Suit == otherPlayerCard.Suit);
+                var hasBigger =
+                    playerCards.Any(c => c.GetValue() > otherPlayerCard.GetValue() && c.Suit == otherPlayerCard.Suit);
                 if (hasBigger)
                 {
                     return false;

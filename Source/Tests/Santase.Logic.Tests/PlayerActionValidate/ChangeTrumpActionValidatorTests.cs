@@ -33,8 +33,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
-            var validator = new ChangeTrumpActionValidator();
-            var canChangeTrump = validator.CanChangeTrump(false, roundState, TrumpThatCanBeChanged, PlayerCards);
+            var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(false, roundState, TrumpThatCanBeChanged, PlayerCards);
             Assert.IsFalse(canChangeTrump);
         }
 
@@ -44,8 +43,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
 
-            var validator = new ChangeTrumpActionValidator();
-            var canChangeTrump = validator.CanChangeTrump(true, roundState, TrumpThatCanBeChanged, PlayerCards);
+            var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(true, roundState, TrumpThatCanBeChanged, PlayerCards);
             Assert.IsFalse(canChangeTrump);
         }
 
@@ -55,8 +53,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
 
-            var validator = new ChangeTrumpActionValidator();
-            var canChangeTrump = validator.CanChangeTrump(false, roundState, TrumpThatCanBeChanged, PlayerCards);
+            var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(false, roundState, TrumpThatCanBeChanged, PlayerCards);
             Assert.IsFalse(canChangeTrump);
         }
 
@@ -66,8 +63,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
-            var validator = new ChangeTrumpActionValidator();
-            var canChangeTrump = validator.CanChangeTrump(true, roundState, TrumpThatCannotBeChanged, PlayerCards);
+            var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(true, roundState, TrumpThatCannotBeChanged, PlayerCards);
             Assert.IsFalse(canChangeTrump);
         }
 
@@ -77,8 +73,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
-            var validator = new ChangeTrumpActionValidator();
-            var canChangeTrump = validator.CanChangeTrump(true, roundState, TrumpThatCanBeChanged, PlayerCards);
+            var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(true, roundState, TrumpThatCanBeChanged, PlayerCards);
             Assert.IsTrue(canChangeTrump);
         }
     }

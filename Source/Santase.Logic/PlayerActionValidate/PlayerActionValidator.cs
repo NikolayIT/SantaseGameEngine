@@ -11,12 +11,6 @@
     {
         private readonly AnnounceValidator announceValidator = new AnnounceValidator();
 
-        private readonly PlayCardActionValidator playCardActionValidator = new PlayCardActionValidator();
-
-        private readonly ChangeTrumpActionValidator changeTrumpActionValidator = new ChangeTrumpActionValidator();
-
-        private readonly CloseGameActionValidator closeGameActionValidator = new CloseGameActionValidator();
-
         public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
         {
             if (context.State.CanAnnounce20Or40)
@@ -32,7 +26,7 @@
             {
                 case PlayerActionType.PlayCard:
                     {
-                        var canPlayCard = this.playCardActionValidator.CanPlayCard(
+                        var canPlayCard = PlayCardActionValidator.CanPlayCard(
                             context.IsFirstPlayerTurn,
                             action.Card,
                             context.FirstPlayedCard,
@@ -44,7 +38,7 @@
 
                 case PlayerActionType.ChangeTrump:
                     {
-                        var canChangeTrump = this.changeTrumpActionValidator.CanChangeTrump(
+                        var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(
                             context.IsFirstPlayerTurn,
                             context.State,
                             context.TrumpCard,
@@ -54,7 +48,7 @@
 
                 case PlayerActionType.CloseGame:
                     {
-                        var canCloseGame = this.closeGameActionValidator.CanCloseGame(
+                        var canCloseGame = CloseGameActionValidator.CanCloseGame(
                             context.IsFirstPlayerTurn,
                             context.State);
                         return canCloseGame;
