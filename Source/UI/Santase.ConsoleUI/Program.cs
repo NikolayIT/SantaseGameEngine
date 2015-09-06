@@ -13,7 +13,7 @@
     {
         public static void Main()
         {
-            const int GamesToPlay = 1;
+            const int GamesToPlay = 10000;
             var firstPlayerWins = 0;
             var secondPlayerWins = 0;
             for (var i = 0; i < GamesToPlay; i++)
@@ -84,7 +84,7 @@
         // ReSharper disable once UnusedMember.Local
         private static ISantaseGame CreateGameSmartVsPreviousVersionOfSmartBots(PlayerPosition playerPosition)
         {
-            IPlayer firstPlayer = new PlayerWithLoggerDecorator(new SmartPlayer(), new ConsoleLogger("[-]"));
+            IPlayer firstPlayer = new SmartPlayer(); // new PlayerWithLoggerDecorator(new SmartPlayer(), new ConsoleLogger("[-]"))
             IPlayer secondPlayer = new SmartPlayerOld(); // new DummyPlayer();
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;

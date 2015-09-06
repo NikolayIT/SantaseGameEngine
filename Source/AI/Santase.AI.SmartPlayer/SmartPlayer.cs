@@ -31,15 +31,25 @@
         {
             var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
             return context.IsFirstPlayerTurn
-                       ? this.ChooseFirstCard(context, possibleCardsToPlay)
-                       : this.ChooseSecondCard(context, possibleCardsToPlay);
+                       ? this.ChooseCardWhenPlayingFirst(context, possibleCardsToPlay)
+                       : this.ChooseCardWhenPlayingSecond(context, possibleCardsToPlay);
         }
 
-        private PlayerAction ChooseFirstCard(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
         {
+            // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
             {
-                if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) != Announce.None)
+                if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Fourty)
+                {
+                    return this.PlayCard(card);
+                }
+            }
+
+            // Choose card with announce 20 if possible
+            foreach (var card in possibleCardsToPlay)
+            {
+                if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Twenty)
                 {
                     return this.PlayCard(card);
                 }
@@ -59,7 +69,7 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private PlayerAction ChooseSecondCard(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
         {
             // Smallest non-trump card
             var cardToPlay =

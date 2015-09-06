@@ -27,7 +27,7 @@
 
         public PlayerAction GetTurn(PlayerTurnContext context)
         {
-            this.logger.LogLine("GetTurn(); "
+            this.logger.LogLine("--GetTurn; "
                                 + $"Trump: {context.TrumpCard}({context.CardsLeftInDeck}); "
                                 + $"State: {context.State.GetType().Name.Replace("RoundState", string.Empty)}; "
                                 + $"First: {context.FirstPlayedCard}({context.FirstPlayerAnnounce}); "
