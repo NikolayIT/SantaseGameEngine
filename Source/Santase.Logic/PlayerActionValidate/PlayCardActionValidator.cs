@@ -1,7 +1,6 @@
 ﻿namespace Santase.Logic.PlayerActionValidate
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.Logic.Cards;
 
@@ -41,20 +40,27 @@
                 }
 
                 // When a card is led, the opponent must play a higher card of the same suit if possible
-                var hasBigger =
-                    playerCards.Any(c => c.GetValue() > otherPlayerCard.GetValue() && c.Suit == otherPlayerCard.Suit);
-                if (hasBigger)
+                // ReSharper disable once LoopCanBeConvertedToQuery (performance critical)
+                foreach (var card in playerCards)
                 {
-                    return false;
+                    if (card.Suit == otherPlayerCard.Suit && card.GetValue() > otherPlayerCard.GetValue())
+                    {
+                        // Found bigger card which is not played => wrong action
+                        return false;
+                    }
                 }
             }
             else
             {
                 // Having no higher card, the second player MUST play a lower card of the suit that was led
-                var hasSameSuit = playerCards.Any(c => c.Suit == otherPlayerCard.Suit);
-                if (hasSameSuit)
+                // ReSharper disable once LoopCanBeConvertedToQuery (performance critical)
+                foreach (var card in playerCards)
                 {
-                    return false;
+                    if (card.Suit == otherPlayerCard.Suit)
+                    {
+                        // Found same suit card which is not played => wrong action
+                        return false;
+                    }
                 }
 
                 // Player has no card of the same suit and plays trump - OK
@@ -64,10 +70,14 @@
                 }
 
                 // If the player has no card of the suit played by the first player he must play a trump if possible
-                var hasTrump = playerCards.Any(c => c.Suit == trumpCard.Suit);
-                if (hasTrump)
+                // ReSharper disable once LoopCanBeConvertedToQuery (performance critical)
+                foreach (var card in playerCards)
                 {
-                    return false;
+                    // Found trump card which is not played => wrong action
+                    if (card.Suit == trumpCard.Suit)
+                    {
+                        return false;
+                    }
                 }
             }
 
