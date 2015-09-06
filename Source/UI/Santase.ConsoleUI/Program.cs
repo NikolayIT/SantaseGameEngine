@@ -1,6 +1,8 @@
 ﻿namespace Santase.ConsoleUI
 {
     using System;
+    using System.Diagnostics;
+    using System.Threading.Tasks;
 
     using Santase.AI.DummyPlayer;
     using Santase.AI.SmartPlayer;
@@ -13,11 +15,21 @@
     {
         public static void Main()
         {
-            const int GamesToPlay = 10000;
+            var stopwatch = Stopwatch.StartNew();
+            const int GamesToPlay = 100000;
             var firstPlayerWins = 0;
+            var firstPlayerWinsLock = new object();
             var secondPlayerWins = 0;
-            for (var i = 0; i < GamesToPlay; i++)
+            var secondPlayerWinsLock = new object();
+
+            // for (var i = 0; i < GamesToPlay; i++)
+            Parallel.For(0, GamesToPlay, i =>
             {
+                if (i % 1000 == 0)
+                {
+                    Console.Write(".");
+                }
+
                 var game =
                     CreateGameSmartVsPreviousVersionOfSmartBots(
                         i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
@@ -26,16 +38,23 @@
 
                 if (winner == PlayerPosition.FirstPlayer)
                 {
-                    firstPlayerWins++;
+                    lock (firstPlayerWinsLock)
+                    {
+                        firstPlayerWins++;
+                    }
                 }
                 else
                 {
-                    secondPlayerWins++;
+                    lock (secondPlayerWinsLock)
+                    {
+                        secondPlayerWins++;
+                    }
                 }
 
-                Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins} == Game: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
-            }
+                // Console.WriteLine($"{i:00000} Games: {firstPlayerWins} - {secondPlayerWins} == Rounds: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
+            });
 
+            Console.WriteLine(stopwatch.Elapsed);
             Console.WriteLine($"Total: {firstPlayerWins} - {secondPlayerWins}");
         }
 
