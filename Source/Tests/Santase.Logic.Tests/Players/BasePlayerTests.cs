@@ -23,16 +23,18 @@
         }
 
         [Test]
-        public void AddCardShouldNotBeNull()
+        public void AddCardShouldWorkCorrectly()
         {
-            const int CardsCount = 5;
             var basePlayerImplementation = new BasePlayerImpl();
-            for (var i = 0; i < CardsCount; i++)
-            {
-                basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Ace));
-            }
 
-            Assert.AreEqual(CardsCount, basePlayerImplementation.CardsCount);
+            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Ace));
+            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Ten));
+            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.King));
+            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Queen));
+            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Jack));
+            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Nine));
+
+            Assert.AreEqual(6, basePlayerImplementation.CardsCount);
         }
 
         [Test]
