@@ -23,8 +23,7 @@
             var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
             var shuffledCards = possibleCardsToPlay.Shuffle();
             var cardToPlay = shuffledCards.First();
-            var action = PlayerAction.PlayCard(cardToPlay);
-            return action;
+            return this.PlayCard(cardToPlay);
         }
     }
 }
