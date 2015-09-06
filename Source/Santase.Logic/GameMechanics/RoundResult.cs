@@ -20,14 +20,13 @@
                 {
                     return PlayerPosition.FirstPlayer;
                 }
-                else if (this.SecondPlayer.GameCloser)
+
+                if (this.SecondPlayer.GameCloser)
                 {
                     return PlayerPosition.SecondPlayer;
                 }
-                else
-                {
-                    return PlayerPosition.NoOne;
-                }
+
+                return PlayerPosition.NoOne;
             }
         }
 
@@ -39,14 +38,13 @@
                 {
                     return PlayerPosition.FirstPlayer;
                 }
-                else if (!this.SecondPlayer.HasAtLeastOneTrick)
+
+                if (!this.SecondPlayer.HasAtLeastOneTrick)
                 {
                     return PlayerPosition.SecondPlayer;
                 }
-                else
-                {
-                    return PlayerPosition.NoOne;
-                }
+
+                return PlayerPosition.NoOne;
             }
         }
     }
