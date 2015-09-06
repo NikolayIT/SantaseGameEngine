@@ -29,22 +29,31 @@
         // TODO: Choose appropriate card
         private PlayerAction ChooseCard(PlayerTurnContext context)
         {
-            var possibleCardsToPlay = this.GetPossibleCardsToPlay(context);
-            if (context.IsFirstPlayerTurn)
-            {
-                return this.ChooseFirstCard(context, possibleCardsToPlay);
-            }
-            else
-            {
-                return this.ChooseSecondCard(context, possibleCardsToPlay);
-            }
+            var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
+            return context.IsFirstPlayerTurn
+                       ? this.ChooseCardWhenPlayingFirst(context, possibleCardsToPlay)
+                       : this.ChooseCardWhenPlayingSecond(context, possibleCardsToPlay);
         }
 
-        private PlayerAction ChooseFirstCard(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
         {
+            // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
             {
-                if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) != Announce.None)
+                if (card.Type == CardType.Queen
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
+                    == Announce.Fourty)
+                {
+                    return this.PlayCard(card);
+                }
+            }
+
+            // Choose card with announce 20 if possible
+            foreach (var card in possibleCardsToPlay)
+            {
+                if (card.Type == CardType.Queen
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
+                    == Announce.Twenty)
                 {
                     return this.PlayCard(card);
                 }
@@ -64,8 +73,15 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private PlayerAction ChooseSecondCard(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
         {
+            // Euristic
+            if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
+                && possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
+            {
+                return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
+            }
+
             // Smallest non-trump card
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
@@ -80,19 +96,10 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context)
+        public override void EndRound()
         {
-            var possibleCardsToPlay = new List<Card>();
-            foreach (var card in this.Cards)
-            {
-                var action = PlayerAction.PlayCard(card);
-                if (this.PlayerActionValidator.IsValid(action, context, this.Cards))
-                {
-                    possibleCardsToPlay.Add(card);
-                }
-            }
-
-            return possibleCardsToPlay;
+            this.playedCards.Clear();
+            base.EndRound();
         }
 
         public override void EndTurn(PlayerTurnContext context)

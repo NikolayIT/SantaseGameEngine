@@ -40,7 +40,9 @@
             // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
             {
-                if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Fourty)
+                if (card.Type == CardType.Queen
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
+                    == Announce.Fourty)
                 {
                     return this.PlayCard(card);
                 }
@@ -49,7 +51,9 @@
             // Choose card with announce 20 if possible
             foreach (var card in possibleCardsToPlay)
             {
-                if (this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Twenty)
+                if (card.Type == CardType.Queen
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
+                    == Announce.Twenty)
                 {
                     return this.PlayCard(card);
                 }
@@ -71,6 +75,13 @@
 
         private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
         {
+            // Euristic
+            if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
+                && possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
+            {
+                return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
+            }
+
             // Smallest non-trump card
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
