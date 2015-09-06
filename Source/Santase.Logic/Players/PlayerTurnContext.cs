@@ -32,10 +32,11 @@
         {
             var newPlayerTurnContext = new PlayerTurnContext(this.State, this.TrumpCard, this.CardsLeftInDeck)
                                            {
-                                               FirstPlayedCard = this.FirstPlayedCard?.Clone() as Card,
-                                               SecondPlayedCard = this.SecondPlayedCard?.Clone() as Card,
+                                               FirstPlayedCard = this.FirstPlayedCard,
+                                               SecondPlayedCard = this.SecondPlayedCard,
                                                FirstPlayerAnnounce = this.FirstPlayerAnnounce
                                            };
+
             return newPlayerTurnContext;
         }
     }
