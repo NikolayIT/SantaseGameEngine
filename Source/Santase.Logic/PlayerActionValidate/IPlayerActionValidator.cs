@@ -7,8 +7,8 @@
 
     public interface IPlayerActionValidator
     {
-        bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards);
+        bool IsValid(PlayerAction action, PlayerTurnContext context, ICollection<Card> playerCards);
 
-        IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context, IList<Card> playerCards);
+        IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards);
     }
 }

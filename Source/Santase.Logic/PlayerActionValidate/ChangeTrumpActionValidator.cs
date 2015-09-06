@@ -7,7 +7,7 @@
 
     internal static class ChangeTrumpActionValidator
     {
-        public static bool CanChangeTrump(bool isThePlayerFirst, BaseRoundState state, Card trumpCard, IList<Card> playerCards)
+        public static bool CanChangeTrump(bool isThePlayerFirst, BaseRoundState state, Card trumpCard, ICollection<Card> playerCards)
         {
             if (!isThePlayerFirst)
             {

@@ -16,7 +16,7 @@
 
         public static PlayerActionValidator Instance => Lazy.Value;
 
-        public bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards)
+        public bool IsValid(PlayerAction action, PlayerTurnContext context, ICollection<Card> playerCards)
         {
             if (context.State.CanAnnounce20Or40)
             {
@@ -66,7 +66,7 @@
             }
         }
 
-        public IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context, IList<Card> playerCards)
+        public IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards)
         {
             var possibleCardsToPlay = new List<Card>();
             foreach (var card in playerCards)

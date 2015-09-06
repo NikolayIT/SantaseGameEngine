@@ -12,7 +12,7 @@
             Card playedCard,
             Card otherPlayerCard,
             Card trumpCard,
-            IList<Card> playerCards,
+            ICollection<Card> playerCards,
             bool shouldObserveRules)
         {
             if (!playerCards.Contains(playedCard))

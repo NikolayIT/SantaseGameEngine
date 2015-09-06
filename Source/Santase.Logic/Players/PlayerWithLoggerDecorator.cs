@@ -1,7 +1,5 @@
 ﻿namespace Santase.Logic.Players
 {
-    using System;
-
     using Santase.Logic.Cards;
     using Santase.Logic.Logger;
 

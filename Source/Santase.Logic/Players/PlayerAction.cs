@@ -1,7 +1,5 @@
 ﻿namespace Santase.Logic.Players
 {
-    using System.Text;
-
     using Santase.Logic.Cards;
 
     public sealed class PlayerAction

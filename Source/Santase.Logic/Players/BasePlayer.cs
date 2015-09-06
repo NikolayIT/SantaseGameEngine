@@ -9,14 +9,14 @@
     {
         protected BasePlayer()
         {
-            this.Cards = new List<Card>();
+            this.Cards = new HashSet<Card>();
             this.AnnounceValidator = new AnnounceValidator();
             this.PlayerActionValidator = new PlayerActionValidator();
         }
 
         public abstract string Name { get; }
 
-        protected IList<Card> Cards { get; }
+        protected ICollection<Card> Cards { get; }
 
         protected IAnnounceValidator AnnounceValidator { get; }
 

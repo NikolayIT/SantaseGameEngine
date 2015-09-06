@@ -1,6 +1,7 @@
 ﻿namespace Santase.ConsoleUI
 {
     using System;
+    using System.Linq;
     using System.Threading;
 
     using Santase.Logic.Cards;
@@ -71,7 +72,7 @@
                         continue;
                     }
 
-                    var card = this.Cards[cardIndex];
+                    var card = this.Cards.ToList()[cardIndex];
                     var possibleAnnounce = this.AnnounceValidator.GetPossibleAnnounce(
                         this.Cards,
                         card,
