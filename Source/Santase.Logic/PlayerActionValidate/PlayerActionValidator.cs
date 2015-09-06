@@ -62,5 +62,20 @@
                     }
             }
         }
+
+        public IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context, IList<Card> playerCards)
+        {
+            var possibleCardsToPlay = new List<Card>();
+            foreach (var card in playerCards)
+            {
+                var action = PlayerAction.PlayCard(card);
+                if (this.IsValid(action, context, playerCards))
+                {
+                    possibleCardsToPlay.Add(card);
+                }
+            }
+
+            return possibleCardsToPlay;
+        }
     }
 }

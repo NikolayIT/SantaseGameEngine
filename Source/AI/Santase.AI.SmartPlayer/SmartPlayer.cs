@@ -29,7 +29,7 @@
         // TODO: Choose appropriate card
         private PlayerAction ChooseCard(PlayerTurnContext context)
         {
-            var possibleCardsToPlay = this.GetPossibleCardsToPlay(context);
+            var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
             return context.IsFirstPlayerTurn
                        ? this.ChooseFirstCard(context, possibleCardsToPlay)
                        : this.ChooseSecondCard(context, possibleCardsToPlay);
@@ -73,21 +73,6 @@
 
             cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(cardToPlay);
-        }
-
-        private IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context)
-        {
-            var possibleCardsToPlay = new List<Card>();
-            foreach (var card in this.Cards)
-            {
-                var action = PlayerAction.PlayCard(card);
-                if (this.PlayerActionValidator.IsValid(action, context, this.Cards))
-                {
-                    possibleCardsToPlay.Add(card);
-                }
-            }
-
-            return possibleCardsToPlay;
         }
 
         public override void EndRound()

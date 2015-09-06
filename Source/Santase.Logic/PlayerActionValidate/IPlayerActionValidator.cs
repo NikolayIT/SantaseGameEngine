@@ -8,5 +8,7 @@
     public interface IPlayerActionValidator
     {
         bool IsValid(PlayerAction action, PlayerTurnContext context, IList<Card> playerCards);
+
+        IList<Card> GetPossibleCardsToPlay(PlayerTurnContext context, IList<Card> playerCards);
     }
 }
