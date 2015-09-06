@@ -45,6 +45,7 @@
     <Compile Include="Cards\Deck.cs" />
     <Compile Include="Cards\IDeck.cs" />
     <Compile Include="Extensions\PlayerPositionExtensions.cs" />
+    <Compile Include="Logger\FileLogger.cs" />
     <Compile Include="Players\PlayerWithLoggerDecorator.cs" />
     <Compile Include="WinnerLogic\CardWinnerLogic.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
