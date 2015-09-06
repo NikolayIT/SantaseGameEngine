@@ -58,7 +58,7 @@
     <Compile Include="PlayerActionValidate\ChangeTrumpActionValidatorTests.cs" />
     <Compile Include="PlayerActionValidate\CloseGameActionValidatorTests.cs" />
     <Compile Include="PlayerActionValidate\PlayCardActionValidatorTests.cs" />
-    <Compile Include="Players\AnnounceValidatorTests.cs" />
+    <Compile Include="PlayerActionValidate\AnnounceValidatorTests.cs" />
     <Compile Include="Players\BasePlayerTests.cs" />
     <Compile Include="Players\PlayerActionTests.cs" />
     <Compile Include="Players\PlayerTurnContextTests.cs" />

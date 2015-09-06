@@ -68,9 +68,9 @@
     <Compile Include="PlayerActionValidate\PlayCardActionValidator.cs" />
     <Compile Include="PlayerActionValidate\PlayerActionValidator.cs" />
     <Compile Include="PlayerPosition.cs" />
-    <Compile Include="Players\AnnounceValidator.cs" />
+    <Compile Include="PlayerActionValidate\AnnounceValidator.cs" />
     <Compile Include="Players\BasePlayer.cs" />
-    <Compile Include="Players\IAnnounceValidator.cs" />
+    <Compile Include="PlayerActionValidate\IAnnounceValidator.cs" />
     <Compile Include="Players\IPlayer.cs" />
     <Compile Include="Players\PlayerAction.cs" />
     <Compile Include="Players\PlayerActionType.cs" />

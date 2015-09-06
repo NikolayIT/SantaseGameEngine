@@ -1,11 +1,11 @@
-﻿namespace Santase.Logic.Tests.Players
+﻿namespace Santase.Logic.Tests.PlayerActionValidate
 {
     using System.Collections.Generic;
 
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
-    using Santase.Logic.Players;
+    using Santase.Logic.PlayerActionValidate;
 
     [TestFixture]
     public class AnnounceValidatorTests

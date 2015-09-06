@@ -1,4 +1,4 @@
-﻿namespace Santase.Logic.Players
+﻿namespace Santase.Logic.PlayerActionValidate
 {
     using System.Collections.Generic;
     using System.Linq;
