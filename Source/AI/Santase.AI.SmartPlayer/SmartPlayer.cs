@@ -9,7 +9,7 @@
 
     public class SmartPlayer : BasePlayer
     {
-        private readonly IList<Card> playedCards = new List<Card>();
+        private readonly ICollection<Card> playedCards = new List<Card>();
 
         public override string Name => "Smart Player";
 
@@ -35,7 +35,7 @@
                        : this.ChooseCardWhenPlayingSecond(context, possibleCardsToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, IEnumerable<Card> possibleCardsToPlay)
         {
             // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
@@ -73,7 +73,7 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, IList<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, IEnumerable<Card> possibleCardsToPlay)
         {
             // Euristic
             if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)

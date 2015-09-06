@@ -17,7 +17,7 @@
 
         private static readonly Card TrumpThatCannotBeChanged = new Card(CardSuit.Diamond, CardType.King);
 
-        private static readonly IList<Card> PlayerCards = new List<Card>
+        private static readonly ICollection<Card> PlayerCards = new List<Card>
                                                               {
                                                                   new Card(CardSuit.Club, CardType.Nine),
                                                                   new Card(CardSuit.Spade, CardType.Nine),

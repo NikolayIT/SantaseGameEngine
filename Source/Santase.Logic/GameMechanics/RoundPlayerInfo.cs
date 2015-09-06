@@ -12,7 +12,7 @@
         public RoundPlayerInfo(IPlayer player)
         {
             this.Player = player;
-            this.Cards = new List<Card>();
+            this.Cards = new HashSet<Card>();
             this.TrickCards = new List<Card>();
             this.Announces = new List<Announce>();
             this.GameCloser = false;
@@ -20,11 +20,11 @@
 
         public IPlayer Player { get; }
 
-        public IList<Card> Cards { get; }
+        public ICollection<Card> Cards { get; }
 
-        public IList<Card> TrickCards { get; }
+        public ICollection<Card> TrickCards { get; }
 
-        public IList<Announce> Announces { get; }
+        public ICollection<Announce> Announces { get; }
 
         public bool GameCloser { get; set; }
 

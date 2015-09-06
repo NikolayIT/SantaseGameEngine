@@ -16,7 +16,7 @@
 
         private static readonly Card NonExistingCard = new Card(CardSuit.Diamond, CardType.Ace);
 
-        private static readonly IList<Card> PlayerCards = new List<Card>
+        private static readonly ICollection<Card> PlayerCards = new List<Card>
                                                               {
                                                                   new Card(CardSuit.Heart, CardType.Nine),
                                                                   new Card(CardSuit.Diamond, CardType.Jack),

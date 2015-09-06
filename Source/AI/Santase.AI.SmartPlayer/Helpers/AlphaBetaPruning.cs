@@ -24,8 +24,8 @@
         }
 
         public IDictionary<Card, int> GetBestCard(
-            IList<Card> firstPlayerCards,
-            IList<Card> secondPlayerCards,
+            ICollection<Card> firstPlayerCards,
+            ICollection<Card> secondPlayerCards,
             PlayerTurnContext context,
             int firstPlayerPoints,
             int secondPlayerPoints)
@@ -44,8 +44,8 @@
 
 
         private void GetBestCardRecursive(
-            IList<Card> firstPlayerCards,
-            IList<Card> secondPlayerCards,
+            ICollection<Card> firstPlayerCards,
+            ICollection<Card> secondPlayerCards,
             PlayerTurnContext context,
             int firstPlayerPoints,
             int secondPlayerPoints,
