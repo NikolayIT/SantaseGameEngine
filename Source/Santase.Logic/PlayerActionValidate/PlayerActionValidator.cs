@@ -71,8 +71,13 @@
             var possibleCardsToPlay = new List<Card>();
             foreach (var card in playerCards)
             {
-                var action = PlayerAction.PlayCard(card);
-                if (this.IsValid(action, context, playerCards))
+                if (PlayCardActionValidator.CanPlayCard(
+                    context.IsFirstPlayerTurn,
+                    card,
+                    context.FirstPlayedCard,
+                    context.TrumpCard,
+                    playerCards,
+                    context.State.ShouldObserveRules))
                 {
                     possibleCardsToPlay.Add(card);
                 }
