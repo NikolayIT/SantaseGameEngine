@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Cards\CardExtensionsTests.cs" />
     <Compile Include="Cards\CardTests.cs" />
+    <Compile Include="Cards\CardCollectionTests.cs" />
     <Compile Include="Cards\DeckTests.cs" />
     <Compile Include="Extensions\PlayerPositionExtensionsTests.cs" />
     <Compile Include="WinnerLogic\CardWinnerLogicTests.cs" />

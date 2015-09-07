@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Announce.cs" />
     <Compile Include="Cards\Card.cs" />
+    <Compile Include="Cards\CardCollection.cs" />
     <Compile Include="Cards\CardExtensions.cs" />
     <Compile Include="Cards\CardSuit.cs" />
     <Compile Include="Cards\CardType.cs" />
