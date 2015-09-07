@@ -7,14 +7,32 @@
 
     public class Deck : IDeck
     {
+        private static readonly IEnumerable<CardType> AllCardTypes = new List<CardType>
+                                                                         {
+                                                                             CardType.Nine,
+                                                                             CardType.Ten,
+                                                                             CardType.Jack,
+                                                                             CardType.Queen,
+                                                                             CardType.King,
+                                                                             CardType.Ace
+                                                                         };
+
+        private static readonly IEnumerable<CardSuit> AllCardSuits = new List<CardSuit>
+                                                                         {
+                                                                             CardSuit.Club,
+                                                                             CardSuit.Diamond,
+                                                                             CardSuit.Heart,
+                                                                             CardSuit.Spade
+                                                                         };
+
         private readonly IList<Card> listOfCards;
 
         public Deck()
         {
             this.listOfCards = new List<Card>();
-            foreach (var cardSuit in GetAllCardSuits())
+            foreach (var cardSuit in AllCardSuits)
             {
-                foreach (var cardType in GetAllCardTypes())
+                foreach (var cardType in AllCardTypes)
                 {
                     this.listOfCards.Add(new Card(cardSuit, cardType));
                 }
@@ -48,30 +66,6 @@
             {
                 this.listOfCards[0] = newCard;
             }
-        }
-
-        private static IEnumerable<CardType> GetAllCardTypes()
-        {
-            return new List<CardType>
-            {
-                CardType.Nine,
-                CardType.Ten,
-                CardType.Jack,
-                CardType.Queen,
-                CardType.King,
-                CardType.Ace
-            };
-        }
-
-        private static IEnumerable<CardSuit> GetAllCardSuits()
-        {
-            return new List<CardSuit>
-            {
-                CardSuit.Club,
-                CardSuit.Diamond,
-                CardSuit.Heart,
-                CardSuit.Spade
-            };
         }
     }
 }
