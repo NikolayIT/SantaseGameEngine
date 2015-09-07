@@ -17,6 +17,12 @@
 
         public CardType Type { get; }
 
+        public static Card FromHashCode(int hashCode)
+        {
+            var suitId = (hashCode - 1) / 13;
+            return new Card((CardSuit)suitId, (CardType)(hashCode - (suitId * 13)));
+        }
+
         public int GetValue()
         {
             switch (this.Type)

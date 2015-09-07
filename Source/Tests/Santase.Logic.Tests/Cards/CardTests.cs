@@ -85,7 +85,9 @@
                 {
                     var card = new Card(cardSuitValue, cardTypeValue);
                     var cardHashCode = card.GetHashCode();
-                    Assert.IsFalse(values.Contains(cardHashCode), $"Duplicate hash code \"{cardHashCode}\" for card \"{card}\"");
+                    Assert.IsFalse(
+                        values.Contains(cardHashCode),
+                        $"Duplicate hash code \"{cardHashCode}\" for card \"{card}\"");
                     values.Add(cardHashCode);
                 }
             }
@@ -101,7 +103,9 @@
                 {
                     var card = new Card(cardSuitValue, cardTypeValue);
                     var cardToString = card.ToString();
-                    Assert.IsFalse(values.Contains(cardToString), $"Duplicate string value \"{cardToString}\" for card \"{card}\"");
+                    Assert.IsFalse(
+                        values.Contains(cardToString),
+                        $"Duplicate string value \"{cardToString}\" for card \"{card}\"");
                     values.Add(cardToString);
                 }
             }
@@ -141,6 +145,21 @@
             var newCard = card.Clone() as Card;
             Assert.IsNotNull(newCard);
             Assert.AreEqual(card.GetHashCode(), newCard.GetHashCode());
+        }
+
+        [Test]
+        public void FromHashCodeShouldCreateCardsWithTheGivenHashCode()
+        {
+            foreach (CardSuit cardSuitValue in Enum.GetValues(typeof(CardSuit)))
+            {
+                foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
+                {
+                    var card = new Card(cardSuitValue, cardTypeValue);
+                    var hashCode = card.GetHashCode();
+                    var newCard = Card.FromHashCode(hashCode);
+                    Assert.AreEqual(card, newCard);
+                }
+            }
         }
     }
 }
