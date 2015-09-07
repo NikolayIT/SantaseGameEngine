@@ -162,9 +162,8 @@
                 Assert.IsTrue(cards.Contains(card), $"Card {card} not found in collection!");
             }
 
-            var count = 0;
-
             // Second enumeration
+            var count = 0;
             foreach (var card in collection)
             {
                 Assert.IsTrue(cards.Contains(card), $"Card {card} not found in collection!");
@@ -184,6 +183,27 @@
             collection.CopyTo(array, 0);
             Assert.IsTrue(array.Contains(card1));
             Assert.IsTrue(array.Contains(card2));
+        }
+
+        [Test]
+        [Timeout(100)]
+        public void GetEnumeratorShouldShouldWorkProperlyInNestedLoops()
+        {
+            var collection = new CardCollection
+                                 {
+                                     new Card(CardSuit.Club, CardType.Ace), // 1
+                                     new Card(CardSuit.Spade, CardType.King), // 52
+                                     new Card(CardSuit.Heart, CardType.Ten),
+                                     new Card(CardSuit.Diamond, CardType.Queen),
+                                     new Card(CardSuit.Club, CardType.Jack),
+                                     new Card(CardSuit.Heart, CardType.Nine),
+                                 };
+            foreach (var firstCard in collection)
+            {
+                Assert.NotNull(firstCard);
+                var found = collection.Any(x => x.Equals(new Card(CardSuit.Diamond, CardType.Queen)));
+                Assert.IsTrue(found);
+            }
         }
     }
 }

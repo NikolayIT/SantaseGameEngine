@@ -5,7 +5,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Low memory (only 12 bytes per instance) implementation of card collection.
+    /// Low memory (only 12 bytes per instance) fast implementation of card collection.
     /// </summary>
     public class CardCollection : ICollection<Card>
     {

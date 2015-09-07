@@ -23,7 +23,7 @@
             var secondPlayerWinsLock = new object();
 
             // for (var i = 0; i < GamesToPlay; i++)
-            Parallel.For(0, GamesToPlay, i =>
+            Parallel.For(1, GamesToPlay + 1, i =>
             {
                 if (i % 1000 == 0)
                 {
