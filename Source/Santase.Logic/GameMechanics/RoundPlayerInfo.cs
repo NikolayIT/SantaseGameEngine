@@ -33,8 +33,19 @@
             get
             {
                 var points = 0;
-                points += this.TrickCards.Sum(card => card.GetValue());
-                points += this.Announces.Sum(announce => (int)announce);
+
+                // ReSharper disable once LoopCanBeConvertedToQuery (performance improvement)
+                foreach (var card in this.TrickCards)
+                {
+                    points += card.GetValue();
+                }
+
+                // ReSharper disable once LoopCanBeConvertedToQuery (performance improvement)
+                foreach (var announce in this.Announces)
+                {
+                    points += (int)announce;
+                }
+
                 return points;
             }
         }
