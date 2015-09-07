@@ -7,12 +7,21 @@
     /// <summary>
     /// Low memory (only 12 bytes per instance) fast implementation of card collection.
     /// </summary>
-    public class CardCollection : ICollection<Card>
+    public class CardCollection : ICollection<Card>, ICloneable
     {
         private const int MaxCards = 52;
 
         private long cards; // 64 bits for 52 possible cards
         private int count;
+
+        public CardCollection()
+        {
+        }
+
+        private CardCollection(long bitMask)
+        {
+            this.cards = bitMask;
+        }
 
         public int Count => this.count;
 
@@ -78,6 +87,11 @@
             {
                 return false;
             }
+        }
+
+        public object Clone()
+        {
+            return new CardCollection(this.cards);
         }
 
         private class CardCollectionEnumerator : IEnumerator<Card>
