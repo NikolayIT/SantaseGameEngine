@@ -7,6 +7,7 @@
 
     public class Deck : IDeck
     {
+        private static readonly IList<Card> AllCards = new List<Card>();
         private static readonly IEnumerable<CardType> AllCardTypes = new List<CardType>
                                                                          {
                                                                              CardType.Nine,
@@ -27,19 +28,20 @@
 
         private readonly IList<Card> listOfCards;
 
-        public Deck()
+        static Deck()
         {
-            this.listOfCards = new List<Card>();
             foreach (var cardSuit in AllCardSuits)
             {
                 foreach (var cardType in AllCardTypes)
                 {
-                    this.listOfCards.Add(new Card(cardSuit, cardType));
+                    AllCards.Add(new Card(cardSuit, cardType));
                 }
             }
+        }
 
-            this.listOfCards = this.listOfCards.Shuffle().ToList();
-
+        public Deck()
+        {
+            this.listOfCards = AllCards.Shuffle().ToList();
             this.TrumpCard = this.listOfCards[0];
         }
 
