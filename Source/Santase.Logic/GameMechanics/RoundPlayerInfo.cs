@@ -12,7 +12,7 @@
         public RoundPlayerInfo(IPlayer player)
         {
             this.Player = player;
-            this.Cards = new HashSet<Card>();
+            this.Cards = new CardCollection();
             this.TrickCards = new List<Card>();
             this.Announces = new List<Announce>();
             this.GameCloser = false;

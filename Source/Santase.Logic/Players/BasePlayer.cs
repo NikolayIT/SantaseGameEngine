@@ -9,7 +9,7 @@
     {
         protected BasePlayer()
         {
-            this.Cards = new HashSet<Card>();
+            this.Cards = new CardCollection();
             this.AnnounceValidator = new AnnounceValidator();
             this.PlayerActionValidator = new PlayerActionValidator();
         }
