@@ -161,5 +161,21 @@
                 }
             }
         }
+
+        [Test]
+        public void GetHashCodeShouldReturn1ForAceOfClubs()
+        {
+            var card = new Card(CardSuit.Club, CardType.Ace);
+            var hashCode = card.GetHashCode();
+            Assert.AreEqual(1, hashCode);
+        }
+
+        [Test]
+        public void GetHashCodeShouldReturn52ForKingOfSpades()
+        {
+            var card = new Card(CardSuit.Spade, CardType.King);
+            var hashCode = card.GetHashCode();
+            Assert.AreEqual(52, hashCode);
+        }
     }
 }
