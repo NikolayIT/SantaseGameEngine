@@ -2,6 +2,7 @@
 {
     using System.IO;
 
+    // TODO: Unit test this class
     public class FileLogger : ILogger
     {
         private readonly TextWriter writer;

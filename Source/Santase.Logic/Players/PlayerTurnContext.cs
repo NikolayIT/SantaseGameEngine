@@ -30,7 +30,7 @@
 
         public object Clone()
         {
-            // Creating new instnce here seems to be faster than calling MemberwiseClone()
+            // Creating new instance here seems to be faster than calling MemberwiseClone()
             var newPlayerTurnContext = new PlayerTurnContext(this.State, this.TrumpCard, this.CardsLeftInDeck)
                                            {
                                                FirstPlayedCard = this.FirstPlayedCard,

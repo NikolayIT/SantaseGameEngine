@@ -10,7 +10,7 @@
         /// Shuffle algorithm as seen on page 32 in the book "Algorithms" (4th edition) by Robert Sedgewick
         /// </summary>
         /// <param name="source">Collection to shuffle.</param>
-        /// <typeparam name="T">The generic type parameter of the colleciton.</typeparam>
+        /// <typeparam name="T">The generic type parameter of the collection.</typeparam>
         /// <returns>The shuffled collection as IEnumerable.</returns>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source)
         {

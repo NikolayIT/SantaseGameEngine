@@ -4,15 +4,10 @@
 
     using Santase.Logic.Extensions;
 
+    // TODO: Improve tests (e.g. test for randomness)
     [TestFixture]
     public class RandomProviderTests
     {
-        [Test]
-        public void NextShouldReturnValue()
-        {
-            RandomProvider.Next();
-        }
-
         [Test]
         public void NextWithParametersShouldReturnValue()
         {

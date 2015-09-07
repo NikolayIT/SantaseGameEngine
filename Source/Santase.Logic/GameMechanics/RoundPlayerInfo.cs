@@ -1,7 +1,6 @@
 ﻿namespace Santase.Logic.GameMechanics
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
