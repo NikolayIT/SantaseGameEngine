@@ -22,7 +22,6 @@
             var secondPlayerWins = 0;
             var secondPlayerWinsLock = new object();
 
-            // for (var i = 0; i < GamesToPlay; i++)
             Parallel.For(1, GamesToPlay + 1, i =>
             {
                 if (i % 1000 == 0)
@@ -77,26 +76,26 @@
             Console.BufferWidth = Console.WindowWidth = 50;
 
             IPlayer firstPlayer = new ConsolePlayer(5, 10);
-            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player"); // new ConsoleLogger("[2] "));
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player");
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer);
             return game;
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static ISantaseGame CreateGameWithBots()
+        private static ISantaseGame CreateGameWithDummyBots(PlayerPosition playerPosition)
         {
-            IPlayer firstPlayer = new DummyPlayer("First Dummy Player"); // new ConsoleLogger("[1] "));
-            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player"); // new ConsoleLogger("[2] "));
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new ConsoleLogger("[game] "));
+            IPlayer firstPlayer = new DummyPlayer("First Dummy Player");
+            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player");
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static ISantaseGame CreateGameSmartVsDummyBots()
+        private static ISantaseGame CreateGameSmartVsDummyBot(PlayerPosition playerPosition)
         {
             IPlayer firstPlayer = new SmartPlayer();
-            IPlayer secondPlayer = new DummyPlayer("Second Dummy Player"); // new ConsoleLogger("[2] "));
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, PlayerPosition.FirstPlayer, new NoLogger()); // new ConsoleLogger("[game] "));
+            IPlayer secondPlayer = new DummyPlayer();
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }
 
@@ -104,7 +103,7 @@
         private static ISantaseGame CreateGameSmartVsPreviousVersionOfSmartBots(PlayerPosition playerPosition)
         {
             IPlayer firstPlayer = new SmartPlayer(); // new PlayerWithLoggerDecorator(new SmartPlayer(), new ConsoleLogger("[-]"))
-            IPlayer secondPlayer = new SmartPlayerOld(); // new DummyPlayer();
+            IPlayer secondPlayer = new SmartPlayerOld();
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }
