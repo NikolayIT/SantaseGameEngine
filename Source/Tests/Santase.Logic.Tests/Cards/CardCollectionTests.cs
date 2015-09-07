@@ -117,15 +117,6 @@
         }
 
         [Test]
-        public void RemoveNullCardShouldNotDoAnything()
-        {
-            var collection = new CardCollection();
-            collection.Add(new Card(CardSuit.Spade, CardType.Ace));
-            collection.Remove(null);
-            Assert.AreEqual(1, collection.Count);
-        }
-
-        [Test]
         public void RemoveShouldWorkProperly()
         {
             var card1 = new Card(CardSuit.Club, CardType.Ace); // 1
@@ -166,7 +157,14 @@
                 collection.Add(card);
             }
 
+            foreach (var card in collection)
+            {
+                Assert.IsTrue(cards.Contains(card), $"Card {card} not found in collection!");
+            }
+
             var count = 0;
+
+            // Second enumeration
             foreach (var card in collection)
             {
                 Assert.IsTrue(cards.Contains(card), $"Card {card} not found in collection!");

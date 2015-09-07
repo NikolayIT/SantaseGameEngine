@@ -5,34 +5,16 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Low memory (only 8 bytes per instance) implementation of card collection.
+    /// Low memory (only 12 bytes per instance) implementation of card collection.
     /// </summary>
     public class CardCollection : ICollection<Card>
     {
         private const int MaxCards = 52;
 
         private long cards; // 64 bits for 52 possible cards
+        private int count;
 
-        public int Count
-        {
-            get
-            {
-                var bits = this.cards;
-                var count = 0;
-                while (bits > 0)
-                {
-                    var bit = bits & 1;
-                    if (bit == 1)
-                    {
-                        count++;
-                    }
-
-                    bits = bits >> 1;
-                }
-
-                return count;
-            }
-        }
+        public int Count => this.count;
 
         public bool IsReadOnly => false;
 
@@ -48,17 +30,28 @@
 
         public void Add(Card item)
         {
-            this.cards |= (long)((long)1 << item.GetHashCode());
+            if (!this.Contains(item))
+            {
+                unchecked
+                {
+                    this.count++;
+                    this.cards |= (long)1 << item.GetHashCode();
+                }
+            }
         }
 
         public void Clear()
         {
             this.cards = 0;
+            this.count = 0;
         }
 
         public bool Contains(Card item)
         {
-            return ((this.cards >> item.GetHashCode()) & 1) == 1;
+            unchecked
+            {
+                return ((this.cards >> item.GetHashCode()) & 1) == 1;
+            }
         }
 
         public void CopyTo(Card[] array, int arrayIndex)
@@ -72,14 +65,19 @@
 
         public bool Remove(Card item)
         {
-            if (item == null)
+            if (this.Contains(item))
+            {
+                unchecked
+                {
+                    this.count--;
+                    this.cards &= ~((long)1 << item.GetHashCode());
+                    return true;
+                }
+            }
+            else
             {
                 return false;
             }
-
-            this.cards &= ~((long)1 << item.GetHashCode());
-
-            return true;
         }
 
         private class CardCollectionEnumerator : IEnumerator<Card>
@@ -108,7 +106,7 @@
             public CardCollectionEnumerator(long cards)
             {
                 this.cards = cards;
-                this.Reset();
+                this.currentHashCode = -1;
             }
 
             public Card Current => AllCards[this.currentHashCode];
@@ -123,11 +121,13 @@
             {
                 while (this.currentHashCode <= MaxCards)
                 {
-                    this.currentHashCode++;
-                    var bit = (this.cards >> this.currentHashCode) & 1;
-                    if (bit == 1)
+                    unchecked
                     {
-                        return true;
+                        this.currentHashCode++;
+                        if (((this.cards >> this.currentHashCode) & 1) == 1)
+                        {
+                            return true;
+                        }
                     }
                 }
 
