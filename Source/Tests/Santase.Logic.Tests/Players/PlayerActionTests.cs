@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Tests.Players
 {
+    using System;
+
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
@@ -41,8 +43,6 @@
         [Test]
         public void ChangeTrumpShouldNotPassAnyCard()
         {
-            // It is qustionalble if we do not need to pass any card here or 9 of the trump suit
-            // It is very likely this unit test to fail when refactored the change trump card value logic
             var playerAction = PlayerAction.ChangeTrump();
             Assert.AreEqual(null, playerAction.Card);
         }
@@ -73,6 +73,38 @@
         {
             var playerAction = PlayerAction.CloseGame();
             Assert.AreEqual(Announce.None, playerAction.Announce);
+        }
+
+        [Test]
+        public void ToStringShouldReturnValidValueWhenCloseGame()
+        {
+            var playerAction = PlayerAction.CloseGame();
+            var toStringValue = playerAction.ToString();
+            Console.WriteLine(toStringValue);
+            Assert.IsNotNull(toStringValue);
+            Assert.IsTrue(toStringValue.Contains("CloseGame"));
+        }
+
+        [Test]
+        public void ToStringShouldReturnValidValueWhenChangeTrump()
+        {
+            var playerAction = PlayerAction.ChangeTrump();
+            var toStringValue = playerAction.ToString();
+            Console.WriteLine(toStringValue);
+            Assert.IsNotNull(toStringValue);
+            Assert.IsTrue(toStringValue.Contains("ChangeTrump"));
+        }
+
+        [Test]
+        public void ToStringShouldReturnValidValueWhenPlayCard()
+        {
+            var card = new Card(CardSuit.Club, CardType.Ace);
+            var playerAction = PlayerAction.PlayCard(card);
+            var toStringValue = playerAction.ToString();
+            Console.WriteLine(toStringValue);
+            Assert.IsNotNull(toStringValue);
+            Assert.IsTrue(toStringValue.Contains("PlayCard"));
+            Assert.IsTrue(toStringValue.Contains(card.ToString()));
         }
     }
 }
