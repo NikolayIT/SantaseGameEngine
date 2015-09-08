@@ -15,15 +15,26 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            // Always change trump as this is always a good move
+            // When possible change the trump card as this is always a good move
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
                 return this.ChangeTrump(context.TrumpCard.Suit);
             }
 
-            // TODO: Close the game?
+            if (this.CloseGame(context))
+            {
+                return PlayerAction.CloseGame();
+            }
 
             return this.ChooseCard(context);
+        }
+
+        // TODO: Close the game?
+        private bool CloseGame(PlayerTurnContext context)
+        {
+            // 5 trump cards => close the game
+            return this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
+                   && this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
         }
 
         // TODO: Choose appropriate card
@@ -35,7 +46,7 @@
                        : this.ChooseCardWhenPlayingSecond(context, possibleCardsToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, IEnumerable<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
             // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
@@ -73,9 +84,9 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, IEnumerable<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
-            // Euristic
+            // Heuristic
             if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
                 && possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
             {

@@ -46,7 +46,7 @@
                        : this.ChooseCardWhenPlayingSecond(context, possibleCardsToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, IEnumerable<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
             // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
@@ -84,7 +84,7 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, IEnumerable<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
             // Heuristic
             if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)

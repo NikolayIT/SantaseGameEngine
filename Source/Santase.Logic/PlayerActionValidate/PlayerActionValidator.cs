@@ -66,7 +66,7 @@
             }
         }
 
-        public IEnumerable<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards)
+        public ICollection<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards)
         {
             var possibleCardsToPlay = new List<Card>(playerCards.Count);
             foreach (var card in playerCards)

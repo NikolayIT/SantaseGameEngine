@@ -9,6 +9,6 @@
     {
         bool IsValid(PlayerAction action, PlayerTurnContext context, ICollection<Card> playerCards);
 
-        IEnumerable<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards);
+        ICollection<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards);
     }
 }
