@@ -67,5 +67,13 @@
 
             Assert.AreEqual(Prefix + Message + Environment.NewLine, textWriter.ToString());
         }
+
+        [Test]
+        public void ConsoleLoggerShouldBeDisposable()
+        {
+            using (new ConsoleLogger())
+            {
+            }
+        }
     }
 }

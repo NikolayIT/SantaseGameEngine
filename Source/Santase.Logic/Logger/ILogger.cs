@@ -1,6 +1,8 @@
 ﻿namespace Santase.Logic.Logger
 {
-    public interface ILogger
+    using System;
+
+    public interface ILogger : IDisposable
     {
         void Log(string message);
 

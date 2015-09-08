@@ -2,14 +2,13 @@
 {
     using System.IO;
 
-    // TODO: Unit test this class
     public class FileLogger : ILogger
     {
         private readonly TextWriter writer;
 
         public FileLogger(string filePath)
         {
-            this.writer = new StreamWriter(filePath);
+            this.writer = new StreamWriter(filePath, true);
         }
 
         public void Log(string message)
@@ -20,6 +19,11 @@
         public void LogLine(string message)
         {
             this.writer.WriteLine(message);
+        }
+
+        public void Dispose()
+        {
+            this.writer.Dispose();
         }
     }
 }

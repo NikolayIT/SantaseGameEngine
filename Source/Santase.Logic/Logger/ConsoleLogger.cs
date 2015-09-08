@@ -25,5 +25,9 @@
         {
             Console.WriteLine(this.prefix + message);
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

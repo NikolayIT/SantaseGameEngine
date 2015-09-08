@@ -20,5 +20,9 @@
         {
             return this.logs.ToString();
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

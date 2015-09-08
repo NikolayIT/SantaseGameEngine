@@ -50,6 +50,7 @@
     <Compile Include="Cards\CardCollectionTests.cs" />
     <Compile Include="Cards\DeckTests.cs" />
     <Compile Include="Extensions\PlayerPositionExtensionsTests.cs" />
+    <Compile Include="Logger\FileLoggerTests.cs" />
     <Compile Include="WinnerLogic\CardWinnerLogicTests.cs" />
     <Compile Include="Extensions\EnumerableExtensionsTests.cs" />
     <Compile Include="Extensions\RandomProviderTests.cs" />

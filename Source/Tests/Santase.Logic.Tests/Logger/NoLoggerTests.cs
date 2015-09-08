@@ -22,5 +22,13 @@
             logger.LogLine("test");
             Assert.AreEqual(string.Empty, logger.ToString());
         }
+
+        [Test]
+        public void NoLoggerShouldBeDisposable()
+        {
+            using (new NoLogger())
+            {
+            }
+        }
     }
 }

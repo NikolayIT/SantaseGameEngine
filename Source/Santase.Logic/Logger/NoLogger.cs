@@ -14,5 +14,9 @@
         {
             return string.Empty;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

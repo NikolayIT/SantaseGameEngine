@@ -37,5 +37,13 @@
             logger.Log(SecondMessage);
             Assert.AreEqual(FirstMessage + Environment.NewLine + SecondMessage, logger.ToString());
         }
+
+        [Test]
+        public void MemoryLoggerShouldBeDisposable()
+        {
+            using (new MemoryLogger())
+            {
+            }
+        }
     }
 }
