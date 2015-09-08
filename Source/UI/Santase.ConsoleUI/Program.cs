@@ -94,7 +94,7 @@
         private static ISantaseGame CreateGameSmartVsDummyBot(PlayerPosition playerPosition)
         {
             IPlayer firstPlayer = new SmartPlayer();
-            IPlayer secondPlayer = new DummyPlayer();
+            IPlayer secondPlayer = new DummyPlayerChangingTrump();
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
             return game;
         }

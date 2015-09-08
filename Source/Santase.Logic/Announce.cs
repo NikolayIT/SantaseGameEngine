@@ -4,6 +4,6 @@
     {
         None = 0,
         Twenty = 20,
-        Fourty = 40,
+        Fourty = 40, // TODO: Rename to Forty
     }
 }
