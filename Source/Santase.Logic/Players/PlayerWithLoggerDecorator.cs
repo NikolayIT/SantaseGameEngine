@@ -3,6 +3,8 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Logger;
 
+    // TODO: Unit test this class
+    // ReSharper disable once UnusedMember.Global
     public class PlayerWithLoggerDecorator : IPlayer
     {
         private readonly IPlayer player;
