@@ -208,5 +208,50 @@
                 Assert.IsTrue(found);
             }
         }
+
+        [Test]
+        public void CloneShouldReturnExactSameCollectionOfCards()
+        {
+            var collection = new CardCollection
+                                 {
+                                     new Card(CardSuit.Club, CardType.Ace), // 1
+                                     new Card(CardSuit.Spade, CardType.King), // 52
+                                     new Card(CardSuit.Heart, CardType.Ten),
+                                     new Card(CardSuit.Diamond, CardType.Queen),
+                                     new Card(CardSuit.Club, CardType.Jack),
+                                     new Card(CardSuit.Heart, CardType.Nine),
+                                 };
+            var clonedCollection = collection.Clone() as CardCollection;
+            Assert.IsNotNull(clonedCollection);
+            Assert.AreEqual(collection.Count, clonedCollection.Count);
+            foreach (var card in clonedCollection)
+            {
+                Assert.IsTrue(collection.Contains(card));
+            }
+        }
+
+        [Test]
+        public void InternalEnumeratorResetMethodShouldAllowNewEnumerating()
+        {
+
+            var collection = new CardCollection
+                                 {
+                                     new Card(CardSuit.Club, CardType.Ace), // 1
+                                     new Card(CardSuit.Spade, CardType.King) // 52
+                                 };
+            var enumerator = collection.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+            }
+
+            enumerator.Reset();
+            var count = 0;
+            while (enumerator.MoveNext())
+            {
+                count++;
+            }
+
+            Assert.AreEqual(collection.Count, count);
+        }
     }
 }

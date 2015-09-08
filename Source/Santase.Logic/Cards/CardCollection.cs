@@ -21,6 +21,7 @@
         private CardCollection(long bitMask)
         {
             this.cards = bitMask;
+            this.count = this.CalculateCount();
         }
 
         public int Count => this.count;
@@ -92,6 +93,24 @@
         public object Clone()
         {
             return new CardCollection(this.cards);
+        }
+
+        private int CalculateCount()
+        {
+            var bits = this.cards;
+            var cardsCount = 0;
+            while (bits > 0)
+            {
+                var bit = bits & 1;
+                if (bit == 1)
+                {
+                    cardsCount++;
+                }
+
+                bits = bits >> 1;
+            }
+
+            return cardsCount;
         }
 
         private class CardCollectionEnumerator : IEnumerator<Card>
