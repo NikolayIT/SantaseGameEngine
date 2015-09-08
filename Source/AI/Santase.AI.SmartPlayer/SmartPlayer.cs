@@ -41,12 +41,16 @@
         private PlayerAction ChooseCard(PlayerTurnContext context)
         {
             var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
-            return context.IsFirstPlayerTurn
-                       ? this.ChooseCardWhenPlayingFirst(context, possibleCardsToPlay)
-                       : this.ChooseCardWhenPlayingSecond(context, possibleCardsToPlay);
+            return context.State.ShouldObserveRules
+                       ? (context.IsFirstPlayerTurn
+                              ? this.ChooseCardWhenPlayingFirstAndRulesApply(context, possibleCardsToPlay)
+                              : this.ChooseCardWhenPlayingSecondAndRulesApply(context, possibleCardsToPlay))
+                       : (context.IsFirstPlayerTurn
+                              ? this.ChooseCardWhenPlayingFirstAndRulesDoNotApply(context, possibleCardsToPlay)
+                              : this.ChooseCardWhenPlayingSecondAndRulesDoNotApply(context, possibleCardsToPlay));
         }
 
-        private PlayerAction ChooseCardWhenPlayingFirst(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirstAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
             // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
@@ -84,7 +88,7 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingSecond(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
             // Heuristic
             if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
@@ -93,7 +97,7 @@
                 return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
             }
 
-            // Smallest non-trump card
+            // Smallest trump card
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
                     .OrderBy(x => x.GetValue())
@@ -105,6 +109,20 @@
 
             cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(cardToPlay);
+        }
+
+        private PlayerAction ChooseCardWhenPlayingFirstAndRulesApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
+        {
+            return this.ChooseCardWhenPlayingFirstAndRulesDoNotApply(context, possibleCardsToPlay);
+        }
+
+        private PlayerAction ChooseCardWhenPlayingSecondAndRulesApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
+        {
+            return this.ChooseCardWhenPlayingSecondAndRulesDoNotApply(context, possibleCardsToPlay);
         }
 
         public override void EndRound()

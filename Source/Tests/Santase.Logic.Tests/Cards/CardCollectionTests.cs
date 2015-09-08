@@ -233,7 +233,6 @@
         [Test]
         public void InternalEnumeratorResetMethodShouldAllowNewEnumerating()
         {
-
             var collection = new CardCollection
                                  {
                                      new Card(CardSuit.Club, CardType.Ace), // 1
