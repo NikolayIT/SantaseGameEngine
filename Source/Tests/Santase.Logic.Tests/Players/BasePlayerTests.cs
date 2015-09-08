@@ -4,6 +4,7 @@
 
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
+    using Santase.Logic.RoundStates;
 
     [TestFixture]
     public class BasePlayerTests
@@ -86,6 +87,17 @@
             Assert.AreEqual(0, basePlayerImplementation.CardsCount);
         }
 
+        [Test]
+        public void EndTurnShouldNotThrowExceptions()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            var playerTurnContext = new PlayerTurnContext(
+                new FinalRoundState(null),
+                new Card(CardSuit.Club, CardType.Ace),
+                0);
+            basePlayerImplementation.EndTurn(playerTurnContext);
+        }
+
         private class BasePlayerImpl : BasePlayer
         {
             public bool ListIsNotNull => this.Cards != null;
@@ -101,10 +113,6 @@
             public override PlayerAction GetTurn(PlayerTurnContext context)
             {
                 throw new System.NotImplementedException();
-            }
-
-            public override void EndTurn(PlayerTurnContext context)
-            {
             }
 
             public PlayerAction ChangeTrumpProxy(CardSuit trumpCardSuit)
