@@ -114,7 +114,7 @@
             var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Club, CardType.Ten), 12)
                                         {
                                             FirstPlayedCard = new Card(CardSuit.Spade, CardType.King),
-                                            FirstPlayerAnnounce = Announce.Fourty,
+                                            FirstPlayerAnnounce = Announce.Forty,
                                             SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine)
                                         };
 

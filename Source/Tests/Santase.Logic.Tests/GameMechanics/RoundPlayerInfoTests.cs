@@ -78,7 +78,7 @@
         public void RoundPointsShouldReturn40WhenAnnounceOfFortyAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
-            roundPlayerInfo.Announces.Add(Announce.Fourty);
+            roundPlayerInfo.Announces.Add(Announce.Forty);
             Assert.AreEqual(40, roundPlayerInfo.RoundPoints);
         }
 
@@ -87,7 +87,7 @@
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
             roundPlayerInfo.Announces.Add(Announce.Twenty);
-            roundPlayerInfo.Announces.Add(Announce.Fourty);
+            roundPlayerInfo.Announces.Add(Announce.Forty);
             Assert.AreEqual(60, roundPlayerInfo.RoundPoints);
         }
 

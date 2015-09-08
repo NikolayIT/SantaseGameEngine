@@ -87,25 +87,25 @@
         }
 
         [Test]
-        public void GetPossibleAnnounceShouldReturnFourtyWhenQueenIsPlayedTheKingIsPresentAndTheTrumpIsTheSameSuit()
+        public void GetPossibleAnnounceShouldReturnFortyWhenQueenIsPlayedTheKingIsPresentAndTheTrumpIsTheSameSuit()
         {
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
                 new Card(CardSuit.Diamond, CardType.Queen),
                 new Card(CardSuit.Diamond, CardType.Ace));
-            Assert.AreEqual(Announce.Fourty, announce);
+            Assert.AreEqual(Announce.Forty, announce);
         }
 
         [Test]
-        public void GetPossibleAnnounceShouldReturnFourtyWhenKingIsPlayedTheQueenIsPresentAndTheTrumpIsTheSameSuit()
+        public void GetPossibleAnnounceShouldReturnFortyWhenKingIsPlayedTheQueenIsPresentAndTheTrumpIsTheSameSuit()
         {
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
                 new Card(CardSuit.Heart, CardType.King),
                 new Card(CardSuit.Heart, CardType.Nine));
-            Assert.AreEqual(Announce.Fourty, announce);
+            Assert.AreEqual(Announce.Forty, announce);
         }
 
         [Test]

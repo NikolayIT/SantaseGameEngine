@@ -57,7 +57,7 @@
             {
                 if (card.Type == CardType.Queen
                     && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
-                    == Announce.Fourty)
+                    == Announce.Forty)
                 {
                     return this.PlayCard(card);
                 }

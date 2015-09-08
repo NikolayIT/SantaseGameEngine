@@ -42,7 +42,7 @@
                 return Announce.None;
             }
 
-            return cardToBePlayed.Suit == trumpCard.Suit ? Announce.Fourty : Announce.Twenty;
+            return cardToBePlayed.Suit == trumpCard.Suit ? Announce.Forty : Announce.Twenty;
         }
     }
 }
