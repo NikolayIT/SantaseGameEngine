@@ -7,6 +7,8 @@
     // TODO: Unit test this class
     internal class Round
     {
+        private readonly IGameRules gameRules;
+
         private readonly IDeck deck;
 
         private readonly IStateManager stateManager;
@@ -17,8 +19,9 @@
 
         private PlayerPosition lastTrickWinner;
 
-        public Round(IPlayer firstPlayer, IPlayer secondPlayer)
+        public Round(IPlayer firstPlayer, IPlayer secondPlayer, IGameRules gameRules)
         {
+            this.gameRules = gameRules;
             this.deck = new Deck();
             this.stateManager = new StateManager();
 
@@ -46,8 +49,8 @@
         private void PlayTrick()
         {
             var trick = this.lastTrickWinner == PlayerPosition.SecondPlayer
-                ? new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck)
-                : new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck);
+                ? new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck, this.gameRules)
+                : new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck, this.gameRules);
 
             var trickResult = trick.Play();
             this.lastTrickWinner = trickResult == this.firstPlayer
@@ -74,12 +77,12 @@
 
         private bool IsFinished()
         {
-            if (this.firstPlayer.RoundPoints >= 66)
+            if (this.firstPlayer.RoundPoints >= this.gameRules.RoundPointsForGoingOut)
             {
                 return true;
             }
 
-            if (this.secondPlayer.RoundPoints >= 66)
+            if (this.secondPlayer.RoundPoints >= this.gameRules.RoundPointsForGoingOut)
             {
                 return true;
             }

@@ -6,6 +6,7 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer);
+            PlayerPosition noTricksPlayer,
+            IGameRules gameRules);
     }
 }

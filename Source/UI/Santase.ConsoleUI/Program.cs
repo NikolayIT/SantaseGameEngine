@@ -86,7 +86,7 @@
         {
             IPlayer firstPlayer = new DummyPlayer("First Dummy Player");
             IPlayer secondPlayer = new DummyPlayer("Second Dummy Player");
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition); // new ConsoleLogger("[game] "));
             return game;
         }
 
@@ -95,7 +95,7 @@
         {
             IPlayer firstPlayer = new SmartPlayer();
             IPlayer secondPlayer = new DummyPlayerChangingTrump();
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition); // new ConsoleLogger("[game] "));
             return game;
         }
 
@@ -104,7 +104,7 @@
         {
             IPlayer firstPlayer = new SmartPlayer(); // new PlayerWithLoggerDecorator(new SmartPlayer(), new ConsoleLogger("[-]"))
             IPlayer secondPlayer = new SmartPlayerOld();
-            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition, new NoLogger()); // new ConsoleLogger("[game] "));
+            ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer, playerPosition); // new ConsoleLogger("[game] "));
             return game;
         }
     }

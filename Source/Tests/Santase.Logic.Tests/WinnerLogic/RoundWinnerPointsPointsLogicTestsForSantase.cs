@@ -5,7 +5,7 @@
     using Santase.Logic.WinnerLogic;
 
     [TestFixture]
-    public class RoundWinnerPointsPointsLogicTests
+    public class RoundWinnerPointsPointsLogicTestsForSantase
     {
         [TestCase(65, 33, PlayerPosition.NoOne, PlayerPosition.NoOne)]
         [TestCase(66, 33, PlayerPosition.NoOne, PlayerPosition.NoOne)]
@@ -26,7 +26,8 @@
                 firstPlayerPoints,
                 secondPlayerPoints,
                 gameClosedBy,
-                noTricksPlayer);
+                noTricksPlayer,
+                GameRulesProvider.Santase);
             Assert.AreEqual(PlayerPosition.FirstPlayer, result.Winner);
             Assert.AreEqual(1, result.Points);
         }
@@ -48,7 +49,8 @@
                 firstPlayerPoints,
                 secondPlayerPoints,
                 gameClosedBy,
-                noTricksPlayer);
+                noTricksPlayer,
+                GameRulesProvider.Santase);
             Assert.AreEqual(PlayerPosition.FirstPlayer, result.Winner);
             Assert.AreEqual(2, result.Points);
         }
@@ -69,7 +71,8 @@
                 firstPlayerPoints,
                 secondPlayerPoints,
                 gameClosedBy,
-                noTricksPlayer);
+                noTricksPlayer,
+                GameRulesProvider.Santase);
             Assert.AreEqual(PlayerPosition.FirstPlayer, result.Winner);
             Assert.AreEqual(3, result.Points);
         }
@@ -93,7 +96,8 @@
                 firstPlayerPoints,
                 secondPlayerPoints,
                 gameClosedBy,
-                noTricksPlayer);
+                noTricksPlayer,
+                GameRulesProvider.Santase);
             Assert.AreEqual(PlayerPosition.SecondPlayer, result.Winner);
             Assert.AreEqual(1, result.Points);
         }
@@ -115,7 +119,8 @@
                 firstPlayerPoints,
                 secondPlayerPoints,
                 gameClosedBy,
-                noTricksPlayer);
+                noTricksPlayer,
+                GameRulesProvider.Santase);
             Assert.AreEqual(PlayerPosition.SecondPlayer, result.Winner);
             Assert.AreEqual(2, result.Points);
         }
@@ -136,7 +141,8 @@
                 firstPlayerPoints,
                 secondPlayerPoints,
                 gameClosedBy,
-                noTricksPlayer);
+                noTricksPlayer,
+                GameRulesProvider.Santase);
             Assert.AreEqual(PlayerPosition.SecondPlayer, result.Winner);
             Assert.AreEqual(3, result.Points);
         }
@@ -154,7 +160,8 @@
                 firstPlayerPoints,
                 secondPlayerPoints,
                 gameClosedBy,
-                noTricksPlayer);
+                noTricksPlayer,
+                GameRulesProvider.Santase);
             Assert.AreEqual(PlayerPosition.NoOne, result.Winner);
             Assert.AreEqual(0, result.Points);
         }

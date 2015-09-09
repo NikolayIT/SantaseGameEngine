@@ -17,12 +17,20 @@
 
         private readonly IDeck deck;
 
-        public Trick(RoundPlayerInfo firstToPlay, RoundPlayerInfo secondToPlay, IStateManager stateManager, IDeck deck)
+        private readonly IGameRules gameRules;
+
+        public Trick(
+            RoundPlayerInfo firstToPlay,
+            RoundPlayerInfo secondToPlay,
+            IStateManager stateManager,
+            IDeck deck,
+            IGameRules gameRules)
         {
             this.firstToPlay = firstToPlay;
             this.secondToPlay = secondToPlay;
             this.stateManager = stateManager;
             this.deck = deck;
+            this.gameRules = gameRules;
         }
 
         public RoundPlayerInfo Play()
@@ -36,7 +44,7 @@
             this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
             // When player announces something he may immediately become round winner
-            if (this.firstToPlay.RoundPoints >= 66)
+            if (this.firstToPlay.RoundPoints >= GameRulesProvider.Santase.RoundPointsForGoingOut)
             {
                 return this.firstToPlay;
             }

@@ -7,6 +7,8 @@
     // TODO: Unit test this class
     public class SantaseGame : ISantaseGame
     {
+        private readonly IGameRules gameRules;
+
         private readonly IPlayer firstPlayer;
 
         private readonly IPlayer secondPlayer;
@@ -19,7 +21,7 @@
 
         private int firstPlayerTotalPoints;
 
-        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay, ILogger logger)
+        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay, IGameRules gameRules, ILogger logger)
         {
             this.firstPlayerTotalPoints = 0;
             this.secondPlayerTotalPoints = 0;
@@ -27,6 +29,7 @@
             this.firstPlayer = firstPlayer;
             this.secondPlayer = secondPlayer;
             this.firstToPlay = firstToPlay;
+            this.gameRules = gameRules;
             this.logger = logger;
         }
 
@@ -34,7 +37,7 @@
             IPlayer firstPlayer,
             IPlayer secondPlayer,
             PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
-            : this(firstPlayer, secondPlayer, firstToPlay, new NoLogger())
+            : this(firstPlayer, secondPlayer, firstToPlay, GameRulesProvider.Santase, new NoLogger())
         {
         }
 
@@ -58,8 +61,8 @@
         private void PlayRound()
         {
             var round = this.firstToPlay == PlayerPosition.FirstPlayer
-                            ? new Round(this.firstPlayer, this.secondPlayer)
-                            : new Round(this.secondPlayer, this.firstPlayer);
+                            ? new Round(this.firstPlayer, this.secondPlayer, this.gameRules)
+                            : new Round(this.secondPlayer, this.firstPlayer, this.gameRules);
 
             var roundResult = round.Play();
 
@@ -78,7 +81,8 @@
                 roundResult.FirstPlayer.RoundPoints,
                 roundResult.SecondPlayer.RoundPoints,
                 roundResult.GameClosedBy,
-                roundResult.NoTricksPlayer);
+                roundResult.NoTricksPlayer,
+                this.gameRules);
 
             if (roundWinnerPoints.Winner == PlayerPosition.NoOne)
             {

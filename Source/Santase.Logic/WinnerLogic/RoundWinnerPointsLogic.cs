@@ -6,11 +6,12 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            IGameRules gameRules)
         {
             if (gameClosedBy == PlayerPosition.FirstPlayer)
             {
-                if (firstPlayerPoints < 66)
+                if (firstPlayerPoints < gameRules.RoundPointsForGoingOut)
                 {
                     return RoundWinnerPoints.Second(3);
                 }
@@ -18,7 +19,7 @@
 
             if (gameClosedBy == PlayerPosition.SecondPlayer)
             {
-                if (secondPlayerPoints < 66)
+                if (secondPlayerPoints < gameRules.RoundPointsForGoingOut)
                 {
                     return RoundWinnerPoints.First(3);
                 }
@@ -30,7 +31,7 @@
                 return RoundWinnerPoints.Draw();
             }
 
-            if (firstPlayerPoints < 66 && secondPlayerPoints < 66)
+            if (firstPlayerPoints < gameRules.RoundPointsForGoingOut && secondPlayerPoints < gameRules.RoundPointsForGoingOut)
             {
                 if (firstPlayerPoints > secondPlayerPoints)
                 {
