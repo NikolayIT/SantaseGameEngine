@@ -22,7 +22,7 @@
         [Test]
         public void WinnersShouldBeEquallyDistributed()
         {
-            const int GamesToPlay = 1000;
+            const int GamesToPlay = 500;
 
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
@@ -52,7 +52,7 @@
         [Test]
         public void PlayersMethodsShouldBeCalledCorrectNumberOfTimes()
         {
-            const int GamesToPlay = 1000;
+            const int GamesToPlay = 500;
 
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
