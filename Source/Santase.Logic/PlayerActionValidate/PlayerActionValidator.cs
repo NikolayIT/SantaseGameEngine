@@ -6,7 +6,6 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
-    // TODO: Unit test this class
     public class PlayerActionValidator : IPlayerActionValidator
     {
         private static readonly Lazy<PlayerActionValidator> Lazy =
@@ -32,43 +31,31 @@
                 return false;
             }
 
-            switch (action.Type)
+            if (action.Type == PlayerActionType.PlayCard)
             {
-                case PlayerActionType.PlayCard:
-                    {
-                        var canPlayCard = PlayCardActionValidator.CanPlayCard(
-                            context.IsFirstPlayerTurn,
-                            action.Card,
-                            context.FirstPlayedCard,
-                            context.TrumpCard,
-                            playerCards,
-                            context.State.ShouldObserveRules);
-                        return canPlayCard;
-                    }
-
-                case PlayerActionType.ChangeTrump:
-                    {
-                        var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(
-                            context.IsFirstPlayerTurn,
-                            context.State,
-                            context.TrumpCard,
-                            playerCards);
-                        return canChangeTrump;
-                    }
-
-                case PlayerActionType.CloseGame:
-                    {
-                        var canCloseGame = CloseGameActionValidator.CanCloseGame(
-                            context.IsFirstPlayerTurn,
-                            context.State);
-                        return canCloseGame;
-                    }
-
-                default:
-                    {
-                        throw new ArgumentOutOfRangeException();
-                    }
+                var canPlayCard = PlayCardActionValidator.CanPlayCard(
+                    context.IsFirstPlayerTurn,
+                    action.Card,
+                    context.FirstPlayedCard,
+                    context.TrumpCard,
+                    playerCards,
+                    context.State.ShouldObserveRules);
+                return canPlayCard;
             }
+
+            if (action.Type == PlayerActionType.ChangeTrump)
+            {
+                var canChangeTrump = ChangeTrumpActionValidator.CanChangeTrump(
+                    context.IsFirstPlayerTurn,
+                    context.State,
+                    context.TrumpCard,
+                    playerCards);
+                return canChangeTrump;
+            }
+
+            // action.Type == PlayerActionType.CloseGame
+            var canCloseGame = CloseGameActionValidator.CanCloseGame(context.IsFirstPlayerTurn, context.State);
+            return canCloseGame;
         }
 
         public ICollection<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards)

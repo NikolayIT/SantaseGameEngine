@@ -158,16 +158,36 @@
         public void PlayShouldThrowAnExceptionWhenPlayerPlaysInvalidCard()
         {
             var firstPlayer = new Mock<IPlayer>();
-            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer.Object);
             firstPlayer.Setup(x => x.GetTurn(It.IsAny<PlayerTurnContext>()))
                 .Returns(PlayerAction.PlayCard(new Card(CardSuit.Club, CardType.Ace)));
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer.Object);
+
             var secondPlayer = new Mock<IPlayer>();
             var secondPlayerInfo = new RoundPlayerInfo(secondPlayer.Object);
+
             var stateManager = new StateManager();
             var deck = new Deck();
 
             firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.King));
             secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
+
+            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
+            trick.Play();
+        }
+
+        [Test]
+        [ExpectedException(typeof(InternalGameException))]
+        public void PlayShouldThrowAnExceptionWhenPlayerReturnsNullAction()
+        {
+            var firstPlayer = new Mock<IPlayer>();
+            firstPlayer.Setup(x => x.GetTurn(It.IsAny<PlayerTurnContext>())).Returns((PlayerAction)null);
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer.Object);
+
+            var secondPlayer = new Mock<IPlayer>();
+            var secondPlayerInfo = new RoundPlayerInfo(secondPlayer.Object);
+
+            var stateManager = new StateManager();
+            var deck = new Deck();
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             trick.Play();
