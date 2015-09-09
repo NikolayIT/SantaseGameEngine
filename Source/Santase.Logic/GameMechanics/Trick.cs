@@ -44,7 +44,7 @@
             this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
             // When player announces something he may immediately become round winner
-            if (this.firstToPlay.RoundPoints >= GameRulesProvider.Santase.RoundPointsForGoingOut)
+            if (this.firstToPlay.RoundPoints >= this.gameRules.RoundPointsForGoingOut)
             {
                 return this.firstToPlay;
             }

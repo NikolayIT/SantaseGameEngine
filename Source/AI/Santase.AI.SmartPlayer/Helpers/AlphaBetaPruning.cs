@@ -8,6 +8,7 @@
     using Santase.Logic.Players;
     using Santase.Logic.WinnerLogic;
 
+    // ReSharper disable once UnusedMember.Global
     public class AlphaBetaPruning
     {
         private readonly IPlayerActionValidator playerActionValidator;
@@ -26,6 +27,7 @@
             this.gameRules = gameRules;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public IDictionary<Card, int> GetBestCard(
             ICollection<Card> firstPlayerCards,
             ICollection<Card> secondPlayerCards,

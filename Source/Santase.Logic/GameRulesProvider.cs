@@ -2,7 +2,7 @@
 {
     using System;
 
-    public sealed class GameRulesProvider
+    public static class GameRulesProvider
     {
         private static readonly Lazy<SantaseGameRules> SantaseLazy =
             new Lazy<SantaseGameRules>(() => new SantaseGameRules());
