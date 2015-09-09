@@ -12,7 +12,7 @@
     using Santase.Logic.RoundStates;
 
     [TestFixture]
-    public class TrickTests
+    public class TrickTestsForSantase
     {
         [Test]
         public void PlayShouldCallGetTurnAndEndTurnForBothPlayers()

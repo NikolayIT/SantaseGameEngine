@@ -51,7 +51,8 @@
     <Compile Include="Cards\DeckTests.cs" />
     <Compile Include="Extensions\PlayerPositionExtensionsTests.cs" />
     <Compile Include="GameMechanics\RoundPlayerInfoTests.cs" />
-    <Compile Include="GameMechanics\TrickTests.cs" />
+    <Compile Include="GameMechanics\RoundTests.cs" />
+    <Compile Include="GameMechanics\TrickTestsForSantase.cs" />
     <Compile Include="Logger\FileLoggerTests.cs" />
     <Compile Include="WinnerLogic\CardWinnerLogicTests.cs" />
     <Compile Include="Extensions\EnumerableExtensionsTests.cs" />

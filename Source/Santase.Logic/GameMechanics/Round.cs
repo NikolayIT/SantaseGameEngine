@@ -4,7 +4,6 @@
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
 
-    // TODO: Unit test this class
     internal class Round
     {
         private readonly IGameRules gameRules;
@@ -17,7 +16,7 @@
 
         private readonly RoundPlayerInfo secondPlayer;
 
-        private PlayerPosition lastTrickWinner;
+        private PlayerPosition firstToPlay;
 
         public Round(IPlayer firstPlayer, IPlayer secondPlayer, IGameRules gameRules)
         {
@@ -28,7 +27,7 @@
             this.firstPlayer = new RoundPlayerInfo(firstPlayer);
             this.secondPlayer = new RoundPlayerInfo(secondPlayer);
 
-            this.lastTrickWinner = PlayerPosition.NoOne;
+            this.firstToPlay = PlayerPosition.FirstPlayer;
         }
 
         public RoundResult Play()
@@ -48,19 +47,21 @@
 
         private void PlayTrick()
         {
-            var trick = this.lastTrickWinner == PlayerPosition.SecondPlayer
-                ? new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck, this.gameRules)
-                : new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck, this.gameRules);
+            var trick = this.firstToPlay == PlayerPosition.FirstPlayer
+                ? new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck, this.gameRules)
+                : new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck, this.gameRules);
 
-            var trickResult = trick.Play();
-            this.lastTrickWinner = trickResult == this.firstPlayer
-                ? PlayerPosition.FirstPlayer
-                : PlayerPosition.SecondPlayer;
+            var trickWinner = trick.Play();
+
+            // The one who wins the trick should play first
+            this.firstToPlay = trickWinner == this.firstPlayer
+                                   ? PlayerPosition.FirstPlayer
+                                   : PlayerPosition.SecondPlayer;
 
             if (this.stateManager.State.ShouldDrawCard)
             {
                 // The player who wins last trick takes card first
-                if (this.lastTrickWinner == PlayerPosition.FirstPlayer)
+                if (this.firstToPlay == PlayerPosition.FirstPlayer)
                 {
                     this.GiveCardToPlayer(this.firstPlayer);
                     this.GiveCardToPlayer(this.secondPlayer);
