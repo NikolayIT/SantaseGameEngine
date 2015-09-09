@@ -38,6 +38,10 @@
             this.Cards.Clear();
         }
 
+        public virtual void EndGame(bool amIWinner)
+        {
+        }
+
         protected PlayerAction ChangeTrump(CardSuit trumpCardSuit)
         {
             this.Cards.Remove(new Card(trumpCardSuit, CardType.Nine));

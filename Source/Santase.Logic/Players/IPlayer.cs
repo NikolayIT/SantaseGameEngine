@@ -13,5 +13,7 @@
         void EndTurn(PlayerTurnContext context);
 
         void EndRound();
+
+        void EndGame(bool amIWinner);
     }
 }

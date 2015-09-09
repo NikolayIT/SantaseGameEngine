@@ -55,7 +55,11 @@
                 this.RoundsPlayed++;
             }
 
-            return this.GameWinner();
+            var gameWinner = this.GameWinner();
+            this.firstPlayer.EndGame(gameWinner == PlayerPosition.FirstPlayer);
+            this.secondPlayer.EndGame(gameWinner == PlayerPosition.SecondPlayer);
+
+            return gameWinner;
         }
 
         private void PlayRound()

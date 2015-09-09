@@ -50,5 +50,11 @@
             this.logger.LogLine("EndRound();");
             this.logger.LogLine(new string('-', 40));
         }
+
+        public void EndGame(bool amIWinner)
+        {
+            this.player.EndGame(amIWinner);
+            this.logger.LogLine($"EndGame({amIWinner});");
+        }
     }
 }
