@@ -27,6 +27,11 @@
                     context.IsFirstPlayerTurn);
             }
 
+            if (action == null)
+            {
+                return false;
+            }
+
             switch (action.Type)
             {
                 case PlayerActionType.PlayCard:

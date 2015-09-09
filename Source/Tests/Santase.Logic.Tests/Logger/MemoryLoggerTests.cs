@@ -23,15 +23,15 @@
         {
             ILogger logger = new MemoryLogger();
             logger.Log("test");
-            logger.Log("абвг");
-            Assert.AreEqual("testабвг", logger.ToString());
+            logger.Log("тест");
+            Assert.AreEqual("testтест", logger.ToString());
         }
 
         [Test]
         public void LogLineShouldAppendLineBetweenTwoLogCalls()
         {
             const string FirstMessage = "test";
-            const string SecondMessage = "абвг";
+            const string SecondMessage = "тест";
             ILogger logger = new MemoryLogger();
             logger.LogLine(FirstMessage);
             logger.Log(SecondMessage);
