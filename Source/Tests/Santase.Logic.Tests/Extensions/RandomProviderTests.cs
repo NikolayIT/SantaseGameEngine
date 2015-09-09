@@ -46,7 +46,6 @@
             Assert.IsFalse(randomNumbers.ContainsKey(101));
 
             var difference = randomNumbers.Values.Max() - randomNumbers.Values.Min();
-            Console.WriteLine(difference);
             Assert.IsTrue(difference < 2000);
         }
     }

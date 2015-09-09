@@ -1,13 +1,8 @@
 ﻿namespace Santase.Logic.Tests.GameMechanics
 {
-    using System;
-    using System.Linq;
-
     using NUnit.Framework;
 
-    using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
-    using Santase.Logic.Players;
 
     // These tests can be improved. When bug is found regression should be added.
     [TestFixture]
@@ -16,8 +11,8 @@
         [Test]
         public void PlayersShouldReceiveEqualNumberOfCardsAtLeast6AndNoMoreThan12()
         {
-            var firstPlayer = new ValidPlayer();
-            var secondPlayer = new ValidPlayer();
+            var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+            var secondPlayer = new ValidPlayerWithMethodsCallCounting();
             var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
 
             round.Play();
@@ -34,8 +29,8 @@
         [Test]
         public void PlayShouldReturnValidRoundResultObject()
         {
-            var firstPlayer = new ValidPlayer();
-            var secondPlayer = new ValidPlayer();
+            var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+            var secondPlayer = new ValidPlayerWithMethodsCallCounting();
             var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
 
             var result = round.Play();
@@ -53,8 +48,8 @@
         {
             const int NumberOfRounds = 10000;
 
-            var firstPlayer = new ValidPlayer();
-            var secondPlayer = new ValidPlayer();
+            var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+            var secondPlayer = new ValidPlayerWithMethodsCallCounting();
 
             for (var i = 0; i < NumberOfRounds; i++)
             {
@@ -84,57 +79,6 @@
 
             Assert.IsTrue(firstPlayer.GetTurnWhenFirst >= secondPlayer.GetTurnWhenSecond);
             Assert.IsTrue(secondPlayer.GetTurnWhenFirst >= firstPlayer.GetTurnWhenSecond);
-        }
-
-        private class ValidPlayer : BasePlayer
-        {
-            public override string Name => "Valid player";
-
-            public int GetTurnCalledCount { get; private set; }
-
-            public int GetTurnWhenFirst { get; private set; }
-
-            public int GetTurnWhenSecond { get; private set; }
-
-            public int AddCardCalledCount { get; private set; }
-
-            public int EndTurnCalledCount { get; private set; }
-
-            public int EndRoundCalledCount { get; private set; }
-
-            public override void AddCard(Card card)
-            {
-                this.AddCardCalledCount++;
-                base.AddCard(card);
-            }
-
-            public override PlayerAction GetTurn(PlayerTurnContext context)
-            {
-                this.GetTurnCalledCount++;
-                if (context.IsFirstPlayerTurn)
-                {
-                    this.GetTurnWhenFirst++;
-                }
-                else
-                {
-                    this.GetTurnWhenSecond++;
-                }
-
-                var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
-                return this.PlayCard(possibleCardsToPlay.First());
-            }
-
-            public override void EndTurn(PlayerTurnContext context)
-            {
-                this.EndTurnCalledCount++;
-                base.EndTurn(context);
-            }
-
-            public override void EndRound()
-            {
-                this.EndRoundCalledCount++;
-                base.EndRound();
-            }
         }
     }
 }

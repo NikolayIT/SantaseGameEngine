@@ -98,6 +98,13 @@
             basePlayerImplementation.EndTurn(playerTurnContext);
         }
 
+        [Test]
+        public void EndGameShouldNotThrowExceptions()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            basePlayerImplementation.EndGame(true);
+        }
+
         private class BasePlayerImpl : BasePlayer
         {
             public bool ListIsNotNull => this.Cards != null;
