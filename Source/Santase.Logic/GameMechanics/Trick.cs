@@ -6,7 +6,6 @@
     using Santase.Logic.RoundStates;
     using Santase.Logic.WinnerLogic;
 
-    // TODO: Pass current round points to players
     internal class Trick
     {
         private readonly RoundPlayerInfo firstToPlay;
@@ -35,17 +34,27 @@
 
         public RoundPlayerInfo Play()
         {
-            var context = new PlayerTurnContext(this.stateManager.State, this.deck.TrumpCard, this.deck.CardsLeft);
+            var context = new PlayerTurnContext(
+                this.stateManager.State,
+                this.deck.TrumpCard,
+                this.deck.CardsLeft,
+                this.firstToPlay.RoundPoints,
+                this.secondToPlay.RoundPoints);
 
             // First player
             var firstPlayerAction = this.GetFirstPlayerAction(this.firstToPlay, context);
             context.FirstPlayedCard = firstPlayerAction.Card;
             context.FirstPlayerAnnounce = firstPlayerAction.Announce;
+            context.FirstPlayerRoundPoints = this.firstToPlay.RoundPoints;
+
             this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
             // When player announces something he may immediately become round winner
             if (this.firstToPlay.RoundPoints >= this.gameRules.RoundPointsForGoingOut)
             {
+                // Inform players for end turn
+                this.firstToPlay.Player.EndTurn(context);
+                this.secondToPlay.Player.EndTurn(context);
                 return this.firstToPlay;
             }
 
@@ -66,6 +75,8 @@
             winner.TrickCards.Add(secondPlayerAction.Card);
 
             // Inform players for end turn
+            context.FirstPlayerRoundPoints = this.firstToPlay.RoundPoints;
+            context.SecondPlayerRoundPoints = this.secondToPlay.RoundPoints;
             this.firstToPlay.Player.EndTurn(context);
             this.secondToPlay.Player.EndTurn(context);
 

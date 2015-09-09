@@ -19,7 +19,7 @@
             var trumpCard = new Card(CardSuit.Heart, CardType.Ten);
             const int CardsLeftInDeck = 10;
 
-            var playerTurnContext = new PlayerTurnContext(state, trumpCard, CardsLeftInDeck);
+            var playerTurnContext = new PlayerTurnContext(state, trumpCard, CardsLeftInDeck, 0, 0);
 
             Assert.AreEqual(state, playerTurnContext.State);
             Assert.AreEqual(trumpCard, playerTurnContext.TrumpCard);
@@ -34,7 +34,7 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0)
+                0, 0, 0)
             { FirstPlayedCard = card };
             Assert.AreEqual(card, playerTurnContext.FirstPlayedCard);
         }
@@ -47,7 +47,7 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0)
+                0, 0, 0)
             { FirstPlayerAnnounce = Announce };
             Assert.AreEqual(Announce, playerTurnContext.FirstPlayerAnnounce);
         }
@@ -60,7 +60,7 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0) { SecondPlayedCard = card };
+                0, 0, 0) { SecondPlayedCard = card };
             Assert.AreEqual(card, playerTurnContext.SecondPlayedCard);
         }
 
@@ -71,7 +71,7 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0);
+                0, 0, 0);
             Assert.IsTrue(playerTurnContext.IsFirstPlayerTurn);
         }
 
@@ -82,7 +82,7 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0) { FirstPlayedCard = new Card(CardSuit.Diamond, CardType.Ten) };
+                0, 0, 0) { FirstPlayedCard = new Card(CardSuit.Diamond, CardType.Ten) };
             Assert.IsFalse(playerTurnContext.IsFirstPlayerTurn);
         }
 
@@ -91,7 +91,7 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new StartRoundState(haveStateMock.Object);
-            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Heart, CardType.Queen), 12);
+            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Heart, CardType.Queen), 12, 0, 0);
             var clonedPlayerTurnContext = playerTurnContext.Clone();
             Assert.AreNotSame(playerTurnContext, clonedPlayerTurnContext);
         }
@@ -101,7 +101,7 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new TwoCardsLeftRoundState(haveStateMock.Object);
-            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Diamond, CardType.Ace), 2);
+            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Diamond, CardType.Ace), 2, 0, 0);
             var clonedPlayerTurnContext = playerTurnContext.Clone();
             Assert.IsInstanceOf<PlayerTurnContext>(clonedPlayerTurnContext);
         }
@@ -111,7 +111,7 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new StartRoundState(haveStateMock.Object);
-            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Club, CardType.Ten), 12)
+            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Club, CardType.Ten), 12, 0, 0)
                                         {
                                             FirstPlayedCard = new Card(CardSuit.Spade, CardType.King),
                                             FirstPlayerAnnounce = Announce.Forty,

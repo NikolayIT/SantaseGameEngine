@@ -33,6 +33,17 @@
             Assert.AreEqual(1, secondPlayer.GetTurnCalledCount);
             Assert.AreEqual(1, firstPlayer.EndTurnCalledCount);
             Assert.AreEqual(1, secondPlayer.EndTurnCalledCount);
+
+            Assert.IsNotNull(firstPlayer.GetTurnContextObject);
+            Assert.IsNotNull(secondPlayer.GetTurnContextObject);
+            Assert.IsNotNull(firstPlayer.EndTurnContextObject);
+            Assert.IsNotNull(secondPlayer.EndTurnContextObject);
+
+            Assert.IsNotNull(firstPlayer.EndTurnContextObject.FirstPlayedCard);
+            Assert.IsNotNull(firstPlayer.EndTurnContextObject.SecondPlayedCard);
+            Assert.IsNotNull(secondPlayer.EndTurnContextObject.FirstPlayedCard);
+            Assert.IsNotNull(secondPlayer.EndTurnContextObject.SecondPlayedCard);
+
             Assert.IsTrue(winner == firstPlayerInfo || winner == secondPlayerInfo);
         }
 
@@ -66,11 +77,14 @@
 
             Assert.AreEqual(1, firstPlayer.GetTurnCalledCount);
             Assert.AreEqual(0, secondPlayer.GetTurnCalledCount);
+            Assert.AreEqual(1, firstPlayer.EndTurnCalledCount);
+            Assert.AreEqual(1, secondPlayer.EndTurnCalledCount);
             Assert.AreSame(firstPlayerInfo, winner);
 
             Assert.IsTrue(firstPlayerInfo.HasAtLeastOneTrick);
             Assert.IsFalse(secondPlayerInfo.HasAtLeastOneTrick);
 
+            Assert.IsTrue(winner.RoundPoints == 73 || winner.RoundPoints == 93);
             Assert.IsTrue(winner.RoundPoints == 73 || winner.RoundPoints == 93);
         }
 
@@ -96,6 +110,16 @@
             Assert.IsTrue(winner.TrickCards.Contains(new Card(CardSuit.Heart, CardType.Nine)));
             Assert.IsTrue(winner.TrickCards.Contains(new Card(deck.TrumpCard.Suit, CardType.Jack)));
             Assert.AreEqual(0, firstPlayerInfo.TrickCards.Count);
+
+            Assert.AreEqual(0, firstPlayer.EndTurnContextObject.FirstPlayerRoundPoints);
+            Assert.AreEqual(2, firstPlayer.EndTurnContextObject.SecondPlayerRoundPoints);
+            Assert.AreEqual(0, secondPlayer.EndTurnContextObject.FirstPlayerRoundPoints);
+            Assert.AreEqual(2, secondPlayer.EndTurnContextObject.SecondPlayerRoundPoints);
+
+            Assert.AreEqual(0, firstPlayer.GetTurnContextObject.FirstPlayerRoundPoints);
+            Assert.AreEqual(0, firstPlayer.GetTurnContextObject.SecondPlayerRoundPoints);
+            Assert.AreEqual(0, secondPlayer.GetTurnContextObject.FirstPlayerRoundPoints);
+            Assert.AreEqual(0, secondPlayer.GetTurnContextObject.SecondPlayerRoundPoints);
         }
 
         [Test]
@@ -123,6 +147,10 @@
             Assert.IsTrue(secondPlayer.GetTurnContextObject.FirstPlayerAnnounce != Announce.None);
             Assert.IsNotNull(secondPlayer.GetTurnContextObject.FirstPlayedCard);
             Assert.AreEqual(CardSuit.Heart, secondPlayer.GetTurnContextObject.FirstPlayedCard.Suit);
+
+            Assert.IsTrue(
+                secondPlayer.GetTurnContextObject.FirstPlayerRoundPoints == 20
+                || secondPlayer.GetTurnContextObject.FirstPlayerRoundPoints == 40);
         }
 
         [Test]
@@ -245,6 +273,8 @@
 
             public PlayerTurnContext GetTurnContextObject { get; private set; }
 
+            public PlayerTurnContext EndTurnContextObject { get; private set; }
+
             public override PlayerAction GetTurn(PlayerTurnContext context)
             {
                 this.GetTurnCalledCount++;
@@ -269,6 +299,8 @@
             public override void EndTurn(PlayerTurnContext context)
             {
                 this.EndTurnCalledCount++;
+                this.EndTurnContextObject = context.Clone() as PlayerTurnContext;
+
                 base.EndTurn(context);
             }
         }

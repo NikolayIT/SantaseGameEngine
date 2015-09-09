@@ -7,11 +7,18 @@
 
     public class PlayerTurnContext : ICloneable
     {
-        public PlayerTurnContext(BaseRoundState state, Card trumpCard, int cardsLeftInDeck)
+        public PlayerTurnContext(
+            BaseRoundState state,
+            Card trumpCard,
+            int cardsLeftInDeck,
+            int firstPlayerRoundPoints,
+            int secondPlayerRoundPoints)
         {
             this.State = state;
             this.TrumpCard = trumpCard;
             this.CardsLeftInDeck = cardsLeftInDeck;
+            this.FirstPlayerRoundPoints = firstPlayerRoundPoints;
+            this.SecondPlayerRoundPoints = secondPlayerRoundPoints;
         }
 
         public BaseRoundState State { get; set; }
@@ -24,14 +31,23 @@
 
         public Announce FirstPlayerAnnounce { get; set; }
 
+        public int FirstPlayerRoundPoints { get; set; }
+
         public Card SecondPlayedCard { get; set; }
+
+        public int SecondPlayerRoundPoints { get; set; }
 
         public bool IsFirstPlayerTurn => this.FirstPlayedCard == null;
 
         public object Clone()
         {
             // Creating new instance here seems to be faster than calling MemberwiseClone()
-            var newPlayerTurnContext = new PlayerTurnContext(this.State, this.TrumpCard, this.CardsLeftInDeck)
+            var newPlayerTurnContext = new PlayerTurnContext(
+                this.State,
+                this.TrumpCard,
+                this.CardsLeftInDeck,
+                this.FirstPlayerRoundPoints,
+                this.SecondPlayerRoundPoints)
                                            {
                                                FirstPlayedCard = this.FirstPlayedCard,
                                                SecondPlayedCard = this.SecondPlayedCard,

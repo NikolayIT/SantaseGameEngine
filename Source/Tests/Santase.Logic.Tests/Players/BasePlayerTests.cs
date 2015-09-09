@@ -94,7 +94,7 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(null),
                 new Card(CardSuit.Club, CardType.Ace),
-                0);
+                0, 0, 0);
             basePlayerImplementation.EndTurn(playerTurnContext);
         }
 
