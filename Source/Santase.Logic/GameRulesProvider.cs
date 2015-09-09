@@ -8,10 +8,5 @@
             new Lazy<SantaseGameRules>(() => new SantaseGameRules());
 
         public static IGameRules Santase => SantaseLazy.Value;
-
-        private class SantaseGameRules : IGameRules
-        {
-            public int RoundPointsForGoingOut => 66;
-        }
     }
 }

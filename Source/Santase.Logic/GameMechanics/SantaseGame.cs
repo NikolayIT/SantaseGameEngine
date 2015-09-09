@@ -120,12 +120,12 @@
 
         private PlayerPosition GameWinner()
         {
-            if (this.FirstPlayerTotalPoints >= 11)
+            if (this.FirstPlayerTotalPoints >= this.gameRules.GamePointsNeededForWin)
             {
                 return PlayerPosition.FirstPlayer;
             }
 
-            if (this.SecondPlayerTotalPoints >= 11)
+            if (this.SecondPlayerTotalPoints >= this.gameRules.GamePointsNeededForWin)
             {
                 return PlayerPosition.SecondPlayer;
             }

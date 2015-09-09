@@ -50,6 +50,7 @@
     <Compile Include="IGameRules.cs" />
     <Compile Include="Logger\FileLogger.cs" />
     <Compile Include="Players\PlayerWithLoggerDecorator.cs" />
+    <Compile Include="SantaseGameRules.cs" />
     <Compile Include="WinnerLogic\CardWinnerLogic.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\RandomProvider.cs" />

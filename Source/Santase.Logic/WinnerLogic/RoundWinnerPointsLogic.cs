@@ -46,7 +46,7 @@
 
             if (firstPlayerPoints > secondPlayerPoints)
             {
-                if (secondPlayerPoints >= 33)
+                if (secondPlayerPoints >= gameRules.HalfRoundPoints)
                 {
                     return RoundWinnerPoints.First(1);
                 }
@@ -56,13 +56,13 @@
                     return RoundWinnerPoints.First(3);
                 }
 
-                // at lest one trick and less than 33 points
+                // at lest one trick and less than half of the points
                 return RoundWinnerPoints.First(2);
             }
             else
             {
                 // secondPlayerPoints > firstPlayerPoints
-                if (firstPlayerPoints >= 33)
+                if (firstPlayerPoints >= gameRules.HalfRoundPoints)
                 {
                     return RoundWinnerPoints.Second(1);
                 }
@@ -72,7 +72,7 @@
                     return RoundWinnerPoints.Second(3);
                 }
 
-                // at lest one trick and less than 33 points
+                // at lest one trick and less than half of the points
                 return RoundWinnerPoints.Second(2);
             }
         }

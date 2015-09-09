@@ -16,11 +16,14 @@
 
         private readonly IRoundWinnerPointsLogic roundWinnerPointsLogic;
 
-        public AlphaBetaPruning(IPlayerActionValidator playerActionValidator, ICardWinnerLogic cardWinnerLogic, IRoundWinnerPointsLogic roundWinnerPointsLogic)
+        private readonly IGameRules gameRules;
+
+        public AlphaBetaPruning(IPlayerActionValidator playerActionValidator, ICardWinnerLogic cardWinnerLogic, IRoundWinnerPointsLogic roundWinnerPointsLogic, IGameRules gameRules)
         {
             this.playerActionValidator = playerActionValidator;
             this.cardWinnerLogic = cardWinnerLogic;
             this.roundWinnerPointsLogic = roundWinnerPointsLogic;
+            this.gameRules = gameRules;
         }
 
         public IDictionary<Card, int> GetBestCard(
@@ -53,7 +56,8 @@
             IDictionary<Card, int> options)
         {
             if ((firstPlayerCards.Count == 0 && secondPlayerCards.Count == 0)
-                || firstPlayerPoints >= 66 || secondPlayerPoints >= 66)
+                || firstPlayerPoints >= this.gameRules.RoundPointsForGoingOut
+                || secondPlayerPoints >= this.gameRules.RoundPointsForGoingOut)
             {
                 // if (this.gameWinnerLogic.UpdatePointsAndGetFirstToPlay(new RoundResult(new RoundPlayerInfo(), ), ))
                 options[firstCard]++;
