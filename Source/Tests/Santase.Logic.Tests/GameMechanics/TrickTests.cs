@@ -2,6 +2,8 @@
 {
     using System.Linq;
 
+    using Moq;
+
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
@@ -13,7 +15,7 @@
     public class TrickTests
     {
         [Test]
-        public void PlayShouldCallGetTurnForBothPlayers()
+        public void PlayShouldCallGetTurnAndEndTurnForBothPlayers()
         {
             var firstPlayer = new ValidPlayer();
             var firstPlayerInfo = new RoundPlayerInfo(firstPlayer);
@@ -29,6 +31,8 @@
 
             Assert.AreEqual(1, firstPlayer.GetTurnCalledCount);
             Assert.AreEqual(1, secondPlayer.GetTurnCalledCount);
+            Assert.AreEqual(1, firstPlayer.EndTurnCalledCount);
+            Assert.AreEqual(1, secondPlayer.EndTurnCalledCount);
             Assert.IsTrue(winner == firstPlayerInfo || winner == secondPlayerInfo);
         }
 
@@ -63,6 +67,152 @@
             Assert.AreEqual(1, firstPlayer.GetTurnCalledCount);
             Assert.AreEqual(0, secondPlayer.GetTurnCalledCount);
             Assert.AreSame(firstPlayerInfo, winner);
+
+            Assert.IsTrue(firstPlayerInfo.HasAtLeastOneTrick);
+            Assert.IsFalse(secondPlayerInfo.HasAtLeastOneTrick);
+
+            Assert.IsTrue(winner.RoundPoints == 73 || winner.RoundPoints == 93);
+        }
+
+        [Test]
+        public void PlayShouldCorrectlyDetermineTheWinner()
+        {
+            var firstPlayer = new ValidPlayer();
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer);
+            var secondPlayer = new ValidPlayer();
+            var secondPlayerInfo = new RoundPlayerInfo(secondPlayer);
+            var stateManager = new StateManager();
+            var deck = new Deck();
+
+            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Nine));
+            secondPlayerInfo.AddCard(new Card(deck.TrumpCard.Suit, CardType.Jack));
+
+            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
+            var winner = trick.Play();
+
+            Assert.IsTrue(winner == secondPlayerInfo);
+            Assert.AreEqual(2, winner.RoundPoints);
+            Assert.AreEqual(2, winner.TrickCards.Count);
+            Assert.IsTrue(winner.TrickCards.Contains(new Card(CardSuit.Heart, CardType.Nine)));
+            Assert.IsTrue(winner.TrickCards.Contains(new Card(deck.TrumpCard.Suit, CardType.Jack)));
+            Assert.AreEqual(0, firstPlayerInfo.TrickCards.Count);
+        }
+
+        [Test]
+        public void PlayShouldProvideCorrectPlayerTurnContextToPlayers()
+        {
+            var firstPlayer = new ValidPlayer();
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer);
+            var secondPlayer = new ValidPlayer();
+            var secondPlayerInfo = new RoundPlayerInfo(secondPlayer);
+            var stateManager = new StateManager();
+            var deck = new Deck();
+
+            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.King));
+            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Queen));
+            stateManager.SetState(new MoreThanTwoCardsLeftRoundState(stateManager));
+
+            secondPlayerInfo.AddCard(new Card(CardSuit.Diamond, CardType.Ten));
+            secondPlayerInfo.AddCard(new Card(CardSuit.Diamond, CardType.Ace));
+
+            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
+            trick.Play();
+
+            Assert.IsTrue(firstPlayer.GetTurnContextObject.IsFirstPlayerTurn);
+            Assert.IsFalse(secondPlayer.GetTurnContextObject.IsFirstPlayerTurn);
+            Assert.IsTrue(secondPlayer.GetTurnContextObject.FirstPlayerAnnounce != Announce.None);
+            Assert.IsNotNull(secondPlayer.GetTurnContextObject.FirstPlayedCard);
+            Assert.AreEqual(CardSuit.Heart, secondPlayer.GetTurnContextObject.FirstPlayedCard.Suit);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InternalGameException))]
+        public void PlayShouldThrowAnExceptionWhenPlayerPlaysInvalidCard()
+        {
+            var firstPlayer = new Mock<IPlayer>();
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer.Object);
+            firstPlayer.Setup(x => x.GetTurn(It.IsAny<PlayerTurnContext>()))
+                .Returns(PlayerAction.PlayCard(new Card(CardSuit.Club, CardType.Ace)));
+            var secondPlayer = new Mock<IPlayer>();
+            var secondPlayerInfo = new RoundPlayerInfo(secondPlayer.Object);
+            var stateManager = new StateManager();
+            var deck = new Deck();
+
+            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.King));
+            secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
+
+            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
+            trick.Play();
+        }
+
+        [Test]
+        public void PlayShouldChangeTheDeckTrumpWhenPlayerPlaysChangeTrumpAction()
+        {
+            var firstPlayer = new ValidPlayer(PlayerActionType.ChangeTrump);
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer);
+            var secondPlayer = new ValidPlayer();
+            var secondPlayerInfo = new RoundPlayerInfo(secondPlayer);
+            var stateManager = new StateManager();
+            stateManager.SetState(new MoreThanTwoCardsLeftRoundState(stateManager));
+            var deck = new Deck();
+            var trumpSuit = deck.TrumpCard.Suit;
+
+            var oldTrumpCard = deck.TrumpCard.Clone();
+            var nineOfTrump = new Card(trumpSuit, CardType.Nine);
+
+            firstPlayerInfo.AddCard(nineOfTrump);
+            secondPlayerInfo.AddCard(
+                new Card(trumpSuit == CardSuit.Heart ? CardSuit.Club : CardSuit.Heart, CardType.Ace));
+
+            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
+            trick.Play();
+
+            Assert.AreEqual(nineOfTrump, deck.TrumpCard);
+            Assert.AreEqual(nineOfTrump, secondPlayer.GetTurnContextObject.TrumpCard);
+            Assert.IsTrue(firstPlayerInfo.TrickCards.Contains(oldTrumpCard), "Trick cards should contain oldTrumpCard");
+            Assert.IsFalse(firstPlayerInfo.Cards.Contains(nineOfTrump));
+        }
+
+        [Test]
+        [ExpectedException(typeof(InternalGameException))]
+        public void PlayShouldThrowAnExceptionWhenClosingTheGameAndNineOfTrumpsIsMissing()
+        {
+            var firstPlayer = new ValidPlayer(PlayerActionType.ChangeTrump);
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer);
+            var secondPlayer = new ValidPlayer();
+            var secondPlayerInfo = new RoundPlayerInfo(secondPlayer);
+            var stateManager = new StateManager();
+            stateManager.SetState(new MoreThanTwoCardsLeftRoundState(stateManager));
+            var deck = new Deck();
+            var trumpSuit = deck.TrumpCard.Suit;
+
+            firstPlayerInfo.AddCard(new Card(trumpSuit, CardType.Jack));
+            secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
+
+            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
+            trick.Play();
+        }
+
+        [Test]
+        public void PlayShouldCloseTheGameWhenPlayerPlaysCloseGameAction()
+        {
+            var firstPlayer = new ValidPlayer(PlayerActionType.CloseGame);
+            var firstPlayerInfo = new RoundPlayerInfo(firstPlayer);
+            var secondPlayer = new ValidPlayer();
+            var secondPlayerInfo = new RoundPlayerInfo(secondPlayer);
+            var stateManager = new StateManager();
+            stateManager.SetState(new MoreThanTwoCardsLeftRoundState(stateManager));
+            var deck = new Deck();
+
+            SimulateGame(firstPlayerInfo, secondPlayerInfo, deck);
+
+            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
+            trick.Play();
+
+            Assert.IsTrue(firstPlayerInfo.GameCloser);
+            Assert.IsFalse(secondPlayerInfo.GameCloser);
+            Assert.IsInstanceOf<FinalRoundState>(stateManager.State);
+            Assert.IsInstanceOf<FinalRoundState>(secondPlayer.GetTurnContextObject.State);
         }
 
         private static void SimulateGame(RoundPlayerInfo firstPlayer, RoundPlayerInfo secondPlayer, Deck deck)
@@ -80,9 +230,18 @@
 
         private class ValidPlayer : BasePlayer
         {
+            private PlayerActionType actionToPlay;
+
+            public ValidPlayer(PlayerActionType actionToPlay = PlayerActionType.PlayCard)
+            {
+                this.actionToPlay = actionToPlay;
+            }
+
             public override string Name => "Valid player";
 
             public int GetTurnCalledCount { get; private set; }
+
+            public int EndTurnCalledCount { get; private set; }
 
             public PlayerTurnContext GetTurnContextObject { get; private set; }
 
@@ -90,8 +249,27 @@
             {
                 this.GetTurnCalledCount++;
                 this.GetTurnContextObject = context.Clone() as PlayerTurnContext;
+
+                if (this.actionToPlay == PlayerActionType.ChangeTrump)
+                {
+                    this.actionToPlay = PlayerActionType.PlayCard;
+                    return this.ChangeTrump(context.TrumpCard.Suit);
+                }
+
+                if (this.actionToPlay == PlayerActionType.CloseGame)
+                {
+                    this.actionToPlay = PlayerActionType.PlayCard;
+                    return PlayerAction.CloseGame();
+                }
+
                 var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
                 return this.PlayCard(possibleCardsToPlay.First());
+            }
+
+            public override void EndTurn(PlayerTurnContext context)
+            {
+                this.EndTurnCalledCount++;
+                base.EndTurn(context);
             }
         }
     }

@@ -6,7 +6,7 @@
     using Santase.Logic.RoundStates;
     using Santase.Logic.WinnerLogic;
 
-    // TODO: Unit test this class
+    // TODO: Pass current round points to players
     internal class Trick
     {
         private readonly RoundPlayerInfo firstToPlay;
@@ -78,7 +78,7 @@
             var isActionValid = PlayerActionValidator.Instance.IsValid(action, context, playerInfo.Cards);
             if (!isActionValid)
             {
-                throw new InternalGameException($"Invalid turn from {playerInfo.Player.Name}");
+                throw new InternalGameException($"Invalid action played from {playerInfo.Player.Name}");
             }
 
             return action;
@@ -94,12 +94,12 @@
                     case PlayerActionType.ChangeTrump:
                         {
                             var oldTrumpCard = this.deck.TrumpCard;
-                            var newTrumpCard = new Card(oldTrumpCard.Suit, CardType.Nine);
+                            var nineOfTrump = new Card(oldTrumpCard.Suit, CardType.Nine);
 
-                            this.deck.ChangeTrumpCard(newTrumpCard);
-                            context.TrumpCard = newTrumpCard;
+                            this.deck.ChangeTrumpCard(nineOfTrump);
+                            context.TrumpCard = nineOfTrump;
 
-                            playerInfo.Cards.Remove(newTrumpCard);
+                            playerInfo.Cards.Remove(nineOfTrump);
                             playerInfo.AddCard(oldTrumpCard);
                             continue;
                         }
@@ -121,9 +121,6 @@
 
                             return action;
                         }
-
-                    default:
-                        throw new InternalGameException($"Invalid PlayerActionType from {playerInfo.Player.Name}");
                 }
             }
         }
