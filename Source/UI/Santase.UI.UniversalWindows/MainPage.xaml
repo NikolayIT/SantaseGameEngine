@@ -5,9 +5,24 @@
     xmlns:local="using:Santase.UI.UniversalWindows"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d" Height="601.709" Width="1227.92">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0,0,-263,-66.333">
+        <local:CardControl HorizontalAlignment="Left" Margin="296,402,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.623,1.439"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="441,402,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="586,402,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="731,402,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="876,402,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="1021,402,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="296,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.623,1.439"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="441,10,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="586,10,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="731,10,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="876,10,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="1021,10,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="1273,105,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="1273,300,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="115,205,0,0" VerticalAlignment="Top"/>
+        <local:CardControl HorizontalAlignment="Left" Margin="45,205,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Page>
