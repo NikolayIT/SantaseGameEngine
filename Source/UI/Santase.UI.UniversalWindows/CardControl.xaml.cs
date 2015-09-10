@@ -17,11 +17,20 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Santase.UI.UniversalWindows
 {
+    using Windows.UI.Xaml.Media.Imaging;
+
+    using Santase.Logic.Cards;
+
     public sealed partial class CardControl : UserControl
     {
         public CardControl()
         {
             this.InitializeComponent();
+        }
+
+        public void SetCard(Card card)
+        {
+            this.image.Source = new BitmapImage(new Uri($"Assets/Cards/{card.Type}{card.Suit}.png"));
         }
     }
 }
