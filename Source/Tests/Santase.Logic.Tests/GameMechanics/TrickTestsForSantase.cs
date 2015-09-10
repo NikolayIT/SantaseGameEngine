@@ -205,7 +205,7 @@
             var deck = new Deck();
             var trumpSuit = deck.TrumpCard.Suit;
 
-            var oldTrumpCard = deck.TrumpCard.Clone();
+            var oldTrumpCard = deck.TrumpCard.DeepCopy();
             var nineOfTrump = new Card(trumpSuit, CardType.Nine);
 
             firstPlayerInfo.AddCard(nineOfTrump);
@@ -298,7 +298,7 @@
             public override PlayerAction GetTurn(PlayerTurnContext context)
             {
                 this.GetTurnCalledCount++;
-                this.GetTurnContextObject = context.Clone() as PlayerTurnContext;
+                this.GetTurnContextObject = context.DeepCopy();
 
                 if (this.actionToPlay == PlayerActionType.ChangeTrump)
                 {
@@ -319,7 +319,7 @@
             public override void EndTurn(PlayerTurnContext context)
             {
                 this.EndTurnCalledCount++;
-                this.EndTurnContextObject = context.Clone() as PlayerTurnContext;
+                this.EndTurnContextObject = context.DeepCopy();
 
                 base.EndTurn(context);
             }

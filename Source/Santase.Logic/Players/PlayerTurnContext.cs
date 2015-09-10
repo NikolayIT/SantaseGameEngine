@@ -5,7 +5,7 @@
     using Santase.Logic.Cards;
     using Santase.Logic.RoundStates;
 
-    public class PlayerTurnContext : ICloneable
+    public class PlayerTurnContext : IDeepCloneable<PlayerTurnContext>
     {
         public PlayerTurnContext(
             BaseRoundState state,
@@ -39,7 +39,7 @@
 
         public bool IsFirstPlayerTurn => this.FirstPlayedCard == null;
 
-        public object Clone()
+        public PlayerTurnContext DeepCopy()
         {
             // Creating new instance here seems to be faster than calling MemberwiseClone()
             var newPlayerTurnContext = new PlayerTurnContext(
