@@ -29,6 +29,18 @@
             return this.ChooseCard(context);
         }
 
+        public override void EndRound()
+        {
+            this.playedCards.Clear();
+            base.EndRound();
+        }
+
+        public override void EndTurn(PlayerTurnContext context)
+        {
+            this.playedCards.Add(context.FirstPlayedCard);
+            this.playedCards.Add(context.SecondPlayedCard);
+        }
+
         // TODO: Close the game?
         private bool CloseGame(PlayerTurnContext context)
         {
@@ -123,19 +135,6 @@
             ICollection<Card> possibleCardsToPlay)
         {
             return this.ChooseCardWhenPlayingSecondAndRulesDoNotApply(context, possibleCardsToPlay);
-        }
-
-        public override void EndRound()
-        {
-            this.playedCards.Clear();
-            base.EndRound();
-        }
-
-        public override void EndTurn(PlayerTurnContext context)
-        {
-            this.playedCards.Add(context.FirstPlayedCard);
-            this.playedCards.Add(context.SecondPlayedCard);
-            // TODO: Count the points of the other player
         }
     }
 }

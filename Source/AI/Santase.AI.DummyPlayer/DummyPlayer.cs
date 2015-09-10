@@ -1,7 +1,7 @@
 ﻿namespace Santase.AI.DummyPlayer
 {
     using System.Linq;
-    
+
     using Santase.Logic.Extensions;
     using Santase.Logic.Players;
 

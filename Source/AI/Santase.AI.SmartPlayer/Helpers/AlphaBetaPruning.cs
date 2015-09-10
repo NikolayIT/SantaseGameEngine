@@ -47,7 +47,6 @@
             return options;
         }
 
-
         private void GetBestCardRecursive(
             ICollection<Card> firstPlayerCards,
             ICollection<Card> secondPlayerCards,
@@ -91,7 +90,7 @@
                             firstPlayerPoints += context.FirstPlayedCard?.GetValue() ?? 0;
                             secondPlayerPoints += context.SecondPlayedCard?.GetValue() ?? 0;
                         }
-                        
+
                         context.FirstPlayerAnnounce = Announce.None;
                         context.FirstPlayedCard = null;
                         context.SecondPlayedCard = null;
