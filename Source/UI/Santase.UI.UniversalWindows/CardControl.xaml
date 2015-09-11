@@ -9,6 +9,5 @@
 
     <Grid>
         <Image x:Name="image" HorizontalAlignment="Stretch" Height="190" VerticalAlignment="Top" Width="140" Source="Assets/Cards/Back.png"/>
-
     </Grid>
 </UserControl>

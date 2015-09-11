@@ -1,5 +1,7 @@
 ﻿// The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
+using Windows.UI.Xaml;
+
 namespace Santase.UI.UniversalWindows
 {
     using System;
@@ -16,7 +18,15 @@ namespace Santase.UI.UniversalWindows
 
         public void SetCard(Card card)
         {
-            this.image.Source = new BitmapImage(new Uri($"Assets/Cards/{card.Type}{card.Suit}.png"));
+            this.image.Source = ImageFromRelativePath(this, $"Assets/Cards/{card.Type}{card.Suit}.png");
+        }
+
+        // http://stackoverflow.com/questions/11814917/how-to-reference-image-source-files-that-are-packaged-with-my-metro-style-app
+        private static BitmapImage ImageFromRelativePath(FrameworkElement parent, string path)
+        {
+            var uri = new Uri(parent.BaseUri, path);
+            var bmp = new BitmapImage {UriSource = uri};
+            return bmp;
         }
     }
 }
