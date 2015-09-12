@@ -116,6 +116,7 @@
     <None Include="Santase.UI.UniversalWindows_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Background.jpg" />
     <Content Include="Assets\Cards\AceClub.png" />
     <Content Include="Assets\Cards\AceDiamond.png" />
     <Content Include="Assets\Cards\AceHeart.png" />

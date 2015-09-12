@@ -1,11 +1,10 @@
 ﻿// The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-using Windows.UI.Xaml;
-
 namespace Santase.UI.UniversalWindows
 {
     using System;
     using Santase.Logic.Cards;
+    using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Media.Imaging;
 
@@ -25,7 +24,7 @@ namespace Santase.UI.UniversalWindows
         private static BitmapImage ImageFromRelativePath(FrameworkElement parent, string path)
         {
             var uri = new Uri(parent.BaseUri, path);
-            var bmp = new BitmapImage {UriSource = uri};
+            var bmp = new BitmapImage { UriSource = uri };
             return bmp;
         }
     }
