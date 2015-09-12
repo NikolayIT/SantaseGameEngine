@@ -17,19 +17,35 @@
 
         public event EventHandler<int> CardsLeftChanged;
 
+        public event EventHandler<Card> PlayerPlayedCardChanged;
+
+        public event EventHandler<Card> OtherPlayerPlayedCardChanged;
+
         public override string Name => "UI";
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
+            if (context.FirstPlayedCard != null)
+            {
+                this.OtherPlayerPlayedCardChanged?.Invoke(this, context.FirstPlayedCard);
+            }
+
             while (this.played == false)
             {
-                Task.Delay(100).Wait();
             }
 
             this.played = false;
-            var action = this.PlayCard(this.playedCard);
+            var action = PlayerAction.PlayCard(this.playedCard);
+
+            if (!this.PlayerActionValidator.IsValid(action, context, this.Cards))
+            {
+                // TODO: Consider converting this to while loop
+                return this.GetTurn(context);
+            }
+
+            action = this.PlayCard(this.playedCard);
+            this.PlayerPlayedCardChanged?.Invoke(this, this.playedCard);
             this.RedrawCards?.Invoke(this, this.Cards);
-            this.CardsLeftChanged?.Invoke(this, context.CardsLeftInDeck);
             return action;
         }
 
@@ -43,6 +59,25 @@
         {
             this.played = true;
             this.playedCard = card;
+        }
+
+        public override void EndTurn(PlayerTurnContext context)
+        {
+            if (context.FirstPlayedCard == this.playedCard)
+            {
+                this.OtherPlayerPlayedCardChanged?.Invoke(this, context.SecondPlayedCard);
+            }
+            else
+            {
+                this.OtherPlayerPlayedCardChanged?.Invoke(this, context.FirstPlayedCard);
+            }
+
+            this.CardsLeftChanged?.Invoke(this, context.CardsLeftInDeck);
+        }
+
+        public override void EndRound()
+        {
+            this.CardsLeftChanged?.Invoke(this, 12);
         }
     }
 }

@@ -10,12 +10,12 @@
     <Canvas x:Name="canv">
         <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Image Grid.RowSpan="1" Grid.ColumnSpan="1" Stretch="None" Source="Assets/Background.jpg" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <local:CardControl x:Name="PlayerCard1" HorizontalAlignment="Left" Margin="72,608,0,0" VerticalAlignment="Top" Tapped="PlayerCard1_Tapped"/>
-            <local:CardControl x:Name="PlayerCard2" HorizontalAlignment="Left" Margin="217,608,0,0" VerticalAlignment="Top"/>
-            <local:CardControl x:Name="PlayerCard3" HorizontalAlignment="Left" Margin="362,608,0,0" VerticalAlignment="Top"/>
-            <local:CardControl x:Name="PlayerCard4" HorizontalAlignment="Left" Margin="507,608,0,0" VerticalAlignment="Top"/>
-            <local:CardControl x:Name="PlayerCard5" HorizontalAlignment="Left" Margin="652,608,0,0" VerticalAlignment="Top"/>
-            <local:CardControl x:Name="PlayerCard6" HorizontalAlignment="Left" Margin="797,608,0,0" VerticalAlignment="Top"/>
+            <local:CardControl x:Name="PlayerCard1" HorizontalAlignment="Left" Margin="72,608,0,0" VerticalAlignment="Top" Tapped="PlayerCardTapped"/>
+            <local:CardControl x:Name="PlayerCard2" HorizontalAlignment="Left" Margin="217,608,0,0" VerticalAlignment="Top" Tapped="PlayerCardTapped"/>
+            <local:CardControl x:Name="PlayerCard3" HorizontalAlignment="Left" Margin="362,608,0,0" VerticalAlignment="Top" Tapped="PlayerCardTapped"/>
+            <local:CardControl x:Name="PlayerCard4" HorizontalAlignment="Left" Margin="507,608,0,0" VerticalAlignment="Top" Tapped="PlayerCardTapped"/>
+            <local:CardControl x:Name="PlayerCard5" HorizontalAlignment="Left" Margin="652,608,0,0" VerticalAlignment="Top" Tapped="PlayerCardTapped"/>
+            <local:CardControl x:Name="PlayerCard6" HorizontalAlignment="Left" Margin="797,608,0,0" VerticalAlignment="Top" Tapped="PlayerCardTapped"/>
             <local:CardControl x:Name="Control07" HorizontalAlignment="Left" Margin="72,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.623,1.439"/>
             <local:CardControl x:Name="Control08" HorizontalAlignment="Left" Margin="217,10,0,0" VerticalAlignment="Top"/>
             <local:CardControl x:Name="Control09" HorizontalAlignment="Left" Margin="362,10,0,0" VerticalAlignment="Top"/>
@@ -31,6 +31,8 @@
             </local:CardControl>
             <local:CardControl x:Name="Control16"  HorizontalAlignment="Left" Margin="17,302,0,0" VerticalAlignment="Top" Height="190"/>
             <TextBlock x:Name="CardsLeftInfo" HorizontalAlignment="Left" Margin="38,253,0,0" TextWrapping="Wrap" Text="Cards left: 12" VerticalAlignment="Top" FontSize="28" FontWeight="Bold" Foreground="Bisque"/>
+            <local:CardControl x:Name="OtherPlayerPlayedCard" HorizontalAlignment="Left" Margin="449,219,0,0" VerticalAlignment="Top" Width="117"/>
+            <local:CardControl x:Name="PlayerPlayedCard" HorizontalAlignment="Left" Margin="449,401,0,0" VerticalAlignment="Top" Width="117"/>
         </Grid>
     </Canvas>
 </Page>

@@ -6,13 +6,11 @@ namespace Santase.UI.UniversalWindows
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-
-    using Windows.UI.Core;
-
     using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
+    using Windows.UI.Core;
     using Windows.UI.Xaml.Controls;
 
     /// <summary>
@@ -20,9 +18,9 @@ namespace Santase.UI.UniversalWindows
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private UiPlayer player;
+        private readonly UiPlayer player;
 
-        private SantaseGame game;
+        private readonly SantaseGame game;
 
         public MainPage()
         {
@@ -31,9 +29,31 @@ namespace Santase.UI.UniversalWindows
             this.player = new UiPlayer();
             this.player.RedrawCards += this.PlayerOnRedrawCards;
             this.player.CardsLeftChanged += this.PlayerOnCardsLeftChanged;
+            this.player.OtherPlayerPlayedCardChanged += this.PlayerOnOtherPlayerPlayedCardChanged;
+            this.player.PlayerPlayedCardChanged += this.PlayerOnPlayerPlayedCardChanged;
 
             this.game = new SantaseGame(this.player, new SmartPlayer());
             Task.Run(() => this.game.Start());
+        }
+
+        private void PlayerOnPlayerPlayedCardChanged(object sender, Card card)
+        {
+            this.Dispatcher.RunAsync(
+                CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    this.PlayerPlayedCard.SetCard(card);
+                });
+        }
+
+        private void PlayerOnOtherPlayerPlayedCardChanged(object sender, Card card)
+        {
+            this.Dispatcher.RunAsync(
+                CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    this.OtherPlayerPlayedCard.SetCard(card);
+                });
         }
 
         private void PlayerOnCardsLeftChanged(object sender, int i)
@@ -109,7 +129,7 @@ namespace Santase.UI.UniversalWindows
                     });
         }
 
-        private void PlayerCard1_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        private void PlayerCardTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             this.player.Action((sender as CardControl).Card);
         }
