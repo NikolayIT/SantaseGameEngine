@@ -28,6 +28,7 @@
             if (context.FirstPlayedCard != null)
             {
                 this.OtherPlayerPlayedCardChanged?.Invoke(this, context.FirstPlayedCard);
+                this.PlayerPlayedCardChanged(this, null);
             }
 
             while (this.played == false)
@@ -63,7 +64,7 @@
 
         public override void EndTurn(PlayerTurnContext context)
         {
-            if (context.FirstPlayedCard == this.playedCard)
+            if (Equals(context.FirstPlayedCard, this.playedCard))
             {
                 this.OtherPlayerPlayedCardChanged?.Invoke(this, context.SecondPlayedCard);
             }

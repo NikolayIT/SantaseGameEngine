@@ -51,9 +51,9 @@ namespace Santase.UI.UniversalWindows
             this.Dispatcher.RunAsync(
                 CoreDispatcherPriority.Normal,
                 () =>
-                {
-                    this.OtherPlayerPlayedCard.SetCard(card);
-                });
+                    {
+                        this.OtherPlayerPlayedCard.SetCard(card);
+                    });
         }
 
         private void PlayerOnCardsLeftChanged(object sender, int i)
