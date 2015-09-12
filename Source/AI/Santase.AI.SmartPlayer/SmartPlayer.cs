@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Xml.Linq;
 
     using Santase.Logic;
     using Santase.Logic.Cards;
@@ -107,6 +108,20 @@
                 && possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
             {
                 return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
+            }
+
+            // Opponent played non-trump card?
+            if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit)
+            {
+                if (possibleCardsToPlay.Contains(new Card(context.FirstPlayedCard.Suit, CardType.Ace)))
+                {
+                    return this.PlayCard(new Card(context.FirstPlayedCard.Suit, CardType.Ace));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.FirstPlayedCard.Suit, CardType.Ten)))
+                {
+                    return this.PlayCard(new Card(context.FirstPlayedCard.Suit, CardType.Ten));
+                }
             }
 
             // Smallest trump card

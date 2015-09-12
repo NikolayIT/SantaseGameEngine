@@ -1,3 +1,5 @@
+*   Improve SmartPlayer: play Ace/Ten when second and can win trick
+*   Consider replacing AddCard with StartRound(cards, trickCard, IFirst..)
 *   ConsoleLogger move and move its tests
 *   ICloneable -> IDeepCloneable and IShallowCloneable
 *   AccessFileSystem is also not available
