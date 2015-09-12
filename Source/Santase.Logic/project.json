@@ -7,7 +7,7 @@
   "dependencies": {
     "Microsoft.NETCore": "5.0.0",
     "Microsoft.NETCore.Portable.Compatibility": "1.0.0",
-    "StyleCop.Analyzers": "1.0.0-beta010",
+    "StyleCop.Analyzers": "1.0.0-beta011",
     "System.IO.FileSystem": "4.0.0"
   },
   "frameworks": {

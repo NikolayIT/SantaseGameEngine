@@ -232,7 +232,7 @@
           "lib/dotnet/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "StyleCop.Analyzers/1.0.0-beta010": {},
+      "StyleCop.Analyzers/1.0.0-beta011": {},
       "System.AppContext/4.0.0": {
         "dependencies": {
           "System.Runtime": "[4.0.20, )",
@@ -1842,7 +1842,7 @@
           "lib/dotnet/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "StyleCop.Analyzers/1.0.0-beta010": {},
+      "StyleCop.Analyzers/1.0.0-beta011": {},
       "System.AppContext/4.0.0": {
         "dependencies": {
           "System.Runtime": "[4.0.20, )",
@@ -3485,7 +3485,7 @@
           "lib/dotnet/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "StyleCop.Analyzers/1.0.0-beta010": {},
+      "StyleCop.Analyzers/1.0.0-beta011": {},
       "System.AppContext/4.0.0": {
         "dependencies": {
           "System.Runtime": "[4.0.20, )",
@@ -5133,7 +5133,7 @@
           "lib/dotnet/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "StyleCop.Analyzers/1.0.0-beta010": {},
+      "StyleCop.Analyzers/1.0.0-beta011": {},
       "System.AppContext/4.0.0": {
         "dependencies": {
           "System.Runtime": "[4.0.20, )",
@@ -6776,7 +6776,7 @@
           "lib/dotnet/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "StyleCop.Analyzers/1.0.0-beta010": {},
+      "StyleCop.Analyzers/1.0.0-beta011": {},
       "System.AppContext/4.0.0": {
         "dependencies": {
           "System.Runtime": "[4.0.20, )",
@@ -8424,7 +8424,7 @@
           "lib/dotnet/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "StyleCop.Analyzers/1.0.0-beta010": {},
+      "StyleCop.Analyzers/1.0.0-beta011": {},
       "System.AppContext/4.0.0": {
         "dependencies": {
           "System.Runtime": "[4.0.20, )",
@@ -10067,7 +10067,7 @@
           "lib/dotnet/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "StyleCop.Analyzers/1.0.0-beta010": {},
+      "StyleCop.Analyzers/1.0.0-beta011": {},
       "System.AppContext/4.0.0": {
         "dependencies": {
           "System.Runtime": "[4.0.20, )",
@@ -11474,7 +11474,7 @@
       ]
     },
     "Microsoft.ApplicationInsights.WindowsApps/1.0.0": {
-      "sha512": "NvBQnFeiFd0O1QdBz06UGApD7zn7ztVi7qO18IsM3EjiXRNgfrEBXB+azNm8XqLY8xGFAqh3HAuSd/wHZMe0XA==",
+      "sha512": "fNCAjIwvbTV+G0dT14bgM5tptsqeSaKQaCrlq7QknOq1Xdm8ZmgsDYddMgXkvykyKLjWyU6fKuOpj6fsQJy+wQ==",
       "type": "Package",
       "files": [
         "_rels/.rels",
@@ -12142,8 +12142,8 @@
         "[Content_Types].xml"
       ]
     },
-    "StyleCop.Analyzers/1.0.0-beta010": {
-      "sha512": "nSa4YcaTrqrgqyQLQbvjsbkzcOgWH85BUvQ9EMborirBmS4QkULy8DrODTCvdhSX7vPR/drfsB4e6uuemt9REg==",
+    "StyleCop.Analyzers/1.0.0-beta011": {
+      "sha512": "r4TuDMQifNOk8R2J//GQ40pVRAYDAqczDrz1NGAjRiVcnVkwddi1yUYMbksE2D6J+S4C3j67Uc4B8JwiwI9Ogg==",
       "type": "Package",
       "files": [
         "_rels/.rels",
@@ -12152,7 +12152,7 @@
         "analyzers/dotnet/cs/Newtonsoft.Json.dll",
         "tools/install.ps1",
         "tools/uninstall.ps1",
-        "package/services/metadata/core-properties/9b186e6a09c543d49240f6660a41daa7.psmdcp",
+        "package/services/metadata/core-properties/d6ed2e704173418490c6d19257a9cfb1.psmdcp",
         "[Content_Types].xml"
       ]
     },
@@ -14857,7 +14857,8 @@
       "Microsoft.ApplicationInsights >= 1.0.0",
       "Microsoft.ApplicationInsights.PersistenceChannel >= 1.0.0",
       "Microsoft.ApplicationInsights.WindowsApps >= 1.0.0",
-      "Microsoft.NETCore.UniversalWindowsPlatform >= 5.0.0"
+      "Microsoft.NETCore.UniversalWindowsPlatform >= 5.0.0",
+      "StyleCop.Analyzers >= 1.0.0-beta011"
     ],
     "UAP,Version=v10.0": []
   }
