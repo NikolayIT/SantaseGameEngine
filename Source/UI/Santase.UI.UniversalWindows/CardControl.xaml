@@ -8,6 +8,6 @@
     mc:Ignorable="d" Height="190" Width="140">
 
     <Grid>
-        <Image x:Name="image" HorizontalAlignment="Stretch" Height="190" VerticalAlignment="Top" Width="140" Source="Assets/Cards/Back.png"/>
+        <Image x:Name="image" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="Assets/Cards/Back.png"/>
     </Grid>
 </UserControl>

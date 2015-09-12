@@ -15,9 +15,19 @@ namespace Santase.UI.UniversalWindows
             this.InitializeComponent();
         }
 
+        public Card Card { get; internal set; }
+
         public void SetCard(Card card)
         {
-            this.image.Source = ImageFromRelativePath(this, $"Assets/Cards/{card.Type}{card.Suit}.png");
+            this.Card = card;
+            if (card != null)
+            {
+                this.image.Source = ImageFromRelativePath(this, $"Assets/Cards/{card.Type}{card.Suit}.png");
+            }
+            else
+            {
+                this.image.Source = ImageFromRelativePath(this, $"Assets/Cards/Back.png");
+            }
         }
 
         // http://stackoverflow.com/questions/11814917/how-to-reference-image-source-files-that-are-packaged-with-my-metro-style-app
