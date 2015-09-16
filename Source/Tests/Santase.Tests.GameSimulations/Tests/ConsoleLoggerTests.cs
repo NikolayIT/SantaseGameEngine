@@ -1,4 +1,4 @@
-﻿namespace Santase.Logic.Tests.Logger
+﻿namespace Santase.Tests.GameSimulations.Tests
 {
     using System;
     using System.IO;
@@ -6,6 +6,7 @@
     using NUnit.Framework;
 
     using Santase.Logic.Logger;
+    using Santase.Tests.GameSimulations;
 
     [TestFixture]
     public class ConsoleLoggerTests

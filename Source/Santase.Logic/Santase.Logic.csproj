@@ -65,7 +65,6 @@
     <Compile Include="WinnerLogic\ICardWinnerLogic.cs" />
     <Compile Include="RoundStates\IStateManager.cs" />
     <Compile Include="InternalGameException.cs" />
-    <Compile Include="Logger\ConsoleLogger.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\MemoryLogger.cs" />
     <Compile Include="Logger\NoLogger.cs" />

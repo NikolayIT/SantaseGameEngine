@@ -2,7 +2,6 @@
 {
     using System;
 
-    using Santase.AI.DummyPlayer;
     using Santase.AI.SmartPlayer;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;

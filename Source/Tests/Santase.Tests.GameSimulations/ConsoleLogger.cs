@@ -1,7 +1,10 @@
-﻿namespace Santase.Logic.Logger
+﻿namespace Santase.Tests.GameSimulations
 {
     using System;
 
+    using Santase.Logic.Logger;
+
+    // ReSharper disable once UnusedMember.Global
     public class ConsoleLogger : ILogger
     {
         private readonly string prefix;
