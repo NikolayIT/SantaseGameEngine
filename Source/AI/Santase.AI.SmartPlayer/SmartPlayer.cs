@@ -109,6 +109,21 @@
                 return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
             }
 
+            // Opponent played non-trump card => Play Ace or Ten if possible
+            if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit)
+            {
+                if (possibleCardsToPlay.Contains(new Card(context.FirstPlayedCard.Suit, CardType.Ace)))
+                {
+                    return this.PlayCard(new Card(context.FirstPlayedCard.Suit, CardType.Ace));
+                }
+
+                if (context.FirstPlayedCard.Type != CardType.Ace &&
+                    possibleCardsToPlay.Contains(new Card(context.FirstPlayedCard.Suit, CardType.Ten)))
+                {
+                    return this.PlayCard(new Card(context.FirstPlayedCard.Suit, CardType.Ten));
+                }
+            }
+
             // Smallest trump card
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
