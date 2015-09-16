@@ -122,7 +122,7 @@
         public override void EndTurn(PlayerTurnContext context)
         {
             Console.SetCursorPosition(20, 9);
-            Console.WriteLine($"{context.FirstPlayedCard} - {context.SecondPlayedCard}");
+            Console.WriteLine($"{context.FirstPlayedCard} - {context.SecondPlayedCard}             ");
             Thread.Sleep(3000);
         }
 

@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.AI.DummyPlayer", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.AI.SmartPlayer", "AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj", "{9709FC6D-11E3-475F-817C-DE64ADC90C58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Tests.GameSimulations", "Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj", "{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{9709FC6D-11E3-475F-817C-DE64ADC90C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9709FC6D-11E3-475F-817C-DE64ADC90C58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9709FC6D-11E3-475F-817C-DE64ADC90C58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,5 +60,6 @@ Global
 		{E5F1BEA5-92A9-447E-9EC4-980F5D75BB80} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
 		{F452D536-573D-4CA0-B24C-17E9E2B425BF} = {2985437A-F7EF-4113-ACC2-91346A4F65CF}
 		{9709FC6D-11E3-475F-817C-DE64ADC90C58} = {2985437A-F7EF-4113-ACC2-91346A4F65CF}
+		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
 	EndGlobalSection
 EndGlobal
