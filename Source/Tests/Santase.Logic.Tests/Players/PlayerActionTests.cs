@@ -80,7 +80,7 @@
         {
             var playerAction = PlayerAction.CloseGame();
             var toStringValue = playerAction.ToString();
-            Console.WriteLine(toStringValue);
+
             Assert.IsNotNull(toStringValue);
             Assert.IsTrue(toStringValue.Contains("CloseGame"));
         }
@@ -90,7 +90,7 @@
         {
             var playerAction = PlayerAction.ChangeTrump();
             var toStringValue = playerAction.ToString();
-            Console.WriteLine(toStringValue);
+
             Assert.IsNotNull(toStringValue);
             Assert.IsTrue(toStringValue.Contains("ChangeTrump"));
         }
@@ -101,7 +101,7 @@
             var card = new Card(CardSuit.Club, CardType.Ace);
             var playerAction = PlayerAction.PlayCard(card);
             var toStringValue = playerAction.ToString();
-            Console.WriteLine(toStringValue);
+
             Assert.IsNotNull(toStringValue);
             Assert.IsTrue(toStringValue.Contains("PlayCard"));
             Assert.IsTrue(toStringValue.Contains(card.ToString()));
