@@ -92,7 +92,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var state = new StartRoundState(haveStateMock.Object);
             var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Heart, CardType.Queen), 12, 0, 0);
-            var clonedPlayerTurnContext = playerTurnContext.Clone();
+            var clonedPlayerTurnContext = playerTurnContext.DeepClone();
             Assert.AreNotSame(playerTurnContext, clonedPlayerTurnContext);
         }
 
@@ -102,7 +102,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var state = new TwoCardsLeftRoundState(haveStateMock.Object);
             var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Diamond, CardType.Ace), 2, 0, 0);
-            var clonedPlayerTurnContext = playerTurnContext.Clone();
+            var clonedPlayerTurnContext = playerTurnContext.DeepClone();
             Assert.IsInstanceOf<PlayerTurnContext>(clonedPlayerTurnContext);
         }
 
@@ -118,7 +118,7 @@
                                             SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine)
                                         };
 
-            var clonedPlayerTurnContext = playerTurnContext.Clone() as PlayerTurnContext;
+            var clonedPlayerTurnContext = playerTurnContext.DeepClone();
 
             Assert.IsNotNull(clonedPlayerTurnContext);
             Assert.AreSame(playerTurnContext.State, clonedPlayerTurnContext.State);

@@ -39,7 +39,7 @@
             this.GetBestCardRecursive(
                 firstPlayerCards,
                 secondPlayerCards,
-                context.Clone() as PlayerTurnContext,
+                context.DeepClone(),
                 firstPlayerPoints,
                 secondPlayerPoints,
                 null,

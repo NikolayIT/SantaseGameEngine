@@ -298,7 +298,7 @@
             public override PlayerAction GetTurn(PlayerTurnContext context)
             {
                 this.GetTurnCalledCount++;
-                this.GetTurnContextObject = context.Clone() as PlayerTurnContext;
+                this.GetTurnContextObject = context.DeepClone();
 
                 if (this.actionToPlay == PlayerActionType.ChangeTrump)
                 {
@@ -319,7 +319,7 @@
             public override void EndTurn(PlayerTurnContext context)
             {
                 this.EndTurnCalledCount++;
-                this.EndTurnContextObject = context.Clone() as PlayerTurnContext;
+                this.EndTurnContextObject = context.DeepClone();
 
                 base.EndTurn(context);
             }
