@@ -19,7 +19,7 @@
             // When possible change the trump card as this is always a good move
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
-                return this.ChangeTrump(context.TrumpCard.Suit);
+                return this.ChangeTrump(context.TrumpCard);
             }
 
             return base.GetTurn(context);

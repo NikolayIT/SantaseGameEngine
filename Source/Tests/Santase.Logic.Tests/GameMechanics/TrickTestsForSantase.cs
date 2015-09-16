@@ -303,7 +303,7 @@
                 if (this.actionToPlay == PlayerActionType.ChangeTrump)
                 {
                     this.actionToPlay = PlayerActionType.PlayCard;
-                    return this.ChangeTrump(context.TrumpCard.Suit);
+                    return this.ChangeTrump(context.TrumpCard);
                 }
 
                 if (this.actionToPlay == PlayerActionType.CloseGame)

@@ -74,7 +74,7 @@
         public void ChangeTrumpShouldReturnPlayerActionWithTypeChangeTrump()
         {
             var basePlayerImplementation = new BasePlayerImpl();
-            var action = basePlayerImplementation.ChangeTrumpProxy(CardSuit.Diamond);
+            var action = basePlayerImplementation.ChangeTrumpProxy(new Card(CardSuit.Diamond, CardType.King));
             Assert.AreEqual(PlayerActionType.ChangeTrump, action.Type);
         }
 
@@ -83,9 +83,11 @@
         {
             var basePlayerImplementation = new BasePlayerImpl();
             basePlayerImplementation.AddCard(new Card(CardSuit.Diamond, CardType.Nine));
-            basePlayerImplementation.ChangeTrumpProxy(CardSuit.Diamond);
+            basePlayerImplementation.ChangeTrumpProxy(new Card(CardSuit.Diamond, CardType.King));
             Assert.AreEqual(0, basePlayerImplementation.CardsCount);
         }
+
+        //// TODO: Change trump adds trump card
 
         [Test]
         public void EndTurnShouldNotThrowExceptions()
@@ -122,9 +124,9 @@
                 throw new System.NotImplementedException();
             }
 
-            public PlayerAction ChangeTrumpProxy(CardSuit trumpCardSuit)
+            public PlayerAction ChangeTrumpProxy(Card trumpCard)
             {
-                return this.ChangeTrump(trumpCardSuit);
+                return this.ChangeTrump(trumpCard);
             }
 
             public PlayerAction PlayCardProxy(Card card)
