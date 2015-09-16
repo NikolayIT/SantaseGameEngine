@@ -15,6 +15,7 @@
 
         private readonly ICardWinnerLogic cardWinnerLogic;
 
+        // ReSharper disable once NotAccessedField.Local
         private readonly IRoundWinnerPointsLogic roundWinnerPointsLogic;
 
         private readonly IGameRules gameRules;

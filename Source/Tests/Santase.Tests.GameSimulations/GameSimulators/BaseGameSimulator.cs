@@ -1,0 +1,66 @@
+﻿namespace Santase.Tests.GameSimulations.GameSimulators
+{
+    using System;
+    using System.Diagnostics;
+    using System.Threading.Tasks;
+
+    using Santase.Logic;
+    using Santase.Logic.GameMechanics;
+
+    public abstract class BaseGameSimulator : IGameSimulator
+    {
+        public GameSimulationResult Simulate(int numberOfGames)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var pointsLock = new object();
+            var firstPlayerWins = 0;
+            var firstPlayerRoundPoints = 0;
+            var secondPlayerWins = 0;
+            var secondPlayerRoundPoints = 0;
+
+            Parallel.For(1, numberOfGames + 1, i =>
+                {
+                    if (i % 1000 == 0)
+                    {
+                        Console.Write(".");
+                    }
+
+                    var game =
+                        this.CreateGame(
+                            i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
+
+                    var winner = game.Start();
+
+                    lock (pointsLock)
+                    {
+                        if (winner == PlayerPosition.FirstPlayer)
+                        {
+                            firstPlayerWins++;
+                        }
+                        else
+                        {
+                            secondPlayerWins++;
+                        }
+
+                        firstPlayerRoundPoints += game.FirstPlayerTotalPoints;
+                        secondPlayerRoundPoints += game.SecondPlayerTotalPoints;
+                    }
+
+                    // Console.WriteLine($"{i:00000} Games: {firstPlayerWins} - {secondPlayerWins} == Rounds: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
+                });
+            var simulationDuration = stopwatch.Elapsed;
+
+            return new GameSimulationResult
+                       {
+                           FirstPlayerWins = firstPlayerWins,
+                           FirstPlayerTotalRoundPoints = firstPlayerRoundPoints,
+                           SecondPlayerWins = secondPlayerWins,
+                           SecondPlayerTotalRoundPoints = secondPlayerRoundPoints,
+                           SimulationDuration = simulationDuration
+                       };
+        }
+
+        protected abstract ISantaseGame CreateGame(PlayerPosition playerPosition);
+    }
+}
