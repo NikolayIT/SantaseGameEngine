@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Tests.Players
 {
+    using System.Collections.Generic;
+
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
@@ -35,7 +37,7 @@
             basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Jack));
             basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Nine));
 
-            Assert.AreEqual(6, basePlayerImplementation.CardsCount);
+            Assert.AreEqual(6, basePlayerImplementation.CardsCollection.Count);
         }
 
         [Test]
@@ -43,7 +45,7 @@
         {
             var basePlayerImplementation = new BasePlayerImpl();
             basePlayerImplementation.EndRound();
-            Assert.AreEqual(0, basePlayerImplementation.CardsCount);
+            Assert.AreEqual(0, basePlayerImplementation.CardsCollection.Count);
         }
 
         [Test]
@@ -83,11 +85,27 @@
         {
             var basePlayerImplementation = new BasePlayerImpl();
             basePlayerImplementation.AddCard(new Card(CardSuit.Diamond, CardType.Nine));
+
             basePlayerImplementation.ChangeTrumpProxy(new Card(CardSuit.Diamond, CardType.King));
-            Assert.AreEqual(0, basePlayerImplementation.CardsCount);
+
+            Assert.IsFalse(
+                basePlayerImplementation.CardsCollection.Contains(new Card(CardSuit.Diamond, CardType.Nine)),
+                "Trump card for changing found in player cards after changing the trump");
         }
 
-        //// TODO: Change trump adds trump card
+        [Test]
+        public void ChangeTrumpShouldAddTrumpCardToPlayerCards()
+        {
+            var basePlayerImplementation = new BasePlayerImpl();
+            basePlayerImplementation.AddCard(new Card(CardSuit.Diamond, CardType.Nine));
+
+            basePlayerImplementation.ChangeTrumpProxy(new Card(CardSuit.Diamond, CardType.King));
+
+            Assert.IsTrue(
+                basePlayerImplementation.CardsCollection.Contains(new Card(CardSuit.Diamond, CardType.King)),
+                "Trump card not found in player cards after changing the trump");
+            Assert.AreEqual(1, basePlayerImplementation.CardsCollection.Count);
+        }
 
         [Test]
         public void EndTurnShouldNotThrowExceptions()
@@ -115,7 +133,7 @@
 
             public bool PlayerActionValidatorIsNotNull => this.PlayerActionValidator != null;
 
-            public int CardsCount => this.Cards.Count;
+            public ICollection<Card> CardsCollection => this.Cards;
 
             public override string Name => string.Empty;
 

@@ -110,8 +110,9 @@
                             this.deck.ChangeTrumpCard(nineOfTrump);
                             context.TrumpCard = nineOfTrump;
 
+                            // Only swap cards from the local cards list (player should swap its own cards)
                             playerInfo.Cards.Remove(nineOfTrump);
-                            playerInfo.AddCard(oldTrumpCard);
+                            playerInfo.Cards.Add(oldTrumpCard);
                             continue;
                         }
 

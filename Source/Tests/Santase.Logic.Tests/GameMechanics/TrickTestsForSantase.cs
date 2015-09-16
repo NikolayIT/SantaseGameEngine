@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic.Tests.GameMechanics
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     using Moq;
@@ -219,6 +220,9 @@
             Assert.AreEqual(nineOfTrump, secondPlayer.GetTurnContextObject.TrumpCard);
             Assert.IsTrue(firstPlayerInfo.TrickCards.Contains(oldTrumpCard), "Trick cards should contain oldTrumpCard");
             Assert.IsFalse(firstPlayerInfo.Cards.Contains(nineOfTrump));
+            Assert.IsFalse(
+                firstPlayer.CardsCollection.Contains(nineOfTrump),
+                "Player contains nine of trump after changing trump card");
         }
 
         [Test]
@@ -294,6 +298,8 @@
             public PlayerTurnContext GetTurnContextObject { get; private set; }
 
             public PlayerTurnContext EndTurnContextObject { get; private set; }
+
+            public ICollection<Card> CardsCollection => this.Cards;
 
             public override PlayerAction GetTurn(PlayerTurnContext context)
             {
