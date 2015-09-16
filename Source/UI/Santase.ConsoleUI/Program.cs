@@ -29,7 +29,7 @@
                 }
 
                 var game =
-                    CreateGameSmartVsDummyBot(
+                    CreateGameSmartVsPreviousVersionOfSmartBots(
                         i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
 
                 var winner = game.Start();
