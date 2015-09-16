@@ -7,7 +7,7 @@
     /// <summary>
     /// Low memory (only 12 bytes per instance) fast implementation of card collection.
     /// </summary>
-    public class CardCollection : ICollection<Card>, ICloneable
+    public class CardCollection : ICollection<Card>, IDeepCloneable<CardCollection>
     {
         private const int MaxCards = 52;
 
@@ -90,7 +90,7 @@
             }
         }
 
-        public object Clone()
+        public CardCollection DeepClone()
         {
             return new CardCollection(this.cards);
         }

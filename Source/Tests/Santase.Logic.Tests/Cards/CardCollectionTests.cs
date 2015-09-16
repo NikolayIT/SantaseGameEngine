@@ -221,7 +221,7 @@
                                      new Card(CardSuit.Club, CardType.Jack),
                                      new Card(CardSuit.Heart, CardType.Nine),
                                  };
-            var clonedCollection = collection.Clone() as CardCollection;
+            var clonedCollection = collection.DeepClone();
             Assert.IsNotNull(clonedCollection);
             Assert.AreEqual(collection.Count, clonedCollection.Count);
             foreach (var card in clonedCollection)
