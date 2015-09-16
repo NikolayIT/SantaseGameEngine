@@ -1,6 +1,8 @@
-﻿namespace Santase.Logic.Logger
+﻿namespace Santase.Tests.GameSimulations
 {
     using System.IO;
+
+    using Santase.Logic.Logger;
 
     public class FileLogger : ILogger
     {
@@ -8,7 +10,8 @@
 
         public FileLogger(string filePath)
         {
-            this.writer = new StreamWriter(filePath, true);
+            var stream = File.OpenRead(filePath);
+            this.writer = new StreamWriter(stream);
         }
 
         public void Log(string message)

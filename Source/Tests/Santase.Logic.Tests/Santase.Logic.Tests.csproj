@@ -55,7 +55,6 @@
     <Compile Include="GameMechanics\SantaseGameTests.cs" />
     <Compile Include="GameMechanics\TrickTestsForSantase.cs" />
     <Compile Include="GameMechanics\ValidPlayerWithMethodsCallCounting.cs" />
-    <Compile Include="Logger\FileLoggerTests.cs" />
     <Compile Include="Players\PlayerWithLoggerDecoratorTests.cs" />
     <Compile Include="WinnerLogic\CardWinnerLogicTests.cs" />
     <Compile Include="Extensions\EnumerableExtensionsTests.cs" />
@@ -82,14 +81,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
-      <Project>{76FD6AC0-6F00-4F92-8857-876E60AA9FE6}</Project>
-      <Name>Santase.Logic</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0-beta011\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0-beta011\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
+      <Project>{c82bebf4-ed79-48fb-a2ab-4e0d1767b95f}</Project>
+      <Name>Santase.Logic</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

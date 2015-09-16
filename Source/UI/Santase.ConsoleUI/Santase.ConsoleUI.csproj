@@ -57,7 +57,7 @@
       <Name>Santase.AI.SmartPlayer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
-      <Project>{76fd6ac0-6f00-4f92-8857-876e60aa9fe6}</Project>
+      <Project>{c82bebf4-ed79-48fb-a2ab-4e0d1767b95f}</Project>
       <Name>Santase.Logic</Name>
     </ProjectReference>
   </ItemGroup>

@@ -48,17 +48,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
-      <Project>{76fd6ac0-6f00-4f92-8857-876e60aa9fe6}</Project>
-      <Name>Santase.Logic</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0-beta011\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0-beta011\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
+      <Project>{c82bebf4-ed79-48fb-a2ab-4e0d1767b95f}</Project>
+      <Name>Santase.Logic</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
