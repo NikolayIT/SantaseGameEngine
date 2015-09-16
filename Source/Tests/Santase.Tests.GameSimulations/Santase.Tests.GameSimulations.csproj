@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\AI\Santase.AI.DummyPlayer\Santase.AI.DummyPlayer.csproj">
-      <Project>{f452d536-573d-4ca0-b24c-17e9e2b425bf}</Project>
+      <Project>{cc90f6aa-0308-4cf0-95b4-f61b895b62eb}</Project>
       <Name>Santase.AI.DummyPlayer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj">
