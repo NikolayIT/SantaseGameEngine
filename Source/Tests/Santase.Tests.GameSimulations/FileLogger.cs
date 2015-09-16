@@ -26,7 +26,15 @@
 
         public void Dispose()
         {
-            this.writer.Dispose();
+            this.Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.writer.Dispose();
+            }
         }
     }
 }
