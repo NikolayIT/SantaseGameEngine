@@ -9,19 +9,27 @@
     {
         public override string Name => "Valid player";
 
+        public int StartGameCalledCount { get; private set; }
+
+        public int AddCardCalledCount { get; private set; }
+
         public int GetTurnCalledCount { get; private set; }
 
         public int GetTurnWhenFirst { get; private set; }
 
         public int GetTurnWhenSecond { get; private set; }
 
-        public int AddCardCalledCount { get; private set; }
-
         public int EndTurnCalledCount { get; private set; }
 
         public int EndRoundCalledCount { get; private set; }
 
         public int EndGameCalledCount { get; private set; }
+
+        public override void StartGame(string otherPlayerIdentifier)
+        {
+            this.StartGameCalledCount++;
+            base.StartGame(otherPlayerIdentifier);
+        }
 
         public override void AddCard(Card card)
         {

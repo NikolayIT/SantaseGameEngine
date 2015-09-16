@@ -13,12 +13,29 @@
     public class PlayerWithLoggerDecoratorTests
     {
         [Test]
+        public void StartGameShouldAddToLoggerAndCallBaseMethod()
+        {
+            const string OtherPlayerIdentifier = "тест";
+            var logger = new MemoryLogger();
+            var playerMock = new Mock<IPlayer>();
+            var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
+
+            playerWithLogger.StartGame(OtherPlayerIdentifier);
+
+            Assert.IsTrue(logger.ToString().Length > 0);
+            Assert.IsTrue(logger.ToString().Contains(OtherPlayerIdentifier));
+            playerMock.Verify(x => x.StartGame(It.IsAny<string>()), Times.Once());
+        }
+
+        [Test]
         public void AddCardShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
+
             playerWithLogger.AddCard(new Card(CardSuit.Club, CardType.Ace));
+
             Assert.IsTrue(logger.ToString().Length > 0);
             playerMock.Verify(x => x.AddCard(It.IsAny<Card>()), Times.Once());
         }
@@ -29,7 +46,15 @@
             var logger = new MemoryLogger();
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
-            playerWithLogger.GetTurn(new PlayerTurnContext(new StartRoundState(new StateManager()), new Card(CardSuit.Club, CardType.Ace), 0, 0, 0));
+
+            playerWithLogger.GetTurn(
+                new PlayerTurnContext(
+                    new StartRoundState(new StateManager()),
+                    new Card(CardSuit.Club, CardType.Ace),
+                    0,
+                    0,
+                    0));
+
             Assert.IsTrue(logger.ToString().Length > 0);
             playerMock.Verify(x => x.GetTurn(It.IsAny<PlayerTurnContext>()), Times.Once());
         }
@@ -40,7 +65,15 @@
             var logger = new MemoryLogger();
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
-            playerWithLogger.EndTurn(new PlayerTurnContext(new StartRoundState(new StateManager()), new Card(CardSuit.Club, CardType.Ace), 0, 0, 0));
+
+            playerWithLogger.EndTurn(
+                new PlayerTurnContext(
+                    new StartRoundState(new StateManager()),
+                    new Card(CardSuit.Club, CardType.Ace),
+                    0,
+                    0,
+                    0));
+
             Assert.IsTrue(logger.ToString().Length > 0);
             playerMock.Verify(x => x.EndTurn(It.IsAny<PlayerTurnContext>()), Times.Once());
         }
@@ -62,7 +95,9 @@
             var logger = new MemoryLogger();
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
+
             playerWithLogger.EndGame(true);
+
             Assert.IsTrue(logger.ToString().Length > 0);
             playerMock.Verify(x => x.EndGame(It.IsAny<bool>()), Times.Once());
         }

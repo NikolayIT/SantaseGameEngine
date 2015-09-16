@@ -48,6 +48,9 @@
 
         public PlayerPosition Start()
         {
+            this.firstPlayer.StartGame(this.secondPlayer.Name);
+            this.secondPlayer.StartGame(this.firstPlayer.Name);
+
             while (this.GameWinner() == PlayerPosition.NoOne)
             {
                 this.PlayRound();
@@ -55,6 +58,7 @@
             }
 
             var gameWinner = this.GameWinner();
+
             this.firstPlayer.EndGame(gameWinner == PlayerPosition.FirstPlayer);
             this.secondPlayer.EndGame(gameWinner == PlayerPosition.SecondPlayer);
 

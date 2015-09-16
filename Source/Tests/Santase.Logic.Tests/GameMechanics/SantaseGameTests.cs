@@ -46,7 +46,7 @@
             }
 
             Assert.AreEqual(GamesToPlay, firstPlayerWinner + secondPlayerWinner);
-            Assert.IsTrue(Math.Abs(firstPlayerWinner - secondPlayerWinner) < 200);
+            Assert.IsTrue(Math.Abs(firstPlayerWinner - secondPlayerWinner) < 150);
         }
 
         [Test]
@@ -63,6 +63,9 @@
                 var game = new SantaseGame(firstPlayer, secondPlayer, firstToPlay);
                 game.Start();
             }
+
+            Assert.AreEqual(GamesToPlay, firstPlayer.StartGameCalledCount);
+            Assert.AreEqual(GamesToPlay, secondPlayer.StartGameCalledCount);
 
             Assert.AreEqual(GamesToPlay, firstPlayer.EndGameCalledCount);
             Assert.AreEqual(GamesToPlay, secondPlayer.EndGameCalledCount);

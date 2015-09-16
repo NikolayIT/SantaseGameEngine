@@ -17,6 +17,12 @@
 
         public string Name => this.player.Name;
 
+        public void StartGame(string otherPlayerIdentifier)
+        {
+            this.logger.LogLine($"New game vs {otherPlayerIdentifier}");
+            this.player.StartGame(otherPlayerIdentifier);
+        }
+
         public void AddCard(Card card)
         {
             this.logger.LogLine($"New card {card}");

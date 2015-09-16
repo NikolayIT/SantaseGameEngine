@@ -6,6 +6,8 @@
     {
         string Name { get; }
 
+        void StartGame(string otherPlayerIdentifier);
+
         void AddCard(Card card);
 
         PlayerAction GetTurn(PlayerTurnContext context);

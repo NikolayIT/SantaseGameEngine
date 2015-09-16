@@ -22,6 +22,10 @@
 
         protected IPlayerActionValidator PlayerActionValidator { get; }
 
+        public virtual void StartGame(string otherPlayerIdentifier)
+        {
+        }
+
         public virtual void AddCard(Card card)
         {
             this.Cards.Add(card);
