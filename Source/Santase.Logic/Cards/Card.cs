@@ -5,7 +5,7 @@
     /// <summary>
     /// Immutable object to represent game card with suit and type.
     /// </summary>
-    public class Card : ICloneable
+    public class Card : IDeepCloneable<Card>
     {
         public Card(CardSuit suit, CardType type)
         {
@@ -58,7 +58,7 @@
             }
         }
 
-        public object Clone()
+        public Card DeepClone()
         {
             return new Card(this.Suit, this.Type);
         }
