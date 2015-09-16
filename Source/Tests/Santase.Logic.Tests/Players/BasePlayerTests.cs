@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Tests.Players
 {
+    using System.Collections.Generic;
+
     using NUnit.Framework;
 
     using Santase.Logic.Cards;
@@ -24,16 +26,20 @@
         }
 
         [Test]
-        public void AddCardShouldWorkCorrectly()
+        public void StartRoundShouldWorkCorrectly()
         {
             var basePlayerImplementation = new BasePlayerImpl();
 
-            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Ace));
-            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Ten));
-            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.King));
-            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Queen));
-            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Jack));
-            basePlayerImplementation.AddCard(new Card(CardSuit.Club, CardType.Nine));
+            var cards = new List<Card>
+                            {
+                                new Card(CardSuit.Club, CardType.Ace),
+                                new Card(CardSuit.Club, CardType.Ten),
+                                new Card(CardSuit.Club, CardType.King),
+                                new Card(CardSuit.Club, CardType.Queen),
+                                new Card(CardSuit.Club, CardType.Jack),
+                                new Card(CardSuit.Club, CardType.Nine)
+                            };
+            basePlayerImplementation.StartRound(cards, new Card(CardSuit.Diamond, CardType.Ace));
 
             Assert.AreEqual(6, basePlayerImplementation.CardsCount);
         }
@@ -82,7 +88,6 @@
         public void ChangeTrumpShouldRemoveNineOfTrumpFromThePlayersCards()
         {
             var basePlayerImplementation = new BasePlayerImpl();
-            basePlayerImplementation.AddCard(new Card(CardSuit.Diamond, CardType.Nine));
             basePlayerImplementation.ChangeTrumpProxy(CardSuit.Diamond);
             Assert.AreEqual(0, basePlayerImplementation.CardsCount);
         }

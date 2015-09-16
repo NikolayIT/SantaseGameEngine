@@ -15,7 +15,7 @@
 
         public abstract bool ShouldObserveRules { get; }
 
-        public abstract bool ShouldDrawCard { get; }
+        public abstract bool ShouldDrawCardBeforeTurn { get; }
 
         protected IStateManager Round { get; }
 

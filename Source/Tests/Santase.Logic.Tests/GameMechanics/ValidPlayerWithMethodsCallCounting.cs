@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic.Tests.GameMechanics
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     using Santase.Logic.Cards;
@@ -15,7 +16,7 @@
 
         public int GetTurnWhenSecond { get; private set; }
 
-        public int AddCardCalledCount { get; private set; }
+        public int StartRoundCalledCount { get; private set; }
 
         public int EndTurnCalledCount { get; private set; }
 
@@ -23,10 +24,10 @@
 
         public int EndGameCalledCount { get; private set; }
 
-        public override void AddCard(Card card)
+        public override void StartRound(IEnumerable<Card> playerCards, Card trumpCard)
         {
-            this.AddCardCalledCount++;
-            base.AddCard(card);
+            this.StartRoundCalledCount++;
+            base.StartRound(playerCards, trumpCard);
         }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)

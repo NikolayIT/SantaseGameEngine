@@ -67,8 +67,8 @@
             Assert.AreEqual(GamesToPlay, firstPlayer.EndGameCalledCount);
             Assert.AreEqual(GamesToPlay, secondPlayer.EndGameCalledCount);
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount >= 3 * 6 * GamesToPlay);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount >= 3 * 6 * GamesToPlay);
+            Assert.IsTrue(firstPlayer.StartRoundCalledCount >= 3 * GamesToPlay);
+            Assert.IsTrue(secondPlayer.StartRoundCalledCount >= 3 * GamesToPlay);
 
             Assert.IsTrue(firstPlayer.EndRoundCalledCount > GamesToPlay * 2);
             Assert.IsTrue(firstPlayer.GetTurnWhenFirst > GamesToPlay * 10);

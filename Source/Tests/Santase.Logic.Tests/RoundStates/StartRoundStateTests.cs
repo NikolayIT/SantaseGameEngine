@@ -52,7 +52,7 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.ShouldDrawCard);
+            Assert.IsTrue(roundState.ShouldDrawCardBeforeTurn);
         }
 
         [Test]

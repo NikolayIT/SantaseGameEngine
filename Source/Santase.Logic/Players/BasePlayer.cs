@@ -22,9 +22,22 @@
 
         protected IPlayerActionValidator PlayerActionValidator { get; }
 
-        public virtual void AddCard(Card card)
+        public virtual void StartGame()
         {
-            this.Cards.Add(card);
+        }
+
+        public virtual void StartRound(IEnumerable<Card> playerCards, Card trumpCard)
+        {
+            this.Cards.Clear();
+            foreach (var playerCard in playerCards)
+            {
+                this.Cards.Add(playerCard);
+            }
+        }
+
+        public virtual void StartTurn(Card newCard)
+        {
+            this.Cards.Add(newCard);
         }
 
         public abstract PlayerAction GetTurn(PlayerTurnContext context);
@@ -35,16 +48,16 @@
 
         public virtual void EndRound()
         {
-            this.Cards.Clear();
         }
 
         public virtual void EndGame(bool amIWinner)
         {
         }
 
-        protected PlayerAction ChangeTrump(CardSuit trumpCardSuit)
+        protected PlayerAction ChangeTrump(Card trumpCard)
         {
-            this.Cards.Remove(new Card(trumpCardSuit, CardType.Nine));
+            this.Cards.Remove(new Card(trumpCard.Suit, CardType.Nine));
+            this.Cards.Add(trumpCard);
             return PlayerAction.ChangeTrump();
         }
 

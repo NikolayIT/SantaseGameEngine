@@ -10,6 +10,6 @@
 
         public override bool ShouldObserveRules => false;
 
-        public override bool ShouldDrawCard => true;
+        public override bool ShouldDrawCardBeforeTurn => true;
     }
 }

@@ -16,7 +16,7 @@
 
         public override bool ShouldObserveRules => true;
 
-        public override bool ShouldDrawCard => false;
+        public override bool ShouldDrawCardBeforeTurn => false;
 
         internal override void PlayHand(int cardsLeftInDeck)
         {

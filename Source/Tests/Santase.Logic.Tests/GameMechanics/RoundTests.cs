@@ -8,6 +8,7 @@
     [TestFixture]
     public class RoundTestsForSantase
     {
+        // TODO: Add tests for start turn
         [Test]
         public void PlayersShouldReceiveEqualNumberOfCardsAtLeast6AndNoMoreThan12()
         {
@@ -17,13 +18,10 @@
 
             round.Play();
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount == secondPlayer.AddCardCalledCount);
+            Assert.IsTrue(firstPlayer.StartRoundCalledCount == secondPlayer.StartRoundCalledCount);
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount >= 6);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount >= 6);
-
-            Assert.IsTrue(firstPlayer.AddCardCalledCount <= 12);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount <= 12);
+            Assert.IsTrue(firstPlayer.StartRoundCalledCount == 1);
+            Assert.IsTrue(secondPlayer.StartRoundCalledCount == 1);
         }
 
         [Test]
@@ -68,8 +66,8 @@
             Assert.IsTrue(secondPlayer.GetTurnWhenFirst > NumberOfRounds);
             Assert.IsTrue(secondPlayer.GetTurnWhenSecond > NumberOfRounds);
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount >= firstPlayer.GetTurnCalledCount);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount >= secondPlayer.GetTurnCalledCount);
+            Assert.IsTrue(firstPlayer.StartRoundCalledCount <= firstPlayer.GetTurnCalledCount);
+            Assert.IsTrue(secondPlayer.StartRoundCalledCount <= secondPlayer.GetTurnCalledCount);
 
             Assert.IsTrue(firstPlayer.GetTurnWhenFirst >= secondPlayer.GetTurnWhenSecond);
             Assert.IsTrue(secondPlayer.GetTurnWhenFirst >= firstPlayer.GetTurnWhenSecond);

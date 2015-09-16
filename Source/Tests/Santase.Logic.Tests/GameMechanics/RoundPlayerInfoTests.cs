@@ -38,12 +38,12 @@
         }
 
         [Test]
-        public void AddCardShouldCallPlayersAddCardMethod()
+        public void AddCardShouldCallPlayersStartTurnMethod()
         {
             var player = new Mock<BasePlayer>();
             var roundPlayerInfo = new RoundPlayerInfo(player.Object);
             roundPlayerInfo.AddCard(new Card(CardSuit.Club, CardType.Ace));
-            player.Verify(x => x.AddCard(It.IsAny<Card>()), Times.Once());
+            player.Verify(x => x.StartTurn(It.IsAny<Card>()), Times.Once());
         }
 
         [Test]

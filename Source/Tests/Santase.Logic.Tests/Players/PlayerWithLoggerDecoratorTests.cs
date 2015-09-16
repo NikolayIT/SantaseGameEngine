@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Tests.Players
 {
+    using System.Collections.Generic;
+
     using Moq;
 
     using NUnit.Framework;
@@ -13,14 +15,14 @@
     public class PlayerWithLoggerDecoratorTests
     {
         [Test]
-        public void AddCardShouldAddToLoggerAndCallBaseMethod()
+        public void StartRoundShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
-            playerWithLogger.AddCard(new Card(CardSuit.Club, CardType.Ace));
+            playerWithLogger.StartRound(new List<Card> { new Card(CardSuit.Club, CardType.Ace) }, new Card(CardSuit.Club, CardType.Ace));
             Assert.IsTrue(logger.ToString().Length > 0);
-            playerMock.Verify(x => x.AddCard(It.IsAny<Card>()), Times.Once());
+            playerMock.Verify(x => x.StartRound(It.IsAny<List<Card>>(), It.IsAny<Card>()), Times.Once());
         }
 
         [Test]

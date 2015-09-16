@@ -1,6 +1,7 @@
 ﻿namespace Santase.ConsoleUI
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
 
@@ -21,17 +22,16 @@
 
         public override string Name => "Console Player";
 
-        public override void AddCard(Card card)
+        public override void StartRound(IEnumerable<Card> playerCards, Card trumpCard)
         {
-            base.AddCard(card);
+            base.StartRound(playerCards, trumpCard);
 
             Console.SetCursorPosition(this.col, this.row);
             foreach (var item in this.Cards)
             {
                 Console.Write("{0} ", item);
+                Thread.Sleep(150);
             }
-
-            Thread.Sleep(150);
         }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
