@@ -47,6 +47,7 @@
     <Compile Include="Cards\IDeck.cs" />
     <Compile Include="Extensions\PlayerPositionExtensions.cs" />
     <Compile Include="GameRulesProvider.cs" />
+    <Compile Include="IDeepCloneable.cs" />
     <Compile Include="IGameRules.cs" />
     <Compile Include="Logger\FileLogger.cs" />
     <Compile Include="Players\PlayerWithLoggerDecorator.cs" />
