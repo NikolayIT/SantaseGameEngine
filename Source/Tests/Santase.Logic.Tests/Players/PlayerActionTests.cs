@@ -1,7 +1,5 @@
 ﻿namespace Santase.Logic.Tests.Players
 {
-    using System;
-
     using NUnit.Framework;
 
     using Santase.Logic.Cards;

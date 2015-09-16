@@ -53,15 +53,9 @@
 
             for (var i = 0; i < NumberOfRounds; i++)
             {
-                Round round;
-                if (i % 2 == 0)
-                {
-                    round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
-                }
-                else
-                {
-                    round = new Round(secondPlayer, firstPlayer, GameRulesProvider.Santase);
-                }
+                var round = i % 2 == 0
+                                ? new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase)
+                                : new Round(secondPlayer, firstPlayer, GameRulesProvider.Santase);
 
                 round.Play();
             }

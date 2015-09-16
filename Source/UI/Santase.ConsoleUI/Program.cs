@@ -8,7 +8,6 @@
     using Santase.AI.SmartPlayer;
     using Santase.Logic;
     using Santase.Logic.GameMechanics;
-    using Santase.Logic.Logger;
     using Santase.Logic.Players;
 
     public static class Program
@@ -30,7 +29,7 @@
                 }
 
                 var game =
-                    CreateGameSmartVsPreviousVersionOfSmartBots(
+                    CreateGameSmartVsDummyBot(
                         i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
 
                 var winner = game.Start();

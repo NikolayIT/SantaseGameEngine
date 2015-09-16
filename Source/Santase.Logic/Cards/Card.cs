@@ -1,7 +1,5 @@
 ﻿namespace Santase.Logic.Cards
 {
-    using System;
-
     /// <summary>
     /// Immutable object to represent game card with suit and type.
     /// </summary>

@@ -204,7 +204,7 @@
 
         [Test]
         public void
-            CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDontHaveBiggerCardFromTheSameSuit()
+            CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDoNotHaveBiggerCardFromTheSameSuit()
         {
             var playerCards = new List<Card>
                                   {
