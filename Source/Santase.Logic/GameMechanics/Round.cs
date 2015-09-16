@@ -50,6 +50,8 @@
 
         private void PlayTrick()
         {
+
+
             var trick = this.firstToPlay == PlayerPosition.FirstPlayer
                 ? new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck, this.gameRules)
                 : new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck, this.gameRules);
@@ -61,7 +63,7 @@
                                    ? PlayerPosition.FirstPlayer
                                    : PlayerPosition.SecondPlayer;
 
-            if (this.stateManager.State.ShouldDrawCard)
+            if (this.stateManager.State.ShouldDrawCardBeforeTurn)
             {
                 // The player who wins last trick takes card first
                 if (this.firstToPlay == PlayerPosition.FirstPlayer)
