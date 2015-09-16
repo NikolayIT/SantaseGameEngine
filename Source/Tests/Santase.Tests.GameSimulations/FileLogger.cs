@@ -10,7 +10,7 @@
 
         public FileLogger(string filePath)
         {
-            var stream = File.OpenRead(filePath);
+            var stream = File.Open(filePath, FileMode.Append, FileAccess.Write);
             this.writer = new StreamWriter(stream);
         }
 
