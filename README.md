@@ -18,6 +18,10 @@ Bulgarian: https://bg.wikipedia.org/wiki/%D0%A1%D0%B0%D0%BD%D1%82%D0%B0%D1%81%D0
 
 The code in `Santase.Logic` library is unit tested with more than **250 tests** and is **100% covered**.
 
+### Source code requirements
+
+**Visual Studio 2015** is required in order for the code to be compiled correctly.
+
 ### Video with creating the initial code (in Bulgarian)
 
 https://www.youtube.com/watch?v=VidaoNJ4X2Y
