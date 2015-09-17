@@ -26,6 +26,14 @@
         {
         }
 
+        public virtual void StartRound(IEnumerable<Card> cards, Card trumpCard)
+        {
+            foreach (var card in cards)
+            {
+                this.Cards.Add(card);
+            }
+        }
+
         public virtual void AddCard(Card card)
         {
             this.Cards.Add(card);

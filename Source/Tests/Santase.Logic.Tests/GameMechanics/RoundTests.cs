@@ -60,6 +60,9 @@
                 round.Play();
             }
 
+            Assert.IsTrue(firstPlayer.StartRoundCalledCount == NumberOfRounds);
+            Assert.IsTrue(secondPlayer.StartRoundCalledCount == NumberOfRounds);
+
             Assert.IsTrue(firstPlayer.EndRoundCalledCount == NumberOfRounds);
             Assert.IsTrue(secondPlayer.EndRoundCalledCount == NumberOfRounds);
 
@@ -67,9 +70,6 @@
             Assert.IsTrue(firstPlayer.GetTurnWhenSecond > NumberOfRounds);
             Assert.IsTrue(secondPlayer.GetTurnWhenFirst > NumberOfRounds);
             Assert.IsTrue(secondPlayer.GetTurnWhenSecond > NumberOfRounds);
-
-            Assert.IsTrue(firstPlayer.AddCardCalledCount >= firstPlayer.GetTurnCalledCount);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount >= secondPlayer.GetTurnCalledCount);
 
             Assert.IsTrue(firstPlayer.GetTurnWhenFirst >= secondPlayer.GetTurnWhenSecond);
             Assert.IsTrue(secondPlayer.GetTurnWhenFirst >= firstPlayer.GetTurnWhenSecond);

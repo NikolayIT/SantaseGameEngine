@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic.Tests.GameMechanics
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     using Santase.Logic.Cards;
@@ -10,6 +11,8 @@
         public override string Name => "Valid player";
 
         public int StartGameCalledCount { get; private set; }
+
+        public int StartRoundCalledCount { get; private set; }
 
         public int AddCardCalledCount { get; private set; }
 
@@ -29,6 +32,12 @@
         {
             this.StartGameCalledCount++;
             base.StartGame(otherPlayerIdentifier);
+        }
+
+        public override void StartRound(IEnumerable<Card> cards, Card trumpCard)
+        {
+            this.StartRoundCalledCount++;
+            base.StartRound(cards, trumpCard);
         }
 
         public override void AddCard(Card card)

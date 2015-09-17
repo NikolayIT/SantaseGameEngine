@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.GameMechanics
 {
+    using System.Collections.Generic;
+
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
@@ -32,7 +34,8 @@
 
         public RoundResult Play()
         {
-            this.DealFirstCards();
+            this.CallStartRoundAndDealCards(this.firstPlayer);
+            this.CallStartRoundAndDealCards(this.secondPlayer);
 
             while (!this.IsFinished())
             {
@@ -92,27 +95,19 @@
             return this.firstPlayer.Cards.Count == 0 && this.secondPlayer.Cards.Count == 0;
         }
 
-        private void DealFirstCards()
+        private void CallStartRoundAndDealCards(RoundPlayerInfo player)
         {
-            for (var i = 0; i < 3; i++)
+            var cards = new List<Card>();
+
+            // TODO: 6 should be constant
+            for (var i = 0; i < 6; i++)
             {
-                this.GiveCardToPlayer(this.firstPlayer);
+                var card = this.deck.GetNextCard();
+                cards.Add(card);
+                player.Cards.Add(card);
             }
 
-            for (var i = 0; i < 3; i++)
-            {
-                this.GiveCardToPlayer(this.secondPlayer);
-            }
-
-            for (var i = 0; i < 3; i++)
-            {
-                this.GiveCardToPlayer(this.firstPlayer);
-            }
-
-            for (var i = 0; i < 3; i++)
-            {
-                this.GiveCardToPlayer(this.secondPlayer);
-            }
+            player.Player.StartRound(cards, this.deck.TrumpCard);
         }
 
         private void GiveCardToPlayer(RoundPlayerInfo player)

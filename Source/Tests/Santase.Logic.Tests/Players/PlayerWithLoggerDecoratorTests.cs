@@ -1,5 +1,7 @@
 ﻿namespace Santase.Logic.Tests.Players
 {
+    using System.Collections.Generic;
+
     using Moq;
 
     using NUnit.Framework;
@@ -25,6 +27,24 @@
             Assert.IsTrue(logger.ToString().Length > 0);
             Assert.IsTrue(logger.ToString().Contains(OtherPlayerIdentifier));
             playerMock.Verify(x => x.StartGame(It.IsAny<string>()), Times.Once());
+        }
+
+        [Test]
+        public void StartRoundShouldAddToLoggerAndCallBaseMethod()
+        {
+            var logger = new MemoryLogger();
+            var playerMock = new Mock<IPlayer>();
+            var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
+
+            var card = new Card(CardSuit.Diamond, CardType.King);
+            var cards = new List<Card> { card };
+            var trumpCard = new Card(CardSuit.Club, CardType.Ace);
+            playerWithLogger.StartRound(cards, trumpCard);
+
+            Assert.IsTrue(logger.ToString().Length > 0);
+            Assert.IsTrue(logger.ToString().Contains(card.ToString()));
+            Assert.IsTrue(logger.ToString().Contains(trumpCard.ToString()));
+            playerMock.Verify(x => x.StartRound(It.IsAny<IEnumerable<Card>>(), It.IsAny<Card>()), Times.Once());
         }
 
         [Test]

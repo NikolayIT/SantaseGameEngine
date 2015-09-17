@@ -1,5 +1,8 @@
 ﻿namespace Santase.Logic.Players
 {
+    using System.Collections.Generic;
+    using System.Text;
+
     using Santase.Logic.Cards;
     using Santase.Logic.Logger;
 
@@ -21,6 +24,18 @@
         {
             this.logger.LogLine($"New game vs {otherPlayerIdentifier}");
             this.player.StartGame(otherPlayerIdentifier);
+        }
+
+        public void StartRound(IEnumerable<Card> cards, Card trumpCard)
+        {
+            var cardsAsString = new StringBuilder();
+            foreach (var card in cards)
+            {
+                cardsAsString.Append(card);
+            }
+
+            this.logger.LogLine($"New round. Cards: {cardsAsString}. Trump card: {trumpCard}");
+            this.player.StartRound(cards, trumpCard);
         }
 
         public void AddCard(Card card)
