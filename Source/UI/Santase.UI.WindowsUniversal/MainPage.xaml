@@ -7,6 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" Background="DarkGreen">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <local:CardControl Grid.Column="1" HorizontalAlignment="Left" Margin="403,299,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Page>
