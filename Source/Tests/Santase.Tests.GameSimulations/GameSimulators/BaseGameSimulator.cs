@@ -18,6 +18,7 @@
             var firstPlayerRoundPoints = 0;
             var secondPlayerWins = 0;
             var secondPlayerRoundPoints = 0;
+            var roundsPlayed = 0;
 
             Parallel.For(1, numberOfGames + 1, i =>
                 {
@@ -45,6 +46,7 @@
 
                         firstPlayerRoundPoints += game.FirstPlayerTotalPoints;
                         secondPlayerRoundPoints += game.SecondPlayerTotalPoints;
+                        roundsPlayed += game.RoundsPlayed;
                     }
 
                     // Console.WriteLine($"{i:00000} Games: {firstPlayerWins} - {secondPlayerWins} == Rounds: {game.FirstPlayerTotalPoints} - {game.SecondPlayerTotalPoints} ({game.RoundsPlayed} rounds)");
@@ -57,6 +59,7 @@
                            FirstPlayerTotalRoundPoints = firstPlayerRoundPoints,
                            SecondPlayerWins = secondPlayerWins,
                            SecondPlayerTotalRoundPoints = secondPlayerRoundPoints,
+                           RoundsPlayed = roundsPlayed,
                            SimulationDuration = simulationDuration
                        };
         }
