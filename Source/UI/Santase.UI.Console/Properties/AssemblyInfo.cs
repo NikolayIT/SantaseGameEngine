@@ -1,14 +1,15 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Santase.ConsoleUI")]
+[assembly: AssemblyTitle("Santase.UI.Console")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Santase.ConsoleUI")]
+[assembly: AssemblyProduct("Santase.UI.Console")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8383d2f0-031e-4ea8-b8c2-1e3143903e7b")]
+[assembly: Guid("538fd022-612f-4fbb-97a8-42c3dd26d4ce")]
 
 // Version information for an assembly consists of the following four values:
 //

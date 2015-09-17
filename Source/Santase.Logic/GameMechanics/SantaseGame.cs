@@ -20,6 +20,15 @@
 
         private int firstPlayerTotalPoints;
 
+        public SantaseGame(
+            IPlayer firstPlayer,
+            IPlayer secondPlayer,
+            PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
+            : this(firstPlayer, secondPlayer, firstToPlay, GameRulesProvider.Santase, new NoLogger())
+        {
+        }
+
+        // ReSharper disable once MemberCanBePrivate.Global
         public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay, IGameRules gameRules, ILogger logger)
         {
             this.firstPlayerTotalPoints = 0;
@@ -30,14 +39,6 @@
             this.firstToPlay = firstToPlay;
             this.gameRules = gameRules;
             this.logger = logger;
-        }
-
-        public SantaseGame(
-            IPlayer firstPlayer,
-            IPlayer secondPlayer,
-            PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
-            : this(firstPlayer, secondPlayer, firstToPlay, GameRulesProvider.Santase, new NoLogger())
-        {
         }
 
         public int FirstPlayerTotalPoints => this.firstPlayerTotalPoints;

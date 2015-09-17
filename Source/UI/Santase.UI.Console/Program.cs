@@ -1,4 +1,4 @@
-﻿namespace Santase.ConsoleUI
+﻿namespace Santase.UI.Console
 {
     using System;
 
