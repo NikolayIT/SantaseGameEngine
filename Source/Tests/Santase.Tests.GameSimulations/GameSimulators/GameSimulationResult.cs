@@ -12,6 +12,8 @@
 
         public int SecondPlayerTotalRoundPoints { get; set; }
 
+        public int RoundsPlayed { get; set; }
+
         public TimeSpan SimulationDuration { get; set; }
     }
 }
