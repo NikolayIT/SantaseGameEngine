@@ -117,6 +117,31 @@
     <None Include="Santase.UI.WindowsUniversal_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Cards\AceClub.png" />
+    <Content Include="Assets\Cards\AceDiamond.png" />
+    <Content Include="Assets\Cards\AceHeart.png" />
+    <Content Include="Assets\Cards\AceSpade.png" />
+    <Content Include="Assets\Cards\Back.png" />
+    <Content Include="Assets\Cards\JackClub.png" />
+    <Content Include="Assets\Cards\JackDiamond.png" />
+    <Content Include="Assets\Cards\JackHeart.png" />
+    <Content Include="Assets\Cards\JackSpade.png" />
+    <Content Include="Assets\Cards\KingClub.png" />
+    <Content Include="Assets\Cards\KingDiamond.png" />
+    <Content Include="Assets\Cards\KingHeart.png" />
+    <Content Include="Assets\Cards\KingSpade.png" />
+    <Content Include="Assets\Cards\NineClub.png" />
+    <Content Include="Assets\Cards\NineDiamond.png" />
+    <Content Include="Assets\Cards\NineHeart.png" />
+    <Content Include="Assets\Cards\NineSpade.png" />
+    <Content Include="Assets\Cards\QueenClub.png" />
+    <Content Include="Assets\Cards\QueenDiamond.png" />
+    <Content Include="Assets\Cards\QueenHeart.png" />
+    <Content Include="Assets\Cards\QueenSpade.png" />
+    <Content Include="Assets\Cards\TenClub.png" />
+    <Content Include="Assets\Cards\TenDiamond.png" />
+    <Content Include="Assets\Cards\TenHeart.png" />
+    <Content Include="Assets\Cards\TenSpade.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
