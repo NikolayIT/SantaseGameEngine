@@ -82,7 +82,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundStates\BaseRoundState.cs" />
     <Compile Include="RoundStates\FinalRoundState.cs" />
-    <Compile Include="RoundStates\FirstGamePhaseRoundState.cs" />
     <Compile Include="RoundStates\IStateManager.cs" />
     <Compile Include="RoundStates\MoreThanTwoCardsLeftRoundState.cs" />
     <Compile Include="RoundStates\StartRoundState.cs" />
