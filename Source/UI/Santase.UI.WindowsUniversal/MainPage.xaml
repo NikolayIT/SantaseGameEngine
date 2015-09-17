@@ -7,12 +7,41 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" Background="DarkGreen">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="25*"/>
+            <RowDefinition Height="10*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="13*"/>
+            <ColumnDefinition Width="60*"/>
             <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <local:CardControl Grid.Column="1" HorizontalAlignment="Left" Margin="403,299,0,0" VerticalAlignment="Top"/>
-
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="0" Grid.ColumnSpan="3" VerticalAlignment="Stretch" Orientation="Horizontal" >
+            <local:CardControl x:Name="OtherPlayerCard1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="OtherPlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="OtherPlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="OtherPlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="OtherPlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="OtherPlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="3" VerticalAlignment="Stretch" Orientation="Horizontal" >
+            <local:CardControl x:Name="PlayerCard1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="PlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="PlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="PlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="PlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="PlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Center">
+            <local:CardControl x:Name="OldOtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="OldPlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <local:CardControl x:Name="TrumpCard" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,0,0" RenderTransformOrigin="0.5,0.5" UseLayoutRounding="False" d:LayoutRounding="Auto">
+            <local:CardControl.RenderTransform>
+                <CompositeTransform Rotation="90" TranslateX="50" />
+            </local:CardControl.RenderTransform>
+        </local:CardControl>
+        <local:CardControl x:Name="DeckCards" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" />
     </Grid>
 </Page>
