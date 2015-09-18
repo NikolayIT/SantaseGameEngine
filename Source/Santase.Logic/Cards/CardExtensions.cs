@@ -21,6 +21,23 @@
             }
         }
 
+        public static int MapAsSortableByColor(this CardSuit cardSuit)
+        {
+            switch (cardSuit)
+            {
+                case CardSuit.Club:
+                    return 3;
+                case CardSuit.Diamond:
+                    return 4;
+                case CardSuit.Heart:
+                    return 2;
+                case CardSuit.Spade:
+                    return 1;
+                default:
+                    throw new ArgumentException("cardSuit");
+            }
+        }
+
         public static string ToFriendlyString(this CardType cardType)
         {
             switch (cardType)

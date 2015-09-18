@@ -33,6 +33,27 @@
         }
 
         [Test]
+        public void CardSuitMapAsSortableByColorShouldOrderByByColorInOrderSpadeHeartClubAndDiamonds()
+        {
+            var cardSuits =
+                Enum.GetValues(typeof(CardSuit)).OfType<CardSuit>().OrderBy(x => x.MapAsSortableByColor()).ToList();
+
+            Assert.AreEqual(CardSuit.Spade, cardSuits[0]);
+            Assert.AreEqual(CardSuit.Heart, cardSuits[1]);
+            Assert.AreEqual(CardSuit.Club, cardSuits[2]);
+            Assert.AreEqual(CardSuit.Diamond, cardSuits[3]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CardSuitMapAsSortableByColorShouldThrowAnExceptionWhenCalledOnAnInvalidValue()
+        {
+            var cardSuits = Enum.GetValues(typeof(CardSuit));
+            var cardSuit = cardSuits.OfType<CardSuit>().Max() + 1;
+            cardSuit.MapAsSortableByColor();
+        }
+
+        [Test]
         public void CardTypeToFriendlyStringShouldReturnDifferentValidValueForEachPossibleParameter()
         {
             var values = new HashSet<string>();
