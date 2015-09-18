@@ -10,11 +10,14 @@
     {
         public event EventHandler<ICollection<Card>> RedrawCards;
 
+        public event EventHandler<Card> RedrawTrumpCard;
+
         public override string Name => "UI Player";
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard)
         {
             this.RedrawCards?.Invoke(this, cards);
+            this.RedrawTrumpCard?.Invoke(this, trumpCard);
             base.StartRound(cards, trumpCard);
         }
 

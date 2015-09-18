@@ -17,13 +17,13 @@ namespace Santase.UI.WindowsUniversal
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private UiPlayer uiPlayer;
+        private readonly UiPlayer uiPlayer;
 
-        private IPlayer smartPlayer;
+        private readonly IPlayer smartPlayer;
 
-        private SantaseGame game;
+        private readonly SantaseGame game;
 
-        private CardControl[] playerCardControls;
+        private readonly CardControl[] playerCardControls;
 
         public MainPage()
         {
@@ -36,6 +36,7 @@ namespace Santase.UI.WindowsUniversal
 
             this.uiPlayer = new UiPlayer();
             this.uiPlayer.RedrawCards += this.UiPlayerRedrawCards;
+            this.uiPlayer.RedrawTrumpCard += this.UiPlayerRedrawTrumpCard;
 
             this.smartPlayer = new SmartPlayer();
             this.game = new SantaseGame(this.uiPlayer, this.smartPlayer);
@@ -46,8 +47,23 @@ namespace Santase.UI.WindowsUniversal
             this.OldOtherPlayerCard.Hide();
 
             Task.Run(() => this.game.Start());
+        }
 
-            this.TrumpCard.SetCard(new Card(CardSuit.Club, CardType.Ace));
+        private void UiPlayerRedrawTrumpCard(object sender, Card card)
+        {
+            this.Dispatcher.RunAsync(
+                CoreDispatcherPriority.Normal,
+                () =>
+                    {
+                        if (card != null)
+                        {
+                            this.TrumpCard.SetCard(card);
+                        }
+                        else
+                        {
+                            this.TrumpCard.Hide();
+                        }
+                    });
         }
 
         private void UiPlayerRedrawCards(object sender, ICollection<Card> cardsCollection)
@@ -56,7 +72,8 @@ namespace Santase.UI.WindowsUniversal
                 CoreDispatcherPriority.Normal,
                 () =>
                     {
-                        var cards = cardsCollection.ToList();
+                        var cards =
+                            cardsCollection.OrderBy(x => x.Suit.MapAsSortableByColor()).ThenByDescending(x => x.GetValue()).ToList();
                         for (var i = 0; i < this.playerCardControls.Length; i++)
                         {
                             var playerCardControl = this.playerCardControls[i];
@@ -69,7 +86,7 @@ namespace Santase.UI.WindowsUniversal
                                 playerCardControl.Hide();
                             }
                         }
-                    }).GetResults();
+                    });
         }
     }
 }
