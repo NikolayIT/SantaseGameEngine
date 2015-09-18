@@ -45,7 +45,7 @@
                 }
             }
 
-            Console.WriteLine(smartPlayerWins);
+            // Console.WriteLine(smartPlayerWins);
             return smartPlayerWins;
         }
     }

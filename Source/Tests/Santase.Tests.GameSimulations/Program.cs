@@ -9,6 +9,7 @@
         public static void Main()
         {
             SimulateGames(new SmartPlayersGameSimulator());
+            SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator());
             SimulateGames(new SmartAndDummyPlayersSimulator());
         }
 

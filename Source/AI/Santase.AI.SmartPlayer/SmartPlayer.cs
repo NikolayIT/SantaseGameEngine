@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using Santase.AI.SmartPlayer.Helpers;
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
@@ -10,6 +11,8 @@
     public class SmartPlayer : BasePlayer
     {
         private readonly ICollection<Card> playedCards = new List<Card>();
+
+        private readonly OpponentSuitCardsProvider opponentSuitCardsProvider = new OpponentSuitCardsProvider();
 
         public override string Name => "Smart Player";
 
@@ -92,6 +95,20 @@
             if (action != null)
             {
                 return action;
+            }
+
+            var myBiggestTrumpCard =
+                this.Cards.Where(x => x.Suit == context.TrumpCard.Suit)
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+            var playerTrumpCards = this.opponentSuitCardsProvider.GetOpponentCards(
+                this.Cards,
+                this.playedCards,
+                context.TrumpCard.Suit);
+            if (myBiggestTrumpCard != null && playerTrumpCards.Count == 1
+                && playerTrumpCards.First().GetValue() < myBiggestTrumpCard.GetValue())
+            {
+                return this.PlayCard(myBiggestTrumpCard);
             }
 
             // Biggest non-trump card

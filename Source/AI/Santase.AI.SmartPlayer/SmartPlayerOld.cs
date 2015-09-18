@@ -64,32 +64,40 @@
 
         private PlayerAction ChooseCardWhenPlayingFirstAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
-            // Choose card with announce 40 if possible
-            foreach (var card in possibleCardsToPlay)
+            var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
+            if (action != null)
             {
-                if (card.Type == CardType.Queen
-                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
-                    == Announce.Forty)
-                {
-                    return this.PlayCard(card);
-                }
-            }
-
-            // Choose card with announce 20 if possible
-            foreach (var card in possibleCardsToPlay)
-            {
-                if (card.Type == CardType.Queen
-                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
-                    == Announce.Twenty)
-                {
-                    return this.PlayCard(card);
-                }
+                return action;
             }
 
             // Smallest non-trump card
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
                     .OrderBy(x => x.GetValue())
+                    .FirstOrDefault();
+            if (cardToPlay != null)
+            {
+                return this.PlayCard(cardToPlay);
+            }
+
+            cardToPlay = possibleCardsToPlay.OrderByDescending(x => x.GetValue()).FirstOrDefault();
+            return this.PlayCard(cardToPlay);
+        }
+
+        private PlayerAction ChooseCardWhenPlayingFirstAndRulesApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
+        {
+            var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
+            if (action != null)
+            {
+                return action;
+            }
+
+            // Biggest non-trump card
+            var cardToPlay =
+                possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
+                    .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
             if (cardToPlay != null)
             {
@@ -138,18 +146,38 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private PlayerAction ChooseCardWhenPlayingFirstAndRulesApply(
-            PlayerTurnContext context,
-            ICollection<Card> possibleCardsToPlay)
-        {
-            return this.ChooseCardWhenPlayingFirstAndRulesDoNotApply(context, possibleCardsToPlay);
-        }
-
         private PlayerAction ChooseCardWhenPlayingSecondAndRulesApply(
             PlayerTurnContext context,
             ICollection<Card> possibleCardsToPlay)
         {
             return this.ChooseCardWhenPlayingSecondAndRulesDoNotApply(context, possibleCardsToPlay);
+        }
+
+        private PlayerAction TryToAnnounce20Or40(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        {
+            // Choose card with announce 40 if possible
+            foreach (var card in possibleCardsToPlay)
+            {
+                if (card.Type == CardType.Queen
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
+                    == Announce.Forty)
+                {
+                    return this.PlayCard(card);
+                }
+            }
+
+            // Choose card with announce 20 if possible
+            foreach (var card in possibleCardsToPlay)
+            {
+                if (card.Type == CardType.Queen
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
+                    == Announce.Twenty)
+                {
+                    return this.PlayCard(card);
+                }
+            }
+
+            return null;
         }
     }
 }
