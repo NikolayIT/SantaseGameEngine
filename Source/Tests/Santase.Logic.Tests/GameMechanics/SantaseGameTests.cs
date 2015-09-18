@@ -5,6 +5,7 @@
     using NUnit.Framework;
 
     using Santase.Logic.GameMechanics;
+    using Santase.Logic.Logger;
 
     [TestFixture]
     public class SantaseGameTests
@@ -22,7 +23,7 @@
         [Test]
         public void WinnersShouldBeEquallyDistributed()
         {
-            const int GamesToPlay = 500;
+            const int GamesToPlay = 200;
 
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
@@ -52,7 +53,7 @@
         [Test]
         public void PlayersMethodsShouldBeCalledCorrectNumberOfTimes()
         {
-            const int GamesToPlay = 500;
+            const int GamesToPlay = 200;
 
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
@@ -70,8 +71,14 @@
             Assert.AreEqual(GamesToPlay, firstPlayer.EndGameCalledCount);
             Assert.AreEqual(GamesToPlay, secondPlayer.EndGameCalledCount);
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount >= 3 * 6 * GamesToPlay);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount >= 3 * 6 * GamesToPlay);
+            Assert.GreaterOrEqual(
+                firstPlayer.StartRoundCalledCount,
+                4 * GamesToPlay,
+                "Not started at least 4 rounds per game for the first player");
+            Assert.GreaterOrEqual(
+                secondPlayer.StartRoundCalledCount,
+                4 * GamesToPlay,
+                "Not started at least 4 rounds per game for the second player");
 
             Assert.IsTrue(firstPlayer.EndRoundCalledCount > GamesToPlay * 2);
             Assert.IsTrue(firstPlayer.GetTurnWhenFirst > GamesToPlay * 10);
@@ -82,6 +89,35 @@
             Assert.IsTrue(secondPlayer.GetTurnWhenFirst > GamesToPlay * 10);
             Assert.IsTrue(secondPlayer.GetTurnWhenSecond > GamesToPlay * 10);
             Assert.IsTrue(secondPlayer.EndTurnCalledCount > GamesToPlay * 10);
+        }
+
+        [Test]
+        public void StartingGameShouldRestartTheGameToReuseGameInstance()
+        {
+            const int GamesToPlay = 20;
+
+            var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+            var secondPlayer = new ValidPlayerWithMethodsCallCounting();
+            var game = new SantaseGame(
+                firstPlayer,
+                secondPlayer,
+                PlayerPosition.FirstPlayer,
+                GameRulesProvider.Santase,
+                new NoLogger());
+
+            for (var i = 0; i < GamesToPlay; i++)
+            {
+                game.Start();
+            }
+
+            Assert.GreaterOrEqual(
+                firstPlayer.StartRoundCalledCount,
+                4 * GamesToPlay,
+                "Not started at least 4 rounds per game for the first player");
+            Assert.GreaterOrEqual(
+                secondPlayer.StartRoundCalledCount,
+                4 * GamesToPlay,
+                "Not started at least 4 rounds per game for the second player");
         }
     }
 }

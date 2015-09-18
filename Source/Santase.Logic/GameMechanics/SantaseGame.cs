@@ -16,10 +16,6 @@
 
         private PlayerPosition firstToPlay;
 
-        private int secondPlayerTotalPoints;
-
-        private int firstPlayerTotalPoints;
-
         public SantaseGame(
             IPlayer firstPlayer,
             IPlayer secondPlayer,
@@ -28,12 +24,9 @@
         {
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
         public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay, IGameRules gameRules, ILogger logger)
         {
-            this.firstPlayerTotalPoints = 0;
-            this.secondPlayerTotalPoints = 0;
-            this.RoundsPlayed = 0;
+            this.RestartGame();
             this.firstPlayer = firstPlayer;
             this.secondPlayer = secondPlayer;
             this.firstToPlay = firstToPlay;
@@ -41,14 +34,15 @@
             this.logger = logger;
         }
 
-        public int FirstPlayerTotalPoints => this.firstPlayerTotalPoints;
+        public int FirstPlayerTotalPoints { get; private set; }
 
-        public int SecondPlayerTotalPoints => this.secondPlayerTotalPoints;
+        public int SecondPlayerTotalPoints { get; private set; }
 
         public int RoundsPlayed { get; private set; }
 
         public PlayerPosition Start()
         {
+            this.RestartGame();
             this.firstPlayer.StartGame(this.secondPlayer.Name);
             this.secondPlayer.StartGame(this.firstPlayer.Name);
 
@@ -64,6 +58,13 @@
             this.secondPlayer.EndGame(gameWinner == PlayerPosition.SecondPlayer);
 
             return gameWinner;
+        }
+
+        private void RestartGame()
+        {
+            this.FirstPlayerTotalPoints = 0;
+            this.SecondPlayerTotalPoints = 0;
+            this.RoundsPlayed = 0;
         }
 
         private void PlayRound()
@@ -101,12 +102,12 @@
             {
                 if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
                 {
-                    this.firstPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.FirstPlayerTotalPoints += roundWinnerPoints.Points;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
                 }
                 else
                 {
-                    this.secondPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.SecondPlayerTotalPoints += roundWinnerPoints.Points;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
                 }
             }
@@ -115,12 +116,12 @@
                 if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
                 {
                     // It is actually our second player
-                    this.secondPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.SecondPlayerTotalPoints += roundWinnerPoints.Points;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
                 }
                 else
                 {
-                    this.firstPlayerTotalPoints += roundWinnerPoints.Points;
+                    this.FirstPlayerTotalPoints += roundWinnerPoints.Points;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
                 }
             }
