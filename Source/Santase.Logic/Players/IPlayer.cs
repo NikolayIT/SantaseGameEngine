@@ -10,7 +10,7 @@
 
         void StartGame(string otherPlayerIdentifier);
 
-        void StartRound(IEnumerable<Card> cards, Card trumpCard);
+        void StartRound(ICollection<Card> cards, Card trumpCard);
 
         void AddCard(Card card);
 

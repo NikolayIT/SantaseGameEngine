@@ -2,6 +2,9 @@
 
 namespace Santase.UI.WindowsUniversal
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
     using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
@@ -24,6 +27,8 @@ namespace Santase.UI.WindowsUniversal
             this.InitializeComponent();
 
             this.uiPlayer = new UiPlayer();
+            this.uiPlayer.RedrawCards += this.UiPlayerRedrawCards;
+
             this.smartPlayer = new SmartPlayer();
             this.game = new SantaseGame(this.uiPlayer, this.smartPlayer);
 
@@ -32,9 +37,13 @@ namespace Santase.UI.WindowsUniversal
             this.OtherPlayerCard.Hide();
             this.OldOtherPlayerCard.Hide();
 
-            //// this.game.Start();
+            Task.Run(() => this.game.Start());
 
             this.TrumpCard.SetCard(new Card(CardSuit.Club, CardType.Ace));
+        }
+
+        private void UiPlayerRedrawCards(object sender, IEnumerable<Card> e)
+        {
         }
     }
 }

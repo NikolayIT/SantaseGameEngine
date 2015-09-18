@@ -26,7 +26,7 @@
         {
         }
 
-        public virtual void StartRound(IEnumerable<Card> cards, Card trumpCard)
+        public virtual void StartRound(ICollection<Card> cards, Card trumpCard)
         {
             foreach (var card in cards)
             {

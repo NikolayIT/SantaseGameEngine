@@ -26,7 +26,7 @@
             this.player.StartGame(otherPlayerIdentifier);
         }
 
-        public void StartRound(IEnumerable<Card> cards, Card trumpCard)
+        public void StartRound(ICollection<Card> cards, Card trumpCard)
         {
             var cardsAsString = new StringBuilder();
             foreach (var card in cards)

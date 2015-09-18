@@ -34,7 +34,7 @@
             base.StartGame(otherPlayerIdentifier);
         }
 
-        public override void StartRound(IEnumerable<Card> cards, Card trumpCard)
+        public override void StartRound(ICollection<Card> cards, Card trumpCard)
         {
             this.StartRoundCalledCount++;
             base.StartRound(cards, trumpCard);

@@ -44,7 +44,7 @@
             Assert.IsTrue(logger.ToString().Length > 0);
             Assert.IsTrue(logger.ToString().Contains(card.ToString()));
             Assert.IsTrue(logger.ToString().Contains(trumpCard.ToString()));
-            playerMock.Verify(x => x.StartRound(It.IsAny<IEnumerable<Card>>(), It.IsAny<Card>()), Times.Once());
+            playerMock.Verify(x => x.StartRound(It.IsAny<ICollection<Card>>(), It.IsAny<Card>()), Times.Once());
         }
 
         [Test]
