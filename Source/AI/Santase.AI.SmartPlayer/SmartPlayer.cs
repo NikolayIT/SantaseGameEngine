@@ -1,5 +1,6 @@
 ﻿namespace Santase.AI.SmartPlayer
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -97,18 +98,19 @@
                 return action;
             }
 
-            var myBiggestTrumpCard =
-                this.Cards.Where(x => x.Suit == context.TrumpCard.Suit)
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
-            var playerTrumpCards = this.opponentSuitCardsProvider.GetOpponentCards(
-                this.Cards,
-                this.playedCards,
-                context.TrumpCard.Suit);
-            if (myBiggestTrumpCard != null && playerTrumpCards.Count == 1
-                && playerTrumpCards.First().GetValue() < myBiggestTrumpCard.GetValue())
+            var trumpCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(context.TrumpCard.Suit);
+            if (trumpCard != null)
             {
-                return this.PlayCard(myBiggestTrumpCard);
+                return this.PlayCard(trumpCard);
+            }
+
+            foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
+            {
+                var possibleCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(suit);
+                if (possibleCard != null)
+                {
+                    return this.PlayCard(possibleCard);
+                }
             }
 
             // Biggest non-trump card
@@ -123,6 +125,22 @@
 
             cardToPlay = possibleCardsToPlay.OrderByDescending(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(cardToPlay);
+        }
+
+        private Card CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(CardSuit suit)
+        {
+            var myBiggestCard =
+                this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
+            var playerCards = this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, suit);
+
+            // TODO: If my biggest is bigger that opponent biggest then play it
+            if (myBiggestCard != null && playerCards.Count == 1
+                && playerCards.First().GetValue() < myBiggestCard.GetValue())
+            {
+                return myBiggestCard;
+            }
+
+            return null;
         }
 
         private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
