@@ -165,16 +165,15 @@ namespace Santase.UI.WindowsUniversal
                 CoreDispatcherPriority.Normal,
                 () =>
                     {
-                        this.CardsLeftInDeck.Text = cardsLeft.ToString();
                         if (cardsLeft == 0)
                         {
-                            this.CardsLeftInDeck.Visibility = Visibility.Collapsed;
+                            this.CardsLeftInDeck.Text = this.TrumpCard.Card.Suit.ToFriendlyString();
                             this.TrumpCard.Visibility = Visibility.Collapsed;
                             this.DeckCards.Visibility = Visibility.Collapsed;
                         }
                         else
                         {
-                            this.CardsLeftInDeck.Visibility = Visibility.Visible;
+                            this.CardsLeftInDeck.Text = cardsLeft.ToString();
                             this.TrumpCard.Visibility = Visibility.Visible;
                             this.DeckCards.Visibility = Visibility.Visible;
                         }
