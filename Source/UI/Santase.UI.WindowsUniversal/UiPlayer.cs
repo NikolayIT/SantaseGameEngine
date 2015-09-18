@@ -22,6 +22,8 @@
 
         public event EventHandler<int> RedrawNumberOfCardsLeftInDeck;
 
+        public event EventHandler<Tuple<int, int>> RedrawCurrentAndOtherPlayerRoundPoints;
+
         public override string Name => "UI Player";
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard)
@@ -33,9 +35,7 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            this.RedrawTrumpCard?.Invoke(this, context.TrumpCard);
-            this.RedrawNumberOfCardsLeftInDeck?.Invoke(this, context.CardsLeftInDeck);
-            this.RedrawOtherPlayerPlayedCard?.Invoke(this, context.FirstPlayedCard);
+            this.UpdateContextInfo(context);
             this.currentContext = context;
             while (this.userAction == null)
             {
@@ -49,6 +49,7 @@
                     case PlayerActionType.PlayCard:
                         action = this.PlayCard(this.userAction.Card);
                         this.RedrawCards?.Invoke(this, this.Cards);
+                        this.RedrawPlayerPlayedCard?.Invoke(this, this.userAction.Card);
                         break;
                     case PlayerActionType.ChangeTrump:
                         action = this.ChangeTrump(context.TrumpCard);
@@ -66,6 +67,12 @@
             }
         }
 
+        public override void EndTurn(PlayerTurnContext context)
+        {
+            this.UpdateContextInfo(context);
+            base.EndTurn(context);
+        }
+
         public override void AddCard(Card card)
         {
             base.AddCard(card);
@@ -81,6 +88,18 @@
 
             this.userAction = playerAction;
             return true;
+        }
+
+        private void UpdateContextInfo(PlayerTurnContext context)
+        {
+            var roundPointsInfo =
+                new Tuple<int, int>(
+                    context.IsFirstPlayerTurn ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
+                    context.IsFirstPlayerTurn ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints);
+            this.RedrawCurrentAndOtherPlayerRoundPoints?.Invoke(this, roundPointsInfo);
+            this.RedrawTrumpCard?.Invoke(this, context.TrumpCard);
+            this.RedrawNumberOfCardsLeftInDeck?.Invoke(this, context.CardsLeftInDeck);
+            this.RedrawOtherPlayerPlayedCard?.Invoke(this, context.FirstPlayedCard);
         }
     }
 }

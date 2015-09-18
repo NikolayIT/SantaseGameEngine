@@ -41,7 +41,9 @@ namespace Santase.UI.WindowsUniversal
             this.uiPlayer.RedrawCards += this.UiPlayerRedrawCards;
             this.uiPlayer.RedrawTrumpCard += this.UiPlayerRedrawTrumpCard;
             this.uiPlayer.RedrawNumberOfCardsLeftInDeck += this.UiPlayerOnRedrawNumberOfCardsLeftInDeck;
+            this.uiPlayer.RedrawPlayerPlayedCard += this.UiPlayerOnRedrawPlayerPlayedCard;
             this.uiPlayer.RedrawOtherPlayerPlayedCard += this.UiPlayerOnRedrawOtherPlayerPlayedCard;
+            this.uiPlayer.RedrawCurrentAndOtherPlayerRoundPoints += this.UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints;
 
             this.smartPlayer = new SmartPlayer();
             this.game = new SantaseGame(this.uiPlayer, this.smartPlayer);
@@ -78,6 +80,26 @@ namespace Santase.UI.WindowsUniversal
                     });
         }
 
+        private void UiPlayerOnRedrawPlayerPlayedCard(object sender, Card card)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                    {
+                        //// if (card == null)
+                        //// {
+                        ////     this.PlayerCard.Transparent();
+                        //// }
+                        //// else
+                        //// {
+                        ////     this.PlayerCard.SetCard(card);
+                        //// }
+                    });
+            Task.Delay(2000);
+        }
+
         private void UiPlayerOnRedrawOtherPlayerPlayedCard(object sender, Card card)
         {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -88,13 +110,26 @@ namespace Santase.UI.WindowsUniversal
                     {
                         if (card == null)
                         {
-                            this.OtherPlayerCard.Hide();
+                            this.OtherPlayerCard.Transparent();
                         }
                         else
                         {
                             this.OtherPlayerCard.SetCard(card);
                         }
                     });
+        }
+
+        private void UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints(object sender, Tuple<int, int> pointsInfo)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    this.PlayerTotalPoints.Text = pointsInfo.Item1.ToString();
+                    this.OtherPlayerTotalPoints.Text = pointsInfo.Item2.ToString();
+                });
         }
 
         private void UiPlayerRedrawCards(object sender, ICollection<Card> cardsCollection)
