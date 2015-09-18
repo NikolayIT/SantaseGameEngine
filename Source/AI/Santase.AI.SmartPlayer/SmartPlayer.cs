@@ -86,10 +86,10 @@
                 }
             }
 
-            // Biggest non-trump card
+            // Smallest non-trump card
             var cardToPlay =
-                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
-                    .OrderByDescending(x => x.GetValue())
+                possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
+                    .OrderBy(x => x.GetValue())
                     .FirstOrDefault();
             if (cardToPlay != null)
             {
