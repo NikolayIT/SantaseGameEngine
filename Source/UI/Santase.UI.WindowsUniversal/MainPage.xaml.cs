@@ -2,7 +2,10 @@
 
 namespace Santase.UI.WindowsUniversal
 {
+    using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
+    using Santase.Logic.GameMechanics;
+    using Santase.Logic.Players;
     using Windows.UI.Xaml.Controls;
 
     /// <summary>
@@ -10,14 +13,27 @@ namespace Santase.UI.WindowsUniversal
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private UiPlayer uiPlayer;
+
+        private IPlayer smartPlayer;
+
+        private SantaseGame game;
+
         public MainPage()
         {
             this.InitializeComponent();
+
+            this.uiPlayer = new UiPlayer();
+            this.smartPlayer = new SmartPlayer();
+            this.game = new SantaseGame(this.uiPlayer, this.smartPlayer);
 
             this.PlayerCard.Hide();
             this.OldPlayerCard.Hide();
             this.OtherPlayerCard.Hide();
             this.OldOtherPlayerCard.Hide();
+
+            //// this.game.Start();
+
             this.TrumpCard.SetCard(new Card(CardSuit.Club, CardType.Ace));
         }
     }
