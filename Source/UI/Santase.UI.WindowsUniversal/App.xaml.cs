@@ -1,6 +1,8 @@
 ﻿namespace Santase.UI.WindowsUniversal
 {
     using System;
+    using System.IO;
+
     using Windows.ApplicationModel;
     using Windows.ApplicationModel.Activation;
     using Windows.UI.Xaml;
@@ -17,6 +19,7 @@
         /// </summary>
         public App()
         {
+            this.UnhandledException += this.OnUnhandledException;
             Microsoft.ApplicationInsights.WindowsAppInitializer.InitializeAsync(
                 Microsoft.ApplicationInsights.WindowsCollectors.Metadata |
                 Microsoft.ApplicationInsights.WindowsCollectors.Session);
@@ -93,6 +96,11 @@
 
             // TODO: Save application state and stop any background activity
             deferral.Complete();
+        }
+
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+        {
+            File.AppendAllText("log.txt", unhandledExceptionEventArgs.Exception.ToString());
         }
     }
 }
