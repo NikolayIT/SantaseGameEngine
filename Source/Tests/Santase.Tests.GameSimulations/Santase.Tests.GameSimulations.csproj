@@ -50,6 +50,7 @@
     <Compile Include="FileLogger.cs" />
     <Compile Include="GameSimulators\GameSimulationResult.cs" />
     <Compile Include="GameSimulators\IGameSimulator.cs" />
+    <Compile Include="GameSimulators\SmartAndDummyPlayerChangingTrumpSimulator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GameSimulators\SmartAndDummyPlayersSimulator.cs" />

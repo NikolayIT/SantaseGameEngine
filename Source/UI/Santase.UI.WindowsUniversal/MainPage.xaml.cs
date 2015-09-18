@@ -1,6 +1,4 @@
-﻿// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
-namespace Santase.UI.WindowsUniversal
+﻿namespace Santase.UI.WindowsUniversal
 {
     using System;
     using System.Collections.Generic;

@@ -6,12 +6,12 @@
     using Santase.Logic.Players;
 
     // ReSharper disable once UnusedMember.Global
-    public class SmartAndDummyPlayersSimulator : BaseGameSimulator
+    public class SmartAndDummyPlayerChangingTrumpSimulator : BaseGameSimulator
     {
         protected override ISantaseGame CreateGame()
         {
             IPlayer firstPlayer = new SmartPlayer();
-            IPlayer secondPlayer = new DummyPlayer();
+            IPlayer secondPlayer = new DummyPlayerChangingTrump();
             ISantaseGame game = new SantaseGame(firstPlayer, secondPlayer); // new ConsoleLogger("[game] "));
             return game;
         }
