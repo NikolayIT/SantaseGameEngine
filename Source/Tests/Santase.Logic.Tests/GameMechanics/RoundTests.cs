@@ -9,7 +9,7 @@
     public class RoundTestsForSantase
     {
         [Test]
-        public void PlayersShouldReceiveEqualNumberOfCardsAtLeast6AndNoMoreThan12()
+        public void PlayersStartRoundAndEndRoundShouldBeCalledAndShouldReceiveEqualNumberOfCards()
         {
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
@@ -19,11 +19,11 @@
 
             Assert.IsTrue(firstPlayer.AddCardCalledCount == secondPlayer.AddCardCalledCount);
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount >= 6);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount >= 6);
+            Assert.AreEqual(firstPlayer.StartRoundCalledCount, 1);
+            Assert.AreEqual(secondPlayer.StartRoundCalledCount, 1);
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount <= 12);
-            Assert.IsTrue(secondPlayer.AddCardCalledCount <= 12);
+            Assert.AreEqual(firstPlayer.EndRoundCalledCount, 1);
+            Assert.AreEqual(secondPlayer.EndRoundCalledCount, 1);
         }
 
         [Test]

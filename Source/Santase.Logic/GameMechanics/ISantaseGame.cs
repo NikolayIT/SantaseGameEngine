@@ -8,6 +8,6 @@
 
         int RoundsPlayed { get; }
 
-        PlayerPosition Start();
+        PlayerPosition Start(PlayerPosition firstToPlay);
     }
 }

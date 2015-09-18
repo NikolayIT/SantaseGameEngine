@@ -14,22 +14,18 @@
 
         private readonly ILogger logger;
 
-        private PlayerPosition firstToPlay;
+        private PlayerPosition firstToPlay = PlayerPosition.NoOne;
 
-        public SantaseGame(
-            IPlayer firstPlayer,
-            IPlayer secondPlayer,
-            PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
-            : this(firstPlayer, secondPlayer, firstToPlay, GameRulesProvider.Santase, new NoLogger())
+        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer)
+            : this(firstPlayer, secondPlayer, GameRulesProvider.Santase, new NoLogger())
         {
         }
 
-        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, PlayerPosition firstToPlay, IGameRules gameRules, ILogger logger)
+        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, IGameRules gameRules, ILogger logger)
         {
             this.RestartGame();
             this.firstPlayer = firstPlayer;
             this.secondPlayer = secondPlayer;
-            this.firstToPlay = firstToPlay;
             this.gameRules = gameRules;
             this.logger = logger;
         }
@@ -40,9 +36,12 @@
 
         public int RoundsPlayed { get; private set; }
 
-        public PlayerPosition Start()
+        public PlayerPosition Start(PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
         {
+            this.firstToPlay = firstToPlay;
             this.RestartGame();
+
+            // Inform players
             this.firstPlayer.StartGame(this.secondPlayer.Name);
             this.secondPlayer.StartGame(this.firstPlayer.Name);
 

@@ -27,11 +27,9 @@
                         Console.Write(".");
                     }
 
-                    var game =
-                        this.CreateGame(
-                            i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
+                    var game = this.CreateGame();
 
-                    var winner = game.Start();
+                    var winner = game.Start(i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
 
                     lock (pointsLock)
                     {
@@ -64,6 +62,6 @@
                        };
         }
 
-        protected abstract ISantaseGame CreateGame(PlayerPosition playerPosition);
+        protected abstract ISantaseGame CreateGame();
     }
 }

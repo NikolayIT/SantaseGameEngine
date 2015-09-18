@@ -34,8 +34,8 @@
             for (var i = 0; i < GamesToPlay; i++)
             {
                 var firstToPlay = i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer;
-                var game = new SantaseGame(firstPlayer, secondPlayer, firstToPlay);
-                var winner = game.Start();
+                var game = new SantaseGame(firstPlayer, secondPlayer);
+                var winner = game.Start(firstToPlay);
                 if (winner == PlayerPosition.FirstPlayer)
                 {
                     firstPlayerWinner++;
@@ -61,16 +61,19 @@
             for (var i = 0; i < GamesToPlay; i++)
             {
                 var firstToPlay = i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer;
-                var game = new SantaseGame(firstPlayer, secondPlayer, firstToPlay);
-                game.Start();
+                var game = new SantaseGame(firstPlayer, secondPlayer);
+                game.Start(firstToPlay);
             }
 
+            // StartGame()
             Assert.AreEqual(GamesToPlay, firstPlayer.StartGameCalledCount);
             Assert.AreEqual(GamesToPlay, secondPlayer.StartGameCalledCount);
 
+            // EndGame()
             Assert.AreEqual(GamesToPlay, firstPlayer.EndGameCalledCount);
             Assert.AreEqual(GamesToPlay, secondPlayer.EndGameCalledCount);
 
+            // StartRound()
             Assert.GreaterOrEqual(
                 firstPlayer.StartRoundCalledCount,
                 4 * GamesToPlay,
@@ -80,12 +83,21 @@
                 4 * GamesToPlay,
                 "Not started at least 4 rounds per game for the second player");
 
-            Assert.IsTrue(firstPlayer.EndRoundCalledCount > GamesToPlay * 2);
+            // EndRound()
+            Assert.GreaterOrEqual(
+                firstPlayer.EndRoundCalledCount,
+                GamesToPlay * 4,
+                "Not ended at least 4 rounds per game for the first player");
+            Assert.GreaterOrEqual(
+                secondPlayer.EndRoundCalledCount,
+                GamesToPlay * 4,
+                "Not ended at least 4 rounds per game for the second player");
+
+            // GetTurn() and EndTurn()
             Assert.IsTrue(firstPlayer.GetTurnWhenFirst > GamesToPlay * 10);
             Assert.IsTrue(firstPlayer.GetTurnWhenSecond > GamesToPlay * 10);
             Assert.IsTrue(firstPlayer.EndTurnCalledCount > GamesToPlay * 10);
 
-            Assert.IsTrue(secondPlayer.EndRoundCalledCount > GamesToPlay * 2);
             Assert.IsTrue(secondPlayer.GetTurnWhenFirst > GamesToPlay * 10);
             Assert.IsTrue(secondPlayer.GetTurnWhenSecond > GamesToPlay * 10);
             Assert.IsTrue(secondPlayer.EndTurnCalledCount > GamesToPlay * 10);
@@ -98,16 +110,11 @@
 
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
-            var game = new SantaseGame(
-                firstPlayer,
-                secondPlayer,
-                PlayerPosition.FirstPlayer,
-                GameRulesProvider.Santase,
-                new NoLogger());
+            var game = new SantaseGame(firstPlayer, secondPlayer, GameRulesProvider.Santase, new NoLogger());
 
             for (var i = 0; i < GamesToPlay; i++)
             {
-                game.Start();
+                game.Start(i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
             }
 
             Assert.GreaterOrEqual(

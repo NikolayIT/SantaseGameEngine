@@ -3,6 +3,7 @@
     using System;
 
     using Santase.AI.SmartPlayer;
+    using Santase.Logic;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
 
@@ -11,7 +12,7 @@
         public static void Main()
         {
             var game = CreateGameVersusBot();
-            game.Start();
+            game.Start(PlayerPosition.FirstPlayer);
         }
 
         // ReSharper disable once UnusedMember.Local
