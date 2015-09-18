@@ -6,6 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" Background="DarkGreen">
+    <Page.Resources>
+    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="10*"/>
@@ -44,10 +46,11 @@
                 <CompositeTransform Rotation="90" TranslateX="50" />
             </local:CardControl.RenderTransform>
         </local:CardControl>
-        <local:CardControl x:Name="DeckCards" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" />
+        <local:CardControl x:Name="DeckCards" Opacity="0.7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" />
         <StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
             <local:CardControl x:Name="OtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             <local:CardControl x:Name="PlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </StackPanel>
+        <TextBlock x:Name="CardsLeftInDeck" Opacity="0.9" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" Text="12" VerticalAlignment="Center" FontWeight="ExtraBold" FontSize="56"/>
     </Grid>
 </Page>

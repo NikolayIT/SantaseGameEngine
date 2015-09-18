@@ -2,6 +2,7 @@
 
 namespace Santase.UI.WindowsUniversal
 {
+    using Santase.Logic.Cards;
     using Windows.UI.Xaml.Controls;
 
     /// <summary>
@@ -12,6 +13,12 @@ namespace Santase.UI.WindowsUniversal
         public MainPage()
         {
             this.InitializeComponent();
+
+            this.PlayerCard.Hide();
+            this.OldPlayerCard.Hide();
+            this.OtherPlayerCard.Hide();
+            this.OldOtherPlayerCard.Hide();
+            this.TrumpCard.SetCard(new Card(CardSuit.Club, CardType.Ace));
         }
     }
 }
