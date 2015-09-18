@@ -2,6 +2,7 @@
 
 namespace Santase.UI.WindowsUniversal
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Santase.UI.WindowsUniversal
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
     using Windows.UI.Core;
+    using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
 
@@ -38,14 +40,16 @@ namespace Santase.UI.WindowsUniversal
             this.uiPlayer = new UiPlayer();
             this.uiPlayer.RedrawCards += this.UiPlayerRedrawCards;
             this.uiPlayer.RedrawTrumpCard += this.UiPlayerRedrawTrumpCard;
+            this.uiPlayer.RedrawNumberOfCardsLeftInDeck += this.UiPlayerOnRedrawNumberOfCardsLeftInDeck;
+            this.uiPlayer.RedrawOtherPlayerPlayedCard += this.UiPlayerOnRedrawOtherPlayerPlayedCard;
 
             this.smartPlayer = new SmartPlayer();
             this.game = new SantaseGame(this.uiPlayer, this.smartPlayer);
 
-            this.PlayerCard.Hide();
-            this.OldPlayerCard.Hide();
-            this.OtherPlayerCard.Hide();
-            this.OldOtherPlayerCard.Hide();
+            this.PlayerCard.Transparent();
+            this.OldPlayerCard.Transparent();
+            this.OtherPlayerCard.Transparent();
+            this.OldOtherPlayerCard.Transparent();
 
             Task.Run(() => this.game.Start());
         }
@@ -69,7 +73,26 @@ namespace Santase.UI.WindowsUniversal
                         }
                         else
                         {
-                            this.TrumpCard.Hide();
+                            this.TrumpCard.Transparent();
+                        }
+                    });
+        }
+
+        private void UiPlayerOnRedrawOtherPlayerPlayedCard(object sender, Card card)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                    {
+                        if (card == null)
+                        {
+                            this.OtherPlayerCard.Hide();
+                        }
+                        else
+                        {
+                            this.OtherPlayerCard.SetCard(card);
                         }
                     });
         }
@@ -97,6 +120,35 @@ namespace Santase.UI.WindowsUniversal
                             }
                         }
                     });
+        }
+
+        private void UiPlayerOnRedrawNumberOfCardsLeftInDeck(object sender, int cardsLeft)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                    {
+                        this.CardsLeftInDeck.Text = cardsLeft.ToString();
+                        if (cardsLeft == 0)
+                        {
+                            this.CardsLeftInDeck.Visibility = Visibility.Collapsed;
+                            this.TrumpCard.Visibility = Visibility.Collapsed;
+                            this.DeckCards.Visibility = Visibility.Collapsed;
+                        }
+                        else
+                        {
+                            this.CardsLeftInDeck.Visibility = Visibility.Visible;
+                            this.TrumpCard.Visibility = Visibility.Visible;
+                            this.DeckCards.Visibility = Visibility.Visible;
+                        }
+                    });
+        }
+
+        private void TrumpCardOnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            this.uiPlayer.Action(PlayerAction.ChangeTrump());
         }
     }
 }

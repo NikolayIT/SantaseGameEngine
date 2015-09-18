@@ -23,11 +23,17 @@ namespace Santase.UI.WindowsUniversal
                 this,
                 card != null ? $"Assets/Cards/{card.Type}{card.Suit}.png" : "Assets/Cards/Back.png");
             this.image.Visibility = Visibility.Visible;
+            this.image.Opacity = 1;
         }
 
         public void Hide()
         {
             this.image.Visibility = Visibility.Collapsed;
+        }
+
+        public void Transparent()
+        {
+            this.image.Opacity = 0;
         }
 
         // http://stackoverflow.com/questions/11814917/how-to-reference-image-source-files-that-are-packaged-with-my-metro-style-app

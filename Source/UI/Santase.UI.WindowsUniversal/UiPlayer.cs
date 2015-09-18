@@ -16,6 +16,12 @@
 
         public event EventHandler<Card> RedrawTrumpCard;
 
+        public event EventHandler<Card> RedrawPlayerPlayedCard;
+
+        public event EventHandler<Card> RedrawOtherPlayerPlayedCard;
+
+        public event EventHandler<int> RedrawNumberOfCardsLeftInDeck;
+
         public override string Name => "UI Player";
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard)
@@ -27,6 +33,9 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
+            this.RedrawTrumpCard?.Invoke(this, context.TrumpCard);
+            this.RedrawNumberOfCardsLeftInDeck?.Invoke(this, context.CardsLeftInDeck);
+            this.RedrawOtherPlayerPlayedCard?.Invoke(this, context.FirstPlayedCard);
             this.currentContext = context;
             while (this.userAction == null)
             {
@@ -43,6 +52,7 @@
                         break;
                     case PlayerActionType.ChangeTrump:
                         action = this.ChangeTrump(context.TrumpCard);
+                        this.RedrawCards?.Invoke(this, this.Cards);
                         break;
                     case PlayerActionType.CloseGame:
                         action = this.CloseGame();

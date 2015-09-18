@@ -41,9 +41,9 @@
             <local:CardControl x:Name="OldOtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             <local:CardControl x:Name="OldPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
         </StackPanel>
-        <local:CardControl x:Name="TrumpCard" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" UseLayoutRounding="False" d:LayoutRounding="Auto">
+        <local:CardControl x:Name="TrumpCard" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" UseLayoutRounding="False" d:LayoutRounding="Auto" Tapped="TrumpCardOnTapped">
             <local:CardControl.RenderTransform>
-                <CompositeTransform Rotation="90" TranslateX="50" />
+                <CompositeTransform Rotation="90" TranslateX="60" />
             </local:CardControl.RenderTransform>
         </local:CardControl>
         <local:CardControl x:Name="DeckCards" Opacity="0.7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" />
