@@ -4,7 +4,6 @@
 
     using Santase.Logic.GameMechanics;
 
-    // These tests can be improved. When bug is found regression should be added.
     [TestFixture]
     public class RoundTestsForSantase
     {
@@ -17,13 +16,18 @@
 
             round.Play();
 
-            Assert.IsTrue(firstPlayer.AddCardCalledCount == secondPlayer.AddCardCalledCount);
+            Assert.AreEqual(firstPlayer.AddCardCalledCount, secondPlayer.AddCardCalledCount);
 
             Assert.AreEqual(firstPlayer.StartRoundCalledCount, 1);
             Assert.AreEqual(secondPlayer.StartRoundCalledCount, 1);
 
             Assert.AreEqual(firstPlayer.EndRoundCalledCount, 1);
             Assert.AreEqual(secondPlayer.EndRoundCalledCount, 1);
+
+            Assert.GreaterOrEqual(firstPlayer.AddCardCalledCount, 2);
+            Assert.GreaterOrEqual(secondPlayer.AddCardCalledCount, 2);
+            Assert.LessOrEqual(firstPlayer.AddCardCalledCount, 6);
+            Assert.LessOrEqual(secondPlayer.AddCardCalledCount, 6);
         }
 
         [Test]
@@ -35,12 +39,22 @@
 
             var result = round.Play();
 
-            Assert.IsTrue(result.FirstPlayer.HasAtLeastOneTrick || result.SecondPlayer.HasAtLeastOneTrick);
-            Assert.IsTrue(result.FirstPlayer.RoundPoints > 0 || result.SecondPlayer.RoundPoints > 0);
-            Assert.IsTrue(result.FirstPlayer.TrickCards.Count > 0 || result.SecondPlayer.TrickCards.Count > 0);
+            Assert.IsTrue(
+                result.FirstPlayer.HasAtLeastOneTrick || result.SecondPlayer.HasAtLeastOneTrick,
+                "result.FirstPlayer.HasAtLeastOneTrick || result.SecondPlayer.HasAtLeastOneTrick");
+
+            Assert.IsTrue(
+                result.FirstPlayer.RoundPoints > 0 || result.SecondPlayer.RoundPoints > 0,
+                "result.FirstPlayer.RoundPoints > 0 || result.SecondPlayer.RoundPoints > 0");
+
+            Assert.IsTrue(
+                result.FirstPlayer.TrickCards.Count > 0 || result.SecondPlayer.TrickCards.Count > 0,
+                "result.FirstPlayer.TrickCards.Count > 0 || result.SecondPlayer.TrickCards.Count > 0");
+
             Assert.IsTrue(
                 result.FirstPlayer.RoundPoints >= 66 || result.SecondPlayer.RoundPoints >= 66
-                || result.FirstPlayer.RoundPoints + result.SecondPlayer.RoundPoints >= 120);
+                || result.FirstPlayer.RoundPoints + result.SecondPlayer.RoundPoints >= 120,
+                "result.FirstPlayer.RoundPoints >= 66 || result.SecondPlayer.RoundPoints >= 66 || result.FirstPlayer.RoundPoints + result.SecondPlayer.RoundPoints >= 120");
         }
 
         [Test]
@@ -60,19 +74,19 @@
                 round.Play();
             }
 
-            Assert.IsTrue(firstPlayer.StartRoundCalledCount == NumberOfRounds);
-            Assert.IsTrue(secondPlayer.StartRoundCalledCount == NumberOfRounds);
+            Assert.AreEqual(firstPlayer.StartRoundCalledCount, NumberOfRounds);
+            Assert.AreEqual(secondPlayer.StartRoundCalledCount, NumberOfRounds);
 
-            Assert.IsTrue(firstPlayer.EndRoundCalledCount == NumberOfRounds);
-            Assert.IsTrue(secondPlayer.EndRoundCalledCount == NumberOfRounds);
+            Assert.AreEqual(firstPlayer.EndRoundCalledCount, NumberOfRounds);
+            Assert.AreEqual(secondPlayer.EndRoundCalledCount, NumberOfRounds);
 
-            Assert.IsTrue(firstPlayer.GetTurnWhenFirst > NumberOfRounds);
-            Assert.IsTrue(firstPlayer.GetTurnWhenSecond > NumberOfRounds);
-            Assert.IsTrue(secondPlayer.GetTurnWhenFirst > NumberOfRounds);
-            Assert.IsTrue(secondPlayer.GetTurnWhenSecond > NumberOfRounds);
+            Assert.Greater(firstPlayer.GetTurnWhenFirst, NumberOfRounds);
+            Assert.Greater(firstPlayer.GetTurnWhenSecond, NumberOfRounds);
+            Assert.Greater(secondPlayer.GetTurnWhenFirst, NumberOfRounds);
+            Assert.Greater(secondPlayer.GetTurnWhenSecond, NumberOfRounds);
 
-            Assert.IsTrue(firstPlayer.GetTurnWhenFirst >= secondPlayer.GetTurnWhenSecond);
-            Assert.IsTrue(secondPlayer.GetTurnWhenFirst >= firstPlayer.GetTurnWhenSecond);
+            Assert.GreaterOrEqual(firstPlayer.GetTurnWhenFirst, secondPlayer.GetTurnWhenSecond);
+            Assert.GreaterOrEqual(secondPlayer.GetTurnWhenFirst, firstPlayer.GetTurnWhenSecond);
         }
     }
 }
