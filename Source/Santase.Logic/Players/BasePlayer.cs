@@ -66,5 +66,10 @@
             this.Cards.Remove(card);
             return PlayerAction.PlayCard(card);
         }
+
+        protected PlayerAction CloseGame()
+        {
+            return PlayerAction.CloseGame();
+        }
     }
 }

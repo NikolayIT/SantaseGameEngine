@@ -8,6 +8,10 @@
 
     public class UiPlayer : BasePlayer
     {
+        private PlayerTurnContext currentContext;
+
+        private PlayerAction userAction;
+
         public event EventHandler<ICollection<Card>> RedrawCards;
 
         public event EventHandler<Card> RedrawTrumpCard;
@@ -23,9 +27,50 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            while (true)
+            this.currentContext = context;
+            while (this.userAction == null)
             {
             }
+
+            lock (this.userAction)
+            {
+                PlayerAction action = null;
+                switch (this.userAction.Type)
+                {
+                    case PlayerActionType.PlayCard:
+                        action = this.PlayCard(this.userAction.Card);
+                        this.RedrawCards?.Invoke(this, this.Cards);
+                        break;
+                    case PlayerActionType.ChangeTrump:
+                        action = this.ChangeTrump(context.TrumpCard);
+                        break;
+                    case PlayerActionType.CloseGame:
+                        action = this.CloseGame();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(this.userAction.Type));
+                }
+
+                this.userAction = null;
+                return action;
+            }
+        }
+
+        public override void AddCard(Card card)
+        {
+            base.AddCard(card);
+            this.RedrawCards?.Invoke(this, this.Cards);
+        }
+
+        public bool Action(PlayerAction playerAction)
+        {
+            if (!this.PlayerActionValidator.IsValid(playerAction, this.currentContext, this.Cards))
+            {
+                return false;
+            }
+
+            this.userAction = playerAction;
+            return true;
         }
     }
 }

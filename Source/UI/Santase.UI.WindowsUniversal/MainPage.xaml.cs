@@ -11,6 +11,7 @@ namespace Santase.UI.WindowsUniversal
     using Santase.Logic.Players;
     using Windows.UI.Core;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Input;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -49,9 +50,16 @@ namespace Santase.UI.WindowsUniversal
             Task.Run(() => this.game.Start());
         }
 
+        private void PlayerCardTapped(object sender, TappedRoutedEventArgs eventArgs)
+        {
+            this.uiPlayer.Action(PlayerAction.PlayCard((sender as CardControl).Card));
+        }
+
         private void UiPlayerRedrawTrumpCard(object sender, Card card)
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
                     {
@@ -68,7 +76,9 @@ namespace Santase.UI.WindowsUniversal
 
         private void UiPlayerRedrawCards(object sender, ICollection<Card> cardsCollection)
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
                     {

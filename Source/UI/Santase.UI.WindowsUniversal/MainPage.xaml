@@ -30,12 +30,12 @@
             <local:CardControl x:Name="OtherPlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0"/>
         </StackPanel>
         <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="5" VerticalAlignment="Stretch" Orientation="Horizontal">
-            <local:CardControl x:Name="PlayerCard1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" />
-            <local:CardControl x:Name="PlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" />
-            <local:CardControl x:Name="PlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" />
-            <local:CardControl x:Name="PlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" />
-            <local:CardControl x:Name="PlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" />
-            <local:CardControl x:Name="PlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" />
+            <local:CardControl x:Name="PlayerCard1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
         </StackPanel>
         <StackPanel Grid.Column="4" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center">
             <local:CardControl x:Name="OldOtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
