@@ -161,6 +161,17 @@
 
         private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
+            // If bigger card is available => play it
+            var biggerCard =
+                possibleCardsToPlay.Where(
+                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+            if (biggerCard != null)
+            {
+                return this.PlayCard(biggerCard);
+            }
+
             // Heuristic
             if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
                 && possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
@@ -193,6 +204,7 @@
                 return this.PlayCard(cardToPlay);
             }
 
+            // Smallest card
             cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(cardToPlay);
         }
@@ -201,7 +213,30 @@
             PlayerTurnContext context,
             ICollection<Card> possibleCardsToPlay)
         {
-            return this.ChooseCardWhenPlayingSecondAndRulesDoNotApply(context, possibleCardsToPlay);
+            // If bigger card is available => play it
+            var biggerCard =
+                possibleCardsToPlay.Where(
+                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+            if (biggerCard != null)
+            {
+                return this.PlayCard(biggerCard);
+            }
+
+            // Play smallest trump card?
+            var smallestTrumpCard =
+                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
+                    .OrderBy(x => x.GetValue())
+                    .FirstOrDefault();
+            if (smallestTrumpCard != null)
+            {
+                return this.PlayCard(smallestTrumpCard);
+            }
+
+            // Smallest card
+            var cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            return this.PlayCard(cardToPlay);
         }
 
         private PlayerAction TryToAnnounce20Or40(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
