@@ -98,7 +98,12 @@
                 return action;
             }
 
-            var trumpCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(context.TrumpCard.Suit);
+            var opponentHasTrump = this.opponentSuitCardsProvider.GetOpponentCards(
+                this.Cards,
+                this.playedCards,
+                context.TrumpCard.Suit).Any();
+
+            var trumpCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(context.TrumpCard.Suit, opponentHasTrump);
             if (trumpCard != null)
             {
                 return this.PlayCard(trumpCard);
@@ -106,7 +111,7 @@
 
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
-                var possibleCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(suit);
+                var possibleCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(suit, opponentHasTrump);
                 if (possibleCard != null)
                 {
                     return this.PlayCard(possibleCard);
@@ -127,18 +132,26 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private Card CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(CardSuit suit)
+        private Card CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(CardSuit suit, bool opponentHasTrump)
         {
             var myBiggestCard =
                 this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
-            var biggestPlayerCard =
+            if (myBiggestCard == null)
+            {
+                return null;
+            }
+
+            var opponentBiggestCard =
                 this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, suit)
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
 
-            // TODO: If my biggest is bigger that opponent biggest then play it
-            if (myBiggestCard != null && biggestPlayerCard != null
-                && biggestPlayerCard.GetValue() < myBiggestCard.GetValue())
+            if (!opponentHasTrump && opponentBiggestCard == null)
+            {
+                return myBiggestCard;
+            }
+
+            if (opponentBiggestCard != null && opponentBiggestCard.GetValue() < myBiggestCard.GetValue())
             {
                 return myBiggestCard;
             }
