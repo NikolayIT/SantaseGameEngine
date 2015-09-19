@@ -131,11 +131,14 @@
         {
             var myBiggestCard =
                 this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
-            var playerCards = this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, suit);
+            var biggestPlayerCard =
+                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, suit)
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
 
             // TODO: If my biggest is bigger that opponent biggest then play it
-            if (myBiggestCard != null && playerCards.Count == 1
-                && playerCards.First().GetValue() < myBiggestCard.GetValue())
+            if (myBiggestCard != null && biggestPlayerCard != null
+                && biggestPlayerCard.GetValue() < myBiggestCard.GetValue())
             {
                 return myBiggestCard;
             }
