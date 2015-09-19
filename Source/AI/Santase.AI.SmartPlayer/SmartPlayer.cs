@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Xml.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.Logic;
@@ -75,6 +74,27 @@
                 return action;
             }
 
+            var opponentBiggestTrumpCard =
+                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, context.TrumpCard.Suit)
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+            var myBiggestTrumpCard =
+                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+
+            if (myBiggestTrumpCard != null)
+            {
+                if (context.FirstPlayerRoundPoints >= 66 - myBiggestTrumpCard.GetValue())
+                {
+                    if (opponentBiggestTrumpCard == null
+                        || myBiggestTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
+                    {
+                        return this.PlayCard(myBiggestTrumpCard);
+                    }
+                }
+            }
+
             // Smallest non-trump card
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
@@ -104,7 +124,7 @@
                 this.playedCards,
                 context.TrumpCard.Suit).Any();
 
-            var trumpCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(context.TrumpCard.Suit, opponentHasTrump);
+            var trumpCard = this.GetCardWhichWillSurelyTakeTheTrick(context.TrumpCard.Suit, opponentHasTrump);
             if (trumpCard != null)
             {
                 return this.PlayCard(trumpCard);
@@ -112,7 +132,7 @@
 
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
-                var possibleCard = this.CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(suit, opponentHasTrump);
+                var possibleCard = this.GetCardWhichWillSurelyTakeTheTrick(suit, opponentHasTrump);
                 if (possibleCard != null)
                 {
                     return this.PlayCard(possibleCard);
@@ -133,7 +153,7 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private Card CanPlayAceWhenOnlyTenIsAvailableInOpponentCards(CardSuit suit, bool opponentHasTrump)
+        private Card GetCardWhichWillSurelyTakeTheTrick(CardSuit suit, bool opponentHasTrump)
         {
             var myBiggestCard =
                 this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
