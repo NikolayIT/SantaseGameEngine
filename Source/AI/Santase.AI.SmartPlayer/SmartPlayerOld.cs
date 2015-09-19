@@ -172,41 +172,36 @@
                 return this.PlayCard(biggerCard);
             }
 
-            // Heuristic
-            if ((context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
-                && possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
+            // When opponent plays Ace or Ten => play trump card
+            if (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
             {
-                return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
-            }
-
-            // Opponent played non-trump card => Play Ace or Ten if possible
-            if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit)
-            {
-                if (possibleCardsToPlay.Contains(new Card(context.FirstPlayedCard.Suit, CardType.Ace)))
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
                 {
-                    return this.PlayCard(new Card(context.FirstPlayedCard.Suit, CardType.Ace));
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
                 }
 
-                if (context.FirstPlayedCard.Type != CardType.Ace &&
-                    possibleCardsToPlay.Contains(new Card(context.FirstPlayedCard.Suit, CardType.Ten)))
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Nine))
+                    && context.TrumpCard.Type == CardType.Jack)
                 {
-                    return this.PlayCard(new Card(context.FirstPlayedCard.Suit, CardType.Ten));
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Nine));
                 }
-            }
 
-            // Smallest trump card
-            var cardToPlay =
-                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
-                    .OrderBy(x => x.GetValue())
-                    .FirstOrDefault();
-            if (cardToPlay != null)
-            {
-                return this.PlayCard(cardToPlay);
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Queen))
+                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.King)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Queen));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.King))
+                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.Queen)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.King));
+                }
             }
 
             // Smallest card
-            cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
-            return this.PlayCard(cardToPlay);
+            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            return this.PlayCard(smallestCard);
         }
 
         private PlayerAction ChooseCardWhenPlayingSecondAndRulesApply(

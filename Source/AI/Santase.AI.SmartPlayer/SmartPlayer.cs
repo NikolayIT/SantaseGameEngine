@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Xml.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.Logic;
@@ -169,7 +170,15 @@
                     .FirstOrDefault();
             if (biggerCard != null)
             {
-                return this.PlayCard(biggerCard);
+                // Don't have Queen and King
+                if (biggerCard.Type != CardType.Queen || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.King)))
+                {
+                    if (biggerCard.Type != CardType.King
+                        || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.Queen)))
+                    {
+                        return this.PlayCard(biggerCard);
+                    }
+                }
             }
 
             // When opponent plays Ace or Ten => play trump card
