@@ -113,18 +113,13 @@
             PlayerTurnContext context,
             ICollection<Card> possibleCardsToPlay)
         {
-            var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
-            if (action != null)
-            {
-                return action;
-            }
-
+            // Find card that will surely win the trick
             var opponentHasTrump = this.opponentSuitCardsProvider.GetOpponentCards(
                 this.Cards,
                 this.playedCards,
                 context.TrumpCard.Suit).Any();
 
-            var trumpCard = this.GetCardWhichWillSurelyTakeTheTrick(context.TrumpCard.Suit, opponentHasTrump);
+            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, opponentHasTrump);
             if (trumpCard != null)
             {
                 return this.PlayCard(trumpCard);
@@ -132,11 +127,18 @@
 
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
-                var possibleCard = this.GetCardWhichWillSurelyTakeTheTrick(suit, opponentHasTrump);
+                var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(suit, opponentHasTrump);
                 if (possibleCard != null)
                 {
                     return this.PlayCard(possibleCard);
                 }
+            }
+
+            // Announce 20 or 40 if possible
+            var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
+            if (action != null)
+            {
+                return action;
             }
 
             // Smallest non-trump card
@@ -154,7 +156,7 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private Card GetCardWhichWillSurelyTakeTheTrick(CardSuit suit, bool opponentHasTrump)
+        private Card GetCardWhichWillSurelyWinTheTrick(CardSuit suit, bool opponentHasTrump)
         {
             var myBiggestCard =
                 this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();

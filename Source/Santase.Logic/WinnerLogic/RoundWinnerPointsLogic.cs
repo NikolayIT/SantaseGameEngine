@@ -2,6 +2,8 @@
 {
     public class RoundWinnerPointsPointsLogic : IRoundWinnerPointsLogic
     {
+        // TODO: Should last trick winner wins 10 additional points?
+        // TODO: What if the total score is 65:65 after giving 10 additional points? Should the player with the last trick win the round?
         public RoundWinnerPoints GetWinnerPoints(
             int firstPlayerPoints,
             int secondPlayerPoints,

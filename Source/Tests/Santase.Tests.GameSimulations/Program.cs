@@ -2,6 +2,7 @@
 {
     using System;
 
+    using Santase.AI.SmartPlayer;
     using Santase.Tests.GameSimulations.GameSimulators;
 
     public static class Program
@@ -9,7 +10,10 @@
         public static void Main()
         {
             SimulateGames(new SmartPlayersGameSimulator());
+            Console.WriteLine("Closed games: {0}", GlobalStats.GamesClosedByPlayer);
+
             SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator());
+
             SimulateGames(new SmartAndDummyPlayersSimulator());
         }
 

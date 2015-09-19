@@ -9,6 +9,7 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
+    // Overall strategy can be based on the game score. When opponent is close to the winning the player should be riskier.
     public class SmartPlayer : BasePlayer
     {
         private readonly ICollection<Card> playedCards = new List<Card>();
@@ -19,7 +20,11 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            // When possible change the trump card as this is always a good move
+            // When possible change the trump card as this is almost always a good move
+            // Changing trump can be non-optimal when:
+            // 1. Current player is planning to close the game and don't want to give additional points to his opponent
+            // 2. The player will close the game and you will give him additional points by giving him bigger trump card instead of 9
+            // 3. Want to confuse the opponent
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
                 return this.ChangeTrump(context.TrumpCard);
@@ -48,9 +53,14 @@
         // TODO: Close the game?
         private bool CloseGame(PlayerTurnContext context)
         {
-            // 5 trump cards => close the game
-            return this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
-                   && this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
+            var shouldCloseGame = this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
+                                  && this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
+            if (shouldCloseGame)
+            {
+                GlobalStats.GamesClosedByPlayer++;
+            }
+
+            return shouldCloseGame;
         }
 
         // TODO: Choose appropriate card
