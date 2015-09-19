@@ -1,7 +1,5 @@
 ﻿namespace Santase.AI.SmartPlayer.Tests
 {
-    using System;
-
     using NUnit.Framework;
 
     using Santase.AI.DummyPlayer;

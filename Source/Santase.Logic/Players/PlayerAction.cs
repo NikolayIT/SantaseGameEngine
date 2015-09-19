@@ -15,7 +15,7 @@
 
         public Card Card { get; }
 
-        public Announce Announce { get; internal set; }
+        internal Announce Announce { get; set; }
 
         public static PlayerAction PlayCard(Card card)
         {

@@ -43,7 +43,7 @@
 
             lock (this.userAction)
             {
-                PlayerAction action = null;
+                PlayerAction action;
                 switch (this.userAction.Type)
                 {
                     case PlayerActionType.PlayCard:
@@ -79,15 +79,15 @@
             this.RedrawCards?.Invoke(this, this.Cards);
         }
 
-        public bool Action(PlayerAction playerAction)
+        public void Action(PlayerAction playerAction)
         {
             if (!this.PlayerActionValidator.IsValid(playerAction, this.currentContext, this.Cards))
             {
-                return false;
+                // Invalid player action
+                return;
             }
 
             this.userAction = playerAction;
-            return true;
         }
 
         private void UpdateContextInfo(PlayerTurnContext context)

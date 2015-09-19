@@ -20,6 +20,7 @@
             this.Dispose(true);
         }
 
+        // ReSharper disable once UnusedParameter.Global
         protected virtual void Dispose(bool disposing)
         {
         }

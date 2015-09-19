@@ -10,17 +10,14 @@
     using Santase.Logic.Players;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
-    using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage
     {
         private readonly UiPlayer uiPlayer;
-
-        private readonly IPlayer smartPlayer;
 
         private readonly SantaseGame game;
 
@@ -43,8 +40,8 @@
             this.uiPlayer.RedrawOtherPlayerPlayedCard += this.UiPlayerOnRedrawOtherPlayerPlayedCard;
             this.uiPlayer.RedrawCurrentAndOtherPlayerRoundPoints += this.UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints;
 
-            this.smartPlayer = new SmartPlayer();
-            this.game = new SantaseGame(this.uiPlayer, this.smartPlayer);
+            IPlayer smartPlayer = new SmartPlayer();
+            this.game = new SantaseGame(this.uiPlayer, smartPlayer);
 
             this.PlayerCard.Transparent();
             this.OldPlayerCard.Transparent();

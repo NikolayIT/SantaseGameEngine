@@ -12,7 +12,7 @@
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    public sealed partial class App : Application
+    public sealed partial class App
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
