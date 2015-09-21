@@ -11,7 +11,6 @@
     using Santase.Logic.Players;
 
     using Windows.UI.Core;
-    using Windows.UI.Popups;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Input;
 
@@ -61,6 +60,7 @@
 
         private void UiPlayerOnGameEnded(object sender, bool amIWinner)
         {
+            // TODO: Inform player for the game result
             Task.Run(() => this.game.Start());
         }
 
