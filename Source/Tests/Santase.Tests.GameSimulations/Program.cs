@@ -9,6 +9,9 @@
     {
         public static void Main()
         {
+            // For easier debugging start a single game:
+            //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
+
             SimulateGames(new SmartPlayersGameSimulator());
             Console.WriteLine("Closed games: {0}", GlobalStats.GamesClosedByPlayer);
 

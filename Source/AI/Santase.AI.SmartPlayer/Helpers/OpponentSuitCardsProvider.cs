@@ -7,7 +7,7 @@
 
     public class OpponentSuitCardsProvider
     {
-        public ICollection<Card> GetOpponentCards(ICollection<Card> myCards, ICollection<Card> playedCards, CardSuit suit)
+        public ICollection<Card> GetOpponentCards(ICollection<Card> myCards, ICollection<Card> playedCards, Card activeTrumpCard, CardSuit suit)
         {
             var playerCards = new CardCollection
                                   {
@@ -27,6 +27,11 @@
             foreach (var card in playedCards.Where(x => x.Suit == suit))
             {
                 playerCards.Remove(card);
+            }
+
+            if (activeTrumpCard != null)
+            {
+                playerCards.Remove(activeTrumpCard);
             }
 
             return playerCards;

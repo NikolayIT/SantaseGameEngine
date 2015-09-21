@@ -97,6 +97,7 @@
                 return;
             }
 
+            // TODO: Test this complex logic somehow or refactor? Pass first to play to round?
             if (this.firstToPlay == PlayerPosition.FirstPlayer)
             {
                 if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)

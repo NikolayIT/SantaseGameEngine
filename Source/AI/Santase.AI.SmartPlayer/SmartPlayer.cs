@@ -85,7 +85,7 @@
             }
 
             var opponentBiggestTrumpCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, context.TrumpCard.Suit)
+                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, context.TrumpCard, context.TrumpCard.Suit)
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
             var myBiggestTrumpCard =
@@ -127,9 +127,10 @@
             var opponentHasTrump = this.opponentSuitCardsProvider.GetOpponentCards(
                 this.Cards,
                 this.playedCards,
+                context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
                 context.TrumpCard.Suit).Any();
 
-            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, opponentHasTrump);
+            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, context.CardsLeftInDeck == 0 ? null : context.TrumpCard, opponentHasTrump);
             if (trumpCard != null)
             {
                 return this.PlayCard(trumpCard);
@@ -137,7 +138,7 @@
 
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
-                var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(suit, opponentHasTrump);
+                var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(suit, context.CardsLeftInDeck == 0 ? null : context.TrumpCard, opponentHasTrump);
                 if (possibleCard != null)
                 {
                     return this.PlayCard(possibleCard);
@@ -166,7 +167,7 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private Card GetCardWhichWillSurelyWinTheTrick(CardSuit suit, bool opponentHasTrump)
+        private Card GetCardWhichWillSurelyWinTheTrick(CardSuit suit, Card trumpCard, bool opponentHasTrump)
         {
             var myBiggestCard =
                 this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
@@ -176,7 +177,7 @@
             }
 
             var opponentBiggestCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, suit)
+                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, suit)
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
 
