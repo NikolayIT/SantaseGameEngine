@@ -39,6 +39,7 @@
             this.uiPlayer.RedrawPlayerPlayedCard += this.UiPlayerOnRedrawPlayerPlayedCard;
             this.uiPlayer.RedrawOtherPlayerPlayedCard += this.UiPlayerOnRedrawOtherPlayerPlayedCard;
             this.uiPlayer.RedrawCurrentAndOtherPlayerRoundPoints += this.UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints;
+            this.uiPlayer.RedrawCurrentAndOtherPlayerTotalPoints += this.UiPlayerOnRedrawCurrentAndOtherPlayerTotalPoints;
             this.uiPlayer.RedrawPlayedCards += this.UiPlayerOnRedrawPlayedCards;
 
             IPlayer smartPlayer = new SmartPlayer();
@@ -129,6 +130,19 @@
         }
 
         private void UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints(object sender, Tuple<int, int> pointsInfo)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    this.PlayerRoundPoints.Text = pointsInfo.Item1.ToString();
+                    this.OtherPlayerRoundPoints.Text = pointsInfo.Item2.ToString();
+                });
+        }
+
+        private void UiPlayerOnRedrawCurrentAndOtherPlayerTotalPoints(object sender, Tuple<int, int> pointsInfo)
         {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             this.Dispatcher.RunAsync(

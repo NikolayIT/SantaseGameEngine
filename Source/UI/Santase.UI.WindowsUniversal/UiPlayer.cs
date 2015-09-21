@@ -26,12 +26,15 @@
 
         public event EventHandler<Tuple<int, int>> RedrawCurrentAndOtherPlayerRoundPoints;
 
+        public event EventHandler<Tuple<int, int>> RedrawCurrentAndOtherPlayerTotalPoints;
+
         public event EventHandler<Tuple<Card, Card>> RedrawPlayedCards;
 
         public override string Name => "UI Player";
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
+            this.RedrawCurrentAndOtherPlayerTotalPoints?.Invoke(this, new Tuple<int, int>(myTotalPoints, opponentTotalPoints));
             this.RedrawCards?.Invoke(this, cards);
             this.RedrawTrumpCard?.Invoke(this, trumpCard);
             base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);

@@ -52,7 +52,9 @@
             <local:CardControl x:Name="PlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </StackPanel>
         <TextBlock x:Name="CardsLeftInDeck" Opacity="0.9" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" Text="12" VerticalAlignment="Center" FontWeight="ExtraBold" FontSize="52"/>
-        <TextBlock x:Name="OtherPlayerTotalPoints" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
-        <TextBlock x:Name="PlayerTotalPoints" Grid.Column="4" Grid.Row="3" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
+        <TextBlock x:Name="OtherPlayerRoundPoints" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="WhiteSmoke"/>
+        <TextBlock x:Name="PlayerRoundPoints" Grid.Column="4" Grid.Row="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="WhiteSmoke"/>
+        <TextBlock x:Name="OtherPlayerTotalPoints" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
+        <TextBlock x:Name="PlayerTotalPoints" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
     </Grid>
 </Page>
