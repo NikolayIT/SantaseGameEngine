@@ -32,7 +32,7 @@
 
             if (this.CloseGame(context))
             {
-                return PlayerAction.CloseGame();
+                return this.CloseGame();
             }
 
             return this.ChooseCard(context);
@@ -76,7 +76,9 @@
                               : this.ChooseCardWhenPlayingSecondAndRulesDoNotApply(context, possibleCardsToPlay));
         }
 
-        private PlayerAction ChooseCardWhenPlayingFirstAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirstAndRulesDoNotApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
         {
             var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
             if (action != null)
@@ -85,9 +87,11 @@
             }
 
             var opponentBiggestTrumpCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, context.TrumpCard, context.TrumpCard.Suit)
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
+                this.opponentSuitCardsProvider.GetOpponentCards(
+                    this.Cards,
+                    this.playedCards,
+                    context.TrumpCard,
+                    context.TrumpCard.Suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
             var myBiggestTrumpCard =
                 possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
                     .OrderByDescending(x => x.GetValue())
@@ -124,13 +128,17 @@
             ICollection<Card> possibleCardsToPlay)
         {
             // Find card that will surely win the trick
-            var opponentHasTrump = this.opponentSuitCardsProvider.GetOpponentCards(
-                this.Cards,
-                this.playedCards,
-                context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
-                context.TrumpCard.Suit).Any();
+            var opponentHasTrump =
+                this.opponentSuitCardsProvider.GetOpponentCards(
+                    this.Cards,
+                    this.playedCards,
+                    context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
+                    context.TrumpCard.Suit).Any();
 
-            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, context.CardsLeftInDeck == 0 ? null : context.TrumpCard, opponentHasTrump);
+            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(
+                context.TrumpCard.Suit,
+                context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
+                opponentHasTrump);
             if (trumpCard != null)
             {
                 return this.PlayCard(trumpCard);
@@ -138,7 +146,10 @@
 
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
-                var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(suit, context.CardsLeftInDeck == 0 ? null : context.TrumpCard, opponentHasTrump);
+                var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(
+                    suit,
+                    context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
+                    opponentHasTrump);
                 if (possibleCard != null)
                 {
                     return this.PlayCard(possibleCard);
@@ -194,7 +205,9 @@
             return null;
         }
 
-        private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
         {
             // If bigger card is available => play it
             var biggerCard =
@@ -283,8 +296,7 @@
             foreach (var card in possibleCardsToPlay)
             {
                 if (card.Type == CardType.Queen
-                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
-                    == Announce.Forty)
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Forty)
                 {
                     return this.PlayCard(card);
                 }

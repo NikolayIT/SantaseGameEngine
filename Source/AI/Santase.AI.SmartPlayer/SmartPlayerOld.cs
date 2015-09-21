@@ -9,6 +9,7 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
+    // Overall strategy can be based on the game score. When opponent is close to the winning the player should be riskier.
     public class SmartPlayerOld : BasePlayer
     {
         private readonly ICollection<Card> playedCards = new List<Card>();
@@ -19,7 +20,11 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            // When possible change the trump card as this is always a good move
+            // When possible change the trump card as this is almost always a good move
+            // Changing trump can be non-optimal when:
+            // 1. Current player is planning to close the game and don't want to give additional points to his opponent
+            // 2. The player will close the game and you will give him additional points by giving him bigger trump card instead of 9
+            // 3. Want to confuse the opponent
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
                 return this.ChangeTrump(context.TrumpCard);
@@ -27,7 +32,7 @@
 
             if (this.CloseGame(context))
             {
-                return PlayerAction.CloseGame();
+                return this.CloseGame();
             }
 
             return this.ChooseCard(context);
@@ -48,9 +53,14 @@
         // TODO: Close the game?
         private bool CloseGame(PlayerTurnContext context)
         {
-            // 5 trump cards => close the game
-            return this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
-                   && this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
+            var shouldCloseGame = this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
+                                  && this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
+            if (shouldCloseGame)
+            {
+                GlobalStats.GamesClosedByPlayer++;
+            }
+
+            return shouldCloseGame;
         }
 
         // TODO: Choose appropriate card
@@ -66,7 +76,9 @@
                               : this.ChooseCardWhenPlayingSecondAndRulesDoNotApply(context, possibleCardsToPlay));
         }
 
-        private PlayerAction ChooseCardWhenPlayingFirstAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingFirstAndRulesDoNotApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
         {
             var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
             if (action != null)
@@ -75,9 +87,11 @@
             }
 
             var opponentBiggestTrumpCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, null, context.TrumpCard.Suit)
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
+                this.opponentSuitCardsProvider.GetOpponentCards(
+                    this.Cards,
+                    this.playedCards,
+                    context.TrumpCard,
+                    context.TrumpCard.Suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
             var myBiggestTrumpCard =
                 possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
                     .OrderByDescending(x => x.GetValue())
@@ -114,13 +128,17 @@
             ICollection<Card> possibleCardsToPlay)
         {
             // Find card that will surely win the trick
-            var opponentHasTrump = this.opponentSuitCardsProvider.GetOpponentCards(
-                this.Cards,
-                this.playedCards,
-                null,
-                context.TrumpCard.Suit).Any();
+            var opponentHasTrump =
+                this.opponentSuitCardsProvider.GetOpponentCards(
+                    this.Cards,
+                    this.playedCards,
+                    context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
+                    context.TrumpCard.Suit).Any();
 
-            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, null, opponentHasTrump);
+            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(
+                context.TrumpCard.Suit,
+                context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
+                opponentHasTrump);
             if (trumpCard != null)
             {
                 return this.PlayCard(trumpCard);
@@ -128,7 +146,10 @@
 
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
-                var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(suit, null, opponentHasTrump);
+                var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(
+                    suit,
+                    context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
+                    opponentHasTrump);
                 if (possibleCard != null)
                 {
                     return this.PlayCard(possibleCard);
@@ -167,7 +188,7 @@
             }
 
             var opponentBiggestCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, null, suit)
+                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, suit)
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
 
@@ -184,7 +205,9 @@
             return null;
         }
 
-        private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
         {
             // If bigger card is available => play it
             var biggerCard =
@@ -273,8 +296,7 @@
             foreach (var card in possibleCardsToPlay)
             {
                 if (card.Type == CardType.Queen
-                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
-                    == Announce.Forty)
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Forty)
                 {
                     return this.PlayCard(card);
                 }

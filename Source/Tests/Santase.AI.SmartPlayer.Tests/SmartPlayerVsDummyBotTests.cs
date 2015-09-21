@@ -1,5 +1,7 @@
 ﻿namespace Santase.AI.SmartPlayer.Tests
 {
+    using System;
+
     using NUnit.Framework;
 
     using Santase.AI.DummyPlayer;
@@ -10,19 +12,19 @@
     public class SmartPlayerVsDummyBotTests
     {
         [Test]
-        public void SmartPlayerShouldWinAtLeast51Of100Games()
+        public void SmartPlayerShouldWinAtLeastHalfOfTheGamesVsDummy()
         {
             var smartPlayerWins = this.SimulateGamesAndGetSmartPlayerWins(100);
             Assert.Greater(smartPlayerWins, 50);
         }
 
-        [Ignore]
         [Test]
-        public void SmartPlayerShouldWinAllGamesVsDummy()
+        public void SmartPlayerShouldWinIn99PercentOfTheGamesVsDummy()
         {
-            const int GamesToPlay = 20000;
+            const int GamesToPlay = 4000;
             var smartPlayerWins = this.SimulateGamesAndGetSmartPlayerWins(GamesToPlay);
-            Assert.AreEqual(GamesToPlay, smartPlayerWins);
+            Console.WriteLine(smartPlayerWins);
+            Assert.GreaterOrEqual(smartPlayerWins, 0.99 * GamesToPlay);
         }
 
         private int SimulateGamesAndGetSmartPlayerWins(int gamesToSimulate)

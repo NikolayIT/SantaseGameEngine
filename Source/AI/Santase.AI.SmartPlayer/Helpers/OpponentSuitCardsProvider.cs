@@ -5,6 +5,7 @@
 
     using Santase.Logic.Cards;
 
+    // TODO: Unit test this class
     public class OpponentSuitCardsProvider
     {
         public ICollection<Card> GetOpponentCards(ICollection<Card> myCards, ICollection<Card> playedCards, Card activeTrumpCard, CardSuit suit)
