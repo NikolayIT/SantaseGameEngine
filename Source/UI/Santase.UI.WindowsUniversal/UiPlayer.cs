@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
@@ -30,6 +31,8 @@
 
         public event EventHandler<Tuple<Card, Card>> RedrawPlayedCards;
 
+        public event EventHandler<bool> GameEnded;
+
         public override string Name => "UI Player";
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
@@ -47,6 +50,7 @@
             this.currentContext = context;
             while (this.userAction == null)
             {
+                Task.Delay(50);
             }
 
             lock (this.userAction)
@@ -75,6 +79,12 @@
             }
         }
 
+        public override void AddCard(Card card)
+        {
+            base.AddCard(card);
+            this.RedrawCards?.Invoke(this, this.Cards);
+        }
+
         public override void EndTurn(PlayerTurnContext context)
         {
             this.UpdateContextInfo(context);
@@ -85,10 +95,10 @@
             base.EndTurn(context);
         }
 
-        public override void AddCard(Card card)
+        public override void EndGame(bool amIWinner)
         {
-            base.AddCard(card);
-            this.RedrawCards?.Invoke(this, this.Cards);
+            base.EndGame(amIWinner);
+            this.GameEnded?.Invoke(this, amIWinner);
         }
 
         public void Action(PlayerAction playerAction)

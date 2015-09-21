@@ -4,11 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+
     using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
+
     using Windows.UI.Core;
+    using Windows.UI.Popups;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Input;
 
@@ -38,9 +41,12 @@
             this.uiPlayer.RedrawNumberOfCardsLeftInDeck += this.UiPlayerOnRedrawNumberOfCardsLeftInDeck;
             this.uiPlayer.RedrawPlayerPlayedCard += this.UiPlayerOnRedrawPlayerPlayedCard;
             this.uiPlayer.RedrawOtherPlayerPlayedCard += this.UiPlayerOnRedrawOtherPlayerPlayedCard;
-            this.uiPlayer.RedrawCurrentAndOtherPlayerRoundPoints += this.UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints;
-            this.uiPlayer.RedrawCurrentAndOtherPlayerTotalPoints += this.UiPlayerOnRedrawCurrentAndOtherPlayerTotalPoints;
+            this.uiPlayer.RedrawCurrentAndOtherPlayerRoundPoints +=
+                this.UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints;
+            this.uiPlayer.RedrawCurrentAndOtherPlayerTotalPoints +=
+                this.UiPlayerOnRedrawCurrentAndOtherPlayerTotalPoints;
             this.uiPlayer.RedrawPlayedCards += this.UiPlayerOnRedrawPlayedCards;
+            this.uiPlayer.GameEnded += this.UiPlayerOnGameEnded;
 
             IPlayer smartPlayer = new SmartPlayer();
             this.game = new SantaseGame(this.uiPlayer, smartPlayer);
@@ -50,6 +56,11 @@
             this.OtherPlayerCard.Transparent();
             this.OldOtherPlayerCard.Transparent();
 
+            Task.Run(() => this.game.Start());
+        }
+
+        private void UiPlayerOnGameEnded(object sender, bool amIWinner)
+        {
             Task.Run(() => this.game.Start());
         }
 
@@ -65,10 +76,10 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
-                {
-                    this.OldPlayerCard.SetCard(playedCards.Item1);
-                    this.OldOtherPlayerCard.SetCard(playedCards.Item2);
-                });
+                    {
+                        this.OldPlayerCard.SetCard(playedCards.Item1);
+                        this.OldOtherPlayerCard.SetCard(playedCards.Item2);
+                    });
         }
 
         private void UiPlayerRedrawTrumpCard(object sender, Card card)
@@ -136,10 +147,10 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
-                {
-                    this.PlayerRoundPoints.Text = pointsInfo.Item1.ToString();
-                    this.OtherPlayerRoundPoints.Text = pointsInfo.Item2.ToString();
-                });
+                    {
+                        this.PlayerRoundPoints.Text = pointsInfo.Item1.ToString();
+                        this.OtherPlayerRoundPoints.Text = pointsInfo.Item2.ToString();
+                    });
         }
 
         private void UiPlayerOnRedrawCurrentAndOtherPlayerTotalPoints(object sender, Tuple<int, int> pointsInfo)
@@ -149,10 +160,10 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
-                {
-                    this.PlayerTotalPoints.Text = pointsInfo.Item1.ToString();
-                    this.OtherPlayerTotalPoints.Text = pointsInfo.Item2.ToString();
-                });
+                    {
+                        this.PlayerTotalPoints.Text = pointsInfo.Item1.ToString();
+                        this.OtherPlayerTotalPoints.Text = pointsInfo.Item2.ToString();
+                    });
         }
 
         private void UiPlayerRedrawCards(object sender, ICollection<Card> cardsCollection)
@@ -164,7 +175,9 @@
                 () =>
                     {
                         var cards =
-                            cardsCollection.OrderBy(x => x.Suit.MapAsSortableByColor()).ThenByDescending(x => x.GetValue()).ToList();
+                            cardsCollection.OrderBy(x => x.Suit.MapAsSortableByColor())
+                                .ThenByDescending(x => x.GetValue())
+                                .ToList();
                         for (var i = 0; i < this.playerCardControls.Length; i++)
                         {
                             var playerCardControl = this.playerCardControls[i];
