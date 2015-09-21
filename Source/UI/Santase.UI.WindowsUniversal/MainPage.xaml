@@ -5,12 +5,14 @@
     xmlns:local="using:Santase.UI.WindowsUniversal"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:UI="using:Microsoft.Advertising.WinRT.UI"
     mc:Ignorable="d" Background="DarkGreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="10*"/>
             <RowDefinition Height="25*"/>
             <RowDefinition Height="10*"/>
+            <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="12*"/>
@@ -54,5 +56,6 @@
         <TextBlock x:Name="PlayerRoundPoints" Grid.Column="4" Grid.Row="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="WhiteSmoke"/>
         <TextBlock x:Name="OtherPlayerTotalPoints" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
         <TextBlock x:Name="PlayerTotalPoints" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
+        <UI:AdControl ApplicationId="d25517cb-12d4-4699-8bdc-52040c712cab" AdUnitId="10043104" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" Grid.Row="3" VerticalAlignment="Stretch"/>
     </Grid>
 </Page>
