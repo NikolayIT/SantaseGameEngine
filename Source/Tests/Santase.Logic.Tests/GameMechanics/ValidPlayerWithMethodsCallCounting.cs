@@ -34,10 +34,10 @@
             base.StartGame(otherPlayerIdentifier);
         }
 
-        public override void StartRound(ICollection<Card> cards, Card trumpCard)
+        public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
             this.StartRoundCalledCount++;
-            base.StartRound(cards, trumpCard);
+            base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
         }
 
         public override void AddCard(Card card)

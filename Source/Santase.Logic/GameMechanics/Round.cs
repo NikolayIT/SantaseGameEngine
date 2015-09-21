@@ -20,7 +20,11 @@
 
         private PlayerPosition firstToPlay;
 
-        public Round(IPlayer firstPlayer, IPlayer secondPlayer, IGameRules gameRules)
+        public Round(
+            IPlayer firstPlayer,
+            IPlayer secondPlayer,
+            IGameRules gameRules,
+            PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
         {
             this.gameRules = gameRules;
             this.deck = new Deck();
@@ -29,7 +33,7 @@
             this.firstPlayer = new RoundPlayerInfo(firstPlayer);
             this.secondPlayer = new RoundPlayerInfo(secondPlayer);
 
-            this.firstToPlay = PlayerPosition.FirstPlayer;
+            this.firstToPlay = firstToPlay;
         }
 
         public RoundResult Play()
@@ -107,7 +111,8 @@
                 player.Cards.Add(card);
             }
 
-            player.Player.StartRound(cards, this.deck.TrumpCard);
+            // TODO: Provide corrent information
+            player.Player.StartRound(cards, this.deck.TrumpCard, 0, 0);
         }
 
         private void GiveCardToPlayer(RoundPlayerInfo player)

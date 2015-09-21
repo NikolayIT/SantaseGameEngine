@@ -30,11 +30,11 @@
 
         public override string Name => "UI Player";
 
-        public override void StartRound(ICollection<Card> cards, Card trumpCard)
+        public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
             this.RedrawCards?.Invoke(this, cards);
             this.RedrawTrumpCard?.Invoke(this, trumpCard);
-            base.StartRound(cards, trumpCard);
+            base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
         }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)

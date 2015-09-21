@@ -39,12 +39,12 @@
             var card = new Card(CardSuit.Diamond, CardType.King);
             var cards = new List<Card> { card };
             var trumpCard = new Card(CardSuit.Club, CardType.Ace);
-            playerWithLogger.StartRound(cards, trumpCard);
+            playerWithLogger.StartRound(cards, trumpCard, 1, 4);
 
             Assert.IsTrue(logger.ToString().Length > 0);
             Assert.IsTrue(logger.ToString().Contains(card.ToString()));
             Assert.IsTrue(logger.ToString().Contains(trumpCard.ToString()));
-            playerMock.Verify(x => x.StartRound(It.IsAny<ICollection<Card>>(), It.IsAny<Card>()), Times.Once());
+            playerMock.Verify(x => x.StartRound(cards, trumpCard, 1, 4), Times.Once());
         }
 
         [Test]

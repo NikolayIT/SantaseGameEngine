@@ -26,7 +26,7 @@
             this.player.StartGame(otherPlayerIdentifier);
         }
 
-        public void StartRound(ICollection<Card> cards, Card trumpCard)
+        public void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
             var cardsAsString = new StringBuilder();
             foreach (var card in cards)
@@ -34,8 +34,8 @@
                 cardsAsString.Append(card);
             }
 
-            this.logger.LogLine($"New round. Cards: {cardsAsString}. Trump card: {trumpCard}");
-            this.player.StartRound(cards, trumpCard);
+            this.logger.LogLine($"New round ({myTotalPoints}-{opponentTotalPoints}). Cards: {cardsAsString}. Trump card: {trumpCard}");
+            this.player.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
         }
 
         public void AddCard(Card card)

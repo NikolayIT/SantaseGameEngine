@@ -26,8 +26,9 @@
         {
         }
 
-        public virtual void StartRound(ICollection<Card> cards, Card trumpCard)
+        public virtual void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
+            this.Cards.Clear();
             foreach (var card in cards)
             {
                 this.Cards.Add(card);
@@ -47,7 +48,6 @@
 
         public virtual void EndRound()
         {
-            this.Cards.Clear();
         }
 
         public virtual void EndGame(bool amIWinner)
