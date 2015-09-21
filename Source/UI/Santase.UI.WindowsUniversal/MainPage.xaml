@@ -38,8 +38,8 @@
             <local:CardControl x:Name="PlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
         </StackPanel>
         <StackPanel Grid.Column="4" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-            <local:CardControl x:Name="OldOtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            <local:CardControl x:Name="OldPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <local:CardControl x:Name="OldOtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,1,0,1" />
+            <local:CardControl x:Name="OldPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,1,0,1" />
         </StackPanel>
         <local:CardControl x:Name="TrumpCard" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" UseLayoutRounding="False" d:LayoutRounding="Auto" Tapped="TrumpCardOnTapped">
             <local:CardControl.RenderTransform>

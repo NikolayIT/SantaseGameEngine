@@ -39,6 +39,7 @@
             this.uiPlayer.RedrawPlayerPlayedCard += this.UiPlayerOnRedrawPlayerPlayedCard;
             this.uiPlayer.RedrawOtherPlayerPlayedCard += this.UiPlayerOnRedrawOtherPlayerPlayedCard;
             this.uiPlayer.RedrawCurrentAndOtherPlayerRoundPoints += this.UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints;
+            this.uiPlayer.RedrawPlayedCards += this.UiPlayerOnRedrawPlayedCards;
 
             IPlayer smartPlayer = new SmartPlayer();
             this.game = new SantaseGame(this.uiPlayer, smartPlayer);
@@ -54,6 +55,19 @@
         private void PlayerCardTapped(object sender, TappedRoutedEventArgs eventArgs)
         {
             this.uiPlayer.Action(PlayerAction.PlayCard((sender as CardControl).Card));
+        }
+
+        private void UiPlayerOnRedrawPlayedCards(object sender, Tuple<Card, Card> playedCards)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    this.OldPlayerCard.SetCard(playedCards.Item1);
+                    this.OldOtherPlayerCard.SetCard(playedCards.Item2);
+                });
         }
 
         private void UiPlayerRedrawTrumpCard(object sender, Card card)

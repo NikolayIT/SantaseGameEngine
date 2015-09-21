@@ -12,6 +12,8 @@
 
         private PlayerAction userAction;
 
+        private bool iAmFirstThisTurn = false;
+
         public event EventHandler<ICollection<Card>> RedrawCards;
 
         public event EventHandler<Card> RedrawTrumpCard;
@@ -24,6 +26,8 @@
 
         public event EventHandler<Tuple<int, int>> RedrawCurrentAndOtherPlayerRoundPoints;
 
+        public event EventHandler<Tuple<Card, Card>> RedrawPlayedCards;
+
         public override string Name => "UI Player";
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard)
@@ -35,6 +39,7 @@
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
+            this.iAmFirstThisTurn = context.IsFirstPlayerTurn;
             this.UpdateContextInfo(context);
             this.currentContext = context;
             while (this.userAction == null)
@@ -70,6 +75,10 @@
         public override void EndTurn(PlayerTurnContext context)
         {
             this.UpdateContextInfo(context);
+            var playedCards = this.iAmFirstThisTurn
+                                  ? new Tuple<Card, Card>(context.FirstPlayedCard, context.SecondPlayedCard)
+                                  : new Tuple<Card, Card>(context.SecondPlayedCard, context.FirstPlayedCard);
+            this.RedrawPlayedCards?.Invoke(this, playedCards);
             base.EndTurn(context);
         }
 
