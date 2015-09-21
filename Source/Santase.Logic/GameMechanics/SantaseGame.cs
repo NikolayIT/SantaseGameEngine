@@ -45,6 +45,7 @@
             this.firstPlayer.StartGame(this.secondPlayer.Name);
             this.secondPlayer.StartGame(this.firstPlayer.Name);
 
+            // Play rounds until game winner is determined
             while (this.GameWinner() == PlayerPosition.NoOne)
             {
                 this.PlayRound();
@@ -53,6 +54,7 @@
 
             var gameWinner = this.GameWinner();
 
+            // Inform players
             this.firstPlayer.EndGame(gameWinner == PlayerPosition.FirstPlayer);
             this.secondPlayer.EndGame(gameWinner == PlayerPosition.SecondPlayer);
 
@@ -68,18 +70,11 @@
 
         private void PlayRound()
         {
-            var round = this.firstToPlay == PlayerPosition.FirstPlayer
-                            ? new Round(this.firstPlayer, this.secondPlayer, this.gameRules)
-                            : new Round(this.secondPlayer, this.firstPlayer, this.gameRules);
-
+            var round = new Round(this.firstPlayer, this.secondPlayer, this.gameRules, this.firstToPlay);
             var roundResult = round.Play();
-
-            this.logger.LogLine(
-                this.firstToPlay == PlayerPosition.FirstPlayer
-                    ? $"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}"
-                    : $"{roundResult.SecondPlayer.RoundPoints} - {roundResult.FirstPlayer.RoundPoints}");
-
             this.UpdatePoints(roundResult);
+
+            this.logger.LogLine($"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}");
         }
 
         private void UpdatePoints(RoundResult roundResult)
@@ -92,38 +87,16 @@
                 roundResult.NoTricksPlayer,
                 this.gameRules);
 
-            if (roundWinnerPoints.Winner == PlayerPosition.NoOne)
+            switch (roundWinnerPoints.Winner)
             {
-                return;
-            }
-
-            // TODO: Test this complex logic somehow or refactor? Pass first to play to round?
-            if (this.firstToPlay == PlayerPosition.FirstPlayer)
-            {
-                if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
-                {
+                case PlayerPosition.FirstPlayer:
                     this.FirstPlayerTotalPoints += roundWinnerPoints.Points;
                     this.firstToPlay = PlayerPosition.SecondPlayer;
-                }
-                else
-                {
+                    break;
+                case PlayerPosition.SecondPlayer:
                     this.SecondPlayerTotalPoints += roundWinnerPoints.Points;
                     this.firstToPlay = PlayerPosition.FirstPlayer;
-                }
-            }
-            else
-            {
-                if (roundWinnerPoints.Winner == PlayerPosition.FirstPlayer)
-                {
-                    // It is actually our second player
-                    this.SecondPlayerTotalPoints += roundWinnerPoints.Points;
-                    this.firstToPlay = PlayerPosition.FirstPlayer;
-                }
-                else
-                {
-                    this.FirstPlayerTotalPoints += roundWinnerPoints.Points;
-                    this.firstToPlay = PlayerPosition.SecondPlayer;
-                }
+                    break;
             }
         }
 
