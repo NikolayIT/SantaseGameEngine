@@ -50,7 +50,7 @@
             this.playedCards.Add(context.SecondPlayedCard);
         }
 
-        // TODO: Close the game?
+        // TODO: Improve close game decision
         private bool CloseGame(PlayerTurnContext context)
         {
             var shouldCloseGame = this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
@@ -63,7 +63,7 @@
             return shouldCloseGame;
         }
 
-        // TODO: Choose appropriate card
+        // TODO: Improve choosing best card to play
         private PlayerAction ChooseCard(PlayerTurnContext context)
         {
             var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
@@ -80,12 +80,14 @@
             PlayerTurnContext context,
             ICollection<Card> possibleCardsToPlay)
         {
+            // Announce 40 or 20 if possible
             var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
             if (action != null)
             {
                 return action;
             }
 
+            // If the player is close to the win => play trump card which will surely win the trick
             var opponentBiggestTrumpCard =
                 this.opponentSuitCardsProvider.GetOpponentCards(
                     this.Cards,
@@ -109,17 +111,25 @@
                 }
             }
 
-            // Smallest non-trump card
+            // Smallest non-trump card from the shortest opponent suit
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
-                    .OrderBy(x => x.GetValue())
+                    .OrderBy(
+                        x =>
+                        this.opponentSuitCardsProvider.GetOpponentCards(
+                            this.Cards,
+                            this.playedCards,
+                            context.TrumpCard,
+                            x.Suit).Count)
+                    .ThenBy(x => x.GetValue())
                     .FirstOrDefault();
             if (cardToPlay != null)
             {
                 return this.PlayCard(cardToPlay);
             }
 
-            cardToPlay = possibleCardsToPlay.OrderByDescending(x => x.GetValue()).FirstOrDefault();
+            // Should never happen
+            cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(cardToPlay);
         }
 
@@ -156,7 +166,7 @@
                 }
             }
 
-            // Announce 20 or 40 if possible
+            // Announce 40 or 20 if possible
             var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
             if (action != null)
             {
