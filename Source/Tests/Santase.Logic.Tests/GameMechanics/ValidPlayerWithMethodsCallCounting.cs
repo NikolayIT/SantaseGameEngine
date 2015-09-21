@@ -28,6 +28,10 @@
 
         public int EndGameCalledCount { get; private set; }
 
+        public int MyTotalPoints { get; set; }
+
+        public int OpponentTotalPoints { get; set; }
+
         public override void StartGame(string otherPlayerIdentifier)
         {
             this.StartGameCalledCount++;
@@ -36,6 +40,8 @@
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
+            this.MyTotalPoints = myTotalPoints;
+            this.OpponentTotalPoints = opponentTotalPoints;
             this.StartRoundCalledCount++;
             base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
         }

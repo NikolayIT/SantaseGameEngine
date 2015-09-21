@@ -14,7 +14,7 @@
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
             var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
 
-            round.Play();
+            round.Play(0, 0);
 
             Assert.AreEqual(firstPlayer.AddCardCalledCount, secondPlayer.AddCardCalledCount);
 
@@ -31,13 +31,28 @@
         }
 
         [Test]
+        public void PlayersStartRoundShouldBeCalledWithCorrectScoreValues()
+        {
+            var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+            var secondPlayer = new ValidPlayerWithMethodsCallCounting();
+            var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
+
+            round.Play(9, 4);
+
+            Assert.AreEqual(firstPlayer.MyTotalPoints, 9);
+            Assert.AreEqual(firstPlayer.OpponentTotalPoints, 4);
+            Assert.AreEqual(secondPlayer.MyTotalPoints, 4);
+            Assert.AreEqual(secondPlayer.OpponentTotalPoints, 9);
+        }
+
+        [Test]
         public void PlayShouldReturnValidRoundResultObject()
         {
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
             var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
 
-            var result = round.Play();
+            var result = round.Play(0, 0);
 
             Assert.IsTrue(
                 result.FirstPlayer.HasAtLeastOneTrick || result.SecondPlayer.HasAtLeastOneTrick,
@@ -71,7 +86,7 @@
                                 ? new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase)
                                 : new Round(secondPlayer, firstPlayer, GameRulesProvider.Santase);
 
-                round.Play();
+                round.Play(0, 0);
             }
 
             Assert.AreEqual(firstPlayer.StartRoundCalledCount, NumberOfRounds);

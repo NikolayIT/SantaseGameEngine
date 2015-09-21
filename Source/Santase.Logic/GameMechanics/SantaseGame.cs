@@ -71,7 +71,7 @@
         private void PlayRound()
         {
             var round = new Round(this.firstPlayer, this.secondPlayer, this.gameRules, this.firstToPlay);
-            var roundResult = round.Play();
+            var roundResult = round.Play(this.FirstPlayerTotalPoints, this.SecondPlayerTotalPoints);
             this.UpdatePoints(roundResult);
 
             this.logger.LogLine($"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}");

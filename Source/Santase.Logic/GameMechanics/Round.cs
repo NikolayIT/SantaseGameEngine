@@ -36,10 +36,10 @@
             this.firstToPlay = firstToPlay;
         }
 
-        public RoundResult Play()
+        public RoundResult Play(int firstPlayerTotalPoints, int secondPlayerTotalPoints)
         {
-            this.CallStartRoundAndDealCards(this.firstPlayer);
-            this.CallStartRoundAndDealCards(this.secondPlayer);
+            this.CallStartRoundAndDealCards(this.firstPlayer, firstPlayerTotalPoints, secondPlayerTotalPoints);
+            this.CallStartRoundAndDealCards(this.secondPlayer, secondPlayerTotalPoints, firstPlayerTotalPoints);
 
             while (!this.IsFinished())
             {
@@ -99,7 +99,7 @@
             return this.firstPlayer.Cards.Count == 0 && this.secondPlayer.Cards.Count == 0;
         }
 
-        private void CallStartRoundAndDealCards(RoundPlayerInfo player)
+        private void CallStartRoundAndDealCards(RoundPlayerInfo player, int playerTotalPoints, int opponentTotalPoints)
         {
             var cards = new List<Card>();
 
@@ -111,8 +111,7 @@
                 player.Cards.Add(card);
             }
 
-            // TODO: Provide corrent information
-            player.Player.StartRound(cards, this.deck.TrumpCard, 0, 0);
+            player.Player.StartRound(cards, this.deck.TrumpCard, playerTotalPoints, opponentTotalPoints);
         }
 
         private void GiveCardToPlayer(RoundPlayerInfo player)
