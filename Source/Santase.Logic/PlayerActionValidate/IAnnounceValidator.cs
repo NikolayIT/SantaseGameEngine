@@ -7,7 +7,7 @@
     public interface IAnnounceValidator
     {
         Announce GetPossibleAnnounce(
-            IEnumerable<Card> playerCards,
+            ICollection<Card> playerCards,
             Card cardToBePlayed,
             Card trumpCard,
             bool amITheFirstPlayer = true);

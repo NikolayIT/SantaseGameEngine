@@ -10,7 +10,7 @@
     [TestFixture]
     public class AnnounceValidatorTests
     {
-        private readonly IEnumerable<Card> playerCards = new List<Card>
+        private readonly ICollection<Card> playerCards = new List<Card>
                                                              {
                                                                  new Card(CardSuit.Club, CardType.Queen),
                                                                  new Card(CardSuit.Club, CardType.King),

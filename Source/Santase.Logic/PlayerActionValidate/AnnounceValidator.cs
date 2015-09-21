@@ -1,14 +1,13 @@
 ﻿namespace Santase.Logic.PlayerActionValidate
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.Logic.Cards;
 
     public class AnnounceValidator : IAnnounceValidator
     {
         public Announce GetPossibleAnnounce(
-            IEnumerable<Card> playerCards,
+            ICollection<Card> playerCards,
             Card cardToBePlayed,
             Card trumpCard,
             bool amITheFirstPlayer = true)
