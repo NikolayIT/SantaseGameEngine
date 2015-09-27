@@ -34,8 +34,9 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0, 0, 0)
-            { FirstPlayedCard = card };
+                0,
+                0,
+                0) { FirstPlayedCard = card };
             Assert.AreEqual(card, playerTurnContext.FirstPlayedCard);
         }
 
@@ -47,8 +48,9 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0, 0, 0)
-            { FirstPlayerAnnounce = Announce };
+                0,
+                0,
+                0) { FirstPlayerAnnounce = Announce };
             Assert.AreEqual(Announce, playerTurnContext.FirstPlayerAnnounce);
         }
 
@@ -60,7 +62,9 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0, 0, 0) { SecondPlayedCard = card };
+                0,
+                0,
+                0) { SecondPlayedCard = card };
             Assert.AreEqual(card, playerTurnContext.SecondPlayedCard);
         }
 
@@ -71,7 +75,9 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0, 0, 0);
+                0,
+                0,
+                0);
             Assert.IsTrue(playerTurnContext.IsFirstPlayerTurn);
         }
 
@@ -82,7 +88,9 @@
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
                 new Card(CardSuit.Club, CardType.Ace),
-                0, 0, 0) { FirstPlayedCard = new Card(CardSuit.Diamond, CardType.Ten) };
+                0,
+                0,
+                0) { FirstPlayedCard = new Card(CardSuit.Diamond, CardType.Ten) };
             Assert.IsFalse(playerTurnContext.IsFirstPlayerTurn);
         }
 
