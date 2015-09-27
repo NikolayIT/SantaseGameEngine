@@ -13,7 +13,7 @@
 
         private PlayerAction userAction;
 
-        private bool iAmFirstThisTurn = false;
+        private bool iAmFirstThisTurn;
 
         public event EventHandler<ICollection<Card>> RedrawCards;
 
