@@ -4,6 +4,10 @@
 
 It is a fast 6-card game for 2 players played with a deck of 24 cards consisting of the _Ace_, _Ten_, _King_, _Queen_, _Jack_ and _Nine_.
 
+### Desktop UI (Windows Universal App)
+
+![Santase desktop screenshot](https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Screenshots/Desktop_1.png?raw=true)
+
 ### Rules of the game
 
 https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md
