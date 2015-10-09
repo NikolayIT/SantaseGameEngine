@@ -36,9 +36,9 @@
 
         public int RoundsPlayed { get; private set; }
 
-        public PlayerPosition Start(PlayerPosition firstToPlay = PlayerPosition.FirstPlayer)
+        public PlayerPosition Start(PlayerPosition firstToPlayInFirstRound = PlayerPosition.FirstPlayer)
         {
-            this.firstToPlay = firstToPlay;
+            this.firstToPlay = firstToPlayInFirstRound;
             this.RestartGame();
 
             // Inform players

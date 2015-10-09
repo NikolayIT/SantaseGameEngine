@@ -66,7 +66,7 @@
 
         private void PlayerCardTapped(object sender, TappedRoutedEventArgs eventArgs)
         {
-            this.uiPlayer.Action(PlayerAction.PlayCard((sender as CardControl).Card));
+            this.uiPlayer.Action(PlayerAction.PlayCard((sender as CardControl)?.Card));
         }
 
         private void UiPlayerOnRedrawPlayedCards(object sender, Tuple<Card, Card> playedCards)

@@ -99,15 +99,12 @@
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
 
-            if (myBiggestTrumpCard != null)
+            if (context.FirstPlayerRoundPoints >= 66 - myBiggestTrumpCard?.GetValue())
             {
-                if (context.FirstPlayerRoundPoints >= 66 - myBiggestTrumpCard.GetValue())
+                if (opponentBiggestTrumpCard == null
+                    || myBiggestTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
                 {
-                    if (opponentBiggestTrumpCard == null
-                        || myBiggestTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
-                    {
-                        return this.PlayCard(myBiggestTrumpCard);
-                    }
+                    return this.PlayCard(myBiggestTrumpCard);
                 }
             }
 

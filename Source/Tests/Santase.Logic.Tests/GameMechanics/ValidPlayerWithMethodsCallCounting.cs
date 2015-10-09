@@ -28,9 +28,9 @@
 
         public int EndGameCalledCount { get; private set; }
 
-        public int MyTotalPoints { get; set; }
+        public int MyTotalPoints { get; private set; }
 
-        public int OpponentTotalPoints { get; set; }
+        public int OpponentTotalPoints { get; private set; }
 
         public override void StartGame(string otherPlayerIdentifier)
         {

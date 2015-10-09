@@ -61,6 +61,8 @@
         public ICollection<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards)
         {
             var possibleCardsToPlay = new List<Card>(playerCards.Count);
+
+            // ReSharper disable once LoopCanBeConvertedToQuery (performance)
             foreach (var card in playerCards)
             {
                 if (PlayCardActionValidator.CanPlayCard(
