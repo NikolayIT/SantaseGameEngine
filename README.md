@@ -1,8 +1,12 @@
 # Santase Game Engine
 
-**Santase** (known as **66**, Sixty-six or **Sechsundsechzig**) is a well-known card game in Bulgaria and also played in Germany.
+**Santase** (known as **66**, Сантасе, Sixty-six or **Sechsundsechzig**) is a well-known card game in Bulgaria and also played in Germany.
 
-It is a fast 6-card game for 2 players played with a deck of 24 cards consisting of the _Ace_, _Ten_, _King_, _Queen_, _Jack_ and _Nine_.
+It is a fast **6-card game** for **2 players** played with a deck of 24 cards consisting of the _Ace_, _Ten_, _King_, _Queen_, _Jack_ and _Nine_.
+
+### Desktop UI (Windows Universal App)
+
+![Santase desktop screenshot](https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Screenshots/Desktop_1.png?raw=true)
 
 ### Rules of the game
 
