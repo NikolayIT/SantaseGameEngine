@@ -57,6 +57,6 @@
         <TextBlock x:Name="OtherPlayerTotalPoints" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="Black"/>
         <TextBlock x:Name="PlayerTotalPoints" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="Black"/>
         <Universal:AdMediatorControl Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="AdMediator_2D55AF" HorizontalAlignment="Stretch" Id="AdMediator-Id-9EF27C9E-AEA0-4FC0-9307-462B7AA56267" VerticalAlignment="Stretch"/>
-        <TextBlock x:Name="ProgramVersion" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Santase 1.0" VerticalAlignment="Bottom" FontSize="16" Foreground="WhiteSmoke" FontWeight="ExtraBold"/>
+        <TextBlock x:Name="ProgramVersion" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Santase 1.1" VerticalAlignment="Bottom" FontSize="16" Foreground="WhiteSmoke" FontWeight="ExtraBold"/>
     </Grid>
 </Page>
