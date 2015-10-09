@@ -45,6 +45,7 @@
             this.uiPlayer.RedrawCurrentAndOtherPlayerTotalPoints +=
                 this.UiPlayerOnRedrawCurrentAndOtherPlayerTotalPoints;
             this.uiPlayer.RedrawPlayedCards += this.UiPlayerOnRedrawPlayedCards;
+            this.uiPlayer.GameClosed += this.UiPlayerOnGameClosed;
             this.uiPlayer.GameEnded += this.UiPlayerOnGameEnded;
 
             IPlayer smartPlayer = new SmartPlayer();
@@ -55,12 +56,6 @@
             this.OtherPlayerCard.Transparent();
             this.OldOtherPlayerCard.Transparent();
 
-            Task.Run(() => this.game.Start());
-        }
-
-        private void UiPlayerOnGameEnded(object sender, bool amIWinner)
-        {
-            // TODO: Inform player for the game result
             Task.Run(() => this.game.Start());
         }
 
@@ -118,7 +113,7 @@
                         ////     this.PlayerCard.SetCard(card);
                         //// }
                     });
-            Task.Delay(2000);
+            //// Task.Delay(2000);
         }
 
         private void UiPlayerOnRedrawOtherPlayerPlayedCard(object sender, Card card)
@@ -216,9 +211,32 @@
                     });
         }
 
+        private void UiPlayerOnGameClosed(object sender, EventArgs eventArgs)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                    {
+                        this.TrumpCard.SetCard(null);
+                    });
+        }
+
+        private void UiPlayerOnGameEnded(object sender, bool amIWinner)
+        {
+            // TODO: Inform player for the game result
+            Task.Run(() => this.game.Start());
+        }
+
         private void TrumpCardOnTapped(object sender, TappedRoutedEventArgs e)
         {
             this.uiPlayer.Action(PlayerAction.ChangeTrump());
+        }
+
+        private void DeckCardsOnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            this.uiPlayer.Action(PlayerAction.CloseGame());
         }
     }
 }

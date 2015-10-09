@@ -23,19 +23,19 @@
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="0" Grid.ColumnSpan="5" VerticalAlignment="Stretch" Orientation="Horizontal">
             <local:CardControl x:Name="OtherPlayerCard1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0"/>
-            <local:CardControl x:Name="OtherPlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0"/>
-            <local:CardControl x:Name="OtherPlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0"/>
-            <local:CardControl x:Name="OtherPlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0"/>
-            <local:CardControl x:Name="OtherPlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0"/>
-            <local:CardControl x:Name="OtherPlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0"/>
+            <local:CardControl x:Name="OtherPlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0"/>
+            <local:CardControl x:Name="OtherPlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0"/>
+            <local:CardControl x:Name="OtherPlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0"/>
+            <local:CardControl x:Name="OtherPlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0"/>
+            <local:CardControl x:Name="OtherPlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0"/>
         </StackPanel>
         <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="5" VerticalAlignment="Stretch" Orientation="Horizontal">
             <local:CardControl x:Name="PlayerCard1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0" Tapped="PlayerCardTapped" />
-            <local:CardControl x:Name="PlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0" Tapped="PlayerCardTapped" />
-            <local:CardControl x:Name="PlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0" Tapped="PlayerCardTapped" />
-            <local:CardControl x:Name="PlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0" Tapped="PlayerCardTapped" />
-            <local:CardControl x:Name="PlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0" Tapped="PlayerCardTapped" />
-            <local:CardControl x:Name="PlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-40,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0" Tapped="PlayerCardTapped" />
+            <local:CardControl x:Name="PlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0" Tapped="PlayerCardTapped" />
         </StackPanel>
         <StackPanel Grid.Column="4" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center">
             <local:CardControl x:Name="OldOtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,1,0,1" />
@@ -46,14 +46,14 @@
                 <CompositeTransform Rotation="90" TranslateX="60" />
             </local:CardControl.RenderTransform>
         </local:CardControl>
-        <local:CardControl Grid.Row="1" Grid.Column="0" x:Name="DeckCards" Opacity="0.7" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <local:CardControl Grid.Row="1" Grid.Column="0" x:Name="DeckCards" Opacity="0.7" HorizontalAlignment="Left" VerticalAlignment="Center" Tapped="DeckCardsOnTapped" />
         <StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
             <local:CardControl x:Name="OtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             <local:CardControl x:Name="PlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </StackPanel>
         <TextBlock x:Name="CardsLeftInDeck" Grid.Row="1" Grid.Column="0" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" Text="12" VerticalAlignment="Center" FontWeight="ExtraBold" FontSize="48"  Foreground="Black"/>
-        <TextBlock x:Name="OtherPlayerRoundPoints" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="Black"/>
-        <TextBlock x:Name="PlayerRoundPoints" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="Black"/>
+        <TextBlock x:Name="OtherPlayerRoundPoints" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="32" FontWeight="Bold" Foreground="Black"/>
+        <TextBlock x:Name="PlayerRoundPoints" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="32" FontWeight="Bold" Foreground="Black"/>
         <TextBlock x:Name="OtherPlayerTotalPoints" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="Black"/>
         <TextBlock x:Name="PlayerTotalPoints" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="Black"/>
         <Universal:AdMediatorControl Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="AdMediator_2D55AF" HorizontalAlignment="Stretch" Id="AdMediator-Id-9EF27C9E-AEA0-4FC0-9307-462B7AA56267" VerticalAlignment="Stretch"/>

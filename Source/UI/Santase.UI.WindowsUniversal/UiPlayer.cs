@@ -31,6 +31,8 @@
 
         public event EventHandler<Tuple<Card, Card>> RedrawPlayedCards;
 
+        public event EventHandler GameClosed;
+
         public event EventHandler<bool> GameEnded;
 
         public override string Name => "UI Player";
@@ -69,6 +71,7 @@
                         break;
                     case PlayerActionType.CloseGame:
                         action = this.CloseGame();
+                        this.GameClosed?.Invoke(this, EventArgs.Empty);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(this.userAction.Type));
@@ -119,7 +122,16 @@
                     context.IsFirstPlayerTurn ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
                     context.IsFirstPlayerTurn ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints);
             this.RedrawCurrentAndOtherPlayerRoundPoints?.Invoke(this, roundPointsInfo);
-            this.RedrawTrumpCard?.Invoke(this, context.TrumpCard);
+            if (context.State.ShouldObserveRules && context.CardsLeftInDeck > 0)
+            {
+                // Game closed
+                this.GameClosed?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                this.RedrawTrumpCard?.Invoke(this, context.TrumpCard);
+            }
+
             this.RedrawNumberOfCardsLeftInDeck?.Invoke(this, context.CardsLeftInDeck);
             this.RedrawOtherPlayerPlayedCard?.Invoke(this, context.FirstPlayedCard);
         }
