@@ -10,6 +10,7 @@
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
 
+    using Windows.System.Profile;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Input;
@@ -28,6 +29,20 @@
         public MainPage()
         {
             this.InitializeComponent();
+
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
+            {
+                this.AdRow.Height = new GridLength(90);
+                this.AdMediator_2D55AF.Height = 90;
+                this.AdMediator_2D55AF.Width = 768;
+            }
+            else
+            {
+                this.AdRow.Height = new GridLength(80);
+                this.AdMediator_2D55AF.Height = 80;
+                this.AdMediator_2D55AF.Width = 480;
+            }
+
             this.playerCardControls = new[]
                                           {
                                               this.PlayerCard1, this.PlayerCard2, this.PlayerCard3,

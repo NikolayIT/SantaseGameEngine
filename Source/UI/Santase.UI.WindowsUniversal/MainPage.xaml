@@ -12,7 +12,7 @@
             <RowDefinition Height="10*"/>
             <RowDefinition Height="25*"/>
             <RowDefinition Height="10*"/>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="100" x:Name="AdRow"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="15*"/>
