@@ -59,7 +59,7 @@
     <Compile Include="GameMechanics\SantaseGame.cs" />
     <Compile Include="GameMechanics\Trick.cs" />
     <Compile Include="GameRulesProvider.cs" />
-    <Compile Include="IDeepCloneable.cs" />
+    <Compile Include="IDeepCloneable{T}.cs" />
     <Compile Include="IGameRules.cs" />
     <Compile Include="InternalGameException.cs" />
     <Compile Include="Logger\ILogger.cs" />
@@ -92,7 +92,7 @@
     <Compile Include="WinnerLogic\ICardWinnerLogic.cs" />
     <Compile Include="WinnerLogic\IRoundWinnerPointsLogic.cs" />
     <Compile Include="WinnerLogic\RoundWinnerPoints.cs" />
-    <Compile Include="WinnerLogic\RoundWinnerPointsLogic.cs" />
+    <Compile Include="WinnerLogic\RoundWinnerPointsPointsLogic.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
