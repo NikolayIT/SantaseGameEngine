@@ -122,8 +122,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="Santase.UI.WindowsUniversal_StoreKey.pfx" />
-    <None Include="Santase.UI.WindowsUniversal_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Cards\AceClub.png" />
