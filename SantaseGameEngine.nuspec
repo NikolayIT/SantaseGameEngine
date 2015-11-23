@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>SantaseGameEngine</id>
+        <version>1.1.0</version>
+        <title>Santase Card Game Engine</title>
+        <authors>Nikolay.IT</authors>
+        <licenseUrl>https://github.com/NikolayIT/SantaseGameEngine/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/NikolayIT/SantaseGameEngine</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Documentation/Logo_300x300.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Game engine for Santase (known as 66, Сантасе, Sixty-six or Sechsundsechzig). It is a fast 6-card game for 2 players played with a deck of 24 cards consisting of the Ace, Ten, King, Queen, Jack and Nine.</description>
+        <releaseNotes>Stable version. The code in Santase.Logic library is unit tested with more than 250 tests and is 100% covered.</releaseNotes>
+        <copyright>Copyright (c) 2015 Nikolay Kostov</copyright>
+        <tags>Santase, 66, Сантасе, Sixty-six, Sechsundsechzig, Schnapsen, card game</tags>
+    </metadata>
+    <files>
+        <file src="Source\Santase.Logic\bin\Release\Santase.Logic.dll" target="lib\Santase.Logic.dll" />
+    </files>
+</package>
