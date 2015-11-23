@@ -12,7 +12,12 @@
     // ReSharper disable once UnusedMember.Global
     public class DummyPlayer : BasePlayer
     {
-        public DummyPlayer(string name = "Dummy Player Lvl. 1")
+        public DummyPlayer()
+            : this("Dummy Player Lvl. 1")
+        {
+        }
+
+        public DummyPlayer(string name)
         {
             this.Name = name;
         }
