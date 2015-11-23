@@ -7,7 +7,7 @@
     /// When possible Dummy changes the trump.
     /// </summary>
     // ReSharper disable once UnusedMember.Global
-    public class DummyPlayerChangingTrump : DummyPlayer
+    internal class DummyPlayerChangingTrump : DummyPlayer
     {
         public DummyPlayerChangingTrump(string name = "Dummy Player Lvl. 2")
             : base(name)

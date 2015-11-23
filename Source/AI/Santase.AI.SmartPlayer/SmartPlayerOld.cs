@@ -10,7 +10,7 @@
     using Santase.Logic.Players;
 
     // Overall strategy can be based on the game score. When opponent is close to the winning the player should be riskier.
-    public class SmartPlayerOld : BasePlayer
+    internal class SmartPlayerOld : BasePlayer
     {
         private readonly ICollection<Card> playedCards = new List<Card>();
 
