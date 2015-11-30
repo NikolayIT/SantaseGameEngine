@@ -11,9 +11,9 @@
     /// </summary>
     public class DummyPlayerChangingTrump : BasePlayer
     {
-        public DummyPlayerChangingTrump(string name = "Dummy Player Lvl. 2")
+        public DummyPlayerChangingTrump()
         {
-            this.Name = name;
+            this.Name = "Dummy Player Lvl. 2";
         }
 
         public override string Name { get; }
