@@ -9,15 +9,9 @@
     /// This dummy player follows the rules and always plays random card.
     /// Dummy never changes the trump or closes the game.
     /// </summary>
-    // ReSharper disable once UnusedMember.Global
-    public class DummyPlayer : BasePlayer
+    internal class DummyPlayer : BasePlayer
     {
-        public DummyPlayer()
-            : this("Dummy Player Lvl. 1")
-        {
-        }
-
-        public DummyPlayer(string name)
+        public DummyPlayer(string name = "Dummy Player Lvl. 1")
         {
             this.Name = name;
         }
