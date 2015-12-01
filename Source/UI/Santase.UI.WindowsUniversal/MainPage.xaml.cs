@@ -216,7 +216,11 @@
                         }
                         else
                         {
-                            this.CardsLeftInDeck.Text = cardsLeft.ToString();
+                            if (this.TrumpCard.Card != null)
+                            {
+                                this.CardsLeftInDeck.Text = cardsLeft.ToString();
+                            }
+                            
                             this.TrumpCard.Visibility = Visibility.Visible;
                             this.DeckCards.Visibility = Visibility.Visible;
                         }
@@ -231,6 +235,12 @@
                 CoreDispatcherPriority.Normal,
                 () =>
                     {
+                        // game is closed
+                        if (this.TrumpCard.Card != null)
+                        {
+                            this.CardsLeftInDeck.Text += new string(' ', 2) + this.TrumpCard.Card.Suit.ToFriendlyString();
+                        }
+
                         this.TrumpCard.SetCard(null);
                     });
         }
