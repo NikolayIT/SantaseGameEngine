@@ -6,27 +6,23 @@
     using Santase.Logic.Cards;
     using Santase.Logic.Logger;
 
-    public class PlayerWithLoggerDecorator : IPlayer
+    public class PlayerWithLoggerDecorator : PlayerDecorator
     {
-        private readonly IPlayer player;
-
         private readonly ILogger logger;
 
         public PlayerWithLoggerDecorator(IPlayer player, ILogger logger)
+            : base(player)
         {
-            this.player = player;
             this.logger = logger;
         }
 
-        public string Name => this.player.Name;
-
-        public void StartGame(string otherPlayerIdentifier)
+        public override void StartGame(string otherPlayerIdentifier)
         {
             this.logger.LogLine($"New game vs {otherPlayerIdentifier}");
-            this.player.StartGame(otherPlayerIdentifier);
+            base.StartGame(otherPlayerIdentifier);
         }
 
-        public void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
+        public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
             var cardsAsString = new StringBuilder();
             foreach (var card in cards)
@@ -35,44 +31,44 @@
             }
 
             this.logger.LogLine($"New round ({myTotalPoints}-{opponentTotalPoints}). Cards: {cardsAsString}. Trump card: {trumpCard}");
-            this.player.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
+            base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
         }
 
-        public void AddCard(Card card)
+        public override void AddCard(Card card)
         {
             this.logger.LogLine($"New card {card}");
-            this.player.AddCard(card);
+            base.AddCard(card);
         }
 
-        public PlayerAction GetTurn(PlayerTurnContext context)
+        public override PlayerAction GetTurn(PlayerTurnContext context)
         {
             this.logger.LogLine("--GetTurn; "
                                 + $"Trump: {context.TrumpCard}({context.CardsLeftInDeck}); "
                                 + $"State: {context.State.GetType().Name.Replace("RoundState", string.Empty)}; "
                                 + $"First: {context.FirstPlayedCard}({context.FirstPlayerAnnounce}); "
                                 + $"I am first: {context.IsFirstPlayerTurn}");
-            var action = this.player.GetTurn(context);
+            var action = base.GetTurn(context);
             this.logger.LogLine($"Playing {action}");
             return action;
         }
 
-        public void EndTurn(PlayerTurnContext context)
+        public override void EndTurn(PlayerTurnContext context)
         {
             this.logger.LogLine(
                 $"End of turn {context.FirstPlayedCard}({context.FirstPlayerAnnounce}) - {context.SecondPlayedCard}");
-            this.player.EndTurn(context);
+            base.EndTurn(context);
         }
 
-        public void EndRound()
+        public override void EndRound()
         {
-            this.player.EndRound();
+            base.EndRound();
             this.logger.LogLine("EndRound();");
             this.logger.LogLine(new string('-', 40));
         }
 
-        public void EndGame(bool amIWinner)
+        public override void EndGame(bool amIWinner)
         {
-            this.player.EndGame(amIWinner);
+            base.EndGame(amIWinner);
             this.logger.LogLine($"EndGame({amIWinner});");
         }
     }

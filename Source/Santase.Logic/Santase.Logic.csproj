@@ -77,6 +77,7 @@
     <Compile Include="Players\IPlayer.cs" />
     <Compile Include="Players\PlayerAction.cs" />
     <Compile Include="Players\PlayerActionType.cs" />
+    <Compile Include="Players\PlayerDecorator.cs" />
     <Compile Include="Players\PlayerTurnContext.cs" />
     <Compile Include="Players\PlayerWithLoggerDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
