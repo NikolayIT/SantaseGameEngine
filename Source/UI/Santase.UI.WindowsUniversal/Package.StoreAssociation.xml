@@ -203,6 +203,8 @@
     <Language Code="ky-kg" InMinimumRequirementSet="true" />
     <Language Code="lb" InMinimumRequirementSet="true" />
     <Language Code="lb-lu" InMinimumRequirementSet="true" />
+    <Language Code="lo" InMinimumRequirementSet="true" />
+    <Language Code="lo-la" InMinimumRequirementSet="true" />
     <Language Code="lt" InMinimumRequirementSet="true" />
     <Language Code="lt-lt" InMinimumRequirementSet="true" />
     <Language Code="lv" InMinimumRequirementSet="true" />
@@ -363,8 +365,10 @@
     </ReservedNames>
   </ProductReservedInfo>
   <AccountPackageIdentityNames>
+    <MainPackageIdentityName>33379NikolayKostov.BrainShift</MainPackageIdentityName>
     <MainPackageIdentityName>33379NikolayKostov.ChalkboardChallenge</MainPackageIdentityName>
     <MainPackageIdentityName>33379NikolayKostov.MatchColor</MainPackageIdentityName>
+    <MainPackageIdentityName>33379NikolayKostov.TestMyMathIQ</MainPackageIdentityName>
   </AccountPackageIdentityNames>
   <PackageInfoList LandingUrl="https://dev.windows.com/dashboard/Application?appId=9NBLGGH5XS6F" />
 </StoreAssociation>

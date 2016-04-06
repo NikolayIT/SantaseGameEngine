@@ -220,7 +220,7 @@
                             {
                                 this.CardsLeftInDeck.Text = cardsLeft.ToString();
                             }
-                            
+
                             this.TrumpCard.Visibility = Visibility.Visible;
                             this.DeckCards.Visibility = Visibility.Visible;
                         }
