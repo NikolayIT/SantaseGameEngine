@@ -34,11 +34,10 @@
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void OtherPlayerShouldThrowAnExceptionWhenGivenInvalidValue()
         {
             var position = (PlayerPosition)99999;
-            position.OtherPlayer();
+            Assert.Throws<ArgumentException>(() => position.OtherPlayer());
         }
     }
 }

@@ -155,7 +155,6 @@
         }
 
         [Test]
-        [ExpectedException(typeof(InternalGameException))]
         public void PlayShouldThrowAnExceptionWhenPlayerPlaysInvalidCard()
         {
             var firstPlayer = new Mock<IPlayer>();
@@ -173,11 +172,10 @@
             secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            trick.Play();
+            Assert.Throws<InternalGameException>(() => trick.Play());
         }
 
         [Test]
-        [ExpectedException(typeof(InternalGameException))]
         public void PlayShouldThrowAnExceptionWhenPlayerReturnsNullAction()
         {
             var firstPlayer = new Mock<IPlayer>();
@@ -191,7 +189,7 @@
             var deck = new Deck();
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            trick.Play();
+            Assert.Throws<InternalGameException>(() => trick.Play());
         }
 
         [Test]
@@ -226,7 +224,6 @@
         }
 
         [Test]
-        [ExpectedException(typeof(InternalGameException))]
         public void PlayShouldThrowAnExceptionWhenClosingTheGameAndNineOfTrumpsIsMissing()
         {
             var firstPlayer = new ValidPlayer(PlayerActionType.ChangeTrump);
@@ -242,7 +239,7 @@
             secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            trick.Play();
+            Assert.Throws<InternalGameException>(() => trick.Play());
         }
 
         [Test]

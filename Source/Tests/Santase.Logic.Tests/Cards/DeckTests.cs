@@ -63,14 +63,15 @@
         }
 
         [Test]
-        [ExpectedException(typeof(InternalGameException))]
         public void GetNextCardShouldThrowExceptionWhenCalled25Times()
         {
             IDeck deck = new Deck();
-            for (var i = 0; i < 25; i++)
+            for (var i = 0; i < 24; i++)
             {
                 deck.GetNextCard();
             }
+
+            Assert.Throws<InternalGameException>(() => deck.GetNextCard());
         }
 
         [Test]
