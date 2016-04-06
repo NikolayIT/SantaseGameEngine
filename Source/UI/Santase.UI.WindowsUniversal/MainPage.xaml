@@ -9,17 +9,17 @@
     mc:Ignorable="d" Background="DarkGreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="25*"/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="20*"/>
             <RowDefinition Height="10*"/>
             <RowDefinition Height="100" x:Name="AdRow"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="15*"/>
-            <ColumnDefinition Width="25*"/>
-            <ColumnDefinition Width="15*"/>
-            <ColumnDefinition Width="25*"/>
-            <ColumnDefinition Width="12*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="30*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="0" Grid.ColumnSpan="5" VerticalAlignment="Stretch" Orientation="Horizontal">
             <local:CardControl x:Name="OtherPlayerCard1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,0,1,0"/>
@@ -37,7 +37,7 @@
             <local:CardControl x:Name="PlayerCard5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0" Tapped="PlayerCardTapped" />
             <local:CardControl x:Name="PlayerCard6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-48,0,1,0" Tapped="PlayerCardTapped" />
         </StackPanel>
-        <StackPanel Grid.Column="4" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+        <StackPanel Grid.Column="4" Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Center">
             <local:CardControl x:Name="OldOtherPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,1,0,1" />
             <local:CardControl x:Name="OldPlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,1,0,1" />
         </StackPanel>
@@ -52,11 +52,11 @@
             <local:CardControl x:Name="PlayerCard" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </StackPanel>
         <TextBlock x:Name="CardsLeftInDeck" Grid.Row="1" Grid.Column="0" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" Text="12" VerticalAlignment="Center" FontWeight="ExtraBold" FontSize="48"  Foreground="Black"/>
-        <TextBlock x:Name="OtherPlayerRoundPoints" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="32" FontWeight="Bold" Foreground="Black"/>
-        <TextBlock x:Name="PlayerRoundPoints" Grid.Row="2" Grid.Column="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="32" FontWeight="Bold" Foreground="Black"/>
-        <TextBlock x:Name="OtherPlayerTotalPoints" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="Black"/>
-        <TextBlock x:Name="PlayerTotalPoints" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" FontSize="36" FontWeight="ExtraBold" Foreground="Black"/>
+        <TextBlock x:Name="OtherPlayerRoundPoints" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontSize="32" FontWeight="Bold" Foreground="WhiteSmoke"/>
+        <TextBlock x:Name="PlayerRoundPoints" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0" VerticalAlignment="Bottom" FontSize="32" FontWeight="Bold" Foreground="WhiteSmoke"/>
+        <TextBlock x:Name="OtherPlayerTotalPoints" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
+        <TextBlock x:Name="PlayerTotalPoints" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Bottom" FontSize="36" FontWeight="ExtraBold" Foreground="WhiteSmoke"/>
         <Universal:AdMediatorControl Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" x:Name="AdMediator_2D55AF" HorizontalAlignment="Stretch" Id="AdMediator-Id-9EF27C9E-AEA0-4FC0-9307-462B7AA56267" VerticalAlignment="Stretch"/>
-        <TextBlock x:Name="ProgramVersion" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Santase 1.1" VerticalAlignment="Bottom" FontSize="16" Foreground="WhiteSmoke" FontWeight="ExtraBold"/>
+        <TextBlock x:Name="ProgramVersion" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Santase 1.2" VerticalAlignment="Top" FontSize="20" Foreground="WhiteSmoke" FontWeight="ExtraBold"/>
     </Grid>
 </Page>
