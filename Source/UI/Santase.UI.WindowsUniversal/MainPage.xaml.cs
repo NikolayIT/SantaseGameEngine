@@ -21,24 +21,17 @@
 
         private readonly SantaseGame game;
 
+        private readonly TotalResultPersister resultPersister;
+
         private readonly CardControl[] playerCardControls;
 
         public MainPage()
         {
             this.InitializeComponent();
 
-            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
-            {
-                this.AdRow.Height = new GridLength(90);
-                this.AdMediator_2D55AF.Height = 90;
-                this.AdMediator_2D55AF.Width = 768;
-            }
-            else
-            {
-                this.AdRow.Height = new GridLength(80);
-                this.AdMediator_2D55AF.Height = 80;
-                this.AdMediator_2D55AF.Width = 480;
-            }
+            this.resultPersister = new TotalResultPersister();
+            this.TotalResult.Text =
+                $"{this.resultPersister.PlayerScore}-{this.resultPersister.OtherPlayerScore}";
 
             this.playerCardControls = new[]
                                           {
@@ -247,7 +240,17 @@
 
         private void UiPlayerOnGameEnded(object sender, bool amIWinner)
         {
-            // TODO: Inform player for the game result
+            this.resultPersister.Update(amIWinner);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            this.Dispatcher.RunAsync(
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    this.TotalResult.Text =
+                        $"{this.resultPersister.PlayerScore}-{this.resultPersister.OtherPlayerScore}";
+                });
+
             Task.Run(() => this.game.Start());
         }
 
