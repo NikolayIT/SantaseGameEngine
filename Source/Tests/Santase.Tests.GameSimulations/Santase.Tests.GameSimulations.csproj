@@ -43,6 +43,9 @@
       <HintPath>..\..\packages\NUnit.3.2.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Santase.AI.ProPlayer">
+      <HintPath>..\..\AI\External\Santase.AI.ProPlayer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -53,6 +56,7 @@
     <Compile Include="FileLogger.cs" />
     <Compile Include="GameSimulators\GameSimulationResult.cs" />
     <Compile Include="GameSimulators\IGameSimulator.cs" />
+    <Compile Include="GameSimulators\SmartAndBestExternalPlayerGameSimulator.cs" />
     <Compile Include="GameSimulators\SmartAndDummyPlayerChangingTrumpSimulator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

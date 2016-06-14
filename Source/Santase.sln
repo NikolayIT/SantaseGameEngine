@@ -25,6 +25,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.UI.WindowsUniversal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.AI.SmartPlayer.Tests", "Tests\Santase.AI.SmartPlayer.Tests\Santase.AI.SmartPlayer.Tests.csproj", "{3E61F8D1-49F1-4FC5-A361-E1870C8CCAB2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{00A4A812-873D-499A-AEDC-ED96FA3FB9E6}"
+	ProjectSection(SolutionItems) = preProject
+		AI\External\Santase.AI.ProPlayer.dll = AI\External\Santase.AI.ProPlayer.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -185,5 +190,6 @@ Global
 		{538FD022-612F-4FBB-97A8-42C3DD26D4CE} = {2DE5F77F-C30E-4EA1-8ED7-F66B85071BCF}
 		{62C95D93-1E97-41BF-954D-A3F22DC6C661} = {2DE5F77F-C30E-4EA1-8ED7-F66B85071BCF}
 		{3E61F8D1-49F1-4FC5-A361-E1870C8CCAB2} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
+		{00A4A812-873D-499A-AEDC-ED96FA3FB9E6} = {2985437A-F7EF-4113-ACC2-91346A4F65CF}
 	EndGlobalSection
 EndGlobal

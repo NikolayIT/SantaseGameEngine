@@ -12,6 +12,8 @@
             // For easier debugging start a single game:
             //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
 
+            SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
+
             SimulateGames(new SmartPlayersGameSimulator());
 
             SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator());
