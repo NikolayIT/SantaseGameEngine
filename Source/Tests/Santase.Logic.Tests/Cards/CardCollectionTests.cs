@@ -189,8 +189,8 @@
         }
 
         [Test]
-        [Timeout(100)]
-        public void GetEnumeratorShouldShouldWorkProperlyInNestedLoops()
+        [Timeout(200)]
+        public void GetEnumeratorShouldWorkProperlyInNestedLoops()
         {
             var collection = new CardCollection
                                  {
