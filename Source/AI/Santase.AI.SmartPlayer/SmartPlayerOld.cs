@@ -218,6 +218,16 @@
                 {
                     return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.King));
                 }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Ten)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Ten));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Ace)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Ace));
+                }
             }
 
             // Smallest card

@@ -27,6 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.AI.SmartPlayer.Test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{00A4A812-873D-499A-AEDC-ED96FA3FB9E6}"
 	ProjectSection(SolutionItems) = preProject
+		AI\External\Santase.AI.BotskoPlayer.dll = AI\External\Santase.AI.BotskoPlayer.dll
 		AI\External\Santase.AI.ProPlayer.dll = AI\External\Santase.AI.ProPlayer.dll
 	EndProjectSection
 EndProject
