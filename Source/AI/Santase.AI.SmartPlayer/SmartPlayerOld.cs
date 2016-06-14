@@ -94,9 +94,6 @@
                 return this.PlayCard(cardToWinTheGame);
             }
 
-            //// possibleCardsToPlay.Remove(new Card(context.TrumpCard.Suit, CardType.Queen));
-            //// possibleCardsToPlay.Remove(new Card(context.TrumpCard.Suit, CardType.King));
-
             // Smallest non-trump card from the shortest opponent suit
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
@@ -174,68 +171,6 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private Card GetTrumpCardWhichWillSurelyWinTheGame(
-            Card trumpCard,
-            int playerRoundPoints,
-            ICollection<Card> possibleCardsToPlay)
-        {
-            var opponentBiggestTrumpCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, trumpCard.Suit)
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
-            var myBiggestTrumpCards =
-                possibleCardsToPlay.Where(x => x.Suit == trumpCard.Suit).OrderByDescending(x => x.GetValue());
-            var myBiggestTrumpCard = myBiggestTrumpCards.FirstOrDefault();
-            var mySecondBiggestTrumpCard = myBiggestTrumpCards.Skip(1).FirstOrDefault();
-
-            if (playerRoundPoints >= 66 - myBiggestTrumpCard?.GetValue())
-            {
-                if (opponentBiggestTrumpCard == null
-                    || myBiggestTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
-                {
-                    return myBiggestTrumpCard;
-                }
-            }
-
-            if (playerRoundPoints >= 66 - myBiggestTrumpCard?.GetValue() - mySecondBiggestTrumpCard?.GetValue())
-            {
-                if (opponentBiggestTrumpCard == null
-                    || mySecondBiggestTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
-                {
-                    return mySecondBiggestTrumpCard;
-                }
-            }
-
-            return null;
-        }
-
-        private Card GetCardWhichWillSurelyWinTheTrick(CardSuit suit, Card trumpCard, bool opponentHasTrump)
-        {
-            var myBiggestCard =
-                this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
-            if (myBiggestCard == null)
-            {
-                return null;
-            }
-
-            var opponentBiggestCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, suit)
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
-
-            if (!opponentHasTrump && opponentBiggestCard == null)
-            {
-                return myBiggestCard;
-            }
-
-            if (opponentBiggestCard != null && opponentBiggestCard.GetValue() < myBiggestCard.GetValue())
-            {
-                return myBiggestCard;
-            }
-
-            return null;
-        }
-
         private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(
             PlayerTurnContext context,
             ICollection<Card> possibleCardsToPlay)
@@ -251,8 +186,7 @@
                 // Don't have Queen and King
                 if (biggerCard.Type != CardType.Queen || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.King)))
                 {
-                    if (biggerCard.Type != CardType.King
-                        || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.Queen)))
+                    if (biggerCard.Type != CardType.King || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.Queen)))
                     {
                         return this.PlayCard(biggerCard);
                     }
@@ -262,15 +196,15 @@
             // When opponent plays Ace or Ten => play trump card
             if (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
             {
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
-                {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
-                }
-
                 if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Nine))
                     && context.TrumpCard.Type == CardType.Jack)
                 {
                     return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Nine));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
                 }
 
                 if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Queen))
@@ -321,8 +255,69 @@
             return this.PlayCard(cardToPlay);
         }
 
+        private Card GetTrumpCardWhichWillSurelyWinTheGame(
+            Card trumpCard,
+            int playerRoundPoints,
+            ICollection<Card> possibleCardsToPlay)
+        {
+            var opponentBiggestTrumpCard =
+                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, trumpCard.Suit)
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+            var myBiggestTrumpCards =
+                possibleCardsToPlay.Where(x => x.Suit == trumpCard.Suit).OrderByDescending(x => x.GetValue());
+
+            var sumOfPoints = 0;
+            foreach (var myTrumpCard in myBiggestTrumpCards)
+            {
+                sumOfPoints += myTrumpCard.GetValue();
+                if (playerRoundPoints >= 66 - sumOfPoints)
+                {
+                    if (opponentBiggestTrumpCard == null
+                        || myTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
+                    {
+                        return myTrumpCard;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private Card GetCardWhichWillSurelyWinTheTrick(CardSuit suit, Card trumpCard, bool opponentHasTrump)
+        {
+            var myBiggestCard =
+                this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
+            if (myBiggestCard == null)
+            {
+                return null;
+            }
+
+            var opponentBiggestCard =
+                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, suit)
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+
+            if (!opponentHasTrump && opponentBiggestCard == null)
+            {
+                return myBiggestCard;
+            }
+
+            if (opponentBiggestCard != null && opponentBiggestCard.GetValue() < myBiggestCard.GetValue())
+            {
+                return myBiggestCard;
+            }
+
+            return null;
+        }
+
         private PlayerAction TryToAnnounce20Or40(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
+            if (!context.State.CanAnnounce20Or40)
+            {
+                return null;
+            }
+
             // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
             {

@@ -171,6 +171,100 @@
             return this.PlayCard(cardToPlay);
         }
 
+        private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
+        {
+            // If bigger card is available => play it
+            var biggerCard =
+                possibleCardsToPlay.Where(
+                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+            if (biggerCard != null)
+            {
+                // Don't have Queen and King
+                if (biggerCard.Type != CardType.Queen || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.King)))
+                {
+                    if (biggerCard.Type != CardType.King || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.Queen)))
+                    {
+                        return this.PlayCard(biggerCard);
+                    }
+                }
+            }
+
+            // When opponent plays Ace or Ten => play trump card
+            if (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
+            {
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Nine))
+                    && context.TrumpCard.Type == CardType.Jack)
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Nine));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Queen))
+                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.King)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Queen));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.King))
+                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.Queen)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.King));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Ten)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Ten));
+                }
+
+                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Ace)))
+                {
+                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Ace));
+                }
+            }
+
+            // Smallest card
+            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            return this.PlayCard(smallestCard);
+        }
+
+        private PlayerAction ChooseCardWhenPlayingSecondAndRulesApply(
+            PlayerTurnContext context,
+            ICollection<Card> possibleCardsToPlay)
+        {
+            // If bigger card is available => play it
+            var biggerCard =
+                possibleCardsToPlay.Where(
+                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
+                    .OrderByDescending(x => x.GetValue())
+                    .FirstOrDefault();
+            if (biggerCard != null)
+            {
+                return this.PlayCard(biggerCard);
+            }
+
+            // Play smallest trump card?
+            var smallestTrumpCard =
+                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
+                    .OrderBy(x => x.GetValue())
+                    .FirstOrDefault();
+            if (smallestTrumpCard != null)
+            {
+                return this.PlayCard(smallestTrumpCard);
+            }
+
+            // Smallest card
+            var cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            return this.PlayCard(cardToPlay);
+        }
+
         private Card GetTrumpCardWhichWillSurelyWinTheGame(
             Card trumpCard,
             int playerRoundPoints,
@@ -225,91 +319,6 @@
             }
 
             return null;
-        }
-
-        private PlayerAction ChooseCardWhenPlayingSecondAndRulesDoNotApply(
-            PlayerTurnContext context,
-            ICollection<Card> possibleCardsToPlay)
-        {
-            // If bigger card is available => play it
-            var biggerCard =
-                possibleCardsToPlay.Where(
-                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
-            if (biggerCard != null)
-            {
-                // Don't have Queen and King
-                if (biggerCard.Type != CardType.Queen || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.King)))
-                {
-                    if (biggerCard.Type != CardType.King
-                        || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.Queen)))
-                    {
-                        return this.PlayCard(biggerCard);
-                    }
-                }
-            }
-
-            // When opponent plays Ace or Ten => play trump card
-            if (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
-            {
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
-                {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
-                }
-
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Nine))
-                    && context.TrumpCard.Type == CardType.Jack)
-                {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Nine));
-                }
-
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Queen))
-                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.King)))
-                {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Queen));
-                }
-
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.King))
-                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.Queen)))
-                {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.King));
-                }
-            }
-
-            // Smallest card
-            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
-            return this.PlayCard(smallestCard);
-        }
-
-        private PlayerAction ChooseCardWhenPlayingSecondAndRulesApply(
-            PlayerTurnContext context,
-            ICollection<Card> possibleCardsToPlay)
-        {
-            // If bigger card is available => play it
-            var biggerCard =
-                possibleCardsToPlay.Where(
-                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
-            if (biggerCard != null)
-            {
-                return this.PlayCard(biggerCard);
-            }
-
-            // Play smallest trump card?
-            var smallestTrumpCard =
-                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
-                    .OrderBy(x => x.GetValue())
-                    .FirstOrDefault();
-            if (smallestTrumpCard != null)
-            {
-                return this.PlayCard(smallestTrumpCard);
-            }
-
-            // Smallest card
-            var cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
-            return this.PlayCard(cardToPlay);
         }
 
         private PlayerAction TryToAnnounce20Or40(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
