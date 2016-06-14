@@ -94,9 +94,6 @@
                 return this.PlayCard(cardToWinTheGame);
             }
 
-            //// possibleCardsToPlay.Remove(new Card(context.TrumpCard.Suit, CardType.Queen));
-            //// possibleCardsToPlay.Remove(new Card(context.TrumpCard.Suit, CardType.King));
-
             // Smallest non-trump card from the shortest opponent suit
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
@@ -185,24 +182,18 @@
                     .FirstOrDefault();
             var myBiggestTrumpCards =
                 possibleCardsToPlay.Where(x => x.Suit == trumpCard.Suit).OrderByDescending(x => x.GetValue());
-            var myBiggestTrumpCard = myBiggestTrumpCards.FirstOrDefault();
-            var mySecondBiggestTrumpCard = myBiggestTrumpCards.Skip(1).FirstOrDefault();
 
-            if (playerRoundPoints >= 66 - myBiggestTrumpCard?.GetValue())
+            var sumOfPoints = 0;
+            foreach (var myTrumpCard in myBiggestTrumpCards)
             {
-                if (opponentBiggestTrumpCard == null
-                    || myBiggestTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
+                sumOfPoints += myTrumpCard.GetValue();
+                if (playerRoundPoints >= 66 - sumOfPoints)
                 {
-                    return myBiggestTrumpCard;
-                }
-            }
-
-            if (playerRoundPoints >= 66 - myBiggestTrumpCard?.GetValue() - mySecondBiggestTrumpCard?.GetValue())
-            {
-                if (opponentBiggestTrumpCard == null
-                    || mySecondBiggestTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
-                {
-                    return mySecondBiggestTrumpCard;
+                    if (opponentBiggestTrumpCard == null
+                        || myTrumpCard.GetValue() > opponentBiggestTrumpCard.GetValue())
+                    {
+                        return myTrumpCard;
+                    }
                 }
             }
 
@@ -323,6 +314,11 @@
 
         private PlayerAction TryToAnnounce20Or40(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
+            if (!context.State.CanAnnounce20Or40)
+            {
+                return null;
+            }
+
             // Choose card with announce 40 if possible
             foreach (var card in possibleCardsToPlay)
             {
