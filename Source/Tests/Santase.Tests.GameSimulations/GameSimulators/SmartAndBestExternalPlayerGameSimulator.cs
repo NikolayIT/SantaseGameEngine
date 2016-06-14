@@ -1,7 +1,6 @@
 ﻿namespace Santase.Tests.GameSimulations.GameSimulators
 {
     using Santase.AI.BotskoPlayer;
-    using Santase.AI.ProPlayer;
     using Santase.AI.SmartPlayer;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;

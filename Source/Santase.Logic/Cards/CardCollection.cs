@@ -58,10 +58,7 @@
 
         public bool Contains(Card item)
         {
-            unchecked
-            {
-                return ((this.cards >> item.GetHashCode()) & 1) == 1;
-            }
+            return ((this.cards >> item.GetHashCode()) & 1) == 1;
         }
 
         public void CopyTo(Card[] array, int arrayIndex)
