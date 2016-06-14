@@ -13,7 +13,6 @@
             //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
 
             SimulateGames(new SmartPlayersGameSimulator());
-            Console.WriteLine("Closed games: {0}", GlobalStats.GamesClosedByPlayer);
 
             SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator());
 
@@ -31,6 +30,7 @@
             Console.WriteLine($"Rounds played: {simulationResult.RoundsPlayed:0,0}");
             Console.WriteLine(
                 $"Total round points: {simulationResult.FirstPlayerTotalRoundPoints:0,0} - {simulationResult.SecondPlayerTotalRoundPoints:0,0}");
+            Console.WriteLine("Closed games: {0}", GlobalStats.GamesClosedByPlayer);
             Console.WriteLine(new string('=', 75));
         }
     }
