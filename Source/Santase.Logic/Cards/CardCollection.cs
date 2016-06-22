@@ -9,6 +9,8 @@
     /// </summary>
     public class CardCollection : ICollection<Card>, IDeepCloneable<CardCollection>
     {
+        public const long AllSantaseCardsBitMask = 8727889205820930;
+
         private const int MaxCards = 52;
 
         private long cards; // 64 bits for 52 possible cards
@@ -18,7 +20,7 @@
         {
         }
 
-        private CardCollection(long bitMask)
+        public CardCollection(long bitMask)
         {
             this.cards = bitMask;
             this.count = this.CalculateCount();

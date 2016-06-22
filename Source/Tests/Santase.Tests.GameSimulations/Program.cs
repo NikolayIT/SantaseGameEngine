@@ -9,6 +9,8 @@
     {
         public static void Main()
         {
+            Console.WriteLine(DateTime.Now);
+
             // For easier debugging start a single game:
             //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
 

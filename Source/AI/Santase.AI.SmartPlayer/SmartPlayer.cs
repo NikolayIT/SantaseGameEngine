@@ -12,9 +12,7 @@
     // Overall strategy can be based on the game score. When opponent is close to the winning the player should be riskier.
     public class SmartPlayer : BasePlayer
     {
-        private readonly ICollection<Card> playedCards = new List<Card>();
-
-        private readonly OpponentSuitCardsProvider opponentSuitCardsProvider = new OpponentSuitCardsProvider();
+        private readonly CardTracker cardTracker = new CardTracker();
 
         public override string Name => "Smart Player";
 
@@ -23,31 +21,49 @@
             // When possible change the trump card as this is almost always a good move
             // Changing trump can be non-optimal when:
             // 1. Current player is planning to close the game and don't want to give additional points to his opponent
-            // 2. The player will close the game and you will give him additional points by giving him bigger trump card instead of 9
+            // 2. The other player will close the game and you will give him additional points by giving him bigger trump card instead of 9
             // 3. Want to confuse the opponent
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
+                this.cardTracker.ChangeTrumpCard(context.TrumpCard);
                 return this.ChangeTrump(context.TrumpCard);
             }
 
             if (this.CloseGame(context))
             {
+                GlobalStats.GamesClosedByPlayer++;
                 return this.CloseGame();
             }
 
             return this.ChooseCard(context);
         }
 
-        public override void EndRound()
+        public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
-            this.playedCards.Clear();
-            base.EndRound();
+            base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
+
+            this.cardTracker.Clear();
+            foreach (var card in cards)
+            {
+                this.cardTracker.UnknownCards.Remove(card);
+            }
+        }
+
+        public override void AddCard(Card card)
+        {
+            base.AddCard(card);
+            this.cardTracker.UnknownCards.Remove(card);
         }
 
         public override void EndTurn(PlayerTurnContext context)
         {
-            this.playedCards.Add(context.FirstPlayedCard);
-            this.playedCards.Add(context.SecondPlayedCard);
+            if (context.CardsLeftInDeck == 2)
+            {
+                this.cardTracker.UnknownCards.Add(context.TrumpCard);
+            }
+
+            this.cardTracker.CardPlayed(context.FirstPlayedCard);
+            this.cardTracker.CardPlayed(context.SecondPlayedCard);
         }
 
         // TODO: Improve close game decision
@@ -55,10 +71,6 @@
         {
             var shouldCloseGame = this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
                                   && this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
-            if (shouldCloseGame)
-            {
-                GlobalStats.GamesClosedByPlayer++;
-            }
 
             return shouldCloseGame;
         }
@@ -66,7 +78,10 @@
         // TODO: Improve choosing best card to play
         private PlayerAction ChooseCard(PlayerTurnContext context)
         {
+            this.cardTracker.TrumpCardSaw(context.TrumpCard);
+
             var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
+
             return context.State.ShouldObserveRules
                        ? (context.IsFirstPlayerTurn
                               ? this.ChooseCardWhenPlayingFirstAndRulesApply(context, possibleCardsToPlay)
@@ -97,13 +112,7 @@
             // Smallest non-trump card from the shortest opponent suit
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
-                    .OrderBy(
-                        x =>
-                        this.opponentSuitCardsProvider.GetOpponentCards(
-                            this.Cards,
-                            this.playedCards,
-                            context.TrumpCard,
-                            x.Suit).Count)
+                    .OrderBy(x => this.cardTracker.UnknownCards.Count(y => y.Suit == x.Suit))
                     .ThenBy(x => x.GetValue())
                     .FirstOrDefault();
             if (cardToPlay != null)
@@ -121,12 +130,7 @@
             ICollection<Card> possibleCardsToPlay)
         {
             // Find card that will surely win the trick
-            var opponentHasTrump =
-                this.opponentSuitCardsProvider.GetOpponentCards(
-                    this.Cards,
-                    this.playedCards,
-                    context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
-                    context.TrumpCard.Suit).Any();
+            var opponentHasTrump = this.cardTracker.UnknownCards.Any(x => x.Suit == context.TrumpCard.Suit);
 
             var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(
                 context.TrumpCard.Suit,
@@ -208,13 +212,13 @@
                 }
 
                 if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Queen))
-                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.King)))
+                    && this.cardTracker.PlayedCards.Contains(new Card(context.TrumpCard.Suit, CardType.King)))
                 {
                     return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Queen));
                 }
 
                 if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.King))
-                    && this.playedCards.Contains(new Card(context.TrumpCard.Suit, CardType.Queen)))
+                    && this.cardTracker.PlayedCards.Contains(new Card(context.TrumpCard.Suit, CardType.Queen)))
                 {
                     return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.King));
                 }
@@ -271,7 +275,7 @@
             ICollection<Card> possibleCardsToPlay)
         {
             var opponentBiggestTrumpCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, trumpCard.Suit)
+                this.cardTracker.UnknownCards.Where(x => x.Suit == trumpCard.Suit)
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
             var myBiggestTrumpCards =
@@ -304,7 +308,7 @@
             }
 
             var opponentBiggestCard =
-                this.opponentSuitCardsProvider.GetOpponentCards(this.Cards, this.playedCards, trumpCard, suit)
+                this.cardTracker.UnknownCards.Where(x => x.Suit == suit)
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
 
