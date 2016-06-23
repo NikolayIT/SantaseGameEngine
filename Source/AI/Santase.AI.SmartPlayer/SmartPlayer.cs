@@ -69,10 +69,17 @@
         // TODO: Improve close game decision
         private bool CloseGame(PlayerTurnContext context)
         {
-            var shouldCloseGame = this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards)
-                                  && this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
+            if (!this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards))
+            {
+                return false;
+            }
 
-            return shouldCloseGame;
+            if (this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         // TODO: Improve choosing best card to play
@@ -103,7 +110,7 @@
             }
 
             // If the player is close to the win => play trump card which will surely win the trick
-            var cardToWinTheGame = this.GetTrumpCardWhichWillSurelyWinTheGame(context.TrumpCard, context.FirstPlayerRoundPoints, possibleCardsToPlay);
+            var cardToWinTheGame = this.GetTrumpCardWhichWillSurelyWinTheGame(context.TrumpCard.Suit, context.FirstPlayerRoundPoints, possibleCardsToPlay);
             if (cardToWinTheGame != null)
             {
                 return this.PlayCard(cardToWinTheGame);
@@ -134,7 +141,6 @@
 
             var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(
                 context.TrumpCard.Suit,
-                context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
                 opponentHasTrump);
             if (trumpCard != null)
             {
@@ -145,7 +151,6 @@
             {
                 var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(
                     suit,
-                    context.CardsLeftInDeck == 0 ? null : context.TrumpCard,
                     opponentHasTrump);
                 if (possibleCard != null)
                 {
@@ -270,16 +275,16 @@
         }
 
         private Card GetTrumpCardWhichWillSurelyWinTheGame(
-            Card trumpCard,
+            CardSuit trumpSuit,
             int playerRoundPoints,
             ICollection<Card> possibleCardsToPlay)
         {
             var opponentBiggestTrumpCard =
-                this.cardTracker.UnknownCards.Where(x => x.Suit == trumpCard.Suit)
+                this.cardTracker.UnknownCards.Where(x => x.Suit == trumpSuit)
                     .OrderByDescending(x => x.GetValue())
                     .FirstOrDefault();
             var myBiggestTrumpCards =
-                possibleCardsToPlay.Where(x => x.Suit == trumpCard.Suit).OrderByDescending(x => x.GetValue());
+                possibleCardsToPlay.Where(x => x.Suit == trumpSuit).OrderByDescending(x => x.GetValue());
 
             var sumOfPoints = 0;
             foreach (var myTrumpCard in myBiggestTrumpCards)
@@ -298,7 +303,7 @@
             return null;
         }
 
-        private Card GetCardWhichWillSurelyWinTheTrick(CardSuit suit, Card trumpCard, bool opponentHasTrump)
+        private Card GetCardWhichWillSurelyWinTheTrick(CardSuit suit, bool opponentHasTrump)
         {
             var myBiggestCard =
                 this.Cards.Where(x => x.Suit == suit).OrderByDescending(x => x.GetValue()).FirstOrDefault();
