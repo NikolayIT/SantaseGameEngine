@@ -1,1 +1,1 @@
-MainPackage=C:\Dev\2016\SantaseGameEngine\Source\UI\Santase.UI.WindowsUniversal\bin\x64\Release\Upload\Santase.UI.WindowsUniversal_1.4.0.0_x64.appx
+MainPackage=C:\Dev\2016\SantaseGameEngine\Source\UI\Santase.UI.WindowsUniversal\bin\x64\Release\Upload\Santase.UI.WindowsUniversal_1.4.1.0_x64.appx
