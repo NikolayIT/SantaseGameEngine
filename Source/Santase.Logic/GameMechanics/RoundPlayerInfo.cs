@@ -11,7 +11,7 @@
         {
             this.Player = player;
             this.Cards = new CardCollection();
-            this.TrickCards = new List<Card>();
+            this.TrickCards = new CardCollection();
             this.Announces = new List<Announce>();
             this.GameCloser = false;
         }
