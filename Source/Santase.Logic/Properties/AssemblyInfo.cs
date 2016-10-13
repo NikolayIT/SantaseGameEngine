@@ -6,11 +6,11 @@ using System.Runtime.CompilerServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Santase.Logic")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Game engine for Santase (known as 66, Сантасе, Sixty-six or Sechsundsechzig). It is a fast 6-card game for 2 players played with a deck of 24 cards consisting of the Ace, Ten, King, Queen, Jack and Nine.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Nikolay.IT")]
 [assembly: AssemblyProduct("Santase.Logic")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright © 2015-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
@@ -25,7 +25,7 @@ using System.Runtime.CompilerServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.4.1.0")]
+[assembly: AssemblyFileVersion("1.4.1.0")]
 
 [assembly: InternalsVisibleTo("Santase.Logic.Tests")]
