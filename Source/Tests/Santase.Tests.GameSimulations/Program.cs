@@ -14,7 +14,7 @@
             // For easier debugging start a single game:
             //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
 
-            SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
+            //// SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
 
             SimulateGames(new SmartPlayersGameSimulator());
 
@@ -35,6 +35,7 @@
             Console.WriteLine(
                 $"Total round points: {simulationResult.FirstPlayerTotalRoundPoints:0,0} - {simulationResult.SecondPlayerTotalRoundPoints:0,0}");
             Console.WriteLine("Closed games: {0}", GlobalStats.GamesClosedByPlayer);
+            Console.WriteLine("Global counter: {0}", string.Join(", ", GlobalStats.GlobalCounterValues));
             Console.WriteLine(new string('=', 75));
         }
     }
