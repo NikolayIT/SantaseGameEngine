@@ -192,7 +192,19 @@
                     .FirstOrDefault();
             if (biggerCard != null)
             {
-                // Don't have Queen and King
+                // If other player wins with this trick => take it
+                if (context.FirstPlayedCard.GetValue() + biggerCard.GetValue() + context.FirstPlayerRoundPoints > 65)
+                {
+                    return this.PlayCard(biggerCard);
+                }
+
+                // If current player wins with this trick => take it
+                if (context.FirstPlayedCard.GetValue() + biggerCard.GetValue() + context.SecondPlayerRoundPoints > 65)
+                {
+                    return this.PlayCard(biggerCard);
+                }
+
+                // Don't have Queen and King of the same suit => play it
                 if (biggerCard.Type != CardType.Queen || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.King)))
                 {
                     if (biggerCard.Type != CardType.King || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.Queen)))
@@ -203,7 +215,8 @@
             }
 
             // When opponent plays Ace or Ten => play trump card
-            if (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten)
+            if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit &&
+                (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten))
             {
                 if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Nine))
                     && context.TrumpCard.Type == CardType.Jack)
