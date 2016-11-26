@@ -214,7 +214,9 @@
                 }
             }
 
-            // If the current player wins the round by playing trump => play it
+            // Smallest card
+            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+
             if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit)
             {
                 var biggestTrump =
@@ -223,8 +225,14 @@
 
                 if (biggestTrump != null)
                 {
-                    // If we take the hand we win
+                    // If the current player wins the round by playing trump => play it
                     if (context.FirstPlayedCard.GetValue() + biggestTrump.GetValue() + context.SecondPlayerRoundPoints > 65)
+                    {
+                        return this.PlayCard(biggestTrump);
+                    }
+
+                    // If the other player wins the round by taking this hand => trump it
+                    if (context.FirstPlayedCard.GetValue() + smallestCard.GetValue() + context.FirstPlayerRoundPoints > 65)
                     {
                         return this.PlayCard(biggestTrump);
                     }
@@ -269,8 +277,6 @@
                 }
             }
 
-            // Smallest card
-            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
             return this.PlayCard(smallestCard);
         }
 

@@ -214,6 +214,23 @@
                 }
             }
 
+            // If the current player wins the round by playing trump => play it
+            if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit)
+            {
+                var biggestTrump =
+                    possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
+                        .OrderByDescending(x => x.GetValue()).FirstOrDefault();
+
+                if (biggestTrump != null)
+                {
+                    // If we take the hand we win
+                    if (context.FirstPlayedCard.GetValue() + biggestTrump.GetValue() + context.SecondPlayerRoundPoints > 65)
+                    {
+                        return this.PlayCard(biggestTrump);
+                    }
+                }
+            }
+
             // When opponent plays Ace or Ten => play trump card
             if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit &&
                 (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten))
