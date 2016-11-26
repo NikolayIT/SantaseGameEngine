@@ -215,7 +215,7 @@
             }
 
             // Smallest card
-            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).ThenByDescending(x => this.cardTracker.UnknownCards.Count(uc => uc.Suit == x.Suit)).FirstOrDefault();
 
             if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit)
             {
