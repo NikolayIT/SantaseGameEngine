@@ -17,7 +17,7 @@
                                                                  new Card(CardSuit.Diamond, CardType.Queen),
                                                                  new Card(CardSuit.Diamond, CardType.King),
                                                                  new Card(CardSuit.Heart, CardType.Queen),
-                                                                 new Card(CardSuit.Heart, CardType.King)
+                                                                 new Card(CardSuit.Heart, CardType.King),
                                                              };
 
         [Test]

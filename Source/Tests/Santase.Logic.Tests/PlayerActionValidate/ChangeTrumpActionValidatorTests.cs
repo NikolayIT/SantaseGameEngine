@@ -24,7 +24,7 @@
                                                                   new Card(CardSuit.Club, CardType.Ten),
                                                                   new Card(CardSuit.Spade, CardType.Ten),
                                                                   new Card(CardSuit.Diamond, CardType.Ace),
-                                                                  new Card(CardSuit.Heart, CardType.Ace)
+                                                                  new Card(CardSuit.Heart, CardType.Ace),
                                                               };
 
         [Test]

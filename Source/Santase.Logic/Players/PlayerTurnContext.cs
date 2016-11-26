@@ -49,7 +49,7 @@
             {
                 FirstPlayedCard = this.FirstPlayedCard,
                 SecondPlayedCard = this.SecondPlayedCard,
-                FirstPlayerAnnounce = this.FirstPlayerAnnounce
+                FirstPlayerAnnounce = this.FirstPlayerAnnounce,
             };
 
             return newPlayerTurnContext;

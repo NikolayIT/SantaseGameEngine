@@ -48,7 +48,7 @@
             this.playerCardControls = new[]
                                           {
                                               this.PlayerCard1, this.PlayerCard2, this.PlayerCard3,
-                                              this.PlayerCard4, this.PlayerCard5, this.PlayerCard6
+                                              this.PlayerCard4, this.PlayerCard5, this.PlayerCard6,
                                           };
 
             this.uiPlayer = new UiPlayer();
@@ -83,7 +83,7 @@
             {
                 IsAutoRefreshEnabled = true,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch
+                VerticalAlignment = VerticalAlignment.Stretch,
             };
 
             // For mobile device families, use the mobile ad unit info.

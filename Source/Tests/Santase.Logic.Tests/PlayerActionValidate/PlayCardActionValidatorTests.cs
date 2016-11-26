@@ -23,7 +23,7 @@
                                                                   new Card(CardSuit.Heart, CardType.Queen),
                                                                   new Card(CardSuit.Spade, CardType.King),
                                                                   new Card(CardSuit.Diamond, CardType.Ten),
-                                                                  new Card(CardSuit.Heart, CardType.Ace)
+                                                                  new Card(CardSuit.Heart, CardType.Ace),
                                                               };
 
         private static readonly object[] ValidCardToPlay =
@@ -38,14 +38,14 @@
                             CardType.Jack),
                         new Card(
                             CardSuit.Diamond,
-                            CardType.Nine)
+                            CardType.Nine),
                     },
                 new object[]
                     {
                         // When required play smaller non-trump card
                         new Card(CardSuit.Diamond, CardType.Ace),
                         new Card(CardSuit.Diamond, CardType.Jack),
-                        new Card(CardSuit.Club, CardType.Nine)
+                        new Card(CardSuit.Club, CardType.Nine),
                     },
                 new object[]
                     {
@@ -56,21 +56,21 @@
                         new Card(CardSuit.Diamond, CardType.Ten),
                         new Card(
                             CardSuit.Diamond,
-                            CardType.Nine)
+                            CardType.Nine),
                     },
                 new object[]
                     {
                         // Play bigger non-trump card when available
                         new Card(CardSuit.Diamond, CardType.King),
                         new Card(CardSuit.Diamond, CardType.Ten),
-                        new Card(CardSuit.Club, CardType.Nine)
+                        new Card(CardSuit.Club, CardType.Nine),
                     },
                 new object[]
                     {
                         // Play trump when no card of the same suit is available
                         new Card(CardSuit.Club, CardType.King),
                         new Card(CardSuit.Diamond, CardType.Ten),
-                        new Card(CardSuit.Diamond, CardType.Nine)
+                        new Card(CardSuit.Diamond, CardType.Nine),
                     },
             };
 
@@ -81,13 +81,13 @@
                     {
                         new Card(CardSuit.Diamond, CardType.Ace),
                         new Card(CardSuit.Spade, CardType.King),
-                        new Card(CardSuit.Diamond, CardType.Nine)
+                        new Card(CardSuit.Diamond, CardType.Nine),
                     },
                 new object[]
                     {
                         new Card(CardSuit.Diamond, CardType.Ace),
                         new Card(CardSuit.Spade, CardType.King),
-                        new Card(CardSuit.Club, CardType.Nine)
+                        new Card(CardSuit.Club, CardType.Nine),
                     },
                 new object[]
                     {
@@ -100,19 +100,19 @@
                             CardType.Queen),
                         new Card(
                             CardSuit.Heart,
-                            CardType.Jack)
+                            CardType.Jack),
                     },
                 new object[]
                     {
                         new Card(CardSuit.Diamond, CardType.King),
                         new Card(CardSuit.Diamond, CardType.Jack),
-                        new Card(CardSuit.Diamond, CardType.Nine)
+                        new Card(CardSuit.Diamond, CardType.Nine),
                     },
                 new object[]
                     {
                         new Card(CardSuit.Diamond, CardType.King),
                         new Card(CardSuit.Diamond, CardType.Jack),
-                        new Card(CardSuit.Club, CardType.Nine)
+                        new Card(CardSuit.Club, CardType.Nine),
                     },
                 new object[]
                     {
@@ -123,7 +123,7 @@
                             CardType.King),
                         new Card(
                             CardSuit.Diamond,
-                            CardType.Nine)
+                            CardType.Nine),
                     },
             };
 
@@ -192,7 +192,7 @@
                                       new Card(CardSuit.Club, CardType.King),
                                       new Card(CardSuit.Spade, CardType.Queen),
                                       new Card(CardSuit.Spade, CardType.Jack),
-                                      new Card(CardSuit.Spade, CardType.Nine)
+                                      new Card(CardSuit.Spade, CardType.Nine),
                                   };
             var playerCard = new Card(CardSuit.Spade, CardType.Nine);
             var otherPlayerCard = new Card(CardSuit.Heart, CardType.Nine);
@@ -213,7 +213,7 @@
                                       new Card(CardSuit.Heart, CardType.Ace),
                                       new Card(CardSuit.Club, CardType.Jack),
                                       new Card(CardSuit.Diamond, CardType.Queen),
-                                      new Card(CardSuit.Heart, CardType.Nine)
+                                      new Card(CardSuit.Heart, CardType.Nine),
                                   };
             var playerCard = new Card(CardSuit.Spade, CardType.Nine);
             var otherPlayerCard = new Card(CardSuit.Spade, CardType.Ten);

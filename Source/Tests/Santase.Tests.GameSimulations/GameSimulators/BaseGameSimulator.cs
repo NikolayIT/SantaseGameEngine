@@ -60,7 +60,7 @@
                            SecondPlayerWins = secondPlayerWins,
                            SecondPlayerTotalRoundPoints = secondPlayerRoundPoints,
                            RoundsPlayed = roundsPlayed,
-                           SimulationDuration = simulationDuration
+                           SimulationDuration = simulationDuration,
                        };
         }
 

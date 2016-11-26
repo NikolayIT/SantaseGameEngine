@@ -123,7 +123,7 @@
                                         {
                                             FirstPlayedCard = new Card(CardSuit.Spade, CardType.King),
                                             FirstPlayerAnnounce = Announce.Forty,
-                                            SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine)
+                                            SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine),
                                         };
 
             var clonedPlayerTurnContext = playerTurnContext.DeepClone();

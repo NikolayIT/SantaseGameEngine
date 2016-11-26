@@ -51,7 +51,7 @@
                                      new Card(CardSuit.Heart, CardType.King),
                                      new Card(CardSuit.Diamond, CardType.Queen),
                                      new Card(CardSuit.Spade, CardType.Jack),
-                                     new Card(CardSuit.Spade, CardType.Nine)
+                                     new Card(CardSuit.Spade, CardType.Nine),
                                  };
 
             Assert.AreEqual(6, collection.Count);
@@ -104,7 +104,7 @@
                                      new Card(CardSuit.Club, CardType.Ace),
                                      new Card(CardSuit.Diamond, CardType.Ten),
                                      new Card(CardSuit.Heart, CardType.Jack),
-                                     new Card(CardSuit.Spade, CardType.Nine)
+                                     new Card(CardSuit.Spade, CardType.Nine),
                                  };
             collection.Clear();
             Assert.AreEqual(0, collection.Count);
@@ -151,7 +151,7 @@
                                 new Card(CardSuit.Diamond, CardType.Ten),
                                 new Card(CardSuit.Heart, CardType.Jack),
                                 new Card(CardSuit.Club, CardType.Nine),
-                                new Card(CardSuit.Spade, CardType.Nine)
+                                new Card(CardSuit.Spade, CardType.Nine),
                             };
 
             var collection = new CardCollection();
@@ -236,7 +236,7 @@
             var collection = new CardCollection
                                  {
                                      new Card(CardSuit.Club, CardType.Ace), // 1
-                                     new Card(CardSuit.Spade, CardType.King) // 52
+                                     new Card(CardSuit.Spade, CardType.King), // 52
                                  };
             var enumerator = collection.GetEnumerator();
             while (enumerator.MoveNext())

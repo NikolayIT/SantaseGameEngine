@@ -47,7 +47,7 @@
                 unchecked
                 {
                     this.count++;
-                    this.cards |= (long)1 << item.GetHashCode();
+                    this.cards |= 1L << item.GetHashCode();
                 }
             }
         }
@@ -79,7 +79,7 @@
                 unchecked
                 {
                     this.count--;
-                    this.cards &= ~((long)1 << item.GetHashCode());
+                    this.cards &= ~(1L << item.GetHashCode());
                     return true;
                 }
             }
