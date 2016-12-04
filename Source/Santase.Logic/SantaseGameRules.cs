@@ -7,5 +7,7 @@
         public int HalfRoundPoints => 33;
 
         public int GamePointsNeededForWin => 11;
+
+        public int CardsAtStartOfTheRound => 6;
     }
 }

@@ -26,8 +26,8 @@
 
             Assert.GreaterOrEqual(firstPlayer.AddCardCalledCount, 2);
             Assert.GreaterOrEqual(secondPlayer.AddCardCalledCount, 2);
-            Assert.LessOrEqual(firstPlayer.AddCardCalledCount, 6);
-            Assert.LessOrEqual(secondPlayer.AddCardCalledCount, 6);
+            Assert.LessOrEqual(firstPlayer.AddCardCalledCount, GameRulesProvider.Santase.CardsAtStartOfTheRound);
+            Assert.LessOrEqual(secondPlayer.AddCardCalledCount, GameRulesProvider.Santase.CardsAtStartOfTheRound);
         }
 
         [Test]

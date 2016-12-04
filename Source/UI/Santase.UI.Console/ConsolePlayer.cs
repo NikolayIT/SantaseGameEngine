@@ -63,7 +63,7 @@
                     continue;
                 }
 
-                if (userActionAsString[0] >= '1' && userActionAsString[0] <= '6')
+                if (userActionAsString[0] >= '1' && userActionAsString[0] <= ('0' + this.Cards.Count))
                 {
                     var cardIndex = int.Parse(userActionAsString[0].ToString()) - 1;
                     if (cardIndex >= this.Cards.Count)

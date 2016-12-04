@@ -7,5 +7,7 @@
         int HalfRoundPoints { get; }
 
         int GamePointsNeededForWin { get; }
+
+        int CardsAtStartOfTheRound { get; }
     }
 }

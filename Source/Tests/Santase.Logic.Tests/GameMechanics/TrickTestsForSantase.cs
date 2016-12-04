@@ -266,12 +266,12 @@
 
         private static void SimulateGame(RoundPlayerInfo firstPlayer, RoundPlayerInfo secondPlayer, Deck deck)
         {
-            for (var i = 0; i < 6; i++)
+            for (var i = 0; i < GameRulesProvider.Santase.CardsAtStartOfTheRound; i++)
             {
                 firstPlayer.AddCard(deck.GetNextCard());
             }
 
-            for (var i = 0; i < 6; i++)
+            for (var i = 0; i < GameRulesProvider.Santase.CardsAtStartOfTheRound; i++)
             {
                 secondPlayer.AddCard(deck.GetNextCard());
             }

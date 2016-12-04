@@ -103,8 +103,7 @@
         {
             var cards = new List<Card>();
 
-            // TODO: 6 should be constant
-            for (var i = 0; i < 6; i++)
+            for (var i = 0; i < GameRulesProvider.Santase.CardsAtStartOfTheRound; i++)
             {
                 var card = this.deck.GetNextCard();
                 cards.Add(card);
