@@ -46,6 +46,9 @@
     <Reference Include="Santase.AI.BotskoPlayer">
       <HintPath>..\..\AI\External\Santase.AI.BotskoPlayer.dll</HintPath>
     </Reference>
+    <Reference Include="Santase.AI.NinjaPlayer">
+      <HintPath>..\..\AI\External\Santase.AI.NinjaPlayer.dll</HintPath>
+    </Reference>
     <Reference Include="Santase.AI.ProPlayer">
       <HintPath>..\..\AI\External\Santase.AI.ProPlayer.dll</HintPath>
     </Reference>
