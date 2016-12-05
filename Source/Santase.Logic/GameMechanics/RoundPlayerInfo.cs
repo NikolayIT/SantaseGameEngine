@@ -22,7 +22,7 @@
 
         public ICollection<Card> TrickCards { get; }
 
-        public ICollection<Announce> Announces { get; }
+        public IList<Announce> Announces { get; }
 
         public bool GameCloser { get; set; }
 
@@ -39,9 +39,10 @@
                 }
 
                 // ReSharper disable once LoopCanBeConvertedToQuery (performance improvement)
-                foreach (var announce in this.Announces)
+                // ReSharper disable once ForCanBeConvertedToForeach (performance improvement)
+                for (var i = 0; i < this.Announces.Count; i++)
                 {
-                    points += (int)announce;
+                    points += (int)this.Announces[i];
                 }
 
                 return points;
