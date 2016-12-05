@@ -4,6 +4,6 @@
     {
         public static int GamesClosedByPlayer { get; set; }
 
-        public static long[] GlobalCounterValues { get; set; } = new long[3];
+        public static long[] GlobalCounterValues { get; set; } = new long[4];
     }
 }
