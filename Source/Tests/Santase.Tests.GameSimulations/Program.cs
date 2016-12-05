@@ -16,18 +16,18 @@
 
             SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
 
-            SimulateGames(new SmartPlayersGameSimulator());
+            SimulateGames(new SmartPlayersGameSimulator(), 200000);
 
             SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator());
 
             SimulateGames(new SmartAndDummyPlayersSimulator());
         }
 
-        private static void SimulateGames(IGameSimulator gameSimulator)
+        private static void SimulateGames(IGameSimulator gameSimulator, int gamesCount = 100000)
         {
             Console.WriteLine($"Running {gameSimulator.GetType().Name}...");
 
-            var simulationResult = gameSimulator.Simulate(100000);
+            var simulationResult = gameSimulator.Simulate(gamesCount);
 
             Console.WriteLine(simulationResult.SimulationDuration);
             Console.WriteLine($"Total games: {simulationResult.FirstPlayerWins:0,0} - {simulationResult.SecondPlayerWins:0,0}");
