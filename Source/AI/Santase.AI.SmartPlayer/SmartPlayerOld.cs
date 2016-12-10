@@ -110,7 +110,10 @@
             }
 
             // If the player is close to the win => play trump card which will surely win the trick
-            var cardToWinTheGame = this.GetTrumpCardWhichWillSurelyWinTheGame(context.TrumpCard.Suit, context.FirstPlayerRoundPoints, possibleCardsToPlay);
+            var cardToWinTheGame = this.GetCardWhichWillSurelyWinTheGame(
+                context.TrumpCard.Suit,
+                context.FirstPlayerRoundPoints,
+                possibleCardsToPlay);
             if (cardToWinTheGame != null)
             {
                 return this.PlayCard(cardToWinTheGame);
@@ -310,15 +313,30 @@
             return this.PlayCard(cardToPlay);
         }
 
-        private Card GetTrumpCardWhichWillSurelyWinTheGame(
+        private Card GetCardWhichWillSurelyWinTheGame(
             CardSuit trumpSuit,
             int playerRoundPoints,
             ICollection<Card> possibleCardsToPlay)
         {
-            var opponentBiggestTrumpCard =
+            var opponentSuitCards =
                 this.cardTracker.UnknownCards.Where(x => x.Suit == trumpSuit)
                     .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
+                    .ToList();
+            var opponentBiggestTrumpCard = opponentSuitCards.FirstOrDefault();
+
+            if (opponentBiggestTrumpCard == null ||
+                (opponentSuitCards.Count == 2 && opponentSuitCards[0].Type == CardType.King && opponentSuitCards[1].Type == CardType.Queen))
+            {
+                foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
+                {
+                    var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(suit, false);
+                    if (possibleCard != null)
+                    {
+                        return possibleCard;
+                    }
+                }
+            }
+
             var myBiggestTrumpCards =
                 possibleCardsToPlay.Where(x => x.Suit == trumpSuit).OrderByDescending(x => x.GetValue());
 
@@ -387,8 +405,7 @@
             foreach (var card in possibleCardsToPlay)
             {
                 if (card.Type == CardType.Queen
-                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard)
-                    == Announce.Twenty)
+                    && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Twenty)
                 {
                     return this.PlayCard(card);
                 }

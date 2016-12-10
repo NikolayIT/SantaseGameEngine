@@ -1,11 +1,17 @@
 ﻿namespace Santase.Logic.PlayerActionValidate
 {
+    using System;
     using System.Collections.Generic;
 
     using Santase.Logic.Cards;
 
     public class AnnounceValidator : IAnnounceValidator
     {
+        private static readonly Lazy<AnnounceValidator> Lazy =
+            new Lazy<AnnounceValidator>(() => new AnnounceValidator());
+
+        public static AnnounceValidator Instance => Lazy.Value;
+
         public Announce GetPossibleAnnounce(
             ICollection<Card> playerCards,
             Card cardToBePlayed,
