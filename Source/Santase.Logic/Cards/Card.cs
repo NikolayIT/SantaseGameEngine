@@ -5,10 +5,15 @@
     /// </summary>
     public class Card
     {
+        private static readonly int[] CardValues = { 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 10, 2, 3, 4 };
+
+        private readonly int value;
+
         public Card(CardSuit suit, CardType type)
         {
             this.Suit = suit;
             this.Type = type;
+            this.value = CardValues[(int)this.Type];
         }
 
         public CardSuit Suit { get; }
@@ -23,23 +28,7 @@
 
         public int GetValue()
         {
-            switch (this.Type)
-            {
-                case CardType.Nine:
-                    return 0;
-                case CardType.Jack:
-                    return 2;
-                case CardType.Queen:
-                    return 3;
-                case CardType.King:
-                    return 4;
-                case CardType.Ten:
-                    return 10;
-                case CardType.Ace:
-                    return 11;
-                default:
-                    throw new InternalGameException("Invalid card type in GetValue()");
-            }
+            return this.value;
         }
 
         public override bool Equals(object obj)

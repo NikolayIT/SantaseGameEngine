@@ -36,7 +36,7 @@
             var cardTypes = Enum.GetValues(typeof(CardType));
             var cardTypeValue = cardTypes.OfType<CardType>().Max() + 1;
             var card = new Card(CardSuit.Club, cardTypeValue);
-            Assert.Throws<InternalGameException>(() => card.GetValue());
+            Assert.Throws<IndexOutOfRangeException>(() => card.GetValue());
         }
 
         [TestCase(true, CardSuit.Spade, CardType.Ace, CardSuit.Spade, CardType.Ace)]
