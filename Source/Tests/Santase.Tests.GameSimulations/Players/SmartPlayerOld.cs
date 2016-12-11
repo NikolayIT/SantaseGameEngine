@@ -18,6 +18,13 @@
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/GlobalStats.cs",
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Helpers/CardTracker.cs",
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Helpers/OpponentSuitCardsProvider.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Strategies/BaseChooseCardStrategy.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Strategies/ChooseBestCardToPlayStrategy.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Strategies/IChooseCardStrategy.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Strategies/PlayingFirstAndRulesApplyStrategy.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Strategies/PlayingFirstAndRulesDoNotApplyStrategy.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Strategies/PlayingSecondAndRulesApplyStrategy.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Strategies/PlayingSecondAndRulesDoNotApplyStrategy.cs",
         };
 
         private static readonly Type CompiledPlayerType;
