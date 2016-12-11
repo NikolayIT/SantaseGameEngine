@@ -3,6 +3,7 @@
     using Santase.AI.SmartPlayer;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
+    using Santase.Tests.GameSimulations.Players;
 
     // ReSharper disable once UnusedMember.Global
     public class SmartPlayersGameSimulator : BaseGameSimulator
