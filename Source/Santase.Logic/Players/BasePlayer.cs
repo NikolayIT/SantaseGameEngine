@@ -10,8 +10,8 @@
         protected BasePlayer()
         {
             this.Cards = new CardCollection();
-            this.AnnounceValidator = Santase.Logic.PlayerActionValidate.AnnounceValidator.Instance;
-            this.PlayerActionValidator = Santase.Logic.PlayerActionValidate.PlayerActionValidator.Instance;
+            this.AnnounceValidator = PlayerActionValidate.AnnounceValidator.Instance;
+            this.PlayerActionValidator = PlayerActionValidate.PlayerActionValidator.Instance;
         }
 
         public abstract string Name { get; }

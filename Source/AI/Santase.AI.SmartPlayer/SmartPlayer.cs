@@ -1,12 +1,10 @@
 ﻿namespace Santase.AI.SmartPlayer
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.AI.SmartPlayer.Strategies;
-    using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 

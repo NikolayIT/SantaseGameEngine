@@ -1,6 +1,5 @@
 ﻿namespace Santase.AI.SmartPlayer.Strategies
 {
-    using System;
     using System.Collections.Generic;
 
     using Santase.AI.SmartPlayer.Helpers;

@@ -4,6 +4,7 @@
     using System.CodeDom.Compiler;
     using System.Collections.Generic;
     using System.Net.Http;
+    using System.Reflection;
 
     using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 
@@ -58,7 +59,7 @@
             // True - exe file generation, false - dll file generation
             parameters.GenerateExecutable = false;
 
-            CompilerResults results = CodeProvider2.CompileAssemblyFromSource(parameters, codeFiles.ToArray());
+            CompilerResults results = CodeProvider.CompileAssemblyFromSource(parameters, codeFiles.ToArray());
             if (results.Errors.HasErrors)
             {
                 foreach (CompilerError error in results.Errors)
@@ -79,7 +80,7 @@
 
         public string Name => "Smart Player Old";
 
-        private static CSharpCodeProvider CodeProvider2
+        private static CSharpCodeProvider CodeProvider
         {
             get
             {
@@ -89,25 +90,14 @@
                     try
                     {
                         var settings =
-                            csc.GetType()
-                                .GetField(
-                                    "_compilerSettings",
-                                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                                .GetValue(csc);
+                            csc.GetType().GetField("_compilerSettings", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(csc);
                         var path =
-                            settings.GetType()
-                                .GetField(
-                                    "_compilerFullPath",
-                                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                                .GetValue(settings) as string;
-                        settings.GetType()
-                            .GetField(
-                                "_compilerFullPath",
-                                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                            .SetValue(settings, path.Replace(@"bin\roslyn\", @"roslyn\"));
+                            settings?.GetType().GetField("_compilerFullPath", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(settings) as string;
+                        settings?.GetType().GetField("_compilerFullPath", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(settings, path?.Replace(@"bin\roslyn\", @"roslyn\"));
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Console.WriteLine($"Exception in getting CSharpCodeProvider: {ex.Message}");
                     }
 
                     codeProvider = csc;

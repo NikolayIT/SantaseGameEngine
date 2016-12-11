@@ -56,7 +56,7 @@
         public static Card FromHashCode(int hashCode)
         {
             var suitId = (hashCode - 1) / 13;
-            return Card.GetCard((CardSuit)suitId, (CardType)(hashCode - (suitId * 13)));
+            return GetCard((CardSuit)suitId, (CardType)(hashCode - (suitId * 13)));
         }
 
         public int GetValue()

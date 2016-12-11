@@ -39,6 +39,8 @@
         {
             this.InitializeComponent();
 
+            this.ProgramVersion.Text = "Santase v1.5";
+
             this.InitializeAdControl();
 
             this.resultPersister = new TotalResultPersister();

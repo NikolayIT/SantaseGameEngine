@@ -238,16 +238,19 @@
                                      Card.GetCard(CardSuit.Club, CardType.Ace), // 1
                                      Card.GetCard(CardSuit.Spade, CardType.King), // 52
                                  };
-            var enumerator = collection.GetEnumerator();
-            while (enumerator.MoveNext())
+            int count;
+            using (var enumerator = collection.GetEnumerator())
             {
-            }
+                while (enumerator.MoveNext())
+                {
+                }
 
-            enumerator.Reset();
-            var count = 0;
-            while (enumerator.MoveNext())
-            {
-                count++;
+                enumerator.Reset();
+                count = 0;
+                while (enumerator.MoveNext())
+                {
+                    count++;
+                }
             }
 
             Assert.AreEqual(collection.Count, count);
