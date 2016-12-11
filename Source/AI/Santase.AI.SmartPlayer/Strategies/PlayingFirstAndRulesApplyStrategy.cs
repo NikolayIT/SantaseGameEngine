@@ -50,7 +50,8 @@
             // Smallest non-trump card
             var cardToPlay =
                 possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
-                    .OrderBy(x => x.GetValue())
+                    .OrderBy(x => this.Tracker.UnknownCards.Count(y => y.Suit == x.Suit))
+                    .ThenBy(x => x.GetValue())
                     .FirstOrDefault();
             if (cardToPlay != null)
             {
