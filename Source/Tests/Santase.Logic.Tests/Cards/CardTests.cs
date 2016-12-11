@@ -111,42 +111,6 @@
         }
 
         [Test]
-        public void CloneShouldReturnDifferentReference()
-        {
-            var card = new Card(CardSuit.Diamond, CardType.Queen);
-            var newCard = card.DeepClone();
-            Assert.AreNotSame(card, newCard);
-        }
-
-        [Test]
-        public void CloneShouldReturnObjectOfTypeCard()
-        {
-            var card = new Card(CardSuit.Diamond, CardType.Queen);
-            var newCard = card.DeepClone();
-            Assert.IsInstanceOf<Card>(newCard);
-        }
-
-        [Test]
-        public void CloneShouldReturnEqualObjectWithEqualProperties()
-        {
-            var card = new Card(CardSuit.Club, CardType.Ace);
-            var newCard = card.DeepClone();
-            Assert.IsNotNull(newCard);
-            Assert.IsTrue(card.Equals(newCard));
-            Assert.AreEqual(card.Suit, newCard.Suit);
-            Assert.AreEqual(card.Type, newCard.Type);
-        }
-
-        [Test]
-        public void CloneShouldReturnObjectWithTheSameHashCode()
-        {
-            var card = new Card(CardSuit.Spade, CardType.Nine);
-            var newCard = card.DeepClone();
-            Assert.IsNotNull(newCard);
-            Assert.AreEqual(card.GetHashCode(), newCard.GetHashCode());
-        }
-
-        [Test]
         public void FromHashCodeShouldCreateCardsWithTheGivenHashCode()
         {
             foreach (CardSuit cardSuitValue in Enum.GetValues(typeof(CardSuit)))

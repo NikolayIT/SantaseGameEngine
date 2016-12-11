@@ -3,7 +3,7 @@
     /// <summary>
     /// Immutable object to represent game card with suit and type.
     /// </summary>
-    public class Card : IDeepCloneable<Card>
+    public class Card
     {
         public Card(CardSuit suit, CardType type)
         {
@@ -54,11 +54,6 @@
             {
                 return ((int)this.Suit * 13) + (int)this.Type;
             }
-        }
-
-        public Card DeepClone()
-        {
-            return new Card(this.Suit, this.Type);
         }
 
         public override string ToString()

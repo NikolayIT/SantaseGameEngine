@@ -204,7 +204,7 @@
             var deck = new Deck();
             var trumpSuit = deck.TrumpCard.Suit;
 
-            var oldTrumpCard = deck.TrumpCard.DeepClone();
+            var oldTrumpCard = deck.TrumpCard;
             var nineOfTrump = new Card(trumpSuit, CardType.Nine);
 
             firstPlayerInfo.AddCard(nineOfTrump);
