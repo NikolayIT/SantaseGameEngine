@@ -103,10 +103,10 @@
             ICollection<Card> possibleCardsToPlay)
         {
             // Announce 40 or 20 if possible
-            var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
-            if (action != null)
+            var cardFor20Or40 = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
+            if (cardFor20Or40 != null)
             {
-                return action;
+                return this.PlayCard(cardFor20Or40);
             }
 
             // If the player is close to the win => play trump card which will surely win the trick
@@ -162,10 +162,10 @@
             }
 
             // Announce 40 or 20 if possible
-            var action = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
-            if (action != null)
+            var cardFor20Or40 = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
+            if (cardFor20Or40 != null)
             {
-                return action;
+                return this.PlayCard(cardFor20Or40);
             }
 
             // Smallest non-trump card
@@ -228,8 +228,17 @@
 
                 if (biggestTrump != null)
                 {
+                    var currentPlayerPotentialPoints = context.FirstPlayedCard.GetValue() + biggestTrump.GetValue()
+                                                       + context.SecondPlayerRoundPoints;
+
+                    var cardFor20Or40 = this.TryToAnnounce20Or40(context, this.Cards);
+                    if (cardFor20Or40?.Type == CardType.Queen && cardFor20Or40.Suit != context.TrumpCard.Suit)
+                    {
+                        currentPlayerPotentialPoints += 20;
+                    }
+
                     // If the current player wins the round by playing trump => play it
-                    if (context.FirstPlayedCard.GetValue() + biggestTrump.GetValue() + context.SecondPlayerRoundPoints > 65)
+                    if (currentPlayerPotentialPoints > 65)
                     {
                         return this.PlayCard(biggestTrump);
                     }
@@ -384,7 +393,7 @@
             return null;
         }
 
-        private PlayerAction TryToAnnounce20Or40(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
+        private Card TryToAnnounce20Or40(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
             if (!context.State.CanAnnounce20Or40)
             {
@@ -397,7 +406,7 @@
                 if (card.Type == CardType.Queen
                     && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Forty)
                 {
-                    return this.PlayCard(card);
+                    return card;
                 }
             }
 
@@ -407,7 +416,7 @@
                 if (card.Type == CardType.Queen
                     && this.AnnounceValidator.GetPossibleAnnounce(this.Cards, card, context.TrumpCard) == Announce.Twenty)
                 {
-                    return this.PlayCard(card);
+                    return card;
                 }
             }
 
