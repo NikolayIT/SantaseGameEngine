@@ -15,6 +15,9 @@
         private static readonly string[] UrlsForSourceCode =
         {
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/SmartPlayer.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/GlobalStats.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Helpers/CardTracker.cs",
+            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Source/AI/Santase.AI.SmartPlayer/Helpers/OpponentSuitCardsProvider.cs",
         };
 
         private static readonly Type CompiledPlayerType;
@@ -41,7 +44,6 @@
             parameters.ReferencedAssemblies.Add("System.dll");
             parameters.ReferencedAssemblies.Add("System.Core.dll");
             parameters.ReferencedAssemblies.Add("Santase.Logic.dll");
-            parameters.ReferencedAssemblies.Add("Santase.AI.SmartPlayer.dll");
 
             // True - memory generation, false - external file generation
             parameters.GenerateInMemory = true;

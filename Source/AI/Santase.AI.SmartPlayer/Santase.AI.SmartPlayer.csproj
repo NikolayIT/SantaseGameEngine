@@ -47,6 +47,13 @@
     <Compile Include="Helpers\OpponentSuitCardsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmartPlayer.cs" />
+    <Compile Include="Strategies\BaseChooseCardStrategy.cs" />
+    <Compile Include="Strategies\ChooseBestCardToPlayStrategy.cs" />
+    <Compile Include="Strategies\IChooseCardStrategy.cs" />
+    <Compile Include="Strategies\PlayingFirstAndRulesApplyStrategy.cs" />
+    <Compile Include="Strategies\PlayingFirstAndRulesDoNotApplyStrategy.cs" />
+    <Compile Include="Strategies\PlayingSecondAndRulesApplyStrategy.cs" />
+    <Compile Include="Strategies\PlayingSecondAndRulesDoNotApplyStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
@@ -54,6 +61,7 @@
       <Name>Santase.Logic</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
