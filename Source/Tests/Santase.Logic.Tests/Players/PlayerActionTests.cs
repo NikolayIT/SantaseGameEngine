@@ -11,14 +11,14 @@
         [Test]
         public void PlayCardShouldPassCorrectActionType()
         {
-            var playerAction = PlayerAction.PlayCard(new Card(CardSuit.Club, CardType.Ace));
+            var playerAction = PlayerAction.PlayCard(Card.GetCard(CardSuit.Club, CardType.Ace));
             Assert.AreEqual(PlayerActionType.PlayCard, playerAction.Type);
         }
 
         [Test]
         public void PlayCardShouldPassCorrectCard()
         {
-            var card = new Card(CardSuit.Club, CardType.Ace);
+            var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             var playerAction = PlayerAction.PlayCard(card);
             Assert.AreEqual(card, playerAction.Card);
         }
@@ -26,7 +26,7 @@
         [Test]
         public void PlayCardShouldNotAffectAnnounceValue()
         {
-            var card = new Card(CardSuit.Club, CardType.Ace);
+            var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             var playerAction = PlayerAction.PlayCard(card);
             Assert.AreEqual(Announce.None, playerAction.Announce);
         }
@@ -96,7 +96,7 @@
         [Test]
         public void ToStringShouldReturnValidValueWhenPlayCard()
         {
-            var card = new Card(CardSuit.Club, CardType.Ace);
+            var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             var playerAction = PlayerAction.PlayCard(card);
             var toStringValue = playerAction.ToString();
 

@@ -27,7 +27,7 @@
         [Test]
         public void CountShouldReturn1WhenOneCardIsAdded()
         {
-            var collection = new CardCollection { new Card(CardSuit.Club, CardType.Ace) };
+            var collection = new CardCollection { Card.GetCard(CardSuit.Club, CardType.Ace) };
             Assert.AreEqual(1, collection.Count);
         }
 
@@ -35,7 +35,7 @@
         public void CountShouldReturn1WhenOneCardIsAddedAndThenRemoved()
         {
             var collection = new CardCollection();
-            var card = new Card(CardSuit.Club, CardType.Ace);
+            var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             collection.Add(card);
             collection.Remove(card);
             Assert.AreEqual(0, collection.Count);
@@ -46,12 +46,12 @@
         {
             var collection = new CardCollection
                                  {
-                                     new Card(CardSuit.Club, CardType.Ace),
-                                     new Card(CardSuit.Heart, CardType.Ten),
-                                     new Card(CardSuit.Heart, CardType.King),
-                                     new Card(CardSuit.Diamond, CardType.Queen),
-                                     new Card(CardSuit.Spade, CardType.Jack),
-                                     new Card(CardSuit.Spade, CardType.Nine),
+                                     Card.GetCard(CardSuit.Club, CardType.Ace),
+                                     Card.GetCard(CardSuit.Heart, CardType.Ten),
+                                     Card.GetCard(CardSuit.Heart, CardType.King),
+                                     Card.GetCard(CardSuit.Diamond, CardType.Queen),
+                                     Card.GetCard(CardSuit.Spade, CardType.Jack),
+                                     Card.GetCard(CardSuit.Spade, CardType.Nine),
                                  };
 
             Assert.AreEqual(6, collection.Count);
@@ -65,7 +65,7 @@
             {
                 foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
                 {
-                    var card = new Card(cardSuitValue, cardTypeValue);
+                    var card = Card.GetCard(cardSuitValue, cardTypeValue);
                     collection.Add(card);
                 }
             }
@@ -81,7 +81,7 @@
             {
                 foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
                 {
-                    var card = new Card(cardSuitValue, cardTypeValue);
+                    var card = Card.GetCard(cardSuitValue, cardTypeValue);
                     collection.Add(card);
                 }
             }
@@ -90,7 +90,7 @@
             {
                 foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
                 {
-                    var card = new Card(cardSuitValue, cardTypeValue);
+                    var card = Card.GetCard(cardSuitValue, cardTypeValue);
                     Assert.IsTrue(collection.Contains(card));
                 }
             }
@@ -101,10 +101,10 @@
         {
             var collection = new CardCollection
                                  {
-                                     new Card(CardSuit.Club, CardType.Ace),
-                                     new Card(CardSuit.Diamond, CardType.Ten),
-                                     new Card(CardSuit.Heart, CardType.Jack),
-                                     new Card(CardSuit.Spade, CardType.Nine),
+                                     Card.GetCard(CardSuit.Club, CardType.Ace),
+                                     Card.GetCard(CardSuit.Diamond, CardType.Ten),
+                                     Card.GetCard(CardSuit.Heart, CardType.Jack),
+                                     Card.GetCard(CardSuit.Spade, CardType.Nine),
                                  };
             collection.Clear();
             Assert.AreEqual(0, collection.Count);
@@ -114,16 +114,16 @@
         [Test]
         public void RemoveNonExistingCardsShouldNotRemoveThem()
         {
-            var collection = new CardCollection { new Card(CardSuit.Spade, CardType.Ace) };
-            collection.Remove(new Card(CardSuit.Club, CardType.Ace));
+            var collection = new CardCollection { Card.GetCard(CardSuit.Spade, CardType.Ace) };
+            collection.Remove(Card.GetCard(CardSuit.Club, CardType.Ace));
             Assert.AreEqual(1, collection.Count);
         }
 
         [Test]
         public void RemoveShouldWorkProperly()
         {
-            var card1 = new Card(CardSuit.Club, CardType.Ace); // 1
-            var card2 = new Card(CardSuit.Spade, CardType.King); // 52
+            var card1 = Card.GetCard(CardSuit.Club, CardType.Ace); // 1
+            var card2 = Card.GetCard(CardSuit.Spade, CardType.King); // 52
             var collection = new CardCollection { card1, card2 };
             collection.Remove(card1);
             collection.Remove(card2);
@@ -133,7 +133,7 @@
         [Test]
         public void EnumerableGetEnumeratorShouldReturnNonNullEnumeratorWhichWorksCorrectly()
         {
-            var card = new Card(CardSuit.Spade, CardType.King); // 52
+            var card = Card.GetCard(CardSuit.Spade, CardType.King); // 52
             IEnumerable collection = new CardCollection { card };
             var enumerator = collection.GetEnumerator();
             Assert.IsNotNull(enumerator);
@@ -146,12 +146,12 @@
         {
             var cards = new List<Card>
                             {
-                                new Card(CardSuit.Club, CardType.Ace),
-                                new Card(CardSuit.Spade, CardType.Ace),
-                                new Card(CardSuit.Diamond, CardType.Ten),
-                                new Card(CardSuit.Heart, CardType.Jack),
-                                new Card(CardSuit.Club, CardType.Nine),
-                                new Card(CardSuit.Spade, CardType.Nine),
+                                Card.GetCard(CardSuit.Club, CardType.Ace),
+                                Card.GetCard(CardSuit.Spade, CardType.Ace),
+                                Card.GetCard(CardSuit.Diamond, CardType.Ten),
+                                Card.GetCard(CardSuit.Heart, CardType.Jack),
+                                Card.GetCard(CardSuit.Club, CardType.Nine),
+                                Card.GetCard(CardSuit.Spade, CardType.Nine),
                             };
 
             var collection = new CardCollection();
@@ -179,8 +179,8 @@
         [Test]
         public void CopyToShouldWorkProperly()
         {
-            var card1 = new Card(CardSuit.Club, CardType.Ace); // 1
-            var card2 = new Card(CardSuit.Spade, CardType.King); // 52
+            var card1 = Card.GetCard(CardSuit.Club, CardType.Ace); // 1
+            var card2 = Card.GetCard(CardSuit.Spade, CardType.King); // 52
             var collection = new CardCollection { card1, card2 };
             var array = new Card[2];
             collection.CopyTo(array, 0);
@@ -194,17 +194,17 @@
         {
             var collection = new CardCollection
                                  {
-                                     new Card(CardSuit.Club, CardType.Ace), // 1
-                                     new Card(CardSuit.Spade, CardType.King), // 52
-                                     new Card(CardSuit.Heart, CardType.Ten),
-                                     new Card(CardSuit.Diamond, CardType.Queen),
-                                     new Card(CardSuit.Club, CardType.Jack),
-                                     new Card(CardSuit.Heart, CardType.Nine),
+                                     Card.GetCard(CardSuit.Club, CardType.Ace), // 1
+                                     Card.GetCard(CardSuit.Spade, CardType.King), // 52
+                                     Card.GetCard(CardSuit.Heart, CardType.Ten),
+                                     Card.GetCard(CardSuit.Diamond, CardType.Queen),
+                                     Card.GetCard(CardSuit.Club, CardType.Jack),
+                                     Card.GetCard(CardSuit.Heart, CardType.Nine),
                                  };
             foreach (var firstCard in collection)
             {
                 Assert.NotNull(firstCard);
-                var found = collection.Any(x => x.Equals(new Card(CardSuit.Diamond, CardType.Queen)));
+                var found = collection.Any(x => x.Equals(Card.GetCard(CardSuit.Diamond, CardType.Queen)));
                 Assert.IsTrue(found);
             }
         }
@@ -214,12 +214,12 @@
         {
             var collection = new CardCollection
                                  {
-                                     new Card(CardSuit.Club, CardType.Ace), // 1
-                                     new Card(CardSuit.Spade, CardType.King), // 52
-                                     new Card(CardSuit.Heart, CardType.Ten),
-                                     new Card(CardSuit.Diamond, CardType.Queen),
-                                     new Card(CardSuit.Club, CardType.Jack),
-                                     new Card(CardSuit.Heart, CardType.Nine),
+                                     Card.GetCard(CardSuit.Club, CardType.Ace), // 1
+                                     Card.GetCard(CardSuit.Spade, CardType.King), // 52
+                                     Card.GetCard(CardSuit.Heart, CardType.Ten),
+                                     Card.GetCard(CardSuit.Diamond, CardType.Queen),
+                                     Card.GetCard(CardSuit.Club, CardType.Jack),
+                                     Card.GetCard(CardSuit.Heart, CardType.Nine),
                                  };
             var clonedCollection = collection.DeepClone();
             Assert.IsNotNull(clonedCollection);
@@ -235,8 +235,8 @@
         {
             var collection = new CardCollection
                                  {
-                                     new Card(CardSuit.Club, CardType.Ace), // 1
-                                     new Card(CardSuit.Spade, CardType.King), // 52
+                                     Card.GetCard(CardSuit.Club, CardType.Ace), // 1
+                                     Card.GetCard(CardSuit.Spade, CardType.King), // 52
                                  };
             var enumerator = collection.GetEnumerator();
             while (enumerator.MoveNext())

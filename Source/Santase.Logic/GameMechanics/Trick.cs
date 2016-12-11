@@ -105,7 +105,7 @@
                     case PlayerActionType.ChangeTrump:
                         {
                             var oldTrumpCard = this.deck.TrumpCard;
-                            var nineOfTrump = new Card(oldTrumpCard.Suit, CardType.Nine);
+                            var nineOfTrump = Card.GetCard(oldTrumpCard.Suit, CardType.Nine);
 
                             this.deck.ChangeTrumpCard(nineOfTrump);
                             context.TrumpCard = nineOfTrump;

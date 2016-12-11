@@ -55,7 +55,7 @@
             var secondRoundPlayerInfo = new RoundPlayerInfo(new Mock<IPlayer>().Object);
             var roundResult = new RoundResult(firstRoundPlayerInfo, secondRoundPlayerInfo);
 
-            secondRoundPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ace));
+            secondRoundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ace));
 
             Assert.AreEqual(PlayerPosition.FirstPlayer, roundResult.NoTricksPlayer);
         }
@@ -67,7 +67,7 @@
             var secondRoundPlayerInfo = new RoundPlayerInfo(new Mock<IPlayer>().Object);
             var roundResult = new RoundResult(firstRoundPlayerInfo, secondRoundPlayerInfo);
 
-            firstRoundPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ace));
+            firstRoundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ace));
 
             Assert.AreEqual(PlayerPosition.SecondPlayer, roundResult.NoTricksPlayer);
         }
@@ -79,8 +79,8 @@
             var secondRoundPlayerInfo = new RoundPlayerInfo(new Mock<IPlayer>().Object);
             var roundResult = new RoundResult(firstRoundPlayerInfo, secondRoundPlayerInfo);
 
-            firstRoundPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ace));
-            secondRoundPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ten));
+            firstRoundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ace));
+            secondRoundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ten));
 
             Assert.AreEqual(PlayerPosition.NoOne, roundResult.NoTricksPlayer);
         }

@@ -16,7 +16,7 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new FinalRoundState(haveStateMock.Object);
-            var trumpCard = new Card(CardSuit.Heart, CardType.Ten);
+            var trumpCard = Card.GetCard(CardSuit.Heart, CardType.Ten);
             const int CardsLeftInDeck = 10;
 
             var playerTurnContext = new PlayerTurnContext(state, trumpCard, CardsLeftInDeck, 0, 0);
@@ -30,10 +30,10 @@
         public void FirstPlayedCardPropertyShouldWorkCorrectly()
         {
             var haveStateMock = new Mock<IStateManager>();
-            var card = new Card(CardSuit.Spade, CardType.Jack);
+            var card = Card.GetCard(CardSuit.Spade, CardType.Jack);
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
-                new Card(CardSuit.Club, CardType.Ace),
+                Card.GetCard(CardSuit.Club, CardType.Ace),
                 0,
                 0,
                 0) { FirstPlayedCard = card };
@@ -47,7 +47,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
-                new Card(CardSuit.Club, CardType.Ace),
+                Card.GetCard(CardSuit.Club, CardType.Ace),
                 0,
                 0,
                 0) { FirstPlayerAnnounce = Announce };
@@ -58,10 +58,10 @@
         public void SecondPlayedCardPropertyShouldWorkCorrectly()
         {
             var haveStateMock = new Mock<IStateManager>();
-            var card = new Card(CardSuit.Spade, CardType.Jack);
+            var card = Card.GetCard(CardSuit.Spade, CardType.Jack);
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
-                new Card(CardSuit.Club, CardType.Ace),
+                Card.GetCard(CardSuit.Club, CardType.Ace),
                 0,
                 0,
                 0) { SecondPlayedCard = card };
@@ -74,7 +74,7 @@
             var haveStateMock = new Mock<IStateManager>();
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
-                new Card(CardSuit.Club, CardType.Ace),
+                Card.GetCard(CardSuit.Club, CardType.Ace),
                 0,
                 0,
                 0);
@@ -87,10 +87,10 @@
             var haveStateMock = new Mock<IStateManager>();
             var playerTurnContext = new PlayerTurnContext(
                 new FinalRoundState(haveStateMock.Object),
-                new Card(CardSuit.Club, CardType.Ace),
+                Card.GetCard(CardSuit.Club, CardType.Ace),
                 0,
                 0,
-                0) { FirstPlayedCard = new Card(CardSuit.Diamond, CardType.Ten) };
+                0) { FirstPlayedCard = Card.GetCard(CardSuit.Diamond, CardType.Ten) };
             Assert.IsFalse(playerTurnContext.IsFirstPlayerTurn);
         }
 
@@ -99,7 +99,7 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new StartRoundState(haveStateMock.Object);
-            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Heart, CardType.Queen), 12, 0, 0);
+            var playerTurnContext = new PlayerTurnContext(state, Card.GetCard(CardSuit.Heart, CardType.Queen), 12, 0, 0);
             var clonedPlayerTurnContext = playerTurnContext.DeepClone();
             Assert.AreNotSame(playerTurnContext, clonedPlayerTurnContext);
         }
@@ -109,7 +109,7 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new TwoCardsLeftRoundState(haveStateMock.Object);
-            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Diamond, CardType.Ace), 2, 0, 0);
+            var playerTurnContext = new PlayerTurnContext(state, Card.GetCard(CardSuit.Diamond, CardType.Ace), 2, 0, 0);
             var clonedPlayerTurnContext = playerTurnContext.DeepClone();
             Assert.IsInstanceOf<PlayerTurnContext>(clonedPlayerTurnContext);
         }
@@ -119,11 +119,11 @@
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new StartRoundState(haveStateMock.Object);
-            var playerTurnContext = new PlayerTurnContext(state, new Card(CardSuit.Club, CardType.Ten), 12, 0, 0)
+            var playerTurnContext = new PlayerTurnContext(state, Card.GetCard(CardSuit.Club, CardType.Ten), 12, 0, 0)
                                         {
-                                            FirstPlayedCard = new Card(CardSuit.Spade, CardType.King),
+                                            FirstPlayedCard = Card.GetCard(CardSuit.Spade, CardType.King),
                                             FirstPlayerAnnounce = Announce.Forty,
-                                            SecondPlayedCard = new Card(CardSuit.Heart, CardType.Nine),
+                                            SecondPlayedCard = Card.GetCard(CardSuit.Heart, CardType.Nine),
                                         };
 
             var clonedPlayerTurnContext = playerTurnContext.DeepClone();

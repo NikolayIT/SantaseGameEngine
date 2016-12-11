@@ -41,7 +41,7 @@
                     return Announce.None;
             }
 
-            var cardToSearch = new Card(cardToBePlayed.Suit, cardTypeToSearch);
+            var cardToSearch = Card.GetCard(cardToBePlayed.Suit, cardTypeToSearch);
             if (!playerCards.Contains(cardToSearch))
             {
                 return Announce.None;

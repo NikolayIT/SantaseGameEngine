@@ -103,7 +103,7 @@
         public void ChangeTrumpCardShouldWorkProperly()
         {
             IDeck deck = new Deck();
-            var card = new Card(CardSuit.Spade, CardType.Nine);
+            var card = Card.GetCard(CardSuit.Spade, CardType.Nine);
             deck.ChangeTrumpCard(card);
             var trumpCard = deck.TrumpCard;
             Assert.AreEqual(card, trumpCard);
@@ -113,7 +113,7 @@
         public void ChangeTrumpCardShouldChangeTheLastCardInTheDeck()
         {
             IDeck deck = new Deck();
-            var card = new Card(CardSuit.Club, CardType.Ace);
+            var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             deck.ChangeTrumpCard(card);
             var cardsCount = deck.CardsLeft;
             for (var i = 0; i < cardsCount - 1; i++)

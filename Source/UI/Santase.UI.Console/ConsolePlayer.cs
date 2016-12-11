@@ -105,7 +105,7 @@
 
                     if (playerAction.Type == PlayerActionType.ChangeTrump)
                     {
-                        this.Cards.Remove(new Card(context.TrumpCard.Suit, CardType.Nine));
+                        this.Cards.Remove(Card.GetCard(context.TrumpCard.Suit, CardType.Nine));
                     }
 
                     this.PrintGameInfo(context);

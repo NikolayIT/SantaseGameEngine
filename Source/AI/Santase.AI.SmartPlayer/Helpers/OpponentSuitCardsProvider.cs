@@ -12,12 +12,12 @@
         {
             var playerCards = new CardCollection
                                   {
-                                      new Card(suit, CardType.Nine),
-                                      new Card(suit, CardType.Jack),
-                                      new Card(suit, CardType.Queen),
-                                      new Card(suit, CardType.King),
-                                      new Card(suit, CardType.Ten),
-                                      new Card(suit, CardType.Ace),
+                                      Card.GetCard(suit, CardType.Nine),
+                                      Card.GetCard(suit, CardType.Jack),
+                                      Card.GetCard(suit, CardType.Queen),
+                                      Card.GetCard(suit, CardType.King),
+                                      Card.GetCard(suit, CardType.Ten),
+                                      Card.GetCard(suit, CardType.Ace),
                                   };
 
             foreach (var card in myCards.Where(x => x.Suit == suit))

@@ -21,12 +21,15 @@
             {
                 foreach (CardType type in Enum.GetValues(typeof(CardType)))
                 {
+#pragma warning disable 618
                     var card = new Card(suit, type);
+#pragma warning restore 618
                     Cards[card.hashCode] = card;
                 }
             }
         }
 
+        [Obsolete("For performance considerations use Card.GetCard instead of Card.ctor()")]
         public Card(CardSuit suit, CardType type)
         {
             this.Suit = suit;
@@ -42,7 +45,7 @@
         public static Card GetCard(CardSuit suit, CardType type)
         {
             var code = ((int)suit * 13) + (int)type;
-            if (code < 0 || code >= 52)
+            if (code < 0 || code > 52)
             {
                 throw new IndexOutOfRangeException("Invalid suit and type given.");
             }
@@ -53,7 +56,7 @@
         public static Card FromHashCode(int hashCode)
         {
             var suitId = (hashCode - 1) / 13;
-            return new Card((CardSuit)suitId, (CardType)(hashCode - (suitId * 13)));
+            return Card.GetCard((CardSuit)suitId, (CardType)(hashCode - (suitId * 13)));
         }
 
         public int GetValue()

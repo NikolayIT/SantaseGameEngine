@@ -19,7 +19,7 @@
                 return false;
             }
 
-            return playerCards.Contains(new Card(trumpCard.Suit, CardType.Nine));
+            return playerCards.Contains(Card.GetCard(trumpCard.Suit, CardType.Nine));
         }
     }
 }

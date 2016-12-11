@@ -12,19 +12,19 @@
     {
         private readonly ICollection<Card> playerCards = new List<Card>
                                                              {
-                                                                 new Card(CardSuit.Club, CardType.Queen),
-                                                                 new Card(CardSuit.Club, CardType.King),
-                                                                 new Card(CardSuit.Diamond, CardType.Queen),
-                                                                 new Card(CardSuit.Diamond, CardType.King),
-                                                                 new Card(CardSuit.Heart, CardType.Queen),
-                                                                 new Card(CardSuit.Heart, CardType.King),
+                                                                 Card.GetCard(CardSuit.Club, CardType.Queen),
+                                                                 Card.GetCard(CardSuit.Club, CardType.King),
+                                                                 Card.GetCard(CardSuit.Diamond, CardType.Queen),
+                                                                 Card.GetCard(CardSuit.Diamond, CardType.King),
+                                                                 Card.GetCard(CardSuit.Heart, CardType.Queen),
+                                                                 Card.GetCard(CardSuit.Heart, CardType.King),
                                                              };
 
         [Test]
         public void GetPossibleAnnounceShouldReturnNoAnnounceWhenGivenNullCard()
         {
             IAnnounceValidator validator = new AnnounceValidator();
-            var announce = validator.GetPossibleAnnounce(this.playerCards, null, new Card(CardSuit.Heart, CardType.Ace));
+            var announce = validator.GetPossibleAnnounce(this.playerCards, null, Card.GetCard(CardSuit.Heart, CardType.Ace));
             Assert.AreEqual(Announce.None, announce);
         }
 
@@ -37,8 +37,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Club, cardType),
-                new Card(CardSuit.Club, CardType.Ace));
+                Card.GetCard(CardSuit.Club, cardType),
+                Card.GetCard(CardSuit.Club, CardType.Ace));
             Assert.AreEqual(Announce.None, announce);
         }
 
@@ -48,8 +48,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Spade, CardType.Queen),
-                new Card(CardSuit.Heart, CardType.Ace));
+                Card.GetCard(CardSuit.Spade, CardType.Queen),
+                Card.GetCard(CardSuit.Heart, CardType.Ace));
             Assert.AreEqual(Announce.None, announce);
         }
 
@@ -59,8 +59,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Spade, CardType.King),
-                new Card(CardSuit.Heart, CardType.Ace));
+                Card.GetCard(CardSuit.Spade, CardType.King),
+                Card.GetCard(CardSuit.Heart, CardType.Ace));
             Assert.AreEqual(Announce.None, announce);
         }
 
@@ -70,8 +70,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Club, CardType.Queen),
-                new Card(CardSuit.Heart, CardType.Ace));
+                Card.GetCard(CardSuit.Club, CardType.Queen),
+                Card.GetCard(CardSuit.Heart, CardType.Ace));
             Assert.AreEqual(Announce.Twenty, announce);
         }
 
@@ -81,8 +81,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Diamond, CardType.King),
-                new Card(CardSuit.Heart, CardType.Ace));
+                Card.GetCard(CardSuit.Diamond, CardType.King),
+                Card.GetCard(CardSuit.Heart, CardType.Ace));
             Assert.AreEqual(Announce.Twenty, announce);
         }
 
@@ -92,8 +92,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Diamond, CardType.Queen),
-                new Card(CardSuit.Diamond, CardType.Ace));
+                Card.GetCard(CardSuit.Diamond, CardType.Queen),
+                Card.GetCard(CardSuit.Diamond, CardType.Ace));
             Assert.AreEqual(Announce.Forty, announce);
         }
 
@@ -103,8 +103,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Heart, CardType.King),
-                new Card(CardSuit.Heart, CardType.Nine));
+                Card.GetCard(CardSuit.Heart, CardType.King),
+                Card.GetCard(CardSuit.Heart, CardType.Nine));
             Assert.AreEqual(Announce.Forty, announce);
         }
 
@@ -114,8 +114,8 @@
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(
                 this.playerCards,
-                new Card(CardSuit.Heart, CardType.King),
-                new Card(CardSuit.Heart, CardType.Nine),
+                Card.GetCard(CardSuit.Heart, CardType.King),
+                Card.GetCard(CardSuit.Heart, CardType.Nine),
                 false);
             Assert.AreEqual(Announce.None, announce);
         }

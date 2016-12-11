@@ -13,18 +13,18 @@
     [TestFixture]
     public class ChangeTrumpActionValidatorTests
     {
-        private static readonly Card TrumpThatCanBeChanged = new Card(CardSuit.Spade, CardType.Queen);
+        private static readonly Card TrumpThatCanBeChanged = Card.GetCard(CardSuit.Spade, CardType.Queen);
 
-        private static readonly Card TrumpThatCannotBeChanged = new Card(CardSuit.Diamond, CardType.King);
+        private static readonly Card TrumpThatCannotBeChanged = Card.GetCard(CardSuit.Diamond, CardType.King);
 
         private static readonly ICollection<Card> PlayerCards = new List<Card>
                                                               {
-                                                                  new Card(CardSuit.Club, CardType.Nine),
-                                                                  new Card(CardSuit.Spade, CardType.Nine),
-                                                                  new Card(CardSuit.Club, CardType.Ten),
-                                                                  new Card(CardSuit.Spade, CardType.Ten),
-                                                                  new Card(CardSuit.Diamond, CardType.Ace),
-                                                                  new Card(CardSuit.Heart, CardType.Ace),
+                                                                  Card.GetCard(CardSuit.Club, CardType.Nine),
+                                                                  Card.GetCard(CardSuit.Spade, CardType.Nine),
+                                                                  Card.GetCard(CardSuit.Club, CardType.Ten),
+                                                                  Card.GetCard(CardSuit.Spade, CardType.Ten),
+                                                                  Card.GetCard(CardSuit.Diamond, CardType.Ace),
+                                                                  Card.GetCard(CardSuit.Heart, CardType.Ace),
                                                               };
 
         [Test]

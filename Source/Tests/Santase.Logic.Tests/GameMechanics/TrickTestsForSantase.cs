@@ -59,19 +59,19 @@
             var deck = new Deck();
 
             // 53 points in firstPlayerInfo.TrickCards
-            firstPlayerInfo.TrickCards.Add(new Card(CardSuit.Diamond, CardType.Ace));
-            firstPlayerInfo.TrickCards.Add(new Card(CardSuit.Diamond, CardType.Ten));
-            firstPlayerInfo.TrickCards.Add(new Card(CardSuit.Spade, CardType.Ace));
-            firstPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ace));
-            firstPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ten));
+            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Diamond, CardType.Ace));
+            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Diamond, CardType.Ten));
+            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Spade, CardType.Ace));
+            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ace));
+            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ten));
 
             // Add cards for announcing 20
-            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.King));
-            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Queen));
+            firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.King));
+            firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Queen));
             stateManager.SetState(new MoreThanTwoCardsLeftRoundState(stateManager));
 
-            secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ten));
-            secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
+            secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ten));
+            secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ace));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             var winner = trick.Play();
@@ -99,8 +99,8 @@
             var stateManager = new StateManager();
             var deck = new Deck();
 
-            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Nine));
-            secondPlayerInfo.AddCard(new Card(deck.TrumpCard.Suit, CardType.Jack));
+            firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Nine));
+            secondPlayerInfo.AddCard(Card.GetCard(deck.TrumpCard.Suit, CardType.Jack));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             var winner = trick.Play();
@@ -108,8 +108,8 @@
             Assert.IsTrue(winner == secondPlayerInfo);
             Assert.AreEqual(2, winner.RoundPoints);
             Assert.AreEqual(2, winner.TrickCards.Count);
-            Assert.IsTrue(winner.TrickCards.Contains(new Card(CardSuit.Heart, CardType.Nine)));
-            Assert.IsTrue(winner.TrickCards.Contains(new Card(deck.TrumpCard.Suit, CardType.Jack)));
+            Assert.IsTrue(winner.TrickCards.Contains(Card.GetCard(CardSuit.Heart, CardType.Nine)));
+            Assert.IsTrue(winner.TrickCards.Contains(Card.GetCard(deck.TrumpCard.Suit, CardType.Jack)));
             Assert.AreEqual(0, firstPlayerInfo.TrickCards.Count);
 
             Assert.AreEqual(0, firstPlayer.EndTurnContextObject.FirstPlayerRoundPoints);
@@ -133,12 +133,12 @@
             var stateManager = new StateManager();
             var deck = new Deck();
 
-            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.King));
-            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Queen));
+            firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.King));
+            firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Queen));
             stateManager.SetState(new MoreThanTwoCardsLeftRoundState(stateManager));
 
-            secondPlayerInfo.AddCard(new Card(CardSuit.Diamond, CardType.Ten));
-            secondPlayerInfo.AddCard(new Card(CardSuit.Diamond, CardType.Ace));
+            secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Diamond, CardType.Ten));
+            secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Diamond, CardType.Ace));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             trick.Play();
@@ -159,7 +159,7 @@
         {
             var firstPlayer = new Mock<IPlayer>();
             firstPlayer.Setup(x => x.GetTurn(It.IsAny<PlayerTurnContext>()))
-                .Returns(PlayerAction.PlayCard(new Card(CardSuit.Club, CardType.Ace)));
+                .Returns(PlayerAction.PlayCard(Card.GetCard(CardSuit.Club, CardType.Ace)));
             var firstPlayerInfo = new RoundPlayerInfo(firstPlayer.Object);
 
             var secondPlayer = new Mock<IPlayer>();
@@ -168,8 +168,8 @@
             var stateManager = new StateManager();
             var deck = new Deck();
 
-            firstPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.King));
-            secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
+            firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.King));
+            secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ace));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             Assert.Throws<InternalGameException>(() => trick.Play());
@@ -205,11 +205,11 @@
             var trumpSuit = deck.TrumpCard.Suit;
 
             var oldTrumpCard = deck.TrumpCard;
-            var nineOfTrump = new Card(trumpSuit, CardType.Nine);
+            var nineOfTrump = Card.GetCard(trumpSuit, CardType.Nine);
 
             firstPlayerInfo.AddCard(nineOfTrump);
             secondPlayerInfo.AddCard(
-                new Card(trumpSuit == CardSuit.Heart ? CardSuit.Club : CardSuit.Heart, CardType.Ace));
+                Card.GetCard(trumpSuit == CardSuit.Heart ? CardSuit.Club : CardSuit.Heart, CardType.Ace));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             trick.Play();
@@ -235,8 +235,8 @@
             var deck = new Deck();
             var trumpSuit = deck.TrumpCard.Suit;
 
-            firstPlayerInfo.AddCard(new Card(trumpSuit, CardType.Jack));
-            secondPlayerInfo.AddCard(new Card(CardSuit.Heart, CardType.Ace));
+            firstPlayerInfo.AddCard(Card.GetCard(trumpSuit, CardType.Jack));
+            secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ace));
 
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             Assert.Throws<InternalGameException>(() => trick.Play());

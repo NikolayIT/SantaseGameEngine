@@ -128,7 +128,7 @@
                 {
                     foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
                     {
-                        var card = new Card(cardSuitValue, cardTypeValue);
+                        var card = Card.GetCard(cardSuitValue, cardTypeValue);
                         var hashCode = card.GetHashCode();
                         AllCards[hashCode] = card;
                     }

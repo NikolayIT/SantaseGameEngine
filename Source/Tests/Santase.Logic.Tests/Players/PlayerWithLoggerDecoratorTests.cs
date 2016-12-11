@@ -36,9 +36,9 @@
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
 
-            var card = new Card(CardSuit.Diamond, CardType.King);
+            var card = Card.GetCard(CardSuit.Diamond, CardType.King);
             var cards = new List<Card> { card };
-            var trumpCard = new Card(CardSuit.Club, CardType.Ace);
+            var trumpCard = Card.GetCard(CardSuit.Club, CardType.Ace);
             playerWithLogger.StartRound(cards, trumpCard, 1, 4);
 
             Assert.IsTrue(logger.ToString().Length > 0);
@@ -54,7 +54,7 @@
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
 
-            playerWithLogger.AddCard(new Card(CardSuit.Club, CardType.Ace));
+            playerWithLogger.AddCard(Card.GetCard(CardSuit.Club, CardType.Ace));
 
             Assert.IsTrue(logger.ToString().Length > 0);
             playerMock.Verify(x => x.AddCard(It.IsAny<Card>()), Times.Once());
@@ -70,7 +70,7 @@
             playerWithLogger.GetTurn(
                 new PlayerTurnContext(
                     new StartRoundState(new StateManager()),
-                    new Card(CardSuit.Club, CardType.Ace),
+                    Card.GetCard(CardSuit.Club, CardType.Ace),
                     0,
                     0,
                     0));
@@ -89,7 +89,7 @@
             playerWithLogger.EndTurn(
                 new PlayerTurnContext(
                     new StartRoundState(new StateManager()),
-                    new Card(CardSuit.Club, CardType.Ace),
+                    Card.GetCard(CardSuit.Club, CardType.Ace),
                     0,
                     0,
                     0));

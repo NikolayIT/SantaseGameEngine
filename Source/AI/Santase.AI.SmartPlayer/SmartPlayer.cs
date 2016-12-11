@@ -208,9 +208,9 @@
                 }
 
                 // Don't have Queen and King of the same suit => play it
-                if (biggerCard.Type != CardType.Queen || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.King)))
+                if (biggerCard.Type != CardType.Queen || !this.Cards.Contains(Card.GetCard(biggerCard.Suit, CardType.King)))
                 {
-                    if (biggerCard.Type != CardType.King || !this.Cards.Contains(new Card(biggerCard.Suit, CardType.Queen)))
+                    if (biggerCard.Type != CardType.King || !this.Cards.Contains(Card.GetCard(biggerCard.Suit, CardType.Queen)))
                     {
                         return this.PlayCard(biggerCard);
                     }
@@ -246,37 +246,37 @@
             if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit &&
                 (context.FirstPlayedCard.Type == CardType.Ace || context.FirstPlayedCard.Type == CardType.Ten))
             {
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Nine))
+                if (possibleCardsToPlay.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.Nine))
                     && context.TrumpCard.Type == CardType.Jack)
                 {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Nine));
+                    return this.PlayCard(Card.GetCard(context.TrumpCard.Suit, CardType.Nine));
                 }
 
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Jack)))
+                if (possibleCardsToPlay.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.Jack)))
                 {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Jack));
+                    return this.PlayCard(Card.GetCard(context.TrumpCard.Suit, CardType.Jack));
                 }
 
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Queen))
-                    && this.cardTracker.PlayedCards.Contains(new Card(context.TrumpCard.Suit, CardType.King)))
+                if (possibleCardsToPlay.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.Queen))
+                    && this.cardTracker.PlayedCards.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.King)))
                 {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Queen));
+                    return this.PlayCard(Card.GetCard(context.TrumpCard.Suit, CardType.Queen));
                 }
 
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.King))
-                    && this.cardTracker.PlayedCards.Contains(new Card(context.TrumpCard.Suit, CardType.Queen)))
+                if (possibleCardsToPlay.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.King))
+                    && this.cardTracker.PlayedCards.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.Queen)))
                 {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.King));
+                    return this.PlayCard(Card.GetCard(context.TrumpCard.Suit, CardType.King));
                 }
 
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Ten)))
+                if (possibleCardsToPlay.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.Ten)))
                 {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Ten));
+                    return this.PlayCard(Card.GetCard(context.TrumpCard.Suit, CardType.Ten));
                 }
 
-                if (possibleCardsToPlay.Contains(new Card(context.TrumpCard.Suit, CardType.Ace)))
+                if (possibleCardsToPlay.Contains(Card.GetCard(context.TrumpCard.Suit, CardType.Ace)))
                 {
-                    return this.PlayCard(new Card(context.TrumpCard.Suit, CardType.Ace));
+                    return this.PlayCard(Card.GetCard(context.TrumpCard.Suit, CardType.Ace));
                 }
             }
 

@@ -37,7 +37,7 @@
         public void ChangeTrumpCard(Card card)
         {
             // Current player changed the trump card
-            this.trumpCard = new Card(card.Suit, CardType.Nine);
+            this.trumpCard = Card.GetCard(card.Suit, CardType.Nine);
             this.UnknownCards.Remove(card);
             this.UnknownCards.Remove(this.trumpCard);
         }

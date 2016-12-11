@@ -34,7 +34,7 @@
             {
                 foreach (var cardType in AllCardTypes)
                 {
-                    AllCards.Add(new Card(cardSuit, cardType));
+                    AllCards.Add(Card.GetCard(cardSuit, cardType));
                 }
             }
         }

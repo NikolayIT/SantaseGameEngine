@@ -56,7 +56,7 @@
 
         protected PlayerAction ChangeTrump(Card trumpCard)
         {
-            this.Cards.Remove(new Card(trumpCard.Suit, CardType.Nine));
+            this.Cards.Remove(Card.GetCard(trumpCard.Suit, CardType.Nine));
             this.Cards.Add(trumpCard);
             return PlayerAction.ChangeTrump();
         }

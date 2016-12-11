@@ -31,9 +31,9 @@
             var player = new Mock<BasePlayer>();
             var roundPlayerInfo = new RoundPlayerInfo(player.Object);
             Assert.IsFalse(roundPlayerInfo.HasAtLeastOneTrick);
-            roundPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ace));
+            roundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ace));
             Assert.IsTrue(roundPlayerInfo.HasAtLeastOneTrick);
-            roundPlayerInfo.TrickCards.Add(new Card(CardSuit.Club, CardType.Ten));
+            roundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ten));
             Assert.IsTrue(roundPlayerInfo.HasAtLeastOneTrick);
         }
 
@@ -42,7 +42,7 @@
         {
             var player = new Mock<BasePlayer>();
             var roundPlayerInfo = new RoundPlayerInfo(player.Object);
-            var card = new Card(CardSuit.Club, CardType.Ace);
+            var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             roundPlayerInfo.AddCard(card);
             player.Verify(x => x.AddCard(card), Times.Once());
         }
@@ -52,7 +52,7 @@
         {
             var player = new Mock<BasePlayer>();
             var roundPlayerInfo = new RoundPlayerInfo(player.Object);
-            var card = new Card(CardSuit.Club, CardType.Ace);
+            var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             roundPlayerInfo.AddCard(card);
             Assert.IsTrue(roundPlayerInfo.Cards.Contains(card));
         }
@@ -96,8 +96,8 @@
         public void RoundPointsShouldReturnCorrectValueOfCards()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
-            var card1 = new Card(CardSuit.Diamond, CardType.Jack);
-            var card2 = new Card(CardSuit.Diamond, CardType.Ace);
+            var card1 = Card.GetCard(CardSuit.Diamond, CardType.Jack);
+            var card2 = Card.GetCard(CardSuit.Diamond, CardType.Ace);
             roundPlayerInfo.TrickCards.Add(card1);
             roundPlayerInfo.TrickCards.Add(card2);
             Assert.AreEqual(card1.GetValue() + card2.GetValue(), roundPlayerInfo.RoundPoints);
@@ -107,8 +107,8 @@
         public void RoundPointsShouldReturnCorrectValueOfCardsAndAnnounces()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
-            var card1 = new Card(CardSuit.Diamond, CardType.Jack);
-            var card2 = new Card(CardSuit.Diamond, CardType.Ace);
+            var card1 = Card.GetCard(CardSuit.Diamond, CardType.Jack);
+            var card2 = Card.GetCard(CardSuit.Diamond, CardType.Ace);
             roundPlayerInfo.TrickCards.Add(card1);
             roundPlayerInfo.TrickCards.Add(card2);
             roundPlayerInfo.Announces.Add(Announce.Twenty);
