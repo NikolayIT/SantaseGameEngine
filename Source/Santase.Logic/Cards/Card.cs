@@ -67,7 +67,7 @@
         public override bool Equals(object obj)
         {
             var anotherCard = obj as Card;
-            return anotherCard != null && this.Equals(anotherCard);
+            return anotherCard != null && this.Suit == anotherCard.Suit && this.Type == anotherCard.Type;
         }
 
         public override int GetHashCode()
@@ -78,11 +78,6 @@
         public override string ToString()
         {
             return $"{this.Type.ToFriendlyString()}{this.Suit.ToFriendlyString()}";
-        }
-
-        private bool Equals(Card other)
-        {
-            return this.Suit == other.Suit && this.Type == other.Type;
         }
     }
 }
