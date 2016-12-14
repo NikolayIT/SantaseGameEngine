@@ -1,5 +1,6 @@
 ﻿namespace Santase.AI.SmartPlayer.Strategies
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -21,6 +22,27 @@
             var cardFor20Or40 = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
             if (cardFor20Or40 != null)
             {
+                var opponentHasTrump = this.Tracker.UnknownCards.Any(x => x.Suit == context.TrumpCard.Suit);
+                var cardWhichWillSurelyWinTheTrick = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, opponentHasTrump);
+                if (cardWhichWillSurelyWinTheTrick != null)
+                {
+                    var points = context.FirstPlayerRoundPoints;
+                    points += cardWhichWillSurelyWinTheTrick.GetValue();
+                    if (cardFor20Or40.Suit == context.TrumpCard.Suit)
+                    {
+                        points += 40;
+                    }
+                    else
+                    {
+                        points += 20;
+                    }
+
+                    if (points >= 66)
+                    {
+                        return PlayerAction.PlayCard(cardWhichWillSurelyWinTheTrick);
+                    }
+                }
+
                 return PlayerAction.PlayCard(cardFor20Or40);
             }
 

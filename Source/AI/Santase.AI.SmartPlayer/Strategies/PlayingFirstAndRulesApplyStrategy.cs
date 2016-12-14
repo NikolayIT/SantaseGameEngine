@@ -21,9 +21,7 @@
             // Find card that will surely win the trick
             var opponentHasTrump = this.Tracker.UnknownCards.Any(x => x.Suit == context.TrumpCard.Suit);
 
-            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(
-                context.TrumpCard.Suit,
-                opponentHasTrump);
+            var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, opponentHasTrump);
             if (trumpCard != null)
             {
                 return PlayerAction.PlayCard(trumpCard);
