@@ -22,6 +22,7 @@
             var cardFor20Or40 = this.TryToAnnounce20Or40(context, possibleCardsToPlay);
             if (cardFor20Or40 != null)
             {
+                // When playing a trump card and then announcing 40 or 20 will win the round then do it.
                 var opponentHasTrump = this.Tracker.UnknownCards.Any(x => x.Suit == context.TrumpCard.Suit);
                 var cardWhichWillSurelyWinTheTrick = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, opponentHasTrump);
                 if (cardWhichWillSurelyWinTheTrick != null)
