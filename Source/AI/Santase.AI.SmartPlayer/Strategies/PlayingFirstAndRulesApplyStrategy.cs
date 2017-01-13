@@ -11,6 +11,8 @@
 
     public class PlayingFirstAndRulesApplyStrategy : BaseChooseCardStrategy
     {
+        private static readonly Array CardSuits = Enum.GetValues(typeof(CardSuit));
+
         public PlayingFirstAndRulesApplyStrategy(CardTracker cardTracker, IAnnounceValidator announceValidator, ICollection<Card> cards)
             : base(cardTracker, announceValidator, cards)
         {
@@ -27,7 +29,7 @@
                 return PlayerAction.PlayCard(trumpCard);
             }
 
-            foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
+            foreach (CardSuit suit in CardSuits)
             {
                 var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(
                     suit,

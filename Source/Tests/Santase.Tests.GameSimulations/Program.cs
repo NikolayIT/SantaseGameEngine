@@ -34,7 +34,7 @@
             Console.WriteLine($"Rounds played: {simulationResult.RoundsPlayed:0,0}");
             Console.WriteLine($"Total round points: {simulationResult.FirstPlayerTotalRoundPoints:0,0} - {simulationResult.SecondPlayerTotalRoundPoints:0,0}");
             Console.WriteLine($"Closed games: {GlobalStats.GamesClosedByPlayer}");
-            Console.WriteLine($"Global counter: {string.Join(", ", GlobalStats.GlobalCounterValues)}");
+            Console.WriteLine($"Global counters: {string.Join(", ", GlobalStats.GlobalCounterValues)}");
             Console.WriteLine(new string('=', 75));
         }
     }

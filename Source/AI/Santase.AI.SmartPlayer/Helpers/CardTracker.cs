@@ -44,6 +44,7 @@
 
         public void TrumpCardSaw(Card newCard)
         {
+            // ReSharper disable once ArrangeStaticMemberQualifier
             if (!Card.Equals(newCard, this.trumpCard))
             {
                 // The other player changed the trump card
