@@ -2,54 +2,53 @@
 {
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class FinalRoundStateTests
     {
-        [Test]
+        [Fact]
         public void WhenInFinalStateItIsPossibleToAnnounce20Or40()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.CanAnnounce20Or40);
+            Assert.True(roundState.CanAnnounce20Or40);
         }
 
-        [Test]
+        [Fact]
         public void WhenInFinalStateItIsNotPossibleToCloseTheGame()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.CanClose);
+            Assert.False(roundState.CanClose);
         }
 
-        [Test]
+        [Fact]
         public void WhenInFinalStateItIsNotPossibleToChangeTheTrump()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.CanChangeTrump);
+            Assert.False(roundState.CanChangeTrump);
         }
 
-        [Test]
+        [Fact]
         public void WhenInFinalStateRulesShouldBeObserved()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.ShouldObserveRules);
+            Assert.True(roundState.ShouldObserveRules);
         }
 
-        [Test]
+        [Fact]
         public void WhenInFinalStateNoMoreCardsShouldBeDrawn()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.ShouldDrawCard);
+            Assert.False(roundState.ShouldDrawCard);
         }
 
-        [Test]
+        [Fact]
         public void PlayHandWhenInFinalStateShouldNotChangeGameState()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -58,7 +57,7 @@
             haveStateMock.Verify(x => x.SetState(It.IsAny<BaseRoundState>()), Times.Never);
         }
 
-        [Test]
+        [Fact]
         public void CloseShouldNotChangeGameState()
         {
             // It is not allowed to close the game in this state

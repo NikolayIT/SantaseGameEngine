@@ -2,16 +2,15 @@
 {
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class PlayerTurnContextTests
     {
-        [Test]
+        [Fact]
         public void ConstructorShouldSetProperties()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -21,12 +20,12 @@
 
             var playerTurnContext = new PlayerTurnContext(state, trumpCard, CardsLeftInDeck, 0, 0);
 
-            Assert.AreEqual(state, playerTurnContext.State);
-            Assert.AreEqual(trumpCard, playerTurnContext.TrumpCard);
-            Assert.AreEqual(CardsLeftInDeck, playerTurnContext.CardsLeftInDeck);
+            Assert.Equal(state, playerTurnContext.State);
+            Assert.Equal(trumpCard, playerTurnContext.TrumpCard);
+            Assert.Equal(CardsLeftInDeck, playerTurnContext.CardsLeftInDeck);
         }
 
-        [Test]
+        [Fact]
         public void FirstPlayedCardPropertyShouldWorkCorrectly()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -37,10 +36,10 @@
                 0,
                 0,
                 0) { FirstPlayedCard = card };
-            Assert.AreEqual(card, playerTurnContext.FirstPlayedCard);
+            Assert.Equal(card, playerTurnContext.FirstPlayedCard);
         }
 
-        [Test]
+        [Fact]
         public void FirstPlayerAnnouncePropertyShouldWorkCorrectly()
         {
             const Announce Announce = Announce.Twenty;
@@ -51,10 +50,10 @@
                 0,
                 0,
                 0) { FirstPlayerAnnounce = Announce };
-            Assert.AreEqual(Announce, playerTurnContext.FirstPlayerAnnounce);
+            Assert.Equal(Announce, playerTurnContext.FirstPlayerAnnounce);
         }
 
-        [Test]
+        [Fact]
         public void SecondPlayedCardPropertyShouldWorkCorrectly()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -65,10 +64,10 @@
                 0,
                 0,
                 0) { SecondPlayedCard = card };
-            Assert.AreEqual(card, playerTurnContext.SecondPlayedCard);
+            Assert.Equal(card, playerTurnContext.SecondPlayedCard);
         }
 
-        [Test]
+        [Fact]
         public void AmITheFirstPlayerShouldReturnTrueWhenCardIsNotPlayedYet()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -78,10 +77,10 @@
                 0,
                 0,
                 0);
-            Assert.IsTrue(playerTurnContext.IsFirstPlayerTurn);
+            Assert.True(playerTurnContext.IsFirstPlayerTurn);
         }
 
-        [Test]
+        [Fact]
         public void AmITheFirstPlayerShouldReturnFalseWhenCardIsAlreadyPlayed()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -91,20 +90,20 @@
                 0,
                 0,
                 0) { FirstPlayedCard = Card.GetCard(CardSuit.Diamond, CardType.Ten) };
-            Assert.IsFalse(playerTurnContext.IsFirstPlayerTurn);
+            Assert.False(playerTurnContext.IsFirstPlayerTurn);
         }
 
-        [Test]
+        [Fact]
         public void CloneShouldReturnDifferentReference()
         {
             var haveStateMock = new Mock<IStateManager>();
             var state = new StartRoundState(haveStateMock.Object);
             var playerTurnContext = new PlayerTurnContext(state, Card.GetCard(CardSuit.Heart, CardType.Queen), 12, 0, 0);
             var clonedPlayerTurnContext = playerTurnContext.DeepClone();
-            Assert.AreNotSame(playerTurnContext, clonedPlayerTurnContext);
+            Assert.NotSame(playerTurnContext, clonedPlayerTurnContext);
         }
 
-        [Test]
+        [Fact]
         public void CloneShouldReturnObjectOfTypePlayerTurnContext()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -114,7 +113,7 @@
             Assert.IsInstanceOf<PlayerTurnContext>(clonedPlayerTurnContext);
         }
 
-        [Test]
+        [Fact]
         public void CloneShouldReturnObjectWithTheSameProperties()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -128,13 +127,13 @@
 
             var clonedPlayerTurnContext = playerTurnContext.DeepClone();
 
-            Assert.IsNotNull(clonedPlayerTurnContext);
-            Assert.AreSame(playerTurnContext.State, clonedPlayerTurnContext.State);
-            Assert.AreEqual(playerTurnContext.CardsLeftInDeck, clonedPlayerTurnContext.CardsLeftInDeck);
-            Assert.AreEqual(playerTurnContext.FirstPlayedCard, clonedPlayerTurnContext.FirstPlayedCard);
-            Assert.AreEqual(playerTurnContext.FirstPlayerAnnounce, clonedPlayerTurnContext.FirstPlayerAnnounce);
-            Assert.AreEqual(playerTurnContext.SecondPlayedCard, clonedPlayerTurnContext.SecondPlayedCard);
-            Assert.AreEqual(playerTurnContext.TrumpCard, clonedPlayerTurnContext.TrumpCard);
+            Assert.NotNull(clonedPlayerTurnContext);
+            Assert.Same(playerTurnContext.State, clonedPlayerTurnContext.State);
+            Assert.Equal(playerTurnContext.CardsLeftInDeck, clonedPlayerTurnContext.CardsLeftInDeck);
+            Assert.Equal(playerTurnContext.FirstPlayedCard, clonedPlayerTurnContext.FirstPlayedCard);
+            Assert.Equal(playerTurnContext.FirstPlayerAnnounce, clonedPlayerTurnContext.FirstPlayerAnnounce);
+            Assert.Equal(playerTurnContext.SecondPlayedCard, clonedPlayerTurnContext.SecondPlayedCard);
+            Assert.Equal(playerTurnContext.TrumpCard, clonedPlayerTurnContext.TrumpCard);
         }
     }
 }

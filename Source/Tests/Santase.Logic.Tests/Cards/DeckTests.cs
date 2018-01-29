@@ -2,21 +2,20 @@
 {
     using System.Collections.Generic;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
 
-    [TestFixture]
+    using Xunit;
+
     public class DeckTests
     {
-        [Test]
+        [Fact]
         public void TrumpCardShouldBeNonNullable()
         {
             IDeck deck = new Deck();
-            Assert.IsNotNull(deck.TrumpCard);
+            Assert.NotNull(deck.TrumpCard);
         }
 
-        [Test]
+        [Fact]
         public void TrumpCardShouldBeRandom()
         {
             const int NumberOfRandomDecks = 25;
@@ -35,22 +34,22 @@
             Assert.Fail($"{NumberOfRandomDecks} times generated the same trump card!");
         }
 
-        [Test]
+        [Fact]
         public void CardsLeftShouldBe24ForANewDeck()
         {
             IDeck deck = new Deck();
-            Assert.AreEqual(24, deck.CardsLeft);
+            Assert.Equal(24, deck.CardsLeft);
         }
 
-        [Test]
+        [Fact]
         public void CardsLeftShouldBe23AfterDrawingOneCard()
         {
             IDeck deck = new Deck();
             deck.GetNextCard();
-            Assert.AreEqual(23, deck.CardsLeft);
+            Assert.Equal(23, deck.CardsLeft);
         }
 
-        [Test]
+        [Fact]
         public void CardsLeftShouldBe0AfterDrawing24Cards()
         {
             IDeck deck = new Deck();
@@ -59,10 +58,10 @@
                 deck.GetNextCard();
             }
 
-            Assert.AreEqual(0, deck.CardsLeft);
+            Assert.Equal(0, deck.CardsLeft);
         }
 
-        [Test]
+        [Fact]
         public void GetNextCardShouldThrowExceptionWhenCalled25Times()
         {
             IDeck deck = new Deck();
@@ -74,17 +73,17 @@
             Assert.Throws<InternalGameException>(() => deck.GetNextCard());
         }
 
-        [Test]
+        [Fact]
         public void GetNextCardShouldNotChangeTheTrumpCard()
         {
             IDeck deck = new Deck();
             var trumpBefore = deck.TrumpCard;
             deck.GetNextCard();
             var trumpAfter = deck.TrumpCard;
-            Assert.AreEqual(trumpBefore, trumpAfter);
+            Assert.Equal(trumpBefore, trumpAfter);
         }
 
-        [Test]
+        [Fact]
         public void GetNextCardShouldReturnDifferentNonNullCardEveryTime()
         {
             IDeck deck = new Deck();
@@ -93,23 +92,23 @@
             for (var i = 0; i < cardsCount; i++)
             {
                 var card = deck.GetNextCard();
-                Assert.IsNotNull(card);
-                Assert.IsFalse(cards.Contains(card), $"Duplicate card drawn \"{card}\"");
+                Assert.NotNull(card);
+                Assert.False(cards.Contains(card), $"Duplicate card drawn \"{card}\"");
                 cards.Add(card);
             }
         }
 
-        [Test]
+        [Fact]
         public void ChangeTrumpCardShouldWorkProperly()
         {
             IDeck deck = new Deck();
             var card = Card.GetCard(CardSuit.Spade, CardType.Nine);
             deck.ChangeTrumpCard(card);
             var trumpCard = deck.TrumpCard;
-            Assert.AreEqual(card, trumpCard);
+            Assert.Equal(card, trumpCard);
         }
 
-        [Test]
+        [Fact]
         public void ChangeTrumpCardShouldChangeTheLastCardInTheDeck()
         {
             IDeck deck = new Deck();
@@ -122,7 +121,7 @@
             }
 
             var lastCard = deck.GetNextCard();
-            Assert.AreEqual(card, lastCard);
+            Assert.Equal(card, lastCard);
         }
     }
 }

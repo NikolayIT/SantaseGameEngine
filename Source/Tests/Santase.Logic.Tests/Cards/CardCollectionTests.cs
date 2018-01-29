@@ -5,43 +5,42 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
 
-    [TestFixture]
+    using Xunit;
+
     public class CardCollectionTests
     {
-        [Test]
+        [Fact]
         public void IsReadOnlyShouldReturnFalse()
         {
-            Assert.IsFalse(new CardCollection().IsReadOnly);
+            Assert.False(new CardCollection().IsReadOnly);
         }
 
-        [Test]
+        [Fact]
         public void CountShouldReturn0WhenCardCollectionIsInitialized()
         {
-            Assert.AreEqual(0, new CardCollection().Count);
+            Assert.Equal(0, new CardCollection().Count);
         }
 
-        [Test]
+        [Fact]
         public void CountShouldReturn1WhenOneCardIsAdded()
         {
             var collection = new CardCollection { Card.GetCard(CardSuit.Club, CardType.Ace) };
-            Assert.AreEqual(1, collection.Count);
+            Assert.Equal(1, collection.Count);
         }
 
-        [Test]
+        [Fact]
         public void CountShouldReturn1WhenOneCardIsAddedAndThenRemoved()
         {
             var collection = new CardCollection();
             var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             collection.Add(card);
             collection.Remove(card);
-            Assert.AreEqual(0, collection.Count);
+            Assert.Equal(0, collection.Count);
         }
 
-        [Test]
+        [Fact]
         public void CountShouldReturnCorrectValueAfterFewCardAdds()
         {
             var collection = new CardCollection
@@ -54,10 +53,10 @@
                                      Card.GetCard(CardSuit.Spade, CardType.Nine),
                                  };
 
-            Assert.AreEqual(6, collection.Count);
+            Assert.Equal(6, collection.Count);
         }
 
-        [Test]
+        [Fact]
         public void CountShouldReturnCorrectValueAfterAddingAllCards()
         {
             var collection = new CardCollection();
@@ -70,10 +69,10 @@
                 }
             }
 
-            Assert.AreEqual(24, collection.Count);
+            Assert.Equal(24, collection.Count);
         }
 
-        [Test]
+        [Fact]
         public void ContainsShouldReturnTrueForAllCardsAfterAddingThem()
         {
             var collection = new CardCollection();
@@ -91,12 +90,12 @@
                 foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
                 {
                     var card = Card.GetCard(cardSuitValue, cardTypeValue);
-                    Assert.IsTrue(collection.Contains(card));
+                    Assert.True(collection.Contains(card));
                 }
             }
         }
 
-        [Test]
+        [Fact]
         public void ClearShouldReturn0Cards()
         {
             var collection = new CardCollection
@@ -107,19 +106,19 @@
                                      Card.GetCard(CardSuit.Spade, CardType.Nine),
                                  };
             collection.Clear();
-            Assert.AreEqual(0, collection.Count);
-            Assert.AreEqual(0, collection.ToList().Count);
+            Assert.Equal(0, collection.Count);
+            Assert.Equal(0, collection.ToList().Count);
         }
 
-        [Test]
+        [Fact]
         public void RemoveNonExistingCardsShouldNotRemoveThem()
         {
             var collection = new CardCollection { Card.GetCard(CardSuit.Spade, CardType.Ace) };
             collection.Remove(Card.GetCard(CardSuit.Club, CardType.Ace));
-            Assert.AreEqual(1, collection.Count);
+            Assert.Equal(1, collection.Count);
         }
 
-        [Test]
+        [Fact]
         public void RemoveShouldWorkProperly()
         {
             var card1 = Card.GetCard(CardSuit.Club, CardType.Ace); // 1
@@ -127,21 +126,21 @@
             var collection = new CardCollection { card1, card2 };
             collection.Remove(card1);
             collection.Remove(card2);
-            Assert.AreEqual(0, collection.Count);
+            Assert.Equal(0, collection.Count);
         }
 
-        [Test]
+        [Fact]
         public void EnumerableGetEnumeratorShouldReturnNonNullEnumeratorWhichWorksCorrectly()
         {
             var card = Card.GetCard(CardSuit.Spade, CardType.King); // 52
             IEnumerable collection = new CardCollection { card };
             var enumerator = collection.GetEnumerator();
-            Assert.IsNotNull(enumerator);
+            Assert.NotNull(enumerator);
             enumerator.MoveNext();
-            Assert.AreEqual(card, enumerator.Current);
+            Assert.Equal(card, enumerator.Current);
         }
 
-        [Test]
+        [Fact]
         public void GetEnumeratorShouldReturnAllElementsInCollection()
         {
             var cards = new List<Card>
@@ -162,21 +161,21 @@
 
             foreach (var card in collection)
             {
-                Assert.IsTrue(cards.Contains(card), $"Card {card} not found in collection!");
+                Assert.True(cards.Contains(card), $"Card {card} not found in collection!");
             }
 
             // Second enumeration
             var count = 0;
             foreach (var card in collection)
             {
-                Assert.IsTrue(cards.Contains(card), $"Card {card} not found in collection!");
+                Assert.True(cards.Contains(card), $"Card {card} not found in collection!");
                 count++;
             }
 
-            Assert.AreEqual(cards.Count, count);
+            Assert.Equal(cards.Count, count);
         }
 
-        [Test]
+        [Fact]
         public void CopyToShouldWorkProperly()
         {
             var card1 = Card.GetCard(CardSuit.Club, CardType.Ace); // 1
@@ -184,11 +183,11 @@
             var collection = new CardCollection { card1, card2 };
             var array = new Card[2];
             collection.CopyTo(array, 0);
-            Assert.IsTrue(array.Contains(card1));
-            Assert.IsTrue(array.Contains(card2));
+            Assert.True(array.Contains(card1));
+            Assert.True(array.Contains(card2));
         }
 
-        [Test]
+        [Fact]
         //// [Timeout(100)]
         public void GetEnumeratorShouldWorkProperlyInNestedLoops()
         {
@@ -205,11 +204,11 @@
             {
                 Assert.NotNull(firstCard);
                 var found = collection.Any(x => x.Equals(Card.GetCard(CardSuit.Diamond, CardType.Queen)));
-                Assert.IsTrue(found);
+                Assert.True(found);
             }
         }
 
-        [Test]
+        [Fact]
         public void CloneShouldReturnExactSameCollectionOfCards()
         {
             var collection = new CardCollection
@@ -222,15 +221,15 @@
                                      Card.GetCard(CardSuit.Heart, CardType.Nine),
                                  };
             var clonedCollection = collection.DeepClone();
-            Assert.IsNotNull(clonedCollection);
-            Assert.AreEqual(collection.Count, clonedCollection.Count);
+            Assert.NotNull(clonedCollection);
+            Assert.Equal(collection.Count, clonedCollection.Count);
             foreach (var card in clonedCollection)
             {
-                Assert.IsTrue(collection.Contains(card));
+                Assert.True(collection.Contains(card));
             }
         }
 
-        [Test]
+        [Fact]
         public void InternalEnumeratorResetMethodShouldAllowNewEnumerating()
         {
             var collection = new CardCollection
@@ -253,7 +252,7 @@
                 }
             }
 
-            Assert.AreEqual(collection.Count, count);
+            Assert.Equal(collection.Count, count);
         }
     }
 }

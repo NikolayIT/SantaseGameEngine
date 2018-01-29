@@ -1,11 +1,10 @@
 ﻿namespace Santase.Logic.Tests.WinnerLogic
 {
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.WinnerLogic;
 
-    [TestFixture]
+    using Xunit;
+
     public class CardWinnerLogicTests
     {
         private static readonly object[] FirstPlayerWins =
@@ -33,7 +32,7 @@
         {
             var cardWinner = new CardWinnerLogic();
             var result = cardWinner.Winner(firstPlayerCard, secondPlayerCard, trumpSuit);
-            Assert.AreEqual(PlayerPosition.FirstPlayer, result);
+            Assert.Equal(PlayerPosition.FirstPlayer, result);
         }
 
         [TestCaseSource(nameof(SecondPlayerWins))]
@@ -41,7 +40,7 @@
         {
             var cardWinner = new CardWinnerLogic();
             var result = cardWinner.Winner(firstPlayerCard, secondPlayerCard, trumpSuit);
-            Assert.AreEqual(PlayerPosition.SecondPlayer, result);
+            Assert.Equal(PlayerPosition.SecondPlayer, result);
         }
     }
 }

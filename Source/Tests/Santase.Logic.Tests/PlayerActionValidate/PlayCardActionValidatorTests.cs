@@ -2,12 +2,11 @@
 {
     using System.Collections.Generic;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.PlayerActionValidate;
 
-    [TestFixture]
+    using Xunit;
+
     public class PlayCardActionValidatorTests
     {
         private static readonly Card JackOfHeart = Card.GetCard(CardSuit.Heart, CardType.Jack);
@@ -127,14 +126,14 @@
                     },
             };
 
-        [Test]
+        [Fact]
         public void CanPlayCardShouldReturnFalseWhenCardIsNotPresentInThePlayerCards()
         {
             var canPlayCard = PlayCardActionValidator.CanPlayCard(false, NonExistingCard, null, JackOfHeart, PlayerCards, true);
-            Assert.IsFalse(canPlayCard);
+            Assert.False(canPlayCard);
         }
 
-        [Test]
+        [Fact]
         public void CanPlayCardShouldReturnTrueWhenRulesShouldNotBeObservedAndThePlayerIsNotFirst()
         {
             const bool ObserveRules = false;
@@ -146,43 +145,43 @@
                 JackOfHeart,
                 PlayerCards,
                 ObserveRules);
-            Assert.IsTrue(canPlayCard);
+            Assert.True(canPlayCard);
         }
 
-        [Test]
+        [Fact]
         public void CanPlayCardShouldReturnTrueWhenThePlayerIsFirstButTheRulesShouldNotBeObserved()
         {
             const bool ObserveRules = false;
             const bool First = true;
             var canPlayCard = PlayCardActionValidator.CanPlayCard(First, PlayerCard, null, JackOfHeart, PlayerCards, ObserveRules);
-            Assert.IsTrue(canPlayCard);
+            Assert.True(canPlayCard);
         }
 
-        [Test]
+        [Fact]
         public void CanPlayCardShouldReturnTrueWhenThePlayerIsFirstAndRulesShouldBeObserved()
         {
             const bool ObserveRules = true;
             const bool First = true;
             var canPlayCard = PlayCardActionValidator.CanPlayCard(First, PlayerCard, null, JackOfHeart, PlayerCards, ObserveRules);
-            Assert.IsTrue(canPlayCard);
+            Assert.True(canPlayCard);
         }
 
         [TestCaseSource(nameof(ValidCardToPlay))]
         public void CanPlayCardShouldReturnTrue(Card otherPlayerCard, Card playerCard, Card trumpCard)
         {
             var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
-            Assert.IsTrue(canPlayCard);
+            Assert.True(canPlayCard);
         }
 
         [TestCaseSource(nameof(InvalidCardToPlay))]
         public void CanPlayCardShouldReturnFalse(Card otherPlayerCard, Card playerCard, Card trumpCard)
         {
-            Assert.IsTrue(PlayerCards.Contains(playerCard), "Invalid play card selected for the test!");
+            Assert.True(PlayerCards.Contains(playerCard), "Invalid play card selected for the test!");
             var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
-            Assert.IsFalse(canPlayCard);
+            Assert.False(canPlayCard);
         }
 
-        [Test]
+        [Fact]
         public void CanPlayCardShouldReturnTrueWhenPlayerHasNoTrumpCardAndNoCardsOfThePlayedSuit()
         {
             var playerCards = new List<Card>
@@ -199,10 +198,10 @@
             var trumpCard = Card.GetCard(CardSuit.Diamond, CardType.Nine);
 
             var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
-            Assert.IsTrue(canPlayCard);
+            Assert.True(canPlayCard);
         }
 
-        [Test]
+        [Fact]
         public void
             CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDoNotHaveBiggerCardFromTheSameSuit()
         {
@@ -220,7 +219,7 @@
             var trumpCard = Card.GetCard(CardSuit.Diamond, CardType.Nine);
 
             var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
-            Assert.IsTrue(canPlayCard);
+            Assert.True(canPlayCard);
         }
     }
 }

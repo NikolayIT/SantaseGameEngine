@@ -2,60 +2,59 @@
 {
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class StartRoundStateTests
     {
-        [Test]
+        [Fact]
         public void OnFirstHandCannotAnnounce20Or40()
         {
             // https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md#marriages
             // "The only exception is that during the first hand no marriage can be announced."
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.CanAnnounce20Or40);
+            Assert.False(roundState.CanAnnounce20Or40);
         }
 
-        [Test]
+        [Fact]
         public void GameCannotBeClosedOnFirstHand()
         {
             // https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md#closing
             // "It is not possible to close the game before any cards are played."
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.CanClose);
+            Assert.False(roundState.CanClose);
         }
 
-        [Test]
+        [Fact]
         public void OnFirstHandCannotChangeTrump()
         {
             // https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md#nine-of-trumps
             // "... provided that he has already won at least one trick."
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.CanChangeTrump);
+            Assert.False(roundState.CanChangeTrump);
         }
 
-        [Test]
+        [Fact]
         public void OnFirstHandRulesShouldNotBeObserved()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.ShouldObserveRules);
+            Assert.False(roundState.ShouldObserveRules);
         }
 
-        [Test]
+        [Fact]
         public void AfterFirstHandCardShouldBeDrawn()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new StartRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.ShouldDrawCard);
+            Assert.True(roundState.ShouldDrawCard);
         }
 
-        [Test]
+        [Fact]
         public void PlayHandShouldChangeTheStateToMoreThanTwoCardsLeftRoundState()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -64,7 +63,7 @@
             haveStateMock.Verify(x => x.SetState(It.IsAny<MoreThanTwoCardsLeftRoundState>()), Times.Once);
         }
 
-        [Test]
+        [Fact]
         public void CloseShouldNotChangeGameState()
         {
             // It is not allowed to close the game in this state
