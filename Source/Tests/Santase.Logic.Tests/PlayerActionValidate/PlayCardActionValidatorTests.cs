@@ -25,107 +25,6 @@
                                                                   Card.GetCard(CardSuit.Heart, CardType.Ace),
                                                               };
 
-        private static readonly object[] ValidCardToPlay =
-            {
-                // otherPlayerCard, playerCard, trumpCard
-                new object[]
-                    {
-                        // When required play trump card
-                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
-                        Card.GetCard(
-                            CardSuit.Diamond,
-                            CardType.Jack),
-                        Card.GetCard(
-                            CardSuit.Diamond,
-                            CardType.Nine),
-                    },
-                new object[]
-                    {
-                        // When required play smaller non-trump card
-                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
-                        Card.GetCard(CardSuit.Diamond, CardType.Jack),
-                        Card.GetCard(CardSuit.Club, CardType.Nine),
-                    },
-                new object[]
-                    {
-                        // Play bigger trump card when available
-                        Card.GetCard(
-                            CardSuit.Diamond,
-                            CardType.King),
-                        Card.GetCard(CardSuit.Diamond, CardType.Ten),
-                        Card.GetCard(
-                            CardSuit.Diamond,
-                            CardType.Nine),
-                    },
-                new object[]
-                    {
-                        // Play bigger non-trump card when available
-                        Card.GetCard(CardSuit.Diamond, CardType.King),
-                        Card.GetCard(CardSuit.Diamond, CardType.Ten),
-                        Card.GetCard(CardSuit.Club, CardType.Nine),
-                    },
-                new object[]
-                    {
-                        // Play trump when no card of the same suit is available
-                        Card.GetCard(CardSuit.Club, CardType.King),
-                        Card.GetCard(CardSuit.Diamond, CardType.Ten),
-                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
-                    },
-            };
-
-        private static readonly object[] InvalidCardToPlay =
-            {
-                // otherPlayerCard, playerCard, trumpCard
-                new object[]
-                    {
-                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
-                        Card.GetCard(CardSuit.Spade, CardType.King),
-                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
-                    },
-                new object[]
-                    {
-                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
-                        Card.GetCard(CardSuit.Spade, CardType.King),
-                        Card.GetCard(CardSuit.Club, CardType.Nine),
-                    },
-                new object[]
-                    {
-                        // Player has Diamond but plays trump.
-                        Card.GetCard(
-                            CardSuit.Diamond,
-                            CardType.Ace),
-                        Card.GetCard(
-                            CardSuit.Heart,
-                            CardType.Queen),
-                        Card.GetCard(
-                            CardSuit.Heart,
-                            CardType.Jack),
-                    },
-                new object[]
-                    {
-                        Card.GetCard(CardSuit.Diamond, CardType.King),
-                        Card.GetCard(CardSuit.Diamond, CardType.Jack),
-                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
-                    },
-                new object[]
-                    {
-                        Card.GetCard(CardSuit.Diamond, CardType.King),
-                        Card.GetCard(CardSuit.Diamond, CardType.Jack),
-                        Card.GetCard(CardSuit.Club, CardType.Nine),
-                    },
-                new object[]
-                    {
-                        // Player has trump but plays other suit
-                        Card.GetCard(CardSuit.Club, CardType.King),
-                        Card.GetCard(
-                            CardSuit.Spade,
-                            CardType.King),
-                        Card.GetCard(
-                            CardSuit.Diamond,
-                            CardType.Nine),
-                    },
-            };
-
         [Fact]
         public void CanPlayCardShouldReturnFalseWhenCardIsNotPresentInThePlayerCards()
         {
@@ -166,14 +65,16 @@
             Assert.True(canPlayCard);
         }
 
-        [TestCaseSource(nameof(ValidCardToPlay))]
+        [Theory]
+        [MemberData(nameof(DataSource.ValidCardToPlay), MemberType = typeof(DataSource))]
         public void CanPlayCardShouldReturnTrue(Card otherPlayerCard, Card playerCard, Card trumpCard)
         {
             var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, PlayerCards, true);
             Assert.True(canPlayCard);
         }
 
-        [TestCaseSource(nameof(InvalidCardToPlay))]
+        [Theory]
+        [MemberData(nameof(DataSource.InvalidCardToPlay), MemberType = typeof(DataSource))]
         public void CanPlayCardShouldReturnFalse(Card otherPlayerCard, Card playerCard, Card trumpCard)
         {
             Assert.True(PlayerCards.Contains(playerCard), "Invalid play card selected for the test!");
@@ -202,8 +103,7 @@
         }
 
         [Fact]
-        public void
-            CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDoNotHaveBiggerCardFromTheSameSuit()
+        public void CanPlayCardShouldReturnTrueWhenPlayerHasBiggerCardFromDifferentSuitButDoNotHaveBiggerCardFromTheSameSuit()
         {
             var playerCards = new List<Card>
                                   {
@@ -220,6 +120,92 @@
 
             var canPlayCard = PlayCardActionValidator.CanPlayCard(false, playerCard, otherPlayerCard, trumpCard, playerCards, true);
             Assert.True(canPlayCard);
+        }
+
+        public static class DataSource
+        {
+            public static readonly IEnumerable<object[]> ValidCardToPlay = new List<object[]>
+            {
+                // otherPlayerCard, playerCard, trumpCard
+                new object[]
+                    {
+                        // When required play trump card
+                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
+                        Card.GetCard(CardSuit.Diamond, CardType.Jack),
+                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        // When required play smaller non-trump card
+                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
+                        Card.GetCard(CardSuit.Diamond, CardType.Jack),
+                        Card.GetCard(CardSuit.Club, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        // Play bigger trump card when available
+                        Card.GetCard(CardSuit.Diamond, CardType.King),
+                        Card.GetCard(CardSuit.Diamond, CardType.Ten),
+                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        // Play bigger non-trump card when available
+                        Card.GetCard(CardSuit.Diamond, CardType.King),
+                        Card.GetCard(CardSuit.Diamond, CardType.Ten),
+                        Card.GetCard(CardSuit.Club, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        // Play trump when no card of the same suit is available
+                        Card.GetCard(CardSuit.Club, CardType.King),
+                        Card.GetCard(CardSuit.Diamond, CardType.Ten),
+                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
+                    },
+            };
+
+            public static readonly IEnumerable<object[]> InvalidCardToPlay = new List<object[]>
+            {
+                // otherPlayerCard, playerCard, trumpCard
+                new object[]
+                    {
+                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
+                        Card.GetCard(CardSuit.Spade, CardType.King),
+                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
+                        Card.GetCard(CardSuit.Spade, CardType.King),
+                        Card.GetCard(CardSuit.Club, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        // Player has Diamond but plays trump.
+                        Card.GetCard(CardSuit.Diamond, CardType.Ace),
+                        Card.GetCard(CardSuit.Heart, CardType.Queen),
+                        Card.GetCard(CardSuit.Heart, CardType.Jack),
+                    },
+                new object[]
+                    {
+                        Card.GetCard(CardSuit.Diamond, CardType.King),
+                        Card.GetCard(CardSuit.Diamond, CardType.Jack),
+                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        Card.GetCard(CardSuit.Diamond, CardType.King),
+                        Card.GetCard(CardSuit.Diamond, CardType.Jack),
+                        Card.GetCard(CardSuit.Club, CardType.Nine),
+                    },
+                new object[]
+                    {
+                        // Player has trump but plays other suit
+                        Card.GetCard(CardSuit.Club, CardType.King),
+                        Card.GetCard(CardSuit.Spade, CardType.King),
+                        Card.GetCard(CardSuit.Diamond, CardType.Nine),
+                    },
+            };
         }
     }
 }

@@ -28,7 +28,7 @@
             Assert.Equal(list.Count, shuffledList.Count);
             foreach (var item in list)
             {
-                Assert.True(shuffledList.Contains(item));
+                Assert.Contains(item, shuffledList);
             }
         }
 

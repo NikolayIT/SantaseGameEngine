@@ -41,7 +41,7 @@
         public void ChangeTrumpShouldNotPassAnyCard()
         {
             var playerAction = PlayerAction.ChangeTrump();
-            Assert.Equal(null, playerAction.Card);
+            Assert.Null(playerAction.Card);
         }
 
         [Fact]
@@ -62,7 +62,7 @@
         public void CloseGameShouldNotPassAnyCard()
         {
             var playerAction = PlayerAction.CloseGame();
-            Assert.Equal(null, playerAction.Card);
+            Assert.Null(playerAction.Card);
         }
 
         [Fact]
@@ -79,7 +79,7 @@
             var toStringValue = playerAction.ToString();
 
             Assert.NotNull(toStringValue);
-            Assert.True(toStringValue.Contains("CloseGame"));
+            Assert.Contains("CloseGame", toStringValue);
         }
 
         [Fact]
@@ -89,7 +89,7 @@
             var toStringValue = playerAction.ToString();
 
             Assert.NotNull(toStringValue);
-            Assert.True(toStringValue.Contains("ChangeTrump"));
+            Assert.Contains("ChangeTrump", toStringValue);
         }
 
         [Fact]
@@ -100,8 +100,8 @@
             var toStringValue = playerAction.ToString();
 
             Assert.NotNull(toStringValue);
-            Assert.True(toStringValue.Contains("PlayCard"));
-            Assert.True(toStringValue.Contains(card.ToString()));
+            Assert.Contains("PlayCard", toStringValue);
+            Assert.Contains(card.ToString(), toStringValue);
         }
     }
 }

@@ -259,8 +259,8 @@
 
             Assert.True(firstPlayerInfo.GameCloser);
             Assert.False(secondPlayerInfo.GameCloser);
-            Assert.IsInstanceOf<FinalRoundState>(stateManager.State);
-            Assert.IsInstanceOf<FinalRoundState>(secondPlayer.GetTurnContextObject.State);
+            Assert.IsType<FinalRoundState>(stateManager.State);
+            Assert.IsType<FinalRoundState>(secondPlayer.GetTurnContextObject.State);
         }
 
         private static void SimulateGame(RoundPlayerInfo firstPlayer, RoundPlayerInfo secondPlayer, Deck deck)

@@ -37,10 +37,11 @@
             Assert.Throws<IndexOutOfRangeException>(() => Card.GetCard(CardSuit.Spade, cardTypeValue));
         }
 
-        [TestCase(true, CardSuit.Spade, CardType.Ace, CardSuit.Spade, CardType.Ace)]
-        [TestCase(false, CardSuit.Heart, CardType.Jack, CardSuit.Heart, CardType.Queen)]
-        [TestCase(false, CardSuit.Heart, CardType.King, CardSuit.Spade, CardType.King)]
-        [TestCase(false, CardSuit.Heart, CardType.Nine, CardSuit.Spade, CardType.Ten)]
+        [Theory]
+        [InlineData(true, CardSuit.Spade, CardType.Ace, CardSuit.Spade, CardType.Ace)]
+        [InlineData(false, CardSuit.Heart, CardType.Jack, CardSuit.Heart, CardType.Queen)]
+        [InlineData(false, CardSuit.Heart, CardType.King, CardSuit.Spade, CardType.King)]
+        [InlineData(false, CardSuit.Heart, CardType.Nine, CardSuit.Spade, CardType.Ten)]
         public void EqualsShouldWorkCorrectly(
             bool expectedValue,
             CardSuit firstCardSuit,

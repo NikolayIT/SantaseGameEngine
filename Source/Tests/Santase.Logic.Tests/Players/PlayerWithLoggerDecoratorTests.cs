@@ -24,7 +24,7 @@
             playerWithLogger.StartGame(OtherPlayerIdentifier);
 
             Assert.True(logger.ToString().Length > 0);
-            Assert.True(logger.ToString().Contains(OtherPlayerIdentifier));
+            Assert.Contains(OtherPlayerIdentifier, logger.ToString());
             playerMock.Verify(x => x.StartGame(It.IsAny<string>()), Times.Once());
         }
 
@@ -41,8 +41,8 @@
             playerWithLogger.StartRound(cards, trumpCard, 1, 4);
 
             Assert.True(logger.ToString().Length > 0);
-            Assert.True(logger.ToString().Contains(card.ToString()));
-            Assert.True(logger.ToString().Contains(trumpCard.ToString()));
+            Assert.Contains(card.ToString(), logger.ToString());
+            Assert.Contains(trumpCard.ToString(), logger.ToString());
             playerMock.Verify(x => x.StartRound(cards, trumpCard, 1, 4), Times.Once());
         }
 

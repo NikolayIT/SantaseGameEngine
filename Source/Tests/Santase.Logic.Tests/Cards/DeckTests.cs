@@ -31,7 +31,7 @@
                 lastCard = deck.TrumpCard;
             }
 
-            Assert.Fail($"{NumberOfRandomDecks} times generated the same trump card!");
+            Assert.True(false, $"{NumberOfRandomDecks} times generated the same trump card!");
         }
 
         [Fact]

@@ -20,14 +20,14 @@
         [Fact]
         public void CountShouldReturn0WhenCardCollectionIsInitialized()
         {
-            Assert.Equal(0, new CardCollection().Count);
+            Assert.Empty(new CardCollection());
         }
 
         [Fact]
         public void CountShouldReturn1WhenOneCardIsAdded()
         {
             var collection = new CardCollection { Card.GetCard(CardSuit.Club, CardType.Ace) };
-            Assert.Equal(1, collection.Count);
+            Assert.Single(collection);
         }
 
         [Fact]
@@ -37,7 +37,7 @@
             var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             collection.Add(card);
             collection.Remove(card);
-            Assert.Equal(0, collection.Count);
+            Assert.Empty(collection);
         }
 
         [Fact]
@@ -90,7 +90,7 @@
                 foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
                 {
                     var card = Card.GetCard(cardSuitValue, cardTypeValue);
-                    Assert.True(collection.Contains(card));
+                    Assert.Contains(card, collection);
                 }
             }
         }
@@ -106,8 +106,8 @@
                                      Card.GetCard(CardSuit.Spade, CardType.Nine),
                                  };
             collection.Clear();
-            Assert.Equal(0, collection.Count);
-            Assert.Equal(0, collection.ToList().Count);
+            Assert.Empty(collection);
+            Assert.Empty(collection.ToList());
         }
 
         [Fact]
@@ -115,7 +115,7 @@
         {
             var collection = new CardCollection { Card.GetCard(CardSuit.Spade, CardType.Ace) };
             collection.Remove(Card.GetCard(CardSuit.Club, CardType.Ace));
-            Assert.Equal(1, collection.Count);
+            Assert.Single(collection);
         }
 
         [Fact]
@@ -126,7 +126,7 @@
             var collection = new CardCollection { card1, card2 };
             collection.Remove(card1);
             collection.Remove(card2);
-            Assert.Equal(0, collection.Count);
+            Assert.Empty(collection);
         }
 
         [Fact]
@@ -183,8 +183,8 @@
             var collection = new CardCollection { card1, card2 };
             var array = new Card[2];
             collection.CopyTo(array, 0);
-            Assert.True(array.Contains(card1));
-            Assert.True(array.Contains(card2));
+            Assert.Contains(card1, array);
+            Assert.Contains(card2, array);
         }
 
         [Fact]
@@ -225,7 +225,7 @@
             Assert.Equal(collection.Count, clonedCollection.Count);
             foreach (var card in clonedCollection)
             {
-                Assert.True(collection.Contains(card));
+                Assert.Contains(card, collection);
             }
         }
 

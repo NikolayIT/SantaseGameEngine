@@ -27,10 +27,11 @@
             Assert.Equal(Announce.None, announce);
         }
 
-        [TestCase(CardType.Nine)]
-        [TestCase(CardType.Ten)]
-        [TestCase(CardType.Jack)]
-        [TestCase(CardType.Ace)]
+        [Theory]
+        [InlineData(CardType.Nine)]
+        [InlineData(CardType.Ten)]
+        [InlineData(CardType.Jack)]
+        [InlineData(CardType.Ace)]
         public void GetPossibleAnnounceShouldReturnNoAnnounceWhenNoKingOrQueenIsPlayed(CardType cardType)
         {
             IAnnounceValidator validator = new AnnounceValidator();

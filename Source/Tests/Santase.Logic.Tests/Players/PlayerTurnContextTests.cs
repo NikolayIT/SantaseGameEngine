@@ -110,7 +110,7 @@
             var state = new TwoCardsLeftRoundState(haveStateMock.Object);
             var playerTurnContext = new PlayerTurnContext(state, Card.GetCard(CardSuit.Diamond, CardType.Ace), 2, 0, 0);
             var clonedPlayerTurnContext = playerTurnContext.DeepClone();
-            Assert.IsInstanceOf<PlayerTurnContext>(clonedPlayerTurnContext);
+            Assert.IsType<PlayerTurnContext>(clonedPlayerTurnContext);
         }
 
         [Fact]
