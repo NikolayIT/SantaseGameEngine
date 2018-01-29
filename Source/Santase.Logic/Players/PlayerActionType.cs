@@ -4,6 +4,6 @@
     {
         PlayCard = 1,
         ChangeTrump = 2,
-        CloseGame = 3
+        CloseGame = 3,
     }
 }

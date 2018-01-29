@@ -15,6 +15,6 @@
         /// <summary>
         /// Announce 40
         /// </summary>
-        Forty = 40
+        Forty = 40,
     }
 }
