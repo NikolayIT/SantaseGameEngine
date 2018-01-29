@@ -2,29 +2,28 @@
 {
     using System;
 
-    using NUnit.Framework;
-
     using Santase.AI.DummyPlayer;
     using Santase.Logic;
     using Santase.Logic.GameMechanics;
 
-    [TestFixture]
+    using Xunit;
+
     public class SmartPlayerVsDummyBotTests
     {
-        [Test]
+        [Fact]
         public void SmartPlayerShouldWinAtLeastHalfOfTheGamesVsDummy()
         {
             var smartPlayerWins = this.SimulateGamesAndGetSmartPlayerWins(100);
-            Assert.Greater(smartPlayerWins, 50);
+            Assert.True(smartPlayerWins > 50);
         }
 
-        [Test]
+        [Fact]
         public void SmartPlayerShouldWinIn99PercentOfTheGamesVsDummy()
         {
             const int GamesToPlay = 4000;
             var smartPlayerWins = this.SimulateGamesAndGetSmartPlayerWins(GamesToPlay);
             Console.WriteLine(smartPlayerWins);
-            Assert.GreaterOrEqual(smartPlayerWins, 0.99 * GamesToPlay);
+            Assert.True(smartPlayerWins >= 0.99 * GamesToPlay);
         }
 
         private int SimulateGamesAndGetSmartPlayerWins(int gamesToSimulate)
