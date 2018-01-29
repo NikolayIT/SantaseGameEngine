@@ -52,12 +52,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj">
-      <Project>{d58bcb77-06d8-4af0-9f9c-13197475deb2}</Project>
-      <Name>Santase.AI.SmartPlayer</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.1.0-beta006\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.1.0-beta006\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>

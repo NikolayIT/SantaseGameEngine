@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\..\Rules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
     <Version>2.0.0</Version>
     <Copyright>Copyright © 2015-2018</Copyright>
     <PackageProjectUrl>https://github.com/NikolayIT/SantaseGameEngine</PackageProjectUrl>
@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\stylecop.json" />
+    <AdditionalFiles Include="..\stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>

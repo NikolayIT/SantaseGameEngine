@@ -61,10 +61,6 @@
       <Project>{e4cbea8e-3547-4814-bf0b-5174b8a8487f}</Project>
       <Name>Santase.AI.DummyPlayer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj">
-      <Project>{d58bcb77-06d8-4af0-9f9c-13197475deb2}</Project>
-      <Name>Santase.AI.SmartPlayer</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
