@@ -3,14 +3,13 @@
     using System;
     using System.IO;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Logger;
 
-    [TestFixture]
+    using Xunit;
+
     public class FileLoggerTests
     {
-        [Test]
+        [Fact]
         public void LogShouldWriteToFile()
         {
             const string FileName = "LogShouldWriteToFile.txt";
@@ -26,10 +25,10 @@
                 logger.Log(Message);
             }
 
-            Assert.AreEqual(Message, File.ReadAllText(FileName));
+            Assert.Equal(Message, File.ReadAllText(FileName));
         }
 
-        [Test]
+        [Fact]
         public void LogShouldAppendToTheFile()
         {
             const string FileName = "LogShouldAppendToTheFile.txt";
@@ -50,10 +49,10 @@
                 logger.Log(Message);
             }
 
-            Assert.AreEqual(Message + Message, File.ReadAllText(FileName));
+            Assert.Equal(Message + Message, File.ReadAllText(FileName));
         }
 
-        [Test]
+        [Fact]
         public void LogLineShouldWriteTextEndingWithNewLineToTheFile()
         {
             const string FileName = "LogLineShouldWriteTextEndingWithNewLineToTheFile.txt";
@@ -69,10 +68,10 @@
                 logger.LogLine(Message);
             }
 
-            Assert.AreEqual(Message + Environment.NewLine, File.ReadAllText(FileName));
+            Assert.Equal(Message + Environment.NewLine, File.ReadAllText(FileName));
         }
 
-        [Test]
+        [Fact]
         public void LogLineShouldAppendToTheFile()
         {
             const string FileName = "LogLineShouldAppendToTheFile.txt";
@@ -93,7 +92,7 @@
                 logger.LogLine(Message);
             }
 
-            Assert.AreEqual(Message + Environment.NewLine + Message + Environment.NewLine, File.ReadAllText(FileName));
+            Assert.Equal(Message + Environment.NewLine + Message + Environment.NewLine, File.ReadAllText(FileName));
         }
     }
 }

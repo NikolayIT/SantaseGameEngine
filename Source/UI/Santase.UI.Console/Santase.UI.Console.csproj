@@ -55,6 +55,16 @@
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.1.0-beta006\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.1.0-beta006\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj">
+      <Project>{def6678c-be2d-4962-826f-ac27f39aa6cd}</Project>
+      <Name>Santase.AI.SmartPlayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj">
+      <Project>{5ea94e50-d501-49d5-a01c-79836037ec86}</Project>
+      <Name>Santase.Logic</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

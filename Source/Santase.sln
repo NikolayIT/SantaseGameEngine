@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AI", "AI", "{2985437A-F7EF-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{2DE5F77F-C30E-4EA1-8ED7-F66B85071BCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Tests.GameSimulations", "Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj", "{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.UI.Console", "UI\Santase.UI.Console\Santase.UI.Console.csproj", "{538FD022-612F-4FBB-97A8-42C3DD26D4CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.UI.WindowsUniversal", "UI\Santase.UI.WindowsUniversal\Santase.UI.WindowsUniversal.csproj", "{62C95D93-1E97-41BF-954D-A3F22DC6C661}"
@@ -21,15 +19,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{00
 		AI\External\Santase.AI.ProPlayer.dll = AI\External\Santase.AI.ProPlayer.dll
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.AI.DummyPlayer", "AI\Santase.AI.DummyPlayer\Santase.AI.DummyPlayer.csproj", "{E4CBEA8E-3547-4814-BF0B-5174B8A8487F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Santase.AI.DummyPlayer", "AI\Santase.AI.DummyPlayer\Santase.AI.DummyPlayer.csproj", "{E4CBEA8E-3547-4814-BF0B-5174B8A8487F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Logic", "Santase.Logic\Santase.Logic.csproj", "{5EA94E50-D501-49D5-A01C-79836037EC86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Santase.Logic", "Santase.Logic\Santase.Logic.csproj", "{5EA94E50-D501-49D5-A01C-79836037EC86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.AI.SmartPlayer", "AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj", "{DEF6678C-BE2D-4962-826F-AC27F39AA6CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Santase.AI.SmartPlayer", "AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj", "{DEF6678C-BE2D-4962-826F-AC27F39AA6CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.AI.SmartPlayer.Tests", "Tests\Santase.AI.SmartPlayer.Tests\Santase.AI.SmartPlayer.Tests.csproj", "{1DA108F4-92CD-4309-84C9-AF550DF056E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Santase.AI.SmartPlayer.Tests", "Tests\Santase.AI.SmartPlayer.Tests\Santase.AI.SmartPlayer.Tests.csproj", "{1DA108F4-92CD-4309-84C9-AF550DF056E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Logic.Tests", "Tests\Santase.Logic.Tests\Santase.Logic.Tests.csproj", "{490EA22A-F8D3-4BAE-BD82-F099DB90E557}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Santase.Logic.Tests", "Tests\Santase.Logic.Tests\Santase.Logic.Tests.csproj", "{490EA22A-F8D3-4BAE-BD82-F099DB90E557}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Santase.Tests.GameSimulations", "Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj", "{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,22 +43,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|ARM.Build.0 = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|x64.Build.0 = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Debug|x86.Build.0 = Debug|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|ARM.ActiveCfg = Release|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|ARM.Build.0 = Release|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|x64.ActiveCfg = Release|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|x64.Build.0 = Release|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|x86.ActiveCfg = Release|Any CPU
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C}.Release|x86.Build.0 = Release|Any CPU
 		{538FD022-612F-4FBB-97A8-42C3DD26D4CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{538FD022-612F-4FBB-97A8-42C3DD26D4CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{538FD022-612F-4FBB-97A8-42C3DD26D4CE}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -179,12 +163,27 @@ Global
 		{490EA22A-F8D3-4BAE-BD82-F099DB90E557}.Release|x64.Build.0 = Release|Any CPU
 		{490EA22A-F8D3-4BAE-BD82-F099DB90E557}.Release|x86.ActiveCfg = Release|Any CPU
 		{490EA22A-F8D3-4BAE-BD82-F099DB90E557}.Release|x86.Build.0 = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|ARM.Build.0 = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|x64.Build.0 = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Debug|x86.Build.0 = Debug|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|ARM.Build.0 = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|x64.ActiveCfg = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|x64.Build.0 = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|x86.ActiveCfg = Release|Any CPU
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{6217B59D-E7EC-4918-BEAA-9CA3458E5B0C} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
 		{538FD022-612F-4FBB-97A8-42C3DD26D4CE} = {2DE5F77F-C30E-4EA1-8ED7-F66B85071BCF}
 		{62C95D93-1E97-41BF-954D-A3F22DC6C661} = {2DE5F77F-C30E-4EA1-8ED7-F66B85071BCF}
 		{00A4A812-873D-499A-AEDC-ED96FA3FB9E6} = {2985437A-F7EF-4113-ACC2-91346A4F65CF}
@@ -192,6 +191,7 @@ Global
 		{DEF6678C-BE2D-4962-826F-AC27F39AA6CD} = {2985437A-F7EF-4113-ACC2-91346A4F65CF}
 		{1DA108F4-92CD-4309-84C9-AF550DF056E6} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
 		{490EA22A-F8D3-4BAE-BD82-F099DB90E557} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
+		{2883F50A-D2B5-4D12-8B16-B7ECE4E7D562} = {EAD448DC-3B01-425B-862C-05D3B30FDDD1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {47AFE086-6E97-402A-B3C6-71069A30F0F3}
