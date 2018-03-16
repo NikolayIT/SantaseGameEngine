@@ -1,13 +1,16 @@
 ﻿namespace Santase.Tests.GameSimulations.Players
 {
     using System;
-    using System.CodeDom.Compiler;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Reflection;
 
-    using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
 
+    using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
@@ -30,82 +33,78 @@
 
         private static readonly Type CompiledPlayerType;
 
-        private static CSharpCodeProvider codeProvider;
-
         private readonly IPlayer compiledPlayer;
 
         static SmartPlayerOld()
         {
-            var client = new HttpClient();
-
+            var client = new HttpClient(new HttpClientHandler { Proxy = null, UseProxy = false });
             var codeFiles = new List<string>();
-
             foreach (var url in UrlsForSourceCode)
             {
-                var code = client.GetStringAsync(url).Result;
+                var code = client.GetStringAsync(url).GetAwaiter().GetResult();
                 codeFiles.Add(code);
             }
 
-            CompilerParameters parameters = new CompilerParameters();
-
-            // Reference to System.Drawing library
-            parameters.ReferencedAssemblies.Add("System.dll");
-            parameters.ReferencedAssemblies.Add("System.Core.dll");
-            parameters.ReferencedAssemblies.Add("Santase.Logic.dll");
-
-            // True - memory generation, false - external file generation
-            parameters.GenerateInMemory = true;
-
-            // True - exe file generation, false - dll file generation
-            parameters.GenerateExecutable = false;
-
-            CompilerResults results = CodeProvider.CompileAssemblyFromSource(parameters, codeFiles.ToArray());
-            if (results.Errors.HasErrors)
+            var syntaxTrees = new List<SyntaxTree>();
+            foreach (var codeFile in codeFiles)
             {
-                foreach (CompilerError error in results.Errors)
+                syntaxTrees.Add(CSharpSyntaxTree.ParseText(codeFile));
+            }
+
+            var referencedAssemblies = CollectAssemblies(Assembly.Load(new AssemblyName("netstandard")));
+            var metadataReferences = new List<MetadataReference>(referencedAssemblies.Count + 1);
+            foreach (var referencedAssembly in referencedAssemblies)
+            {
+                metadataReferences.Add(MetadataReference.CreateFromFile(referencedAssembly.Location));
+            }
+
+            metadataReferences.Add(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load(new AssemblyName("mscorlib")).Location));
+            metadataReferences.Add(MetadataReference.CreateFromFile(typeof(IPlayer).Assembly.Location));
+
+            // TODO: Delete assemblyName file
+            var assemblyName = Path.GetRandomFileName();
+            var compilation = CSharpCompilation.Create(assemblyName)
+                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddSyntaxTrees(syntaxTrees).AddReferences(metadataReferences);
+
+            Assembly assembly = null;
+            using (var ms = new MemoryStream())
+            {
+                var result = compilation.Emit(ms);
+                if (!result.Success)
                 {
-                    Console.WriteLine("Error compiling old player ({0}): {1} (line: {2}, col: {3})", error.ErrorNumber, error.ErrorText, error.Line, error.Column);
-                    return;
+                    IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
+                        diagnostic.IsWarningAsError ||
+                        diagnostic.Severity == DiagnosticSeverity.Error);
+
+                    foreach (Diagnostic diagnostic in failures)
+                    {
+                        Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                    }
+                }
+                else
+                {
+                    ms.Seek(0, SeekOrigin.Begin);
+                    assembly = Assembly.Load(ms.ToArray());
                 }
             }
 
-            var assembly = results.CompiledAssembly;
+            if (assembly == null)
+            {
+                throw new Exception("Remote assembly code cannot be compiled.");
+            }
+
             CompiledPlayerType = assembly.GetType("Santase.AI.SmartPlayer.SmartPlayer");
         }
 
         public SmartPlayerOld()
         {
+            GlobalStats.GlobalCounterValues[0]++;
             this.compiledPlayer = (IPlayer)Activator.CreateInstance(CompiledPlayerType);
         }
 
         public string Name => "Smart Player Old";
-
-        private static CSharpCodeProvider CodeProvider
-        {
-            get
-            {
-                if (codeProvider == null)
-                {
-                    var csc = new CSharpCodeProvider();
-                    try
-                    {
-                        var settings =
-                            csc.GetType().GetField("_compilerSettings", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(csc);
-                        var path =
-                            settings?.GetType().GetField("_compilerFullPath", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(settings) as string;
-                        settings?.GetType().GetField("_compilerFullPath", BindingFlags.Instance | BindingFlags.NonPublic)?.SetValue(settings, path?.Replace(@"bin\roslyn\", @"roslyn\"));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Exception in getting CSharpCodeProvider: {ex.Message}");
-                    }
-
-                    codeProvider = csc;
-                }
-
-                return codeProvider;
-            }
-        }
 
         public void StartGame(string otherPlayerIdentifier)
         {
@@ -140,6 +139,21 @@
         public void EndGame(bool amIWinner)
         {
             this.compiledPlayer.EndGame(amIWinner);
+        }
+
+        private static IList<Assembly> CollectAssemblies(Assembly assembly)
+        {
+            var assemblies = new HashSet<Assembly> { assembly };
+
+            var referencedAssemblyNames = assembly.GetReferencedAssemblies();
+
+            foreach (var assemblyName in referencedAssemblyNames)
+            {
+                var loadedAssembly = Assembly.Load(assemblyName);
+                assemblies.Add(loadedAssembly);
+            }
+
+            return assemblies.ToList();
         }
     }
 }
