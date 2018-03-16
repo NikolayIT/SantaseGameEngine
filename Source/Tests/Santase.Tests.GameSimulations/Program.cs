@@ -9,12 +9,20 @@
     {
         public static void Main()
         {
-            Console.WriteLine(DateTime.Now);
+            Console.WriteLine(new string('=', 75));
+            Console.Write(DateTime.Now);
+#if DEBUG
+            Console.Write(", Mode=Debug");
+#elif RELEASE
+            Console.Write(", Mode=Release"); 
+#endif
+            Console.WriteLine();
+            Console.WriteLine(new string('=', 75));
 
             // For easier debugging start a single game:
             //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
 
-            SimulateGames(new SmartPlayersGameSimulator(), 100000);
+            SimulateGames(new SmartPlayersGameSimulator(), 200000);
 
             SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
 
