@@ -74,11 +74,10 @@
                 var result = compilation.Emit(ms);
                 if (!result.Success)
                 {
-                    IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
-                        diagnostic.IsWarningAsError ||
-                        diagnostic.Severity == DiagnosticSeverity.Error);
+                    var failures = result.Diagnostics.Where(
+                        diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
 
-                    foreach (Diagnostic diagnostic in failures)
+                    foreach (var diagnostic in failures)
                     {
                         Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
                     }

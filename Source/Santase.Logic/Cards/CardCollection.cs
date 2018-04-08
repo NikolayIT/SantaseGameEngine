@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
 
+    /// <inheritdoc cref="ICollection" />
     /// <summary>
     /// Low memory (only 12 bytes per instance) fast implementation of card collection.
     /// </summary>
@@ -83,10 +84,8 @@
                     return true;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public CardCollection DeepClone()

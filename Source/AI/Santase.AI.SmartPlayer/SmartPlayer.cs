@@ -80,12 +80,7 @@
                 return false;
             }
 
-            if (this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5)
-            {
-                return true;
-            }
-
-            return false;
+            return this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
         }
 
         private PlayerAction ChooseCard(PlayerTurnContext context)
@@ -94,14 +89,12 @@
             var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
             var action = this.chooseBestCardStrategy.ChooseCard(context, possibleCardsToPlay);
 
-            if (action.Type == PlayerActionType.ChangeTrump)
+            switch (action.Type)
             {
-                return this.ChangeTrump(action.Card);
-            }
-
-            if (action.Type == PlayerActionType.CloseGame)
-            {
-                return this.CloseGame();
+                case PlayerActionType.ChangeTrump:
+                    return this.ChangeTrump(action.Card);
+                case PlayerActionType.CloseGame:
+                    return this.CloseGame();
             }
 
             return this.PlayCard(action.Card);
