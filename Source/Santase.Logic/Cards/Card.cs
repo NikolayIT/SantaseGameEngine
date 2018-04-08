@@ -21,16 +21,13 @@
             {
                 foreach (CardType type in Enum.GetValues(typeof(CardType)))
                 {
-#pragma warning disable 618
                     var card = new Card(suit, type);
-#pragma warning restore 618
                     Cards[card.hashCode] = card;
                 }
             }
         }
 
-        [Obsolete("For performance considerations use Card.GetCard instead of Card.ctor()")]
-        public Card(CardSuit suit, CardType type)
+        private Card(CardSuit suit, CardType type)
         {
             this.Suit = suit;
             this.Type = type;

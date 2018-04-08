@@ -1,6 +1,9 @@
 ﻿namespace Santase.Tests.GameSimulations
 {
     using System;
+    using System.Globalization;
+    using System.Text;
+    using System.Threading;
 
     using Santase.AI.SmartPlayer;
     using Santase.Tests.GameSimulations.GameSimulators;
@@ -9,6 +12,9 @@
     {
         public static void Main()
         {
+            Console.OutputEncoding = Encoding.Unicode;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
             Console.WriteLine(new string('=', 75));
             Console.Write(DateTime.Now);
 #if DEBUG
@@ -22,7 +28,7 @@
             // For easier debugging start a single game:
             //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
 
-            SimulateGames(new SmartPlayersGameSimulator(), 1000000);
+            SimulateGames(new SmartPlayersGameSimulator(), 200000);
 
             SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
 
