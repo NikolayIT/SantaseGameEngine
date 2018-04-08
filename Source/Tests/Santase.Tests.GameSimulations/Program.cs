@@ -14,7 +14,7 @@
 #if DEBUG
             Console.Write(", Mode=Debug");
 #elif RELEASE
-            Console.Write(", Mode=Release"); 
+            Console.Write(", Mode=Release");
 #endif
             Console.WriteLine();
             Console.WriteLine(new string('=', 75));
@@ -22,7 +22,7 @@
             // For easier debugging start a single game:
             //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
 
-            SimulateGames(new SmartPlayersGameSimulator(), 200000);
+            SimulateGames(new SmartPlayersGameSimulator(), 1000000);
 
             SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
 
