@@ -22,7 +22,7 @@
             var secondPlayerRoundPoints = 0;
             var roundsPlayed = 0;
 
-            Parallel.For(1, numberOfGames + 1, i =>
+            Parallel.For(1, numberOfGames + 1, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
                 {
                     if (i % 1000 == 0)
                     {

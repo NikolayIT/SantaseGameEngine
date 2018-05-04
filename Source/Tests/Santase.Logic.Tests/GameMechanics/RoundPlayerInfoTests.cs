@@ -2,42 +2,41 @@
 {
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
 
-    [TestFixture]
+    using Xunit;
+
     public class RoundPlayerInfoTests
     {
-        [Test]
+        [Fact]
         public void ConstructorShouldSetDefaultPropertyValues()
         {
             var player = new Mock<BasePlayer>();
             var roundPlayerInfo = new RoundPlayerInfo(player.Object);
-            Assert.AreSame(player.Object, roundPlayerInfo.Player);
-            Assert.IsNotNull(roundPlayerInfo.Cards);
-            Assert.IsNotNull(roundPlayerInfo.TrickCards);
-            Assert.IsNotNull(roundPlayerInfo.Announces);
-            Assert.IsFalse(roundPlayerInfo.GameCloser);
-            Assert.AreEqual(0, roundPlayerInfo.RoundPoints);
-            Assert.IsFalse(roundPlayerInfo.HasAtLeastOneTrick);
+            Assert.Same(player.Object, roundPlayerInfo.Player);
+            Assert.NotNull(roundPlayerInfo.Cards);
+            Assert.NotNull(roundPlayerInfo.TrickCards);
+            Assert.NotNull(roundPlayerInfo.Announces);
+            Assert.False(roundPlayerInfo.GameCloser);
+            Assert.Equal(0, roundPlayerInfo.RoundPoints);
+            Assert.False(roundPlayerInfo.HasAtLeastOneTrick);
         }
 
-        [Test]
+        [Fact]
         public void HasAtLeastOneTrickShouldReturnTrueAfterAddingCardToTricksAndFalseBeforeThat()
         {
             var player = new Mock<BasePlayer>();
             var roundPlayerInfo = new RoundPlayerInfo(player.Object);
-            Assert.IsFalse(roundPlayerInfo.HasAtLeastOneTrick);
+            Assert.False(roundPlayerInfo.HasAtLeastOneTrick);
             roundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ace));
-            Assert.IsTrue(roundPlayerInfo.HasAtLeastOneTrick);
+            Assert.True(roundPlayerInfo.HasAtLeastOneTrick);
             roundPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ten));
-            Assert.IsTrue(roundPlayerInfo.HasAtLeastOneTrick);
+            Assert.True(roundPlayerInfo.HasAtLeastOneTrick);
         }
 
-        [Test]
+        [Fact]
         public void AddCardShouldCallPlayersAddCardMethod()
         {
             var player = new Mock<BasePlayer>();
@@ -47,52 +46,52 @@
             player.Verify(x => x.AddCard(card), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void AddCardShouldAddTheCardToTheLocalCardsList()
         {
             var player = new Mock<BasePlayer>();
             var roundPlayerInfo = new RoundPlayerInfo(player.Object);
             var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             roundPlayerInfo.AddCard(card);
-            Assert.IsTrue(roundPlayerInfo.Cards.Contains(card));
+            Assert.True(roundPlayerInfo.Cards.Contains(card));
         }
 
-        [Test]
+        [Fact]
         public void RoundPointsShouldReturn0WhenAnnounceNoneAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
-            Assert.AreEqual(0, roundPlayerInfo.RoundPoints);
+            Assert.Equal(0, roundPlayerInfo.RoundPoints);
 
             roundPlayerInfo.Announces.Add(Announce.None);
-            Assert.AreEqual(0, roundPlayerInfo.RoundPoints);
+            Assert.Equal(0, roundPlayerInfo.RoundPoints);
         }
 
-        [Test]
+        [Fact]
         public void RoundPointsShouldReturn20WhenAnnounceOfTwentyAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
             roundPlayerInfo.Announces.Add(Announce.Twenty);
-            Assert.AreEqual(20, roundPlayerInfo.RoundPoints);
+            Assert.Equal(20, roundPlayerInfo.RoundPoints);
         }
 
-        [Test]
+        [Fact]
         public void RoundPointsShouldReturn40WhenAnnounceOfFortyAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
             roundPlayerInfo.Announces.Add(Announce.Forty);
-            Assert.AreEqual(40, roundPlayerInfo.RoundPoints);
+            Assert.Equal(40, roundPlayerInfo.RoundPoints);
         }
 
-        [Test]
+        [Fact]
         public void RoundPointsShouldReturn40WhenAnnouncesOfTwentyAndFortyAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
             roundPlayerInfo.Announces.Add(Announce.Twenty);
             roundPlayerInfo.Announces.Add(Announce.Forty);
-            Assert.AreEqual(60, roundPlayerInfo.RoundPoints);
+            Assert.Equal(60, roundPlayerInfo.RoundPoints);
         }
 
-        [Test]
+        [Fact]
         public void RoundPointsShouldReturnCorrectValueOfCards()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
@@ -100,10 +99,10 @@
             var card2 = Card.GetCard(CardSuit.Diamond, CardType.Ace);
             roundPlayerInfo.TrickCards.Add(card1);
             roundPlayerInfo.TrickCards.Add(card2);
-            Assert.AreEqual(card1.GetValue() + card2.GetValue(), roundPlayerInfo.RoundPoints);
+            Assert.Equal(card1.GetValue() + card2.GetValue(), roundPlayerInfo.RoundPoints);
         }
 
-        [Test]
+        [Fact]
         public void RoundPointsShouldReturnCorrectValueOfCardsAndAnnounces()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
@@ -112,7 +111,7 @@
             roundPlayerInfo.TrickCards.Add(card1);
             roundPlayerInfo.TrickCards.Add(card2);
             roundPlayerInfo.Announces.Add(Announce.Twenty);
-            Assert.AreEqual(card1.GetValue() + card2.GetValue() + 20, roundPlayerInfo.RoundPoints);
+            Assert.Equal(card1.GetValue() + card2.GetValue() + 20, roundPlayerInfo.RoundPoints);
         }
     }
 }

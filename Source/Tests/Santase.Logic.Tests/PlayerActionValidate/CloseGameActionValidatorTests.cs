@@ -2,52 +2,51 @@
 {
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class CloseGameActionValidatorTests
     {
-        [Test]
+        [Fact]
         public void CanCloseGameShouldReturnFalseWhenThePlayerIsNotFirstButTheStatePermitsClosing()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
             var canCloseGame = CloseGameActionValidator.CanCloseGame(false, roundState);
-            Assert.IsFalse(canCloseGame);
+            Assert.False(canCloseGame);
         }
 
-        [Test]
+        [Fact]
         public void CanCloseGameShouldReturnFalseWhenThePlayerIsNotFirstAndTheStateDoesNotPermitClosing()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new FinalRoundState(haveStateMock.Object);
 
             var canCloseGame = CloseGameActionValidator.CanCloseGame(false, roundState);
-            Assert.IsFalse(canCloseGame);
+            Assert.False(canCloseGame);
         }
 
-        [Test]
+        [Fact]
         public void CanCloseGameShouldReturnFalseWhenThePlayerIsFirstButTheStateDoesNotPermitClosing()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new TwoCardsLeftRoundState(haveStateMock.Object);
 
             var canCloseGame = CloseGameActionValidator.CanCloseGame(true, roundState);
-            Assert.IsFalse(canCloseGame);
+            Assert.False(canCloseGame);
         }
 
-        [Test]
+        [Fact]
         public void CanCloseGameShouldReturnTrueWhenThePlayerIsFirsAndTheStatePermitsClosing()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
 
             var canCloseGame = CloseGameActionValidator.CanCloseGame(true, roundState);
-            Assert.IsTrue(canCloseGame);
+            Assert.True(canCloseGame);
         }
     }
 }

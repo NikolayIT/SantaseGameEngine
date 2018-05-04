@@ -2,32 +2,31 @@
 {
     using System;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Logger;
 
-    [TestFixture]
+    using Xunit;
+
     public class MemoryLoggerTests
     {
-        [Test]
+        [Fact]
         public void LogLineShouldAppendLineAtTheEnd()
         {
             const string Message = "test";
             ILogger logger = new MemoryLogger();
             logger.LogLine(Message);
-            Assert.AreEqual(Message + Environment.NewLine, logger.ToString());
+            Assert.Equal(Message + Environment.NewLine, logger.ToString());
         }
 
-        [Test]
+        [Fact]
         public void LogShouldAppendTheTextWhenCalledTwoTimesInARow()
         {
             ILogger logger = new MemoryLogger();
             logger.Log("test");
             logger.Log("тест");
-            Assert.AreEqual("testтест", logger.ToString());
+            Assert.Equal("testтест", logger.ToString());
         }
 
-        [Test]
+        [Fact]
         public void LogLineShouldAppendLineBetweenTwoLogCalls()
         {
             const string FirstMessage = "test";
@@ -35,10 +34,10 @@
             ILogger logger = new MemoryLogger();
             logger.LogLine(FirstMessage);
             logger.Log(SecondMessage);
-            Assert.AreEqual(FirstMessage + Environment.NewLine + SecondMessage, logger.ToString());
+            Assert.Equal(FirstMessage + Environment.NewLine + SecondMessage, logger.ToString());
         }
 
-        [Test]
+        [Fact]
         public void MemoryLoggerShouldBeDisposable()
         {
             using (new MemoryLogger())

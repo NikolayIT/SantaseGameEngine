@@ -66,8 +66,7 @@
 
         public override bool Equals(object obj)
         {
-            var anotherCard = obj as Card;
-            return anotherCard != null && this.Suit == anotherCard.Suit && this.Type == anotherCard.Type;
+            return obj is Card anotherCard && this.Suit == anotherCard.Suit && this.Type == anotherCard.Type;
         }
 
         public override int GetHashCode()

@@ -2,30 +2,29 @@
 {
     using System.Collections.Generic;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class BasePlayerTests
     {
-        [Test]
+        [Fact]
         public void CardsShouldNotBeNull()
         {
             var basePlayerImplementation = new BasePlayerImpl();
-            Assert.IsTrue(basePlayerImplementation.ListIsNotNull);
+            Assert.True(basePlayerImplementation.ListIsNotNull);
         }
 
-        [Test]
+        [Fact]
         public void AnnounceValidatorShouldNotBeNull()
         {
             var basePlayerImplementation = new BasePlayerImpl();
-            Assert.IsTrue(basePlayerImplementation.AnnounceValidatorIsNotNull);
+            Assert.True(basePlayerImplementation.AnnounceValidatorIsNotNull);
         }
 
-        [Test]
+        [Fact]
         public void AddCardShouldWorkCorrectly()
         {
             var basePlayerImplementation = new BasePlayerImpl();
@@ -37,50 +36,50 @@
             basePlayerImplementation.AddCard(Card.GetCard(CardSuit.Club, CardType.Jack));
             basePlayerImplementation.AddCard(Card.GetCard(CardSuit.Club, CardType.Nine));
 
-            Assert.AreEqual(6, basePlayerImplementation.CardsCollection.Count);
+            Assert.Equal(6, basePlayerImplementation.CardsCollection.Count);
         }
 
-        [Test]
+        [Fact]
         public void EndRoundShouldClearCards()
         {
             var basePlayerImplementation = new BasePlayerImpl();
             basePlayerImplementation.EndRound();
-            Assert.AreEqual(0, basePlayerImplementation.CardsCollection.Count);
+            Assert.Equal(0, basePlayerImplementation.CardsCollection.Count);
         }
 
-        [Test]
+        [Fact]
         public void PlayerActionValidatorShouldNotBeNull()
         {
             var basePlayerImplementation = new BasePlayerImpl();
-            Assert.IsTrue(basePlayerImplementation.PlayerActionValidatorIsNotNull);
+            Assert.True(basePlayerImplementation.PlayerActionValidatorIsNotNull);
         }
 
-        [Test]
+        [Fact]
         public void PlayCardShouldReturnPlayerActionWithTypePlayCard()
         {
             var basePlayerImplementation = new BasePlayerImpl();
             var action = basePlayerImplementation.PlayCardProxy(Card.GetCard(CardSuit.Heart, CardType.Ace));
-            Assert.AreEqual(PlayerActionType.PlayCard, action.Type);
+            Assert.Equal(PlayerActionType.PlayCard, action.Type);
         }
 
-        [Test]
+        [Fact]
         public void PlayCardShouldReturnPlayerActionWithPlayedCard()
         {
             var card = Card.GetCard(CardSuit.Heart, CardType.Ace);
             var basePlayerImplementation = new BasePlayerImpl();
             var action = basePlayerImplementation.PlayCardProxy(card);
-            Assert.AreEqual(card, action.Card);
+            Assert.Equal(card, action.Card);
         }
 
-        [Test]
+        [Fact]
         public void ChangeTrumpShouldReturnPlayerActionWithTypeChangeTrump()
         {
             var basePlayerImplementation = new BasePlayerImpl();
             var action = basePlayerImplementation.ChangeTrumpProxy(Card.GetCard(CardSuit.Diamond, CardType.King));
-            Assert.AreEqual(PlayerActionType.ChangeTrump, action.Type);
+            Assert.Equal(PlayerActionType.ChangeTrump, action.Type);
         }
 
-        [Test]
+        [Fact]
         public void ChangeTrumpShouldRemoveNineOfTrumpFromThePlayersCards()
         {
             var basePlayerImplementation = new BasePlayerImpl();
@@ -88,12 +87,12 @@
 
             basePlayerImplementation.ChangeTrumpProxy(Card.GetCard(CardSuit.Diamond, CardType.King));
 
-            Assert.IsFalse(
+            Assert.False(
                 basePlayerImplementation.CardsCollection.Contains(Card.GetCard(CardSuit.Diamond, CardType.Nine)),
                 "Trump card for changing found in player cards after changing the trump");
         }
 
-        [Test]
+        [Fact]
         public void ChangeTrumpShouldAddTrumpCardToPlayerCards()
         {
             var basePlayerImplementation = new BasePlayerImpl();
@@ -101,13 +100,13 @@
 
             basePlayerImplementation.ChangeTrumpProxy(Card.GetCard(CardSuit.Diamond, CardType.King));
 
-            Assert.IsTrue(
+            Assert.True(
                 basePlayerImplementation.CardsCollection.Contains(Card.GetCard(CardSuit.Diamond, CardType.King)),
                 "Trump card not found in player cards after changing the trump");
-            Assert.AreEqual(1, basePlayerImplementation.CardsCollection.Count);
+            Assert.Equal(1, basePlayerImplementation.CardsCollection.Count);
         }
 
-        [Test]
+        [Fact]
         public void EndTurnShouldNotThrowExceptions()
         {
             var basePlayerImplementation = new BasePlayerImpl();
@@ -120,7 +119,7 @@
             basePlayerImplementation.EndTurn(playerTurnContext);
         }
 
-        [Test]
+        [Fact]
         public void EndGameShouldNotThrowExceptions()
         {
             var basePlayerImplementation = new BasePlayerImpl();

@@ -2,6 +2,7 @@
 <StoreAssociation xmlns="http://schemas.microsoft.com/appx/2010/storeassociation">
   <Publisher>CN=55564A70-3FC4-4AA9-B0AC-B0943F3261F0</Publisher>
   <PublisherDisplayName>Nikolay Kostov</PublisherDisplayName>
+  <DeveloperAccountType>MSA</DeveloperAccountType>
   <GeneratePackageHash>http://www.w3.org/2001/04/xmlenc#sha256</GeneratePackageHash>
   <SupportedLocales>
     <Language Code="af" InMinimumRequirementSet="true" />
@@ -370,5 +371,5 @@
     <MainPackageIdentityName>33379NikolayKostov.MatchColor</MainPackageIdentityName>
     <MainPackageIdentityName>33379NikolayKostov.TestMyMathIQ</MainPackageIdentityName>
   </AccountPackageIdentityNames>
-  <PackageInfoList LandingUrl="https://dev.windows.com/dashboard/Application?appId=9NBLGGH5XS6F" />
+  <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9NBLGGH5XS6F" />
 </StoreAssociation>

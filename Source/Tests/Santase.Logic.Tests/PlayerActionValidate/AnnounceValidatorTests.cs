@@ -2,12 +2,11 @@
 {
     using System.Collections.Generic;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.PlayerActionValidate;
 
-    [TestFixture]
+    using Xunit;
+
     public class AnnounceValidatorTests
     {
         private readonly ICollection<Card> playerCards = new List<Card>
@@ -20,18 +19,19 @@
                                                                  Card.GetCard(CardSuit.Heart, CardType.King),
                                                              };
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnNoAnnounceWhenGivenNullCard()
         {
             IAnnounceValidator validator = new AnnounceValidator();
             var announce = validator.GetPossibleAnnounce(this.playerCards, null, Card.GetCard(CardSuit.Heart, CardType.Ace));
-            Assert.AreEqual(Announce.None, announce);
+            Assert.Equal(Announce.None, announce);
         }
 
-        [TestCase(CardType.Nine)]
-        [TestCase(CardType.Ten)]
-        [TestCase(CardType.Jack)]
-        [TestCase(CardType.Ace)]
+        [Theory]
+        [InlineData(CardType.Nine)]
+        [InlineData(CardType.Ten)]
+        [InlineData(CardType.Jack)]
+        [InlineData(CardType.Ace)]
         public void GetPossibleAnnounceShouldReturnNoAnnounceWhenNoKingOrQueenIsPlayed(CardType cardType)
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -39,10 +39,10 @@
                 this.playerCards,
                 Card.GetCard(CardSuit.Club, cardType),
                 Card.GetCard(CardSuit.Club, CardType.Ace));
-            Assert.AreEqual(Announce.None, announce);
+            Assert.Equal(Announce.None, announce);
         }
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnNoAnnounceWhenQueenIsPlayedButTheRespectiveKingIsMissing()
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -50,10 +50,10 @@
                 this.playerCards,
                 Card.GetCard(CardSuit.Spade, CardType.Queen),
                 Card.GetCard(CardSuit.Heart, CardType.Ace));
-            Assert.AreEqual(Announce.None, announce);
+            Assert.Equal(Announce.None, announce);
         }
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnNoAnnounceWhenKingIsPlayedButTheRespectiveQueenIsMissing()
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -61,10 +61,10 @@
                 this.playerCards,
                 Card.GetCard(CardSuit.Spade, CardType.King),
                 Card.GetCard(CardSuit.Heart, CardType.Ace));
-            Assert.AreEqual(Announce.None, announce);
+            Assert.Equal(Announce.None, announce);
         }
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnTwentyWhenQueenIsPlayedTheKingIsPresentAndTheTrumpIsDifferentSuit()
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -72,10 +72,10 @@
                 this.playerCards,
                 Card.GetCard(CardSuit.Club, CardType.Queen),
                 Card.GetCard(CardSuit.Heart, CardType.Ace));
-            Assert.AreEqual(Announce.Twenty, announce);
+            Assert.Equal(Announce.Twenty, announce);
         }
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnTwentyWhenKingIsPlayedTheQueenIsPresentAndTheTrumpIsDifferentSuit()
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -83,10 +83,10 @@
                 this.playerCards,
                 Card.GetCard(CardSuit.Diamond, CardType.King),
                 Card.GetCard(CardSuit.Heart, CardType.Ace));
-            Assert.AreEqual(Announce.Twenty, announce);
+            Assert.Equal(Announce.Twenty, announce);
         }
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnFortyWhenQueenIsPlayedTheKingIsPresentAndTheTrumpIsTheSameSuit()
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -94,10 +94,10 @@
                 this.playerCards,
                 Card.GetCard(CardSuit.Diamond, CardType.Queen),
                 Card.GetCard(CardSuit.Diamond, CardType.Ace));
-            Assert.AreEqual(Announce.Forty, announce);
+            Assert.Equal(Announce.Forty, announce);
         }
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnFortyWhenKingIsPlayedTheQueenIsPresentAndTheTrumpIsTheSameSuit()
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -105,10 +105,10 @@
                 this.playerCards,
                 Card.GetCard(CardSuit.Heart, CardType.King),
                 Card.GetCard(CardSuit.Heart, CardType.Nine));
-            Assert.AreEqual(Announce.Forty, announce);
+            Assert.Equal(Announce.Forty, announce);
         }
 
-        [Test]
+        [Fact]
         public void GetPossibleAnnounceShouldReturnFalseWhenThePlayerIsNotFirst()
         {
             IAnnounceValidator validator = new AnnounceValidator();
@@ -117,7 +117,7 @@
                 Card.GetCard(CardSuit.Heart, CardType.King),
                 Card.GetCard(CardSuit.Heart, CardType.Nine),
                 false);
-            Assert.AreEqual(Announce.None, announce);
+            Assert.Equal(Announce.None, announce);
         }
     }
 }

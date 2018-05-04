@@ -4,33 +4,32 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
 
-    [TestFixture]
+    using Xunit;
+
     public class CardTests
     {
-        [Test]
+        [Fact]
         public void ConstructorShouldUpdatePropertyValues()
         {
             var card = Card.GetCard(CardSuit.Spade, CardType.Queen);
-            Assert.AreEqual(CardSuit.Spade, card.Suit);
-            Assert.AreEqual(CardType.Queen, card.Type);
+            Assert.Equal(CardSuit.Spade, card.Suit);
+            Assert.Equal(CardType.Queen, card.Type);
         }
 
-        [Test]
+        [Fact]
         public void GetValueShouldReturnPositiveValueForEveryCardType()
         {
             foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
             {
                 var card = Card.GetCard(CardSuit.Diamond, cardTypeValue);
                 var value = card.GetValue(); // Not expecting exceptions here
-                Assert.IsTrue(value >= 0);
+                Assert.True(value >= 0);
             }
         }
 
-        [Test]
+        [Fact]
         public void GetValueShouldThrowAnExceptionWhenGivenInvalidCardType()
         {
             var cardTypes = Enum.GetValues(typeof(CardType));
@@ -38,10 +37,11 @@
             Assert.Throws<IndexOutOfRangeException>(() => Card.GetCard(CardSuit.Spade, cardTypeValue));
         }
 
-        [TestCase(true, CardSuit.Spade, CardType.Ace, CardSuit.Spade, CardType.Ace)]
-        [TestCase(false, CardSuit.Heart, CardType.Jack, CardSuit.Heart, CardType.Queen)]
-        [TestCase(false, CardSuit.Heart, CardType.King, CardSuit.Spade, CardType.King)]
-        [TestCase(false, CardSuit.Heart, CardType.Nine, CardSuit.Spade, CardType.Ten)]
+        [Theory]
+        [InlineData(true, CardSuit.Spade, CardType.Ace, CardSuit.Spade, CardType.Ace)]
+        [InlineData(false, CardSuit.Heart, CardType.Jack, CardSuit.Heart, CardType.Queen)]
+        [InlineData(false, CardSuit.Heart, CardType.King, CardSuit.Spade, CardType.King)]
+        [InlineData(false, CardSuit.Heart, CardType.Nine, CardSuit.Spade, CardType.Ten)]
         public void EqualsShouldWorkCorrectly(
             bool expectedValue,
             CardSuit firstCardSuit,
@@ -51,29 +51,29 @@
         {
             var firstCard = Card.GetCard(firstCardSuit, firstCardType);
             var secondCard = Card.GetCard(secondCardSuit, secondCardType);
-            Assert.AreEqual(expectedValue, firstCard.Equals(secondCard));
-            Assert.AreEqual(expectedValue, secondCard.Equals(firstCard));
+            Assert.Equal(expectedValue, firstCard.Equals(secondCard));
+            Assert.Equal(expectedValue, secondCard.Equals(firstCard));
         }
 
-        [Test]
+        [Fact]
         public void EqualsShouldReturnFalseWhenGivenNullValue()
         {
             var card = Card.GetCard(CardSuit.Club, CardType.Nine);
             var areEqual = card.Equals(null);
-            Assert.IsFalse(areEqual);
+            Assert.False(areEqual);
         }
 
-        [Test]
+        [Fact]
         public void EqualsShouldReturnFalseWhenGivenNonCardObject()
         {
             var card = Card.GetCard(CardSuit.Club, CardType.Nine);
 
             // ReSharper disable once SuspiciousTypeConversion.Global
             var areEqual = card.Equals(new CardTests());
-            Assert.IsFalse(areEqual);
+            Assert.False(areEqual);
         }
 
-        [Test]
+        [Fact]
         public void GetHashCodeShouldReturnDifferentValidValueForEachCardCombination()
         {
             var values = new HashSet<int>();
@@ -83,7 +83,7 @@
                 {
                     var card = Card.GetCard(cardSuitValue, cardTypeValue);
                     var cardHashCode = card.GetHashCode();
-                    Assert.IsFalse(
+                    Assert.False(
                         values.Contains(cardHashCode),
                         $"Duplicate hash code \"{cardHashCode}\" for card \"{card}\"");
                     values.Add(cardHashCode);
@@ -91,7 +91,7 @@
             }
         }
 
-        [Test]
+        [Fact]
         public void ToStringShouldReturnDifferentValidValueForEachCardCombination()
         {
             var values = new HashSet<string>();
@@ -101,7 +101,7 @@
                 {
                     var card = Card.GetCard(cardSuitValue, cardTypeValue);
                     var cardToString = card.ToString();
-                    Assert.IsFalse(
+                    Assert.False(
                         values.Contains(cardToString),
                         $"Duplicate string value \"{cardToString}\" for card \"{card}\"");
                     values.Add(cardToString);
@@ -109,7 +109,7 @@
             }
         }
 
-        [Test]
+        [Fact]
         public void FromHashCodeShouldCreateCardsWithTheGivenHashCode()
         {
             foreach (CardSuit cardSuitValue in Enum.GetValues(typeof(CardSuit)))
@@ -119,25 +119,25 @@
                     var card = Card.GetCard(cardSuitValue, cardTypeValue);
                     var hashCode = card.GetHashCode();
                     var newCard = Card.FromHashCode(hashCode);
-                    Assert.AreEqual(card, newCard);
+                    Assert.Equal(card, newCard);
                 }
             }
         }
 
-        [Test]
+        [Fact]
         public void GetHashCodeShouldReturn1ForAceOfClubs()
         {
             var card = Card.GetCard(CardSuit.Club, CardType.Ace);
             var hashCode = card.GetHashCode();
-            Assert.AreEqual(1, hashCode);
+            Assert.Equal(1, hashCode);
         }
 
-        [Test]
+        [Fact]
         public void GetHashCodeShouldReturn52ForKingOfSpades()
         {
             var card = Card.GetCard(CardSuit.Spade, CardType.King);
             var hashCode = card.GetHashCode();
-            Assert.AreEqual(52, hashCode);
+            Assert.Equal(52, hashCode);
         }
     }
 }

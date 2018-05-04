@@ -1,13 +1,12 @@
 ﻿namespace Santase.Logic.Tests.GameMechanics
 {
-    using NUnit.Framework;
-
     using Santase.Logic.GameMechanics;
 
-    [TestFixture]
+    using Xunit;
+
     public class RoundTestsForSantase
     {
-        [Test]
+        [Fact]
         public void PlayersStartRoundAndEndRoundShouldBeCalledAndShouldReceiveEqualNumberOfCards()
         {
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
@@ -16,21 +15,21 @@
 
             round.Play(0, 0);
 
-            Assert.AreEqual(firstPlayer.AddCardCalledCount, secondPlayer.AddCardCalledCount);
+            Assert.Equal(firstPlayer.AddCardCalledCount, secondPlayer.AddCardCalledCount);
 
-            Assert.AreEqual(firstPlayer.StartRoundCalledCount, 1);
-            Assert.AreEqual(secondPlayer.StartRoundCalledCount, 1);
+            Assert.Equal(1, firstPlayer.StartRoundCalledCount);
+            Assert.Equal(1, secondPlayer.StartRoundCalledCount);
 
-            Assert.AreEqual(firstPlayer.EndRoundCalledCount, 1);
-            Assert.AreEqual(secondPlayer.EndRoundCalledCount, 1);
+            Assert.Equal(1, firstPlayer.EndRoundCalledCount);
+            Assert.Equal(1, secondPlayer.EndRoundCalledCount);
 
-            Assert.GreaterOrEqual(firstPlayer.AddCardCalledCount, 2);
-            Assert.GreaterOrEqual(secondPlayer.AddCardCalledCount, 2);
-            Assert.LessOrEqual(firstPlayer.AddCardCalledCount, GameRulesProvider.Santase.CardsAtStartOfTheRound);
-            Assert.LessOrEqual(secondPlayer.AddCardCalledCount, GameRulesProvider.Santase.CardsAtStartOfTheRound);
+            Assert.True(firstPlayer.AddCardCalledCount >= 2);
+            Assert.True(secondPlayer.AddCardCalledCount >= 2);
+            Assert.True(firstPlayer.AddCardCalledCount <= GameRulesProvider.Santase.CardsAtStartOfTheRound);
+            Assert.True(secondPlayer.AddCardCalledCount <= GameRulesProvider.Santase.CardsAtStartOfTheRound);
         }
 
-        [Test]
+        [Fact]
         public void PlayersStartRoundShouldBeCalledWithCorrectScoreValues()
         {
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
@@ -39,13 +38,13 @@
 
             round.Play(9, 4);
 
-            Assert.AreEqual(firstPlayer.MyTotalPoints, 9);
-            Assert.AreEqual(firstPlayer.OpponentTotalPoints, 4);
-            Assert.AreEqual(secondPlayer.MyTotalPoints, 4);
-            Assert.AreEqual(secondPlayer.OpponentTotalPoints, 9);
+            Assert.Equal(9, firstPlayer.MyTotalPoints);
+            Assert.Equal(4, firstPlayer.OpponentTotalPoints);
+            Assert.Equal(4, secondPlayer.MyTotalPoints);
+            Assert.Equal(9, secondPlayer.OpponentTotalPoints);
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldReturnValidRoundResultObject()
         {
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
@@ -54,25 +53,25 @@
 
             var result = round.Play(0, 0);
 
-            Assert.IsTrue(
+            Assert.True(
                 result.FirstPlayer.HasAtLeastOneTrick || result.SecondPlayer.HasAtLeastOneTrick,
                 "result.FirstPlayer.HasAtLeastOneTrick || result.SecondPlayer.HasAtLeastOneTrick");
 
-            Assert.IsTrue(
+            Assert.True(
                 result.FirstPlayer.RoundPoints > 0 || result.SecondPlayer.RoundPoints > 0,
                 "result.FirstPlayer.RoundPoints > 0 || result.SecondPlayer.RoundPoints > 0");
 
-            Assert.IsTrue(
+            Assert.True(
                 result.FirstPlayer.TrickCards.Count > 0 || result.SecondPlayer.TrickCards.Count > 0,
                 "result.FirstPlayer.TrickCards.Count > 0 || result.SecondPlayer.TrickCards.Count > 0");
 
-            Assert.IsTrue(
+            Assert.True(
                 result.FirstPlayer.RoundPoints >= 66 || result.SecondPlayer.RoundPoints >= 66
                 || result.FirstPlayer.RoundPoints + result.SecondPlayer.RoundPoints >= 120,
                 "result.FirstPlayer.RoundPoints >= 66 || result.SecondPlayer.RoundPoints >= 66 || result.FirstPlayer.RoundPoints + result.SecondPlayer.RoundPoints >= 120");
         }
 
-        [Test]
+        [Fact]
         public void PlayersMethodsShouldBeCalledCorrectNumberOfTimes()
         {
             const int NumberOfRounds = 10000;
@@ -89,19 +88,19 @@
                 round.Play(0, 0);
             }
 
-            Assert.AreEqual(firstPlayer.StartRoundCalledCount, NumberOfRounds);
-            Assert.AreEqual(secondPlayer.StartRoundCalledCount, NumberOfRounds);
+            Assert.Equal(firstPlayer.StartRoundCalledCount, NumberOfRounds);
+            Assert.Equal(secondPlayer.StartRoundCalledCount, NumberOfRounds);
 
-            Assert.AreEqual(firstPlayer.EndRoundCalledCount, NumberOfRounds);
-            Assert.AreEqual(secondPlayer.EndRoundCalledCount, NumberOfRounds);
+            Assert.Equal(firstPlayer.EndRoundCalledCount, NumberOfRounds);
+            Assert.Equal(secondPlayer.EndRoundCalledCount, NumberOfRounds);
 
-            Assert.Greater(firstPlayer.GetTurnWhenFirst, NumberOfRounds);
-            Assert.Greater(firstPlayer.GetTurnWhenSecond, NumberOfRounds);
-            Assert.Greater(secondPlayer.GetTurnWhenFirst, NumberOfRounds);
-            Assert.Greater(secondPlayer.GetTurnWhenSecond, NumberOfRounds);
+            Assert.True(firstPlayer.GetTurnWhenFirst > NumberOfRounds);
+            Assert.True(firstPlayer.GetTurnWhenSecond > NumberOfRounds);
+            Assert.True(secondPlayer.GetTurnWhenFirst > NumberOfRounds);
+            Assert.True(secondPlayer.GetTurnWhenSecond > NumberOfRounds);
 
-            Assert.GreaterOrEqual(firstPlayer.GetTurnWhenFirst, secondPlayer.GetTurnWhenSecond);
-            Assert.GreaterOrEqual(secondPlayer.GetTurnWhenFirst, firstPlayer.GetTurnWhenSecond);
+            Assert.True(firstPlayer.GetTurnWhenFirst >= secondPlayer.GetTurnWhenSecond);
+            Assert.True(secondPlayer.GetTurnWhenFirst >= firstPlayer.GetTurnWhenSecond);
         }
     }
 }

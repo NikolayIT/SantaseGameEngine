@@ -5,17 +5,16 @@
 
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class TrickTestsForSantase
     {
-        [Test]
+        [Fact]
         public void PlayShouldCallGetTurnAndEndTurnForBothPlayers()
         {
             var firstPlayer = new ValidPlayer();
@@ -30,25 +29,25 @@
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             var winner = trick.Play();
 
-            Assert.AreEqual(1, firstPlayer.GetTurnCalledCount);
-            Assert.AreEqual(1, secondPlayer.GetTurnCalledCount);
-            Assert.AreEqual(1, firstPlayer.EndTurnCalledCount);
-            Assert.AreEqual(1, secondPlayer.EndTurnCalledCount);
+            Assert.Equal(1, firstPlayer.GetTurnCalledCount);
+            Assert.Equal(1, secondPlayer.GetTurnCalledCount);
+            Assert.Equal(1, firstPlayer.EndTurnCalledCount);
+            Assert.Equal(1, secondPlayer.EndTurnCalledCount);
 
-            Assert.IsNotNull(firstPlayer.GetTurnContextObject);
-            Assert.IsNotNull(secondPlayer.GetTurnContextObject);
-            Assert.IsNotNull(firstPlayer.EndTurnContextObject);
-            Assert.IsNotNull(secondPlayer.EndTurnContextObject);
+            Assert.NotNull(firstPlayer.GetTurnContextObject);
+            Assert.NotNull(secondPlayer.GetTurnContextObject);
+            Assert.NotNull(firstPlayer.EndTurnContextObject);
+            Assert.NotNull(secondPlayer.EndTurnContextObject);
 
-            Assert.IsNotNull(firstPlayer.EndTurnContextObject.FirstPlayedCard);
-            Assert.IsNotNull(firstPlayer.EndTurnContextObject.SecondPlayedCard);
-            Assert.IsNotNull(secondPlayer.EndTurnContextObject.FirstPlayedCard);
-            Assert.IsNotNull(secondPlayer.EndTurnContextObject.SecondPlayedCard);
+            Assert.NotNull(firstPlayer.EndTurnContextObject.FirstPlayedCard);
+            Assert.NotNull(firstPlayer.EndTurnContextObject.SecondPlayedCard);
+            Assert.NotNull(secondPlayer.EndTurnContextObject.FirstPlayedCard);
+            Assert.NotNull(secondPlayer.EndTurnContextObject.SecondPlayedCard);
 
-            Assert.IsTrue(winner == firstPlayerInfo || winner == secondPlayerInfo);
+            Assert.True(winner == firstPlayerInfo || winner == secondPlayerInfo);
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldCallGetTurnOnlyForFirstPlayerWhenTheFirstPlayerGoesOutByAnnounce()
         {
             var firstPlayer = new ValidPlayer();
@@ -76,20 +75,20 @@
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             var winner = trick.Play();
 
-            Assert.AreEqual(1, firstPlayer.GetTurnCalledCount);
-            Assert.AreEqual(0, secondPlayer.GetTurnCalledCount);
-            Assert.AreEqual(1, firstPlayer.EndTurnCalledCount);
-            Assert.AreEqual(1, secondPlayer.EndTurnCalledCount);
-            Assert.AreSame(firstPlayerInfo, winner);
+            Assert.Equal(1, firstPlayer.GetTurnCalledCount);
+            Assert.Equal(0, secondPlayer.GetTurnCalledCount);
+            Assert.Equal(1, firstPlayer.EndTurnCalledCount);
+            Assert.Equal(1, secondPlayer.EndTurnCalledCount);
+            Assert.Same(firstPlayerInfo, winner);
 
-            Assert.IsTrue(firstPlayerInfo.HasAtLeastOneTrick);
-            Assert.IsFalse(secondPlayerInfo.HasAtLeastOneTrick);
+            Assert.True(firstPlayerInfo.HasAtLeastOneTrick);
+            Assert.False(secondPlayerInfo.HasAtLeastOneTrick);
 
-            Assert.IsTrue(winner.RoundPoints == 73 || winner.RoundPoints == 93);
-            Assert.IsTrue(winner.RoundPoints == 73 || winner.RoundPoints == 93);
+            Assert.True(winner.RoundPoints == 73 || winner.RoundPoints == 93);
+            Assert.True(winner.RoundPoints == 73 || winner.RoundPoints == 93);
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldCorrectlyDetermineTheWinner()
         {
             var firstPlayer = new ValidPlayer();
@@ -105,25 +104,25 @@
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             var winner = trick.Play();
 
-            Assert.IsTrue(winner == secondPlayerInfo);
-            Assert.AreEqual(2, winner.RoundPoints);
-            Assert.AreEqual(2, winner.TrickCards.Count);
-            Assert.IsTrue(winner.TrickCards.Contains(Card.GetCard(CardSuit.Heart, CardType.Nine)));
-            Assert.IsTrue(winner.TrickCards.Contains(Card.GetCard(deck.TrumpCard.Suit, CardType.Jack)));
-            Assert.AreEqual(0, firstPlayerInfo.TrickCards.Count);
+            Assert.True(winner == secondPlayerInfo);
+            Assert.Equal(2, winner.RoundPoints);
+            Assert.Equal(2, winner.TrickCards.Count);
+            Assert.True(winner.TrickCards.Contains(Card.GetCard(CardSuit.Heart, CardType.Nine)));
+            Assert.True(winner.TrickCards.Contains(Card.GetCard(deck.TrumpCard.Suit, CardType.Jack)));
+            Assert.Equal(0, firstPlayerInfo.TrickCards.Count);
 
-            Assert.AreEqual(0, firstPlayer.EndTurnContextObject.FirstPlayerRoundPoints);
-            Assert.AreEqual(2, firstPlayer.EndTurnContextObject.SecondPlayerRoundPoints);
-            Assert.AreEqual(0, secondPlayer.EndTurnContextObject.FirstPlayerRoundPoints);
-            Assert.AreEqual(2, secondPlayer.EndTurnContextObject.SecondPlayerRoundPoints);
+            Assert.Equal(0, firstPlayer.EndTurnContextObject.FirstPlayerRoundPoints);
+            Assert.Equal(2, firstPlayer.EndTurnContextObject.SecondPlayerRoundPoints);
+            Assert.Equal(0, secondPlayer.EndTurnContextObject.FirstPlayerRoundPoints);
+            Assert.Equal(2, secondPlayer.EndTurnContextObject.SecondPlayerRoundPoints);
 
-            Assert.AreEqual(0, firstPlayer.GetTurnContextObject.FirstPlayerRoundPoints);
-            Assert.AreEqual(0, firstPlayer.GetTurnContextObject.SecondPlayerRoundPoints);
-            Assert.AreEqual(0, secondPlayer.GetTurnContextObject.FirstPlayerRoundPoints);
-            Assert.AreEqual(0, secondPlayer.GetTurnContextObject.SecondPlayerRoundPoints);
+            Assert.Equal(0, firstPlayer.GetTurnContextObject.FirstPlayerRoundPoints);
+            Assert.Equal(0, firstPlayer.GetTurnContextObject.SecondPlayerRoundPoints);
+            Assert.Equal(0, secondPlayer.GetTurnContextObject.FirstPlayerRoundPoints);
+            Assert.Equal(0, secondPlayer.GetTurnContextObject.SecondPlayerRoundPoints);
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldProvideCorrectPlayerTurnContextToPlayers()
         {
             var firstPlayer = new ValidPlayer();
@@ -143,18 +142,18 @@
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             trick.Play();
 
-            Assert.IsTrue(firstPlayer.GetTurnContextObject.IsFirstPlayerTurn);
-            Assert.IsFalse(secondPlayer.GetTurnContextObject.IsFirstPlayerTurn);
-            Assert.IsTrue(secondPlayer.GetTurnContextObject.FirstPlayerAnnounce != Announce.None);
-            Assert.IsNotNull(secondPlayer.GetTurnContextObject.FirstPlayedCard);
-            Assert.AreEqual(CardSuit.Heart, secondPlayer.GetTurnContextObject.FirstPlayedCard.Suit);
+            Assert.True(firstPlayer.GetTurnContextObject.IsFirstPlayerTurn);
+            Assert.False(secondPlayer.GetTurnContextObject.IsFirstPlayerTurn);
+            Assert.True(secondPlayer.GetTurnContextObject.FirstPlayerAnnounce != Announce.None);
+            Assert.NotNull(secondPlayer.GetTurnContextObject.FirstPlayedCard);
+            Assert.Equal(CardSuit.Heart, secondPlayer.GetTurnContextObject.FirstPlayedCard.Suit);
 
-            Assert.IsTrue(
+            Assert.True(
                 secondPlayer.GetTurnContextObject.FirstPlayerRoundPoints == 20
                 || secondPlayer.GetTurnContextObject.FirstPlayerRoundPoints == 40);
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldThrowAnExceptionWhenPlayerPlaysInvalidCard()
         {
             var firstPlayer = new Mock<IPlayer>();
@@ -175,7 +174,7 @@
             Assert.Throws<InternalGameException>(() => trick.Play());
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldThrowAnExceptionWhenPlayerReturnsNullAction()
         {
             var firstPlayer = new Mock<IPlayer>();
@@ -192,7 +191,7 @@
             Assert.Throws<InternalGameException>(() => trick.Play());
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldChangeTheDeckTrumpWhenPlayerPlaysChangeTrumpAction()
         {
             var firstPlayer = new ValidPlayer(PlayerActionType.ChangeTrump);
@@ -214,16 +213,16 @@
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             trick.Play();
 
-            Assert.AreEqual(nineOfTrump, deck.TrumpCard);
-            Assert.AreEqual(nineOfTrump, secondPlayer.GetTurnContextObject.TrumpCard);
-            Assert.IsTrue(firstPlayerInfo.TrickCards.Contains(oldTrumpCard), "Trick cards should contain oldTrumpCard");
-            Assert.IsFalse(firstPlayerInfo.Cards.Contains(nineOfTrump));
-            Assert.IsFalse(
+            Assert.Equal(nineOfTrump, deck.TrumpCard);
+            Assert.Equal(nineOfTrump, secondPlayer.GetTurnContextObject.TrumpCard);
+            Assert.True(firstPlayerInfo.TrickCards.Contains(oldTrumpCard), "Trick cards should contain oldTrumpCard");
+            Assert.False(firstPlayerInfo.Cards.Contains(nineOfTrump));
+            Assert.False(
                 firstPlayer.CardsCollection.Contains(nineOfTrump),
                 "Player contains nine of trump after changing trump card");
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldThrowAnExceptionWhenClosingTheGameAndNineOfTrumpsIsMissing()
         {
             var firstPlayer = new ValidPlayer(PlayerActionType.ChangeTrump);
@@ -242,7 +241,7 @@
             Assert.Throws<InternalGameException>(() => trick.Play());
         }
 
-        [Test]
+        [Fact]
         public void PlayShouldCloseTheGameWhenPlayerPlaysCloseGameAction()
         {
             var firstPlayer = new ValidPlayer(PlayerActionType.CloseGame);
@@ -258,10 +257,10 @@
             var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
             trick.Play();
 
-            Assert.IsTrue(firstPlayerInfo.GameCloser);
-            Assert.IsFalse(secondPlayerInfo.GameCloser);
-            Assert.IsInstanceOf<FinalRoundState>(stateManager.State);
-            Assert.IsInstanceOf<FinalRoundState>(secondPlayer.GetTurnContextObject.State);
+            Assert.True(firstPlayerInfo.GameCloser);
+            Assert.False(secondPlayerInfo.GameCloser);
+            Assert.IsType<FinalRoundState>(stateManager.State);
+            Assert.IsType<FinalRoundState>(secondPlayer.GetTurnContextObject.State);
         }
 
         private static void SimulateGame(RoundPlayerInfo firstPlayer, RoundPlayerInfo secondPlayer, Deck deck)

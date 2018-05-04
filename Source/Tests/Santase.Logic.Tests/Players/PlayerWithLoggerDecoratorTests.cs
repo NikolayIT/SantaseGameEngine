@@ -4,17 +4,16 @@
 
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
     using Santase.Logic.Logger;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class PlayerWithLoggerDecoratorTests
     {
-        [Test]
+        [Fact]
         public void StartGameShouldAddToLoggerAndCallBaseMethod()
         {
             const string OtherPlayerIdentifier = "тест";
@@ -24,12 +23,12 @@
 
             playerWithLogger.StartGame(OtherPlayerIdentifier);
 
-            Assert.IsTrue(logger.ToString().Length > 0);
-            Assert.IsTrue(logger.ToString().Contains(OtherPlayerIdentifier));
+            Assert.True(logger.ToString().Length > 0);
+            Assert.Contains(OtherPlayerIdentifier, logger.ToString());
             playerMock.Verify(x => x.StartGame(It.IsAny<string>()), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void StartRoundShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
@@ -41,13 +40,13 @@
             var trumpCard = Card.GetCard(CardSuit.Club, CardType.Ace);
             playerWithLogger.StartRound(cards, trumpCard, 1, 4);
 
-            Assert.IsTrue(logger.ToString().Length > 0);
-            Assert.IsTrue(logger.ToString().Contains(card.ToString()));
-            Assert.IsTrue(logger.ToString().Contains(trumpCard.ToString()));
+            Assert.True(logger.ToString().Length > 0);
+            Assert.Contains(card.ToString(), logger.ToString());
+            Assert.Contains(trumpCard.ToString(), logger.ToString());
             playerMock.Verify(x => x.StartRound(cards, trumpCard, 1, 4), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void AddCardShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
@@ -56,11 +55,11 @@
 
             playerWithLogger.AddCard(Card.GetCard(CardSuit.Club, CardType.Ace));
 
-            Assert.IsTrue(logger.ToString().Length > 0);
+            Assert.True(logger.ToString().Length > 0);
             playerMock.Verify(x => x.AddCard(It.IsAny<Card>()), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void GetTurnShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
@@ -75,11 +74,11 @@
                     0,
                     0));
 
-            Assert.IsTrue(logger.ToString().Length > 0);
+            Assert.True(logger.ToString().Length > 0);
             playerMock.Verify(x => x.GetTurn(It.IsAny<PlayerTurnContext>()), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void EndTurnShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
@@ -94,22 +93,22 @@
                     0,
                     0));
 
-            Assert.IsTrue(logger.ToString().Length > 0);
+            Assert.True(logger.ToString().Length > 0);
             playerMock.Verify(x => x.EndTurn(It.IsAny<PlayerTurnContext>()), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void EndRoundShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
             var playerMock = new Mock<IPlayer>();
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
             playerWithLogger.EndRound();
-            Assert.IsTrue(logger.ToString().Length > 0);
+            Assert.True(logger.ToString().Length > 0);
             playerMock.Verify(x => x.EndRound(), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void EndGameShouldAddToLoggerAndCallBaseMethod()
         {
             var logger = new MemoryLogger();
@@ -118,11 +117,11 @@
 
             playerWithLogger.EndGame(true);
 
-            Assert.IsTrue(logger.ToString().Length > 0);
+            Assert.True(logger.ToString().Length > 0);
             playerMock.Verify(x => x.EndGame(It.IsAny<bool>()), Times.Once());
         }
 
-        [Test]
+        [Fact]
         public void NameShouldReturnBaseName()
         {
             const string PlayerName = "тест";
@@ -133,7 +132,7 @@
 
             var playerWithLogger = new PlayerWithLoggerDecorator(playerMock.Object, logger);
 
-            Assert.AreEqual(PlayerName, playerWithLogger.Name);
+            Assert.Equal(PlayerName, playerWithLogger.Name);
         }
     }
 }

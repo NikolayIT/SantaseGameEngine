@@ -44,18 +44,19 @@
 
         public void TrumpCardSaw(Card newCard)
         {
-            // ReSharper disable once ArrangeStaticMemberQualifier
-            if (!Card.Equals(newCard, this.trumpCard))
+            if (Card.Equals(newCard, this.trumpCard))
             {
-                // The other player changed the trump card
-                this.UnknownCards.Remove(newCard);
-                if (this.trumpCard != null)
-                {
-                    this.UnknownCards.Add(this.trumpCard);
-                }
-
-                this.trumpCard = newCard;
+                return;
             }
+
+            // The other player changed the trump card
+            this.UnknownCards.Remove(newCard);
+            if (this.trumpCard != null)
+            {
+                this.UnknownCards.Add(this.trumpCard);
+            }
+
+            this.trumpCard = newCard;
         }
     }
 }

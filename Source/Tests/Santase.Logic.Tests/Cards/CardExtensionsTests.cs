@@ -4,26 +4,25 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.Cards;
 
-    [TestFixture]
+    using Xunit;
+
     public class CardExtensionsTests
     {
-        [Test]
+        [Fact]
         public void CardSuitToFriendlyStringShouldReturnDifferentValidValueForEachPossibleParameter()
         {
             var values = new HashSet<string>();
             foreach (CardSuit cardSuitValue in Enum.GetValues(typeof(CardSuit)))
             {
                 var stringValue = cardSuitValue.ToFriendlyString();
-                Assert.IsFalse(values.Contains(stringValue), $"Duplicate string value \"{stringValue}\" for card suit \"{cardSuitValue}\"");
+                Assert.False(values.Contains(stringValue), $"Duplicate string value \"{stringValue}\" for card suit \"{cardSuitValue}\"");
                 values.Add(stringValue);
             }
         }
 
-        [Test]
+        [Fact]
         public void CardSuitToFriendlyStringShouldThrowAnExceptionWhenCalledOnAnInvalidValue()
         {
             var cardSuits = Enum.GetValues(typeof(CardSuit));
@@ -31,19 +30,19 @@
             Assert.Throws<ArgumentException>(() => cardSuit.ToFriendlyString());
         }
 
-        [Test]
+        [Fact]
         public void CardSuitMapAsSortableByColorShouldOrderByByColorInOrderSpadeHeartClubAndDiamonds()
         {
             var cardSuits =
                 Enum.GetValues(typeof(CardSuit)).OfType<CardSuit>().OrderBy(x => x.MapAsSortableByColor()).ToList();
 
-            Assert.AreEqual(CardSuit.Spade, cardSuits[0]);
-            Assert.AreEqual(CardSuit.Heart, cardSuits[1]);
-            Assert.AreEqual(CardSuit.Club, cardSuits[2]);
-            Assert.AreEqual(CardSuit.Diamond, cardSuits[3]);
+            Assert.Equal(CardSuit.Spade, cardSuits[0]);
+            Assert.Equal(CardSuit.Heart, cardSuits[1]);
+            Assert.Equal(CardSuit.Club, cardSuits[2]);
+            Assert.Equal(CardSuit.Diamond, cardSuits[3]);
         }
 
-        [Test]
+        [Fact]
         public void CardSuitMapAsSortableByColorShouldThrowAnExceptionWhenCalledOnAnInvalidValue()
         {
             var cardSuits = Enum.GetValues(typeof(CardSuit));
@@ -51,19 +50,19 @@
             Assert.Throws<ArgumentException>(() => cardSuit.MapAsSortableByColor());
         }
 
-        [Test]
+        [Fact]
         public void CardTypeToFriendlyStringShouldReturnDifferentValidValueForEachPossibleParameter()
         {
             var values = new HashSet<string>();
             foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
             {
                 var stringValue = cardTypeValue.ToFriendlyString();
-                Assert.IsFalse(values.Contains(stringValue), $"Duplicate string value \"{stringValue}\" for card suit \"{cardTypeValue}\"");
+                Assert.False(values.Contains(stringValue), $"Duplicate string value \"{stringValue}\" for card suit \"{cardTypeValue}\"");
                 values.Add(stringValue);
             }
         }
 
-        [Test]
+        [Fact]
         public void CardTypeToFriendlyStringShouldThrowAnExceptionWhenCalledOnAnInvalidValue()
         {
             var cardTypes = Enum.GetValues(typeof(CardType));

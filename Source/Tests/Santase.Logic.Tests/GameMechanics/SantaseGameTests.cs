@@ -2,25 +2,24 @@
 {
     using System;
 
-    using NUnit.Framework;
-
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Logger;
 
-    [TestFixture]
+    using Xunit;
+
     public class SantaseGameTests
     {
-        [Test]
+        [Fact]
         public void StartGameShouldReturnOneOfThePlayersAsWinner()
         {
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
             var game = new SantaseGame(firstPlayer, secondPlayer);
             var winner = game.Start();
-            Assert.IsTrue(winner != PlayerPosition.NoOne);
+            Assert.True(winner != PlayerPosition.NoOne);
         }
 
-        [Test]
+        [Fact]
         public void WinnersShouldBeEquallyDistributed()
         {
             const int GamesToPlay = 200;
@@ -46,11 +45,11 @@
                 }
             }
 
-            Assert.AreEqual(GamesToPlay, firstPlayerWinner + secondPlayerWinner);
-            Assert.IsTrue(Math.Abs(firstPlayerWinner - secondPlayerWinner) < 150);
+            Assert.Equal(GamesToPlay, firstPlayerWinner + secondPlayerWinner);
+            Assert.True(Math.Abs(firstPlayerWinner - secondPlayerWinner) < 150);
         }
 
-        [Test]
+        [Fact]
         public void PlayersMethodsShouldBeCalledCorrectNumberOfTimes()
         {
             const int GamesToPlay = 200;
@@ -66,44 +65,40 @@
             }
 
             // StartGame()
-            Assert.AreEqual(GamesToPlay, firstPlayer.StartGameCalledCount);
-            Assert.AreEqual(GamesToPlay, secondPlayer.StartGameCalledCount);
+            Assert.Equal(GamesToPlay, firstPlayer.StartGameCalledCount);
+            Assert.Equal(GamesToPlay, secondPlayer.StartGameCalledCount);
 
             // EndGame()
-            Assert.AreEqual(GamesToPlay, firstPlayer.EndGameCalledCount);
-            Assert.AreEqual(GamesToPlay, secondPlayer.EndGameCalledCount);
+            Assert.Equal(GamesToPlay, firstPlayer.EndGameCalledCount);
+            Assert.Equal(GamesToPlay, secondPlayer.EndGameCalledCount);
 
             // StartRound()
-            Assert.GreaterOrEqual(
-                firstPlayer.StartRoundCalledCount,
-                4 * GamesToPlay,
+            Assert.True(
+                firstPlayer.StartRoundCalledCount >= 4 * GamesToPlay,
                 "Not started at least 4 rounds per game for the first player");
-            Assert.GreaterOrEqual(
-                secondPlayer.StartRoundCalledCount,
-                4 * GamesToPlay,
+            Assert.True(
+                secondPlayer.StartRoundCalledCount >= 4 * GamesToPlay,
                 "Not started at least 4 rounds per game for the second player");
 
             // EndRound()
-            Assert.GreaterOrEqual(
-                firstPlayer.EndRoundCalledCount,
-                GamesToPlay * 4,
+            Assert.True(
+                firstPlayer.EndRoundCalledCount >= GamesToPlay * 4,
                 "Not ended at least 4 rounds per game for the first player");
-            Assert.GreaterOrEqual(
-                secondPlayer.EndRoundCalledCount,
-                GamesToPlay * 4,
+            Assert.True(
+                secondPlayer.EndRoundCalledCount >= GamesToPlay * 4,
                 "Not ended at least 4 rounds per game for the second player");
 
             // GetTurn() and EndTurn()
-            Assert.IsTrue(firstPlayer.GetTurnWhenFirst > GamesToPlay * 10);
-            Assert.IsTrue(firstPlayer.GetTurnWhenSecond > GamesToPlay * 10);
-            Assert.IsTrue(firstPlayer.EndTurnCalledCount > GamesToPlay * 10);
+            Assert.True(firstPlayer.GetTurnWhenFirst > GamesToPlay * 10);
+            Assert.True(firstPlayer.GetTurnWhenSecond > GamesToPlay * 10);
+            Assert.True(firstPlayer.EndTurnCalledCount > GamesToPlay * 10);
 
-            Assert.IsTrue(secondPlayer.GetTurnWhenFirst > GamesToPlay * 10);
-            Assert.IsTrue(secondPlayer.GetTurnWhenSecond > GamesToPlay * 10);
-            Assert.IsTrue(secondPlayer.EndTurnCalledCount > GamesToPlay * 10);
+            Assert.True(secondPlayer.GetTurnWhenFirst > GamesToPlay * 10);
+            Assert.True(secondPlayer.GetTurnWhenSecond > GamesToPlay * 10);
+            Assert.True(secondPlayer.EndTurnCalledCount > GamesToPlay * 10);
         }
 
-        [Test]
+        [Fact]
         public void StartingGameShouldRestartTheGameToReuseGameInstance()
         {
             const int GamesToPlay = 20;
@@ -117,13 +112,11 @@
                 game.Start(i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
             }
 
-            Assert.GreaterOrEqual(
-                firstPlayer.StartRoundCalledCount,
-                4 * GamesToPlay,
+            Assert.True(
+                firstPlayer.StartRoundCalledCount >= 4 * GamesToPlay,
                 "Not started at least 4 rounds per game for the first player");
-            Assert.GreaterOrEqual(
-                secondPlayer.StartRoundCalledCount,
-                4 * GamesToPlay,
+            Assert.True(
+                secondPlayer.StartRoundCalledCount >= 4 * GamesToPlay,
                 "Not started at least 4 rounds per game for the second player");
         }
     }

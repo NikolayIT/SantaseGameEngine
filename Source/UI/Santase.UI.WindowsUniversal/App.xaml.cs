@@ -1,6 +1,7 @@
 ﻿namespace Santase.UI.WindowsUniversal
 {
     using System;
+
     using Windows.ApplicationModel;
     using Windows.ApplicationModel.Activation;
     using Windows.UI.Xaml;
@@ -10,17 +11,14 @@
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    public sealed partial class App
+    public sealed partial class App : Application
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="App"/> class.
+        /// Initializes the singleton application object.
         /// This is the first line of authored code executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
         public App()
         {
-            Microsoft.ApplicationInsights.WindowsAppInitializer.InitializeAsync(
-                Microsoft.ApplicationInsights.WindowsCollectors.Metadata |
-                Microsoft.ApplicationInsights.WindowsCollectors.Session);
             this.InitializeComponent();
             this.Suspending += this.OnSuspending;
         }
@@ -32,13 +30,6 @@
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-#if DEBUG
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                this.DebugSettings.EnableFrameRateCounter = true;
-            }
-#endif
-
             var rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,

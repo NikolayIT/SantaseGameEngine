@@ -2,54 +2,53 @@
 {
     using Moq;
 
-    using NUnit.Framework;
-
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class MoreThanTwoCardsLeftRoundStateTests
     {
-        [Test]
+        [Fact]
         public void InTheMiddleOfTheGameItIsPossibleToAnnounce20Or40()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.CanAnnounce20Or40);
+            Assert.True(roundState.CanAnnounce20Or40);
         }
 
-        [Test]
+        [Fact]
         public void InTheMiddleOfTheGameItIsPossibleToCloseTheGame()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.CanClose);
+            Assert.True(roundState.CanClose);
         }
 
-        [Test]
+        [Fact]
         public void InTheMiddleOfTheGameItIsPossibleToChangeTheTrump()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.CanChangeTrump);
+            Assert.True(roundState.CanChangeTrump);
         }
 
-        [Test]
+        [Fact]
         public void InTheMiddleOfTheGameRulesShouldNotBeObserved()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
-            Assert.IsFalse(roundState.ShouldObserveRules);
+            Assert.False(roundState.ShouldObserveRules);
         }
 
-        [Test]
+        [Fact]
         public void InTheMiddleOfTheGameCardShouldBeDrawn()
         {
             var haveStateMock = new Mock<IStateManager>();
             var roundState = new MoreThanTwoCardsLeftRoundState(haveStateMock.Object);
-            Assert.IsTrue(roundState.ShouldDrawCard);
+            Assert.True(roundState.ShouldDrawCard);
         }
 
-        [Test]
+        [Fact]
         public void PlayHandWithMoreThan2CardsLeftShouldNotChangeTheState()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -58,7 +57,7 @@
             haveStateMock.Verify(x => x.SetState(It.IsAny<BaseRoundState>()), Times.Never);
         }
 
-        [Test]
+        [Fact]
         public void PlayHandWith2CardsLeftShouldChangeTheStateToTwoCardsLeftRoundState()
         {
             var haveStateMock = new Mock<IStateManager>();
@@ -67,7 +66,7 @@
             haveStateMock.Verify(x => x.SetState(It.IsAny<TwoCardsLeftRoundState>()), Times.Once);
         }
 
-        [Test]
+        [Fact]
         public void CloseShouldMoveTheGameToTheFinalRoundState()
         {
             var haveStateMock = new Mock<IStateManager>();

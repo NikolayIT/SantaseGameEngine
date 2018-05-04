@@ -1,26 +1,25 @@
 ﻿namespace Santase.Logic.Tests.RoundStates
 {
-    using NUnit.Framework;
-
     using Santase.Logic.RoundStates;
 
-    [TestFixture]
+    using Xunit;
+
     public class StateManagerTests
     {
-        [Test]
+        [Fact]
         public void DefaultStateShouldBeStartRoundState()
         {
             var stateManager = new StateManager();
-            Assert.AreEqual(typeof(StartRoundState), stateManager.State.GetType());
+            Assert.Equal(typeof(StartRoundState), stateManager.State.GetType());
         }
 
-        [Test]
+        [Fact]
         public void SetStateShouldChangeTheState()
         {
             var stateManager = new StateManager();
             var state = new FinalRoundState(stateManager);
             stateManager.SetState(state);
-            Assert.AreEqual(state, stateManager.State);
+            Assert.Equal(state, stateManager.State);
         }
     }
 }

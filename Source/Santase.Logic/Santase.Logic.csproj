@@ -1,107 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C82BEBF4-ED79-48FB-A2AB-4E0D1767B95F}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Santase.Logic</RootNamespace>
-    <AssemblyName>Santase.Logic</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\Santase.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
+    <Version>2.0.0</Version>
+    <Copyright>Copyright © 2015-2018</Copyright>
+    <PackageProjectUrl>https://github.com/NikolayIT/SantaseGameEngine</PackageProjectUrl>
+    <Authors>Nikolay.IT</Authors>
+    <RepositoryUrl>https://github.com/NikolayIT/SantaseGameEngine</RepositoryUrl>
+    <Product>SantaseGameEngine</Product>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\Santase.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
+
   <ItemGroup>
-    <None Include="project.json" />
-    <!-- A reference to the entire .NET Framework is automatically included -->
+    <AdditionalFiles Include="..\stylecop.json" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Announce.cs" />
-    <Compile Include="Cards\Card.cs" />
-    <Compile Include="Cards\CardCollection.cs" />
-    <Compile Include="Cards\CardExtensions.cs" />
-    <Compile Include="Cards\CardSuit.cs" />
-    <Compile Include="Cards\CardType.cs" />
-    <Compile Include="Cards\Deck.cs" />
-    <Compile Include="Cards\IDeck.cs" />
-    <Compile Include="Extensions\EnumerableExtensions.cs" />
-    <Compile Include="Extensions\PlayerPositionExtensions.cs" />
-    <Compile Include="Extensions\RandomProvider.cs" />
-    <Compile Include="GameMechanics\ISantaseGame.cs" />
-    <Compile Include="GameMechanics\Round.cs" />
-    <Compile Include="GameMechanics\RoundPlayerInfo.cs" />
-    <Compile Include="GameMechanics\RoundResult.cs" />
-    <Compile Include="GameMechanics\SantaseGame.cs" />
-    <Compile Include="GameMechanics\Trick.cs" />
-    <Compile Include="GameRulesProvider.cs" />
-    <Compile Include="IDeepCloneable{T}.cs" />
-    <Compile Include="IGameRules.cs" />
-    <Compile Include="InternalGameException.cs" />
-    <Compile Include="Logger\ILogger.cs" />
-    <Compile Include="Logger\MemoryLogger.cs" />
-    <Compile Include="Logger\NoLogger.cs" />
-    <Compile Include="PlayerActionValidate\AnnounceValidator.cs" />
-    <Compile Include="PlayerActionValidate\ChangeTrumpActionValidator.cs" />
-    <Compile Include="PlayerActionValidate\CloseGameActionValidator.cs" />
-    <Compile Include="PlayerActionValidate\IAnnounceValidator.cs" />
-    <Compile Include="PlayerActionValidate\IPlayerActionValidator.cs" />
-    <Compile Include="PlayerActionValidate\PlayCardActionValidator.cs" />
-    <Compile Include="PlayerActionValidate\PlayerActionValidator.cs" />
-    <Compile Include="PlayerPosition.cs" />
-    <Compile Include="Players\BasePlayer.cs" />
-    <Compile Include="Players\IPlayer.cs" />
-    <Compile Include="Players\PlayerAction.cs" />
-    <Compile Include="Players\PlayerActionType.cs" />
-    <Compile Include="Players\PlayerDecorator.cs" />
-    <Compile Include="Players\PlayerTurnContext.cs" />
-    <Compile Include="Players\PlayerWithLoggerDecorator.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RoundStates\BaseRoundState.cs" />
-    <Compile Include="RoundStates\FinalRoundState.cs" />
-    <Compile Include="RoundStates\IStateManager.cs" />
-    <Compile Include="RoundStates\MoreThanTwoCardsLeftRoundState.cs" />
-    <Compile Include="RoundStates\StartRoundState.cs" />
-    <Compile Include="RoundStates\StateManager.cs" />
-    <Compile Include="RoundStates\TwoCardsLeftRoundState.cs" />
-    <Compile Include="SantaseGameRules.cs" />
-    <Compile Include="WinnerLogic\CardWinnerLogic.cs" />
-    <Compile Include="WinnerLogic\ICardWinnerLogic.cs" />
-    <Compile Include="WinnerLogic\IRoundWinnerPointsLogic.cs" />
-    <Compile Include="WinnerLogic\RoundWinnerPoints.cs" />
-    <Compile Include="WinnerLogic\RoundWinnerPointsPointsLogic.cs" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006" PrivateAssets="All" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
