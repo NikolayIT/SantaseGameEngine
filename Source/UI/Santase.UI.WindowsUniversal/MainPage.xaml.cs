@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Microsoft.Advertising.WinRT.UI;
+
     using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
@@ -30,6 +32,8 @@
         private readonly TotalResultPersister resultPersister;
 
         private readonly CardControl[] playerCardControls;
+
+        private AdControl adControl;
 
         public MainPage()
         {
@@ -76,9 +80,8 @@
 
         private void InitializeAdControl()
         {
-            // TODO: Implement
             // Initialize the AdControl.
-            /*this.adControl = new AdControl
+            this.adControl = new AdControl
             {
                 IsAutoRefreshEnabled = true,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -105,7 +108,7 @@
             this.adControl.SetValue(Grid.ColumnProperty, 0);
             this.adControl.SetValue(Grid.ColumnSpanProperty, 5);
 
-            this.MainGrid.Children.Add(this.adControl);*/
+            this.MainGrid.Children.Add(this.adControl);
         }
 
         private void PlayerCardTapped(object sender, TappedRoutedEventArgs eventArgs)
