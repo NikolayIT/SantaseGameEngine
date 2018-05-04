@@ -5,8 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Microsoft.Advertising.WinRT.UI;
-
     using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
@@ -32,8 +30,6 @@
         private readonly TotalResultPersister resultPersister;
 
         private readonly CardControl[] playerCardControls;
-
-        private AdControl adControl;
 
         public MainPage()
         {
@@ -80,8 +76,9 @@
 
         private void InitializeAdControl()
         {
+            // TODO: Implement
             // Initialize the AdControl.
-            this.adControl = new AdControl
+            /*this.adControl = new AdControl
             {
                 IsAutoRefreshEnabled = true,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -108,7 +105,7 @@
             this.adControl.SetValue(Grid.ColumnProperty, 0);
             this.adControl.SetValue(Grid.ColumnSpanProperty, 5);
 
-            this.MainGrid.Children.Add(this.adControl);
+            this.MainGrid.Children.Add(this.adControl);*/
         }
 
         private void PlayerCardTapped(object sender, TappedRoutedEventArgs eventArgs)
@@ -123,10 +120,10 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
-                    {
-                        this.OldPlayerCard.SetCard(playedCards.Item1);
-                        this.OldOtherPlayerCard.SetCard(playedCards.Item2);
-                    });
+                {
+                    this.OldPlayerCard.SetCard(playedCards.Item1);
+                    this.OldOtherPlayerCard.SetCard(playedCards.Item2);
+                });
         }
 
         private void UiPlayerRedrawTrumpCard(object sender, Card card)
@@ -136,16 +133,16 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
+                {
+                    if (card != null)
                     {
-                        if (card != null)
-                        {
-                            this.TrumpCard.SetCard(card);
-                        }
-                        else
-                        {
-                            this.TrumpCard.Transparent();
-                        }
-                    });
+                        this.TrumpCard.SetCard(card);
+                    }
+                    else
+                    {
+                        this.TrumpCard.Transparent();
+                    }
+                });
         }
 
         private void UiPlayerOnRedrawPlayerPlayedCard(object sender, Card card)
@@ -155,16 +152,16 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
-                    {
-                        //// if (card == null)
-                        //// {
-                        ////     this.PlayerCard.Transparent();
-                        //// }
-                        //// else
-                        //// {
-                        ////     this.PlayerCard.SetCard(card);
-                        //// }
-                    });
+                {
+                    //// if (card == null)
+                    //// {
+                    ////     this.PlayerCard.Transparent();
+                    //// }
+                    //// else
+                    //// {
+                    ////     this.PlayerCard.SetCard(card);
+                    //// }
+                });
 
             //// Task.Delay(2000);
         }
@@ -176,16 +173,16 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
+                {
+                    if (card == null)
                     {
-                        if (card == null)
-                        {
-                            this.OtherPlayerCard.Transparent();
-                        }
-                        else
-                        {
-                            this.OtherPlayerCard.SetCard(card);
-                        }
-                    });
+                        this.OtherPlayerCard.Transparent();
+                    }
+                    else
+                    {
+                        this.OtherPlayerCard.SetCard(card);
+                    }
+                });
         }
 
         private void UiPlayerOnRedrawCurrentAndOtherPlayerRoundPoints(object sender, Tuple<int, int> pointsInfo)
@@ -195,10 +192,10 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
-                    {
-                        this.PlayerRoundPoints.Text = pointsInfo.Item1.ToString();
-                        this.OtherPlayerRoundPoints.Text = pointsInfo.Item2.ToString();
-                    });
+                {
+                    this.PlayerRoundPoints.Text = pointsInfo.Item1.ToString();
+                    this.OtherPlayerRoundPoints.Text = pointsInfo.Item2.ToString();
+                });
         }
 
         private void UiPlayerOnRedrawCurrentAndOtherPlayerTotalPoints(object sender, Tuple<int, int> pointsInfo)
@@ -208,10 +205,10 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
-                    {
-                        this.PlayerTotalPoints.Text = pointsInfo.Item1.ToString();
-                        this.OtherPlayerTotalPoints.Text = pointsInfo.Item2.ToString();
-                    });
+                {
+                    this.PlayerTotalPoints.Text = pointsInfo.Item1.ToString();
+                    this.OtherPlayerTotalPoints.Text = pointsInfo.Item2.ToString();
+                });
         }
 
         private void UiPlayerRedrawCards(object sender, ICollection<Card> cardsCollection)
@@ -221,24 +218,24 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
+                {
+                    var cards =
+                        cardsCollection.OrderBy(x => x.Suit.MapAsSortableByColor())
+                            .ThenByDescending(x => x.GetValue())
+                            .ToList();
+                    for (var i = 0; i < this.playerCardControls.Length; i++)
                     {
-                        var cards =
-                            cardsCollection.OrderBy(x => x.Suit.MapAsSortableByColor())
-                                .ThenByDescending(x => x.GetValue())
-                                .ToList();
-                        for (var i = 0; i < this.playerCardControls.Length; i++)
+                        var playerCardControl = this.playerCardControls[i];
+                        if (cards.Count > i)
                         {
-                            var playerCardControl = this.playerCardControls[i];
-                            if (cards.Count > i)
-                            {
-                                playerCardControl.SetCard(cards[i]);
-                            }
-                            else
-                            {
-                                playerCardControl.Hide();
-                            }
+                            playerCardControl.SetCard(cards[i]);
                         }
-                    });
+                        else
+                        {
+                            playerCardControl.Hide();
+                        }
+                    }
+                });
         }
 
         private void UiPlayerOnRedrawNumberOfCardsLeftInDeck(object sender, int cardsLeft)
@@ -248,24 +245,24 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
+                {
+                    if (cardsLeft == 0)
                     {
-                        if (cardsLeft == 0)
+                        this.CardsLeftInDeck.Text = this.TrumpCard.Card.Suit.ToFriendlyString();
+                        this.TrumpCard.Visibility = Visibility.Collapsed;
+                        this.DeckCards.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        if (this.TrumpCard.Card != null)
                         {
-                            this.CardsLeftInDeck.Text = this.TrumpCard.Card.Suit.ToFriendlyString();
-                            this.TrumpCard.Visibility = Visibility.Collapsed;
-                            this.DeckCards.Visibility = Visibility.Collapsed;
+                            this.CardsLeftInDeck.Text = cardsLeft.ToString();
                         }
-                        else
-                        {
-                            if (this.TrumpCard.Card != null)
-                            {
-                                this.CardsLeftInDeck.Text = cardsLeft.ToString();
-                            }
 
-                            this.TrumpCard.Visibility = Visibility.Visible;
-                            this.DeckCards.Visibility = Visibility.Visible;
-                        }
-                    });
+                        this.TrumpCard.Visibility = Visibility.Visible;
+                        this.DeckCards.Visibility = Visibility.Visible;
+                    }
+                });
         }
 
         private void UiPlayerOnGameClosed(object sender, EventArgs e)
@@ -275,15 +272,15 @@
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CoreDispatcherPriority.Normal,
                 () =>
+                {
+                    // game is closed
+                    if (this.TrumpCard.Card != null)
                     {
-                        // game is closed
-                        if (this.TrumpCard.Card != null)
-                        {
-                            this.CardsLeftInDeck.Text += new string(' ', 2) + this.TrumpCard.Card.Suit.ToFriendlyString();
-                        }
+                        this.CardsLeftInDeck.Text += new string(' ', 2) + this.TrumpCard.Card.Suit.ToFriendlyString();
+                    }
 
-                        this.TrumpCard.SetCard(null);
-                    });
+                    this.TrumpCard.SetCard(null);
+                });
         }
 
         private void UiPlayerOnGameEnded(object sender, bool amIWinner)

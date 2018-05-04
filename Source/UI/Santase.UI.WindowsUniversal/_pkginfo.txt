@@ -1,1 +1,1 @@
-C:\Dev\2016\SantaseGameEngine\Source\UI\Santase.UI.WindowsUniversal\AppPackages\Santase.UI.WindowsUniversal_1.6.0.0\Santase.UI.WindowsUniversal_1.6.0.0_x86_x64_arm.appxbundle
+C:\Dev\SantaseGameEngine\Source\UI\Santase.UI.WindowsUniversal\bin\ARM\Release\Upload\Santase.UI.WindowsUniversal_1.6.0.0\Santase.UI.WindowsUniversal_1.6.0.0_x86_x64_arm.appxbundle
