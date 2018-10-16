@@ -1,2 +1,0 @@
-MainPackage=C:\Dev\SantaseGameEngine\Source\UI\Santase.UI.WindowsUniversal\bin\ARM\Release\Upload\Santase.UI.WindowsUniversal_1.6.0.0_ARM.appx
-SymbolPackage=C:\Dev\SantaseGameEngine\Source\UI\Santase.UI.WindowsUniversal\bin\ARM\Release\Upload\Santase.UI.WindowsUniversal_1.6.0.0\Santase.UI.WindowsUniversal_1.6.0.0_ARM.appxsym

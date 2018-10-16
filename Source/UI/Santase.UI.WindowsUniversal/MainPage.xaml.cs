@@ -39,7 +39,7 @@
         {
             this.InitializeComponent();
 
-            this.ProgramVersion.Text = "Santase v1.6";
+            this.ProgramVersion.Text = "Santase v2.0";
 
             this.InitializeAdControl();
 
