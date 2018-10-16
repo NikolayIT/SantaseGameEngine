@@ -8,6 +8,8 @@ It is a fast **6-card game** for **2 players** played with a deck of 24 cards co
 
 ![Santase desktop screenshot](https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Screenshots/Desktop_1.png?raw=true)
 
+The application is published in the Microsoft Store: https://www.microsoft.com/en-us/p/santase/9nblggh5xs6f
+
 ### Rules of the game
 
 https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md
@@ -26,7 +28,9 @@ NuGet package: https://www.nuget.org/packages/SantaseGameEngine
 
 ### Source code requirements
 
-**Visual Studio 2015** is required in order for the code to be compiled correctly.
+**Visual Studio 2017** is required in order for the code to be compiled correctly.
+
+You will need UWP SDK installed to run or develop the UWP UI
 
 ### Video with creating the initial code (in Bulgarian)
 
