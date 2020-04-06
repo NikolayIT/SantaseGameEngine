@@ -8,7 +8,7 @@
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\..\Rules.ruleset</CodeAnalysisRuleSet>
     <Version>2.0.0</Version>
-    <Copyright>Copyright © 2015-2018</Copyright>
+    <Copyright>Copyright © 2015-2020</Copyright>
     <PackageProjectUrl>https://github.com/NikolayIT/SantaseGameEngine</PackageProjectUrl>
     <Authors>Nikolay.IT</Authors>
     <RepositoryUrl>https://github.com/NikolayIT/SantaseGameEngine</RepositoryUrl>
@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" PrivateAssets="All" />
-    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.164" PrivateAssets="All" />
+    <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
 
   <ItemGroup>

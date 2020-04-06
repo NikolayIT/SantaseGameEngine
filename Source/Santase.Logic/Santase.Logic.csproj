@@ -8,18 +8,21 @@
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
     <Version>2.0.0</Version>
-    <Copyright>Copyright (c) 2015-2018 Nikolay Kostov</Copyright>
+    <Copyright>Copyright (c) 2015-2020 Nikolay Kostov</Copyright>
     <PackageProjectUrl>https://github.com/NikolayIT/SantaseGameEngine</PackageProjectUrl>
     <Authors>Nikolay.IT</Authors>
     <RepositoryUrl>https://github.com/NikolayIT/SantaseGameEngine</RepositoryUrl>
     <Product>Santase Card Game Engine</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl>https://github.com/NikolayIT/SantaseGameEngine/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageId>SantaseGameEngine</PackageId>
     <PackageTags>Santase, 66, Сантасе, Sixty-six, Sechsundsechzig, Schnapsen, card game</PackageTags>
     <PackageReleaseNotes>Stable version targeting .NET Standard 2.0. The code in Santase.Logic library is unit tested with more than 250 tests and is 100% covered.</PackageReleaseNotes>
-    <PackageIconUrl>https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/Documentation/Logo_300x300.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <Description>Game engine for Santase (known as 66, Сантасе, Sixty-six or Sechsundsechzig). It is a fast 6-card game for 2 players played with a deck of 24 cards consisting of the Ace, Ten, King, Queen, Jack and Nine.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageIcon>Logo_300x300.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,7 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" PrivateAssets="All" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.164" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Documentation\Logo_300x300.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
