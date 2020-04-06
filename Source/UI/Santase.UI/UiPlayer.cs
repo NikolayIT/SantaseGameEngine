@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
@@ -13,21 +14,11 @@
 
         private PlayerAction userAction;
 
-        private bool iAmFirstThisTurn;
+        private bool firstThisTurn;
 
         public event EventHandler<ICollection<Card>> RedrawCards;
 
-        public event EventHandler<Card> RedrawTrumpCard;
-
-        public event EventHandler<Card> RedrawPlayerPlayedCard;
-
-        public event EventHandler<Card> RedrawOtherPlayerPlayedCard;
-
-        public event EventHandler<int> RedrawNumberOfCardsLeftInDeck;
-
-        public event EventHandler<Tuple<int, int>> RedrawCurrentAndOtherPlayerRoundPoints;
-
-        public event EventHandler<Tuple<int, int>> RedrawCurrentAndOtherPlayerTotalPoints;
+        public event EventHandler<Tuple<Card, Announce>> RedrawOtherPlayerAction;
 
         public event EventHandler<Tuple<Card, Card>> RedrawPlayedCards;
 
@@ -37,17 +28,36 @@
 
         public override string Name => "UI Player";
 
+        public int MyGamePoints { get; set; }
+
+        public int OpponentGamePoints { get; set; }
+
+        public int MyTotalPoints { get; set; }
+
+        public int OpponentTotalPoints { get; set; }
+
+        public int MyRoundPoints { get; set; }
+
+        public int OpponentRoundPoints { get; set; }
+
+        public Card TrumpCard { get; set; }
+
+        public int CardsLeftInDeck { get; set; }
+
         public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
-            this.RedrawCurrentAndOtherPlayerTotalPoints?.Invoke(this, new Tuple<int, int>(myTotalPoints, opponentTotalPoints));
-            this.RedrawCards?.Invoke(this, cards);
-            this.RedrawTrumpCard?.Invoke(this, trumpCard);
+            this.MyTotalPoints = myTotalPoints;
+            this.OpponentTotalPoints = opponentTotalPoints;
+            this.MyRoundPoints = 0;
+            this.OpponentRoundPoints = 0;
+            this.TrumpCard = trumpCard;
             base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
+            this.RedrawCards?.Invoke(this, cards);
         }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            this.iAmFirstThisTurn = context.IsFirstPlayerTurn;
+            this.firstThisTurn = context.IsFirstPlayerTurn;
             this.UpdateContextInfo(context);
             this.currentContext = context;
             while (this.userAction == null)
@@ -61,7 +71,6 @@
                 case PlayerActionType.PlayCard:
                     action = this.PlayCard(this.userAction.Card);
                     this.RedrawCards?.Invoke(this, this.Cards);
-                    this.RedrawPlayerPlayedCard?.Invoke(this, this.userAction.Card);
                     break;
                 case PlayerActionType.ChangeTrump:
                     action = this.ChangeTrump(context.TrumpCard);
@@ -88,7 +97,7 @@
         public override void EndTurn(PlayerTurnContext context)
         {
             this.UpdateContextInfo(context);
-            var playedCards = this.iAmFirstThisTurn
+            var playedCards = this.firstThisTurn
                                   ? new Tuple<Card, Card>(context.FirstPlayedCard, context.SecondPlayedCard)
                                   : new Tuple<Card, Card>(context.SecondPlayedCard, context.FirstPlayedCard);
             this.RedrawPlayedCards?.Invoke(this, playedCards);
@@ -98,6 +107,15 @@
         public override void EndGame(bool amIWinner)
         {
             base.EndGame(amIWinner);
+            if (amIWinner)
+            {
+                this.MyGamePoints++;
+            }
+            else
+            {
+                this.OpponentGamePoints++;
+            }
+
             this.GameEnded?.Invoke(this, amIWinner);
         }
 
@@ -114,23 +132,27 @@
 
         private void UpdateContextInfo(PlayerTurnContext context)
         {
-            var roundPointsInfo =
-                new Tuple<int, int>(
-                    context.IsFirstPlayerTurn ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
-                    context.IsFirstPlayerTurn ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints);
-            this.RedrawCurrentAndOtherPlayerRoundPoints?.Invoke(this, roundPointsInfo);
+            this.MyRoundPoints = context.IsFirstPlayerTurn
+                                     ? context.FirstPlayerRoundPoints
+                                     : context.SecondPlayerRoundPoints;
+            this.OpponentRoundPoints = context.IsFirstPlayerTurn
+                                           ? context.SecondPlayerRoundPoints
+                                           : context.FirstPlayerRoundPoints;
             if (context.State.ShouldObserveRules && context.CardsLeftInDeck > 0)
             {
                 // Game closed
+                this.TrumpCard = null;
                 this.GameClosed?.Invoke(this, EventArgs.Empty);
             }
             else
             {
-                this.RedrawTrumpCard?.Invoke(this, context.TrumpCard);
+                this.TrumpCard = context.TrumpCard;
             }
 
-            this.RedrawNumberOfCardsLeftInDeck?.Invoke(this, context.CardsLeftInDeck);
-            this.RedrawOtherPlayerPlayedCard?.Invoke(this, context.FirstPlayedCard);
+            this.CardsLeftInDeck = context.CardsLeftInDeck;
+            this.RedrawOtherPlayerAction?.Invoke(
+                this,
+                new Tuple<Card, Announce>(context.FirstPlayedCard, context.FirstPlayerAnnounce));
         }
     }
 }
