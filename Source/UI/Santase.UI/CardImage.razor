@@ -1,0 +1,14 @@
+﻿<ImageButton Source="@ImageSource.FromFile(ImageFile)" WidthRequest="60" OnClick="OnClick" BackgroundColor="Color.Transparent" />
+
+@code {
+    [Parameter]
+    public Card Card { get; set; } = null;
+
+    [Parameter]
+    public bool Hidden { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    public string ImageFile => this.Hidden ? null : this.Card != null ? $"{this.Card.Type}{this.Card.Suit}.png" : "Back.png";
+}

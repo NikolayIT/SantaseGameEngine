@@ -1,0 +1,35 @@
+﻿@using Santase.Logic.GameMechanics
+@using Santase.AI.SmartPlayer
+@using Santase.Logic
+<Frame CornerRadius="10" BackgroundColor="Color.LightBlue">
+
+    <StackLayout Orientation="StackOrientation.Horizontal" HorizontalOptions="LayoutOptions.Center">
+
+        <Button Text="Play smart vs. smart" OnClick="@IncrementCount" />
+
+        <Label Text="@($"Result: {firstPlayerWins} - {secondPlayerWins}")"
+               FontAttributes="FontAttributes.Bold"
+               VerticalTextAlignment="TextAlignment.Center" />
+    </StackLayout>
+
+</Frame>
+
+@code
+{
+    int firstPlayerWins = 0;
+    int secondPlayerWins = 0;
+
+    void IncrementCount()
+    {
+        var game = new SantaseGame(new SmartPlayer(), new SmartPlayer());
+        var winner = game.Start(PlayerPosition.FirstPlayer);
+        if (winner == PlayerPosition.FirstPlayer)
+        {
+            firstPlayerWins++;
+        }
+        else
+        {
+            secondPlayerWins++;
+        }
+    }
+}

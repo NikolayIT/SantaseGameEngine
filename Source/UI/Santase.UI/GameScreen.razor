@@ -1,0 +1,148 @@
+﻿@using Santase.Logic.Players
+@using Santase.AI.SmartPlayer
+@using Santase.Logic.Extensions
+<ContentView>
+    <StackLayout Margin="new Thickness(10)">
+        <Frame CornerRadius="10" BackgroundColor="Color.LightBlue">
+            <StackLayout Orientation="StackOrientation.Horizontal" HorizontalOptions="LayoutOptions.FillAndExpand">
+                <Label Text="Santase 1.0" FontAttributes="FontAttributes.Bold" HorizontalOptions="LayoutOptions.FillAndExpand" VerticalTextAlignment="TextAlignment.Center" />
+                <Label Text="@($@"Games{Environment.NewLine}  {this.FirstPlayerGames}-{this.SecondPlayerGames}")" HorizontalOptions="LayoutOptions.FillAndExpand" FontAttributes="FontAttributes.Bold" VerticalTextAlignment="TextAlignment.Center" />
+                <Label Text="@($@"Rounds{Environment.NewLine}  {this.FirstPlayerRounds}-{this.SecondPlayerRounds}")" HorizontalOptions="LayoutOptions.FillAndExpand" FontAttributes="FontAttributes.Bold" VerticalTextAlignment="TextAlignment.Center" />
+                <Label Text="@($@"Points{Environment.NewLine}  {this.FirstPlayerPoints}-{this.SecondPlayerPoints}")" HorizontalOptions="LayoutOptions.FillAndExpand" FontAttributes="FontAttributes.Bold" VerticalTextAlignment="TextAlignment.Center" />
+            </StackLayout>
+        </Frame>
+        <StackLayout Orientation="StackOrientation.Horizontal" HorizontalOptions="LayoutOptions.FillAndExpand">
+            @if (this.PlayerCards != null)
+            {
+                foreach (var card in this.PlayerCards)
+                {
+                    <CardImage />
+                }
+            }
+        </StackLayout>
+
+        <StackLayout Orientation="StackOrientation.Horizontal">
+            <StackLayout Orientation="StackOrientation.Horizontal">
+                <CardImage />
+                <CardImage Card="TrumpCard" />
+                <CardImage Hidden="true" />
+                <StackLayout Orientation="StackOrientation.Vertical" HorizontalOptions="LayoutOptions.EndAndExpand">
+                    @if (this.SecondPlayerCurrentCard != null)
+                    {
+                        <CardImage Card="SecondPlayerCurrentCard"/>
+                    }
+                    <CardImage Hidden="true" Card="FirstPlayerCurrentCard"/>
+                </StackLayout>
+            </StackLayout>
+
+            <StackLayout Orientation="StackOrientation.Vertical" HorizontalOptions="LayoutOptions.EndAndExpand">
+                <CardImage Card="SecondPlayerLastCard" />
+                <CardImage Card="FirstPlayerLastCard" />
+            </StackLayout>
+        </StackLayout>
+        <StackLayout Orientation="StackOrientation.Horizontal">
+            @if (this.PlayerCards != null)
+            {
+                foreach (var card in this.PlayerCards)
+                {
+                    <CardImage Card="card" OnClick="() => CardClick(card)" />
+                }
+            }
+        </StackLayout>
+
+        @*<Counter/>*@
+    </StackLayout>
+</ContentView>
+
+@code
+{
+    public SantaseGame Game { get; set; }
+
+    public UiPlayer Player { get; set; }
+
+    public IEnumerable<Card> PlayerCards { get; set; }
+
+    public Card TrumpCard { get; set; }
+
+    public Card FirstPlayerLastCard { get; set; }
+
+    public Card SecondPlayerLastCard { get; set; }
+
+    public Card FirstPlayerCurrentCard { get; set; }
+
+    public Card SecondPlayerCurrentCard { get; set; }
+
+    public int FirstPlayerGames { get; set; }
+
+    public int SecondPlayerGames { get; set; }
+
+    public int FirstPlayerRounds { get; set; }
+
+    public int SecondPlayerRounds { get; set; }
+
+    public int FirstPlayerPoints { get; set; }
+
+    public int SecondPlayerPoints { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.Player = new UiPlayer();
+        this.Player.RedrawPlayedCards += (sender, tuple) =>
+        {
+            this.FirstPlayerLastCard = tuple.Item1;
+            this.SecondPlayerLastCard = tuple.Item2;
+        };
+        this.Player.RedrawTrumpCard += (sender, card) =>
+        {
+            // TODO: When trump card is null, hide it
+            this.TrumpCard = card;
+        };
+        this.Player.RedrawPlayerPlayedCard += (sender, card) =>
+        {
+            // this.FirstPlayerCurrentCard = card;
+        };
+        this.Player.RedrawOtherPlayerPlayedCard += (sender, card) =>
+        {
+            this.SecondPlayerCurrentCard = card;
+        };
+        this.Player.RedrawCurrentAndOtherPlayerRoundPoints += (sender, tuple) =>
+        {
+            this.FirstPlayerPoints = tuple.Item1;
+            this.SecondPlayerPoints = tuple.Item2;
+        };
+        this.Player.RedrawCurrentAndOtherPlayerTotalPoints += (sender, tuple) =>
+        {
+            this.FirstPlayerRounds = tuple.Item1;
+            this.SecondPlayerRounds = tuple.Item2;
+        };
+        this.Player.RedrawCards += (sender, cards) =>
+        {
+            this.PlayerCards =
+                cards.OrderBy(x => x.Suit.MapAsSortableByColor())
+                    .ThenByDescending(x => x.GetValue())
+                    .ToList();
+        };
+        this.Player.GameClosed += (sender, args) =>
+        {
+            this.TrumpCard = null;
+        };
+        this.Player.GameEnded += (sender, amIWinner) =>
+        {
+            if (amIWinner)
+            {
+                this.FirstPlayerGames++;
+            }
+            else
+            {
+                this.SecondPlayerGames++;
+            }
+        };
+        this.Game = new SantaseGame(this.Player, new SmartPlayer());
+        Task.Run(() => this.Game.Start());
+    }
+
+    private void CardClick(Card card)
+    {
+        this.Player.Action(PlayerAction.PlayCard(card));
+    }
+}
