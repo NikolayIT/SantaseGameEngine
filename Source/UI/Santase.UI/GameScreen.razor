@@ -1,6 +1,7 @@
 ﻿@using Santase.Logic.Players
 @using Santase.AI.SmartPlayer
 @using Santase.Logic.Extensions
+@using System.Threading
 <ContentView>
     <StackLayout Margin="new Thickness(10)">
         <Frame BackgroundColor="Color.LightBlue">
@@ -23,7 +24,7 @@
 
         <StackLayout Orientation="StackOrientation.Horizontal">
             <StackLayout Orientation="StackOrientation.Horizontal">
-                @if (this.Player.TrumpCard != null)
+                @if (this.Player.TrumpCard != null && this.PlayerCards?.Count() >= 6)
                 {
                     <CardImage OnClick="CloseGame"/>
                     <CardImage Card="this.Player.TrumpCard" OnClick="ChangeTrump"/>
@@ -95,7 +96,9 @@
                     .ToList();
         };
         this.Game = new SantaseGame(this.Player, new SmartPlayer());
-        Task.Run(() => this.Game.Start());
+        var thread = new Thread(() => this.Game.Start());
+        thread.Start();
+        // Task.Run(() => this.Game.Start());
     }
 
     private void CardClick(Card card)

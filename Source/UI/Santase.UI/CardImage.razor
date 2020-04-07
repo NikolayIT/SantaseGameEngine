@@ -1,4 +1,11 @@
-﻿<ImageButton Source="@ImageSource.FromFile(ImageFile)" WidthRequest="60" OnClick="OnClick" BackgroundColor="Color.Transparent" />
+﻿@if (this.Hidden)
+{
+    <Image WidthRequest="60"></Image>
+}
+else
+{
+    <ImageButton Source="@ImageSource.FromFile(ImageFile)" WidthRequest="60" OnClick="OnClick" />   
+}
 
 @code {
     [Parameter]
@@ -10,5 +17,5 @@
     [Parameter]
     public EventCallback OnClick { get; set; }
 
-    public string ImageFile => this.Hidden ? null : this.Card != null ? $"{this.Card.Type}{this.Card.Suit}.png" : "Back.png";
+    public string ImageFile => this.Card != null ? $"{this.Card.Type}{this.Card.Suit}.png" : "Back.png";
 }

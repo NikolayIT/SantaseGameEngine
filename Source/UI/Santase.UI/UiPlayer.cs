@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Santase.Logic;
@@ -62,7 +63,7 @@
             this.currentContext = context;
             while (this.userAction == null)
             {
-                Task.Delay(50).GetAwaiter().GetResult();
+                Thread.Sleep(50);
             }
 
             PlayerAction action;
