@@ -12,13 +12,13 @@ The game is not published in Google Play Store.
 
 ## Desktop UI (Windows Universal App)
 
-![Santase desktop screenshot](https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Screenshots/Desktop_1.png?raw=true)
+![Santase desktop screenshot](https://github.com/NikolayIT/SantaseGameEngine/blob/master/docs/Screenshots/Desktop_1.png?raw=true)
 
 The application is published in the Microsoft Store: <https://www.microsoft.com/en-us/p/santase/9nblggh5xs6f>
 
 ## Rules of the game
 
-<https://github.com/NikolayIT/SantaseGameEngine/blob/master/Documentation/Rules.md>
+<https://github.com/NikolayIT/SantaseGameEngine/blob/master/docs/Rules.md>
 
 Wikipedia: <https://en.wikipedia.org/wiki/Sixty-six_(card_game>)
 
