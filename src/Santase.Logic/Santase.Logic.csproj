@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\Documentation\Logo_300x300.png">
+    <None Include="..\..\docs\Logo_300x300.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
