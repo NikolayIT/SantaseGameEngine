@@ -62,7 +62,12 @@
                                                        + context.SecondPlayerRoundPoints;
 
                     var cardFor20Or40 = this.TryToAnnounce20Or40(context, this.Cards);
-                    if (cardFor20Or40?.Type == CardType.Queen && cardFor20Or40.Suit != context.TrumpCard.Suit)
+                    if (cardFor20Or40?.Type == CardType.Queen && cardFor20Or40.Suit == context.TrumpCard.Suit
+                        && biggestTrump.Type != CardType.King && biggestTrump.Type != CardType.Queen)
+                    {
+                        currentPlayerPotentialPoints += 40;
+                    }
+                    else if (cardFor20Or40?.Type == CardType.Queen && cardFor20Or40.Suit != context.TrumpCard.Suit)
                     {
                         currentPlayerPotentialPoints += 20;
                     }

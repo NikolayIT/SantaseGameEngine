@@ -16,7 +16,7 @@
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             Console.WriteLine(new string('=', 75));
-            Console.Write(DateTime.Now);
+            Console.Write(DateTime.Now.ToShortDateString());
 #if DEBUG
             Console.Write(", Mode=Debug");
 #elif RELEASE
@@ -33,9 +33,9 @@
 
             SimulateGames(new SmartAndBestExternalPlayerGameSimulator());
 
-            SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator());
+            SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator(), 200000);
 
-            SimulateGames(new SmartAndDummyPlayersSimulator());
+            SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
         }
 
         private static void SimulateGames(IGameSimulator gameSimulator, int gamesCount = 100000)
@@ -45,9 +45,9 @@
             var simulationResult = gameSimulator.Simulate(gamesCount);
 
             Console.WriteLine(simulationResult.SimulationDuration);
-            Console.WriteLine($"Games: {simulationResult.FirstPlayerWins:0,0} - {simulationResult.SecondPlayerWins:0,0} (total: {gamesCount:0,0}, diff: {simulationResult.FirstPlayerWins - simulationResult.SecondPlayerWins})");
+            Console.WriteLine($"Games: {simulationResult.FirstPlayerWins:0,0} - {simulationResult.SecondPlayerWins:0,0} (total: {gamesCount:0,0}, diff: {simulationResult.FirstPlayerWins - simulationResult.SecondPlayerWins:0,0})");
             Console.WriteLine($"Round points: {simulationResult.FirstPlayerTotalRoundPoints:0,0} - {simulationResult.SecondPlayerTotalRoundPoints:0,0} (rounds: {simulationResult.RoundsPlayed:0,0})");
-            Console.WriteLine($"Global counters: {string.Join(", ", GlobalStats.GlobalCounterValues)} (closed: {GlobalStats.GamesClosedByPlayer:0,0})");
+            Console.WriteLine($"Global counters: {string.Join(", ", GlobalStats.GlobalCounterValues):0,0} (closed: {GlobalStats.GamesClosedByPlayer:0,0})");
             Console.WriteLine(new string('=', 75));
         }
     }
