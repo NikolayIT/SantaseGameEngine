@@ -26,7 +26,7 @@ Bulgarian: <https://bg.wikipedia.org/wiki/%D0%A1%D0%B0%D0%BD%D1%82%D0%B0%D1%81%D
 
 ## Build status
 
-[![Build status](https://ci.appveyor.com/api/projects/status/sm52qf5lrl9891em?svg=true)](https://ci.appveyor.com/project/NikolayIT/santasegameengine)
+[![Build Status](https://nikolayit.visualstudio.com/SantaseGameEngine/_apis/build/status/NikolayIT.SantaseGameEngine?branchName=master)](https://nikolayit.visualstudio.com/SantaseGameEngine/_build/latest?definitionId=16&branchName=master)
 
 The code in `Santase.Logic` library is unit tested with more than **250 tests** and is **100% covered**.
 
