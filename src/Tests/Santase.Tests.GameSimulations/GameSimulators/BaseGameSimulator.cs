@@ -24,11 +24,6 @@
 
             Parallel.For(1, numberOfGames + 1, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
                 {
-                    if (i % 1000 == 0)
-                    {
-                        Console.Write(".");
-                    }
-
                     var game = this.CreateGame();
 
                     var winner = game.Start(i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);

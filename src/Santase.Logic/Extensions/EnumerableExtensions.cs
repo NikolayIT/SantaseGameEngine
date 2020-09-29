@@ -7,7 +7,7 @@
     public static class EnumerableExtensions
     {
         /// <summary>
-        /// Shuffle algorithm as seen on page 32 in the book "Algorithms" (4th edition) by Robert Sedgewick
+        /// Shuffle algorithm as seen on page 32 in the book "Algorithms" (4th edition) by Robert Sedgewick.
         /// </summary>
         /// <param name="source">Collection to shuffle.</param>
         /// <typeparam name="T">The generic type parameter of the collection.</typeparam>

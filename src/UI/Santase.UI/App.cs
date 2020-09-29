@@ -12,7 +12,7 @@
                 .ConfigureServices((hostContext, services) =>
                 {
                     // Register app-specific services
-                    //services.AddSingleton<AppState>();
+                    // services.AddSingleton<AppState>();
                 })
                 .Build();
 

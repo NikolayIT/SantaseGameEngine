@@ -4,7 +4,7 @@
     using System.Threading;
 
     /// <summary>
-    /// Static class representing a single instance of the Random class
+    /// Static class representing a single instance of the Random class.
     /// </summary>
     public static class RandomProvider
     {

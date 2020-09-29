@@ -14,23 +14,23 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="DummyPlayer"/> class.
         ///  </summary>
-        /// <param name="name">The name of the player</param>
+        /// <param name="name">The name of the player.</param>
         public DummyPlayer(string name = "Dummy Player Lvl. 1")
         {
             this.Name = name;
         }
 
         /// <summary>
-        /// Gets the name of the player
+        /// Gets the name of the player.
         /// </summary>
-        /// <value>The name of the player</value>
+        /// <value>The name of the player.</value>
         public override string Name { get; }
 
         /// <summary>
-        /// Gets the player action by given player turn context
+        /// Gets the player action by given player turn context.
         /// </summary>
-        /// <param name="context">The player turn context information</param>
-        /// <returns>The player action</returns>
+        /// <param name="context">The player turn context information.</param>
+        /// <returns>The player action.</returns>
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
             var possibleCardsToPlay = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);

@@ -7,7 +7,7 @@
     /// </summary>
     public class Card
     {
-        private static readonly Card[] Cards = new Card[53];
+        public static readonly Card[] Cards = new Card[53];
 
         private static readonly int[] CardValues = { 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 10, 2, 3, 4 };
 
@@ -51,12 +51,6 @@
             }
 
             return Cards[code];
-        }
-
-        public static Card FromHashCode(int hashCode)
-        {
-            var suitId = (hashCode - 1) / 13;
-            return GetCard((CardSuit)suitId, (CardType)(hashCode - (suitId * 13)));
         }
 
         public int GetValue()

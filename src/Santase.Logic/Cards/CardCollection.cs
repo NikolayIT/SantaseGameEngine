@@ -15,7 +15,6 @@
         private const int MaxCards = 52;
 
         private long cards; // 64 bits for 52 possible cards
-        private int count;
 
         public CardCollection()
         {
@@ -24,10 +23,10 @@
         public CardCollection(long bitMask)
         {
             this.cards = bitMask;
-            this.count = this.CalculateCount();
+            this.Count = this.CalculateCount();
         }
 
-        public int Count => this.count;
+        public int Count { get; private set; }
 
         public bool IsReadOnly => false;
 
@@ -47,7 +46,7 @@
             {
                 unchecked
                 {
-                    this.count++;
+                    this.Count++;
                     this.cards |= 1L << item.GetHashCode();
                 }
             }
@@ -56,7 +55,7 @@
         public void Clear()
         {
             this.cards = 0;
-            this.count = 0;
+            this.Count = 0;
         }
 
         public bool Contains(Card item)
@@ -66,10 +65,12 @@
 
         public void CopyTo(Card[] array, int arrayIndex)
         {
-            foreach (var card in this)
+            for (var currentHashCode = 0; currentHashCode < MaxCards; currentHashCode++)
             {
-                array.SetValue(card, arrayIndex);
-                arrayIndex = arrayIndex + 1;
+                if (((this.cards >> currentHashCode) & 1) == 1)
+                {
+                    array[arrayIndex++] = Card.Cards[currentHashCode];
+                }
             }
         }
 
@@ -79,7 +80,7 @@
             {
                 unchecked
                 {
-                    this.count--;
+                    this.Count--;
                     this.cards &= ~(1L << item.GetHashCode());
                     return true;
                 }
@@ -97,15 +98,10 @@
         {
             var bits = this.cards;
             var cardsCount = 0;
-            while (bits > 0)
+            while (bits != 0)
             {
-                var bit = bits & 1;
-                if (bit == 1)
-                {
-                    cardsCount++;
-                }
-
-                bits = bits >> 1;
+                cardsCount++;
+                bits &= bits - 1;
             }
 
             return cardsCount;
@@ -113,26 +109,9 @@
 
         private class CardCollectionEnumerator : IEnumerator<Card>
         {
-            private static readonly Card[] AllCards;
-
             private readonly long cards;
 
             private int currentHashCode;
-
-            static CardCollectionEnumerator()
-            {
-                AllCards = new Card[MaxCards + 1];
-
-                foreach (CardSuit cardSuitValue in Enum.GetValues(typeof(CardSuit)))
-                {
-                    foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
-                    {
-                        var card = Card.GetCard(cardSuitValue, cardTypeValue);
-                        var hashCode = card.GetHashCode();
-                        AllCards[hashCode] = card;
-                    }
-                }
-            }
 
             public CardCollectionEnumerator(long cards)
             {
@@ -140,7 +119,7 @@
                 this.currentHashCode = -1;
             }
 
-            public Card Current => AllCards[this.currentHashCode];
+            public Card Current => Card.Cards[this.currentHashCode];
 
             object IEnumerator.Current => this.Current;
 

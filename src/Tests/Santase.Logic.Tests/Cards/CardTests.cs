@@ -110,21 +110,6 @@
         }
 
         [Fact]
-        public void FromHashCodeShouldCreateCardsWithTheGivenHashCode()
-        {
-            foreach (CardSuit cardSuitValue in Enum.GetValues(typeof(CardSuit)))
-            {
-                foreach (CardType cardTypeValue in Enum.GetValues(typeof(CardType)))
-                {
-                    var card = Card.GetCard(cardSuitValue, cardTypeValue);
-                    var hashCode = card.GetHashCode();
-                    var newCard = Card.FromHashCode(hashCode);
-                    Assert.Equal(card, newCard);
-                }
-            }
-        }
-
-        [Fact]
         public void GetHashCodeShouldReturn1ForAceOfClubs()
         {
             var card = Card.GetCard(CardSuit.Club, CardType.Ace);

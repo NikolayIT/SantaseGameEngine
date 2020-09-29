@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using System.Threading.Tasks;
 
     using Santase.Logic;
     using Santase.Logic.Cards;
