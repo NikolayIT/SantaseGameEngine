@@ -13,8 +13,12 @@
         public static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
-            Console.BufferHeight = Console.WindowHeight = 17;
-            Console.BufferWidth = Console.WindowWidth = 50;
+
+            if (OperatingSystem.IsWindows())
+            {
+                Console.BufferHeight = Console.WindowHeight = 17;
+                Console.BufferWidth = Console.WindowWidth = 50;
+            }
 
             var game = CreateGameVersusBot();
             game.Start(PlayerPosition.FirstPlayer);
