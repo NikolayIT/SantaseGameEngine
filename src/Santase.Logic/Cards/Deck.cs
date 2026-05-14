@@ -3,8 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Santase.Logic.Extensions;
-
     public class Deck : IDeck
     {
         private static readonly IList<Card> AllCards = new List<Card>();

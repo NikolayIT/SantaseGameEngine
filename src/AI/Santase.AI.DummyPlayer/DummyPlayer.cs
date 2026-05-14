@@ -2,7 +2,6 @@
 {
     using System.Linq;
 
-    using Santase.Logic.Extensions;
     using Santase.Logic.Players;
 
     /// <summary>

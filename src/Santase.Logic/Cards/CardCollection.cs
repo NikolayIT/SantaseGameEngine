@@ -65,7 +65,7 @@
 
         public void CopyTo(Card[] array, int arrayIndex)
         {
-            for (var currentHashCode = 0; currentHashCode < MaxCards; currentHashCode++)
+            for (var currentHashCode = 0; currentHashCode <= MaxCards; currentHashCode++)
             {
                 if (((this.cards >> currentHashCode) & 1) == 1)
                 {
