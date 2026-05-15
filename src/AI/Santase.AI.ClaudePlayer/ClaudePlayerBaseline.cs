@@ -8,19 +8,12 @@
     using Santase.Logic.Players;
 
     /// <summary>
-    /// Santase player. Stays well under 0.01 seconds per turn.
-    /// Strategy in two layers:
-    ///   * Alpha-beta minimax in non-closed Phase 2 - the moment the deck is empty and the round
-    ///     wasn't closed early, the opponent's hand is exactly our <c>UnknownCards</c> set, so
-    ///     the rest of the round is a small perfect-information subgame (~6 cards each, branching
-    ///     factor 1-3 with the validator constraints). We search it to terminal.
-    ///   * Heuristic fallback for Phase 1 and closed-Phase-2 turns where the opponent's hand is
-    ///     uncertain. The heuristic prefers marriage preservation, leads the Q (not K) when
-    ///     announcing, drains opponent trumps before announcing in Phase 2 leads, has a two-trick
-    ///     "trump-now-then-announce" lookahead, and only closes on 5+ trumps (or 4 trumps + the
-    ///     trump marriage when opponent doesn't hold both A and 10 of trump).
+    /// FROZEN reference snapshot of <see cref="ClaudePlayer"/>. DO NOT MODIFY this file when
+    /// iterating on improvements - it exists so head-to-head simulations and regression tests
+    /// can compare a candidate ClaudePlayer against a stable baseline. Update only after a
+    /// proven improvement has shipped, so further gains stay measurable.
     /// </summary>
-    public class ClaudePlayer : BasePlayer
+    public class ClaudePlayerBaseline : BasePlayer
     {
         private const int MaxSearchDepth = 14;
 
@@ -42,7 +35,7 @@
         // on every Search call. Each slot holds at most 6 cards (max hand size).
         private readonly Card[][] moveBuffers;
 
-        public ClaudePlayer()
+        public ClaudePlayerBaseline()
         {
             this.moveBuffers = new Card[MaxSearchDepth][];
             for (var i = 0; i < MaxSearchDepth; i++)
@@ -51,7 +44,7 @@
             }
         }
 
-        public override string Name => "Claude Player";
+        public override string Name => "Claude Player (Baseline)";
 
         private CardCollection UnknownCards { get; set; } = new CardCollection(CardCollection.AllSantaseCardsBitMask);
 

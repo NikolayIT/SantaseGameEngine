@@ -39,6 +39,8 @@
 
             SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
 
+            SimulateGames(new ClaudeVsBaselineSimulator(), 200000);
+
             SimulateGames(new ClaudeAndSmartPlayerSimulator(), 200000);
 
             SimulateGames(new ClaudeAndBestExternalPlayerGameSimulator(), 200000);
