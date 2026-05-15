@@ -72,6 +72,49 @@
         }
 
         [Fact]
+        public void PlayShouldSetLastTrickWinnerOnlyWhenBothHandsEndUpEmpty()
+        {
+            // LastTrickWinner is the gate Round.cs uses to tell scoring whether the +10
+            // bonus is in play. The invariant: it must be a real player when both hands
+            // are empty at end of round, and NoOne otherwise. Run enough rounds with
+            // random-ish play to exercise both natural-exhaustion and 66-reached-mid-round.
+            const int NumberOfRounds = 1000;
+
+            var naturalEndCount = 0;
+            var earlyEndCount = 0;
+
+            for (var i = 0; i < NumberOfRounds; i++)
+            {
+                var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+                var secondPlayer = new ValidPlayerWithMethodsCallCounting();
+                var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
+
+                var result = round.Play(0, 0);
+
+                var bothHandsEmpty =
+                    result.FirstPlayer.Cards.Count == 0 && result.SecondPlayer.Cards.Count == 0;
+
+                if (bothHandsEmpty)
+                {
+                    Assert.True(
+                        result.LastTrickWinner == PlayerPosition.FirstPlayer
+                            || result.LastTrickWinner == PlayerPosition.SecondPlayer,
+                        "When both hands are empty, LastTrickWinner must be a real player so scoring can award the +10 bonus");
+                    naturalEndCount++;
+                }
+                else
+                {
+                    Assert.Equal(PlayerPosition.NoOne, result.LastTrickWinner);
+                    earlyEndCount++;
+                }
+            }
+
+            // Both code paths must be hit, otherwise the test isn't actually covering the gate.
+            Assert.True(naturalEndCount > 0, "expected some rounds to end via natural talon exhaustion");
+            Assert.True(earlyEndCount > 0, "expected some rounds to end early via a player reaching 66");
+        }
+
+        [Fact]
         public void PlayersMethodsShouldBeCalledCorrectNumberOfTimes()
         {
             const int NumberOfRounds = 10000;

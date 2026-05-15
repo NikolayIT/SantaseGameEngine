@@ -19,7 +19,8 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner = PlayerPosition.NoOne)
         {
             IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
             var result = roundWinnerPointsLogic.GetWinnerPoints(
@@ -27,6 +28,7 @@
                 secondPlayerPoints,
                 gameClosedBy,
                 noTricksPlayer,
+                lastTrickWinner,
                 GameRulesProvider.Santase);
             Assert.Equal(PlayerPosition.FirstPlayer, result.Winner);
             Assert.Equal(1, result.Points);
@@ -43,7 +45,8 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner = PlayerPosition.NoOne)
         {
             IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
             var result = roundWinnerPointsLogic.GetWinnerPoints(
@@ -51,6 +54,7 @@
                 secondPlayerPoints,
                 gameClosedBy,
                 noTricksPlayer,
+                lastTrickWinner,
                 GameRulesProvider.Santase);
             Assert.Equal(PlayerPosition.FirstPlayer, result.Winner);
             Assert.Equal(2, result.Points);
@@ -66,7 +70,8 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner = PlayerPosition.NoOne)
         {
             IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
             var result = roundWinnerPointsLogic.GetWinnerPoints(
@@ -74,6 +79,7 @@
                 secondPlayerPoints,
                 gameClosedBy,
                 noTricksPlayer,
+                lastTrickWinner,
                 GameRulesProvider.Santase);
             Assert.Equal(PlayerPosition.FirstPlayer, result.Winner);
             Assert.Equal(3, result.Points);
@@ -92,7 +98,8 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner = PlayerPosition.NoOne)
         {
             IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
             var result = roundWinnerPointsLogic.GetWinnerPoints(
@@ -100,6 +107,7 @@
                 secondPlayerPoints,
                 gameClosedBy,
                 noTricksPlayer,
+                lastTrickWinner,
                 GameRulesProvider.Santase);
             Assert.Equal(PlayerPosition.SecondPlayer, result.Winner);
             Assert.Equal(1, result.Points);
@@ -116,7 +124,8 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner = PlayerPosition.NoOne)
         {
             IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
             var result = roundWinnerPointsLogic.GetWinnerPoints(
@@ -124,6 +133,7 @@
                 secondPlayerPoints,
                 gameClosedBy,
                 noTricksPlayer,
+                lastTrickWinner,
                 GameRulesProvider.Santase);
             Assert.Equal(PlayerPosition.SecondPlayer, result.Winner);
             Assert.Equal(2, result.Points);
@@ -139,7 +149,8 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner = PlayerPosition.NoOne)
         {
             IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
             var result = roundWinnerPointsLogic.GetWinnerPoints(
@@ -147,6 +158,7 @@
                 secondPlayerPoints,
                 gameClosedBy,
                 noTricksPlayer,
+                lastTrickWinner,
                 GameRulesProvider.Santase);
             Assert.Equal(PlayerPosition.SecondPlayer, result.Winner);
             Assert.Equal(3, result.Points);
@@ -159,7 +171,8 @@
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
-            PlayerPosition noTricksPlayer)
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner = PlayerPosition.NoOne)
         {
             IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
             var result = roundWinnerPointsLogic.GetWinnerPoints(
@@ -167,6 +180,82 @@
                 secondPlayerPoints,
                 gameClosedBy,
                 noTricksPlayer,
+                lastTrickWinner,
+                GameRulesProvider.Santase);
+            Assert.Equal(PlayerPosition.NoOne, result.Winner);
+            Assert.Equal(0, result.Points);
+        }
+
+        // 65-55 last trick to first: 75 vs 55 -> 1 pt to first (loser >= 33).
+        // 60-60 last trick to first: 70 vs 60 -> 1 pt to first.
+        // 60-60 last trick to second: 60 vs 70 -> 1 pt to second.
+        // 60-25 last trick to second: pushes second to 35 (past 33) -> 1 pt to first instead of 2.
+        [Theory]
+        [InlineData(65, 55, PlayerPosition.NoOne, PlayerPosition.NoOne, PlayerPosition.FirstPlayer, PlayerPosition.FirstPlayer, 1)]
+        [InlineData(60, 60, PlayerPosition.NoOne, PlayerPosition.NoOne, PlayerPosition.FirstPlayer, PlayerPosition.FirstPlayer, 1)]
+        [InlineData(60, 60, PlayerPosition.NoOne, PlayerPosition.NoOne, PlayerPosition.SecondPlayer, PlayerPosition.SecondPlayer, 1)]
+        [InlineData(60, 25, PlayerPosition.NoOne, PlayerPosition.NoOne, PlayerPosition.SecondPlayer, PlayerPosition.FirstPlayer, 1)]
+        public void GetWinnerPointsShouldApplyLastTrickBonusWhenGameNotClosed(
+            int firstPlayerPoints,
+            int secondPlayerPoints,
+            PlayerPosition gameClosedBy,
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner,
+            PlayerPosition expectedWinner,
+            int expectedPoints)
+        {
+            IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
+            var result = roundWinnerPointsLogic.GetWinnerPoints(
+                firstPlayerPoints,
+                secondPlayerPoints,
+                gameClosedBy,
+                noTricksPlayer,
+                lastTrickWinner,
+                GameRulesProvider.Santase);
+            Assert.Equal(expectedWinner, result.Winner);
+            Assert.Equal(expectedPoints, result.Points);
+        }
+
+        // 70-25 closed by first, last trick to second: bonus suspended, so second stays at 25 (< 33)
+        // -> first wins 2 pt. If bonus applied, second would become 35 (>= 33) -> only 1 pt.
+        // Mirror with second as closer.
+        // 60-60 closed by first: closer failed (< 66) -> second wins 3 pt regardless of bonus.
+        [Theory]
+        [InlineData(70, 25, PlayerPosition.FirstPlayer, PlayerPosition.NoOne, PlayerPosition.SecondPlayer, PlayerPosition.FirstPlayer, 2)]
+        [InlineData(25, 70, PlayerPosition.SecondPlayer, PlayerPosition.NoOne, PlayerPosition.FirstPlayer, PlayerPosition.SecondPlayer, 2)]
+        [InlineData(60, 60, PlayerPosition.FirstPlayer, PlayerPosition.NoOne, PlayerPosition.FirstPlayer, PlayerPosition.SecondPlayer, 3)]
+        public void GetWinnerPointsShouldNotApplyLastTrickBonusWhenGameClosed(
+            int firstPlayerPoints,
+            int secondPlayerPoints,
+            PlayerPosition gameClosedBy,
+            PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner,
+            PlayerPosition expectedWinner,
+            int expectedPoints)
+        {
+            IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
+            var result = roundWinnerPointsLogic.GetWinnerPoints(
+                firstPlayerPoints,
+                secondPlayerPoints,
+                gameClosedBy,
+                noTricksPlayer,
+                lastTrickWinner,
+                GameRulesProvider.Santase);
+            Assert.Equal(expectedWinner, result.Winner);
+            Assert.Equal(expectedPoints, result.Points);
+        }
+
+        [Fact]
+        public void GetWinnerPointsShouldYieldDrawWhenScoresStillEqualAfterBonus()
+        {
+            // 70-60 with last trick to second -> 70-70 after bonus -> draw.
+            IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
+            var result = roundWinnerPointsLogic.GetWinnerPoints(
+                70,
+                60,
+                PlayerPosition.NoOne,
+                PlayerPosition.NoOne,
+                PlayerPosition.SecondPlayer,
                 GameRulesProvider.Santase);
             Assert.Equal(PlayerPosition.NoOne, result.Winner);
             Assert.Equal(0, result.Points);

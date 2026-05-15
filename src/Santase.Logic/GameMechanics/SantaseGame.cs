@@ -85,6 +85,7 @@
                 roundResult.SecondPlayer.RoundPoints,
                 roundResult.GameClosedBy,
                 roundResult.NoTricksPlayer,
+                roundResult.LastTrickWinner,
                 this.gameRules);
 
             switch (roundWinnerPoints.Winner)

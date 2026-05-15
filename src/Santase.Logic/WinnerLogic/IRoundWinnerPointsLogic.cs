@@ -7,6 +7,7 @@
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
             PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner,
             IGameRules gameRules);
     }
 }

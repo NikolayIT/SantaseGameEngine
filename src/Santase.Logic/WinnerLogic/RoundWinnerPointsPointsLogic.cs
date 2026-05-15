@@ -2,15 +2,31 @@
 {
     public class RoundWinnerPointsPointsLogic : IRoundWinnerPointsLogic
     {
-        // TODO: Should last trick winner wins 10 additional points?
-        // TODO: What if the total score is 65:65 after giving 10 additional points? Should the player with the last trick win the round?
+        private const int LastTrickBonus = 10;
+
         public RoundWinnerPoints GetWinnerPoints(
             int firstPlayerPoints,
             int secondPlayerPoints,
             PlayerPosition gameClosedBy,
             PlayerPosition noTricksPlayer,
+            PlayerPosition lastTrickWinner,
             IGameRules gameRules)
         {
+            // +10 bonus to the winner of the last trick, but only when the talon was
+            // exhausted naturally (no one closed). When the game was closed the bonus
+            // is suspended per Santase rules.
+            if (gameClosedBy == PlayerPosition.NoOne)
+            {
+                if (lastTrickWinner == PlayerPosition.FirstPlayer)
+                {
+                    firstPlayerPoints += LastTrickBonus;
+                }
+                else if (lastTrickWinner == PlayerPosition.SecondPlayer)
+                {
+                    secondPlayerPoints += LastTrickBonus;
+                }
+            }
+
             if (gameClosedBy == PlayerPosition.FirstPlayer)
             {
                 if (firstPlayerPoints < gameRules.RoundPointsForGoingOut)

@@ -20,6 +20,8 @@
 
         private PlayerPosition firstToPlay;
 
+        private PlayerPosition lastTrickWinner;
+
         public Round(
             IPlayer firstPlayer,
             IPlayer secondPlayer,
@@ -34,6 +36,7 @@
             this.secondPlayer = new RoundPlayerInfo(secondPlayer);
 
             this.firstToPlay = firstToPlay;
+            this.lastTrickWinner = PlayerPosition.NoOne;
         }
 
         public RoundResult Play(int firstPlayerTotalPoints, int secondPlayerTotalPoints)
@@ -49,7 +52,16 @@
             this.firstPlayer.Player.EndRound();
             this.secondPlayer.Player.EndRound();
 
-            return new RoundResult(this.firstPlayer, this.secondPlayer);
+            // The +10 last-trick bonus is only earned when both players exhausted their
+            // cards — i.e. the round played all the way to the end. If either hand still
+            // has cards (someone reached 66 from card values mid-round, or via an
+            // announce-to-66 mid-trick), surface NoOne so scoring skips the bonus.
+            // The reverse case — 66 reached *on* the last trick from card values — has
+            // both hands empty, so the bonus correctly applies.
+            var bothHandsEmpty = this.firstPlayer.Cards.Count == 0 && this.secondPlayer.Cards.Count == 0;
+            var lastTrickWinnerForBonus = bothHandsEmpty ? this.lastTrickWinner : PlayerPosition.NoOne;
+
+            return new RoundResult(this.firstPlayer, this.secondPlayer, lastTrickWinnerForBonus);
         }
 
         private void PlayTrick()
@@ -64,6 +76,7 @@
             this.firstToPlay = trickWinner == this.firstPlayer
                                    ? PlayerPosition.FirstPlayer
                                    : PlayerPosition.SecondPlayer;
+            this.lastTrickWinner = this.firstToPlay;
 
             if (this.stateManager.State.ShouldDrawCard)
             {
