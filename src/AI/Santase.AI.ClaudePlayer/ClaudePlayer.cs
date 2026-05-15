@@ -1,67 +1,82 @@
 ﻿namespace Santase.AI.ClaudePlayer
 {
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Numerics;
 
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
     /// <summary>
-    /// Heuristic Santase player. Stays well under 0.01 seconds per turn.
-    /// Used as the fallback policy by the minimax-based <see cref="ClaudePlayer"/> when full
-    /// minimax doesn't apply (Phase 1 or closed Phase 2).
-    /// Key ideas vs SmartPlayer:
-    ///   * Marriage preservation - never breaks a Q+K marriage to dump or routinely overtake;
-    ///     leads the Q (not the K) when announcing, keeping the K for future trick-taking.
-    ///   * Phase-aware lead order - Phase 2 (rules apply) prefers a guaranteed-winning trump
-    ///     before announcing (drains opponent's trumps); Phase 1 keeps announce first.
-    ///   * Two-trick lookahead - if a guaranteed trump now plus a marriage announce next reaches 66,
-    ///     play the trump first (matches SmartPlayer's "trump-then-announce" pattern).
-    ///   * Conservative closing - only closes on 5+ trumps, or 4 trumps + trump marriage when
-    ///     opponent doesn't hold both A and 10 of trump.
-    ///   * Sound deduction - tracks unknown cards as a CardCollection, conservatively treats
-    ///     non-trump leads in closed Phase 2 as not-guaranteed (because the abandoned deck
-    ///     pollutes the "opp could have lead suit" signal).
+    /// Santase player. Stays well under 0.01 seconds per turn.
+    /// Strategy in two layers:
+    ///   * Alpha-beta minimax in non-closed Phase 2 - the moment the deck is empty and the round
+    ///     wasn't closed early, the opponent's hand is exactly our <c>UnknownCards</c> set, so
+    ///     the rest of the round is a small perfect-information subgame (~6 cards each, branching
+    ///     factor 1-3 with the validator constraints). We search it to terminal.
+    ///   * Heuristic fallback for Phase 1 and closed-Phase-2 turns where the opponent's hand is
+    ///     uncertain. The heuristic prefers marriage preservation, leads the Q (not K) when
+    ///     announcing, drains opponent trumps before announcing in Phase 2 leads, has a two-trick
+    ///     "trump-now-then-announce" lookahead, and only closes on 5+ trumps (or 4 trumps + the
+    ///     trump marriage when opponent doesn't hold both A and 10 of trump).
     /// </summary>
-    public class ClaudePlayerHeuristic : BasePlayer
+    public class ClaudePlayer : BasePlayer
     {
-        protected static readonly CardSuit[] AllSuits =
+        private const int MaxSearchDepth = 14;
+
+        // Eval magnitudes for terminal positions in the minimax.
+        private const int RoundWinReward = 1000;
+        private const int HandOutReward = 500;
+
+        private static readonly CardSuit[] AllSuits =
         {
             CardSuit.Club, CardSuit.Diamond, CardSuit.Heart, CardSuit.Spade,
         };
 
-        protected static readonly CardType[] AllTypes =
+        private static readonly CardType[] AllTypes =
         {
             CardType.Nine, CardType.Jack, CardType.Queen, CardType.King, CardType.Ten, CardType.Ace,
         };
 
-        protected CardCollection unknownCards = new CardCollection(CardCollection.AllSantaseCardsBitMask);
+        // Per-instance scratch buffers indexed by recursion depth, to avoid Card[] allocations
+        // on every Search call. Each slot holds at most 6 cards (max hand size).
+        private readonly Card[][] moveBuffers;
 
-        protected CardCollection playedCards = new CardCollection();
+        public ClaudePlayer()
+        {
+            this.moveBuffers = new Card[MaxSearchDepth][];
+            for (var i = 0; i < MaxSearchDepth; i++)
+            {
+                this.moveBuffers[i] = new Card[6];
+            }
+        }
 
-        protected Card lastSeenTrumpCard;
+        public override string Name => "Claude Player";
 
-        public override string Name => "Claude Player (Heuristic)";
+        private CardCollection UnknownCards { get; set; } = new CardCollection(CardCollection.AllSantaseCardsBitMask);
+
+        private CardCollection PlayedCards { get; set; } = new CardCollection();
+
+        private Card LastSeenTrumpCard { get; set; }
 
         public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
         {
             base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
 
-            this.unknownCards = new CardCollection(CardCollection.AllSantaseCardsBitMask);
+            this.UnknownCards = new CardCollection(CardCollection.AllSantaseCardsBitMask);
             foreach (var c in cards)
             {
-                this.unknownCards.Remove(c);
+                this.UnknownCards.Remove(c);
             }
 
-            this.playedCards = new CardCollection();
-            this.lastSeenTrumpCard = null;
+            this.PlayedCards = new CardCollection();
+            this.LastSeenTrumpCard = null;
         }
 
         public override void AddCard(Card card)
         {
             base.AddCard(card);
-            this.unknownCards.Remove(card);
+            this.UnknownCards.Remove(card);
         }
 
         public override void EndTurn(PlayerTurnContext context)
@@ -70,7 +85,7 @@
             // Add it back to unknown so post-draw bookkeeping is correct (AddCard will remove it again if I drew it).
             if (context.CardsLeftInDeck == 2 && context.TrumpCard != null)
             {
-                this.unknownCards.Add(context.TrumpCard);
+                this.UnknownCards.Add(context.TrumpCard);
             }
 
             this.RecordPlayed(context.FirstPlayedCard);
@@ -82,12 +97,12 @@
             this.SyncTrumpCard(context.TrumpCard);
 
             // Trump change: trade the 9 of trump for the visible (higher) trump card. Almost always positive.
-            // The face-up card was already removed from unknownCards by SyncTrumpCard above; we just
-            // need to update lastSeenTrumpCard to the 9 we're putting on the table.
+            // The face-up card was already removed from UnknownCards by SyncTrumpCard above; we just
+            // need to update LastSeenTrumpCard to the 9 we're putting on the table.
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
                 var oldTrumpOnTable = context.TrumpCard;
-                this.lastSeenTrumpCard = Card.GetCard(oldTrumpOnTable.Suit, CardType.Nine);
+                this.LastSeenTrumpCard = Card.GetCard(oldTrumpOnTable.Suit, CardType.Nine);
                 return this.ChangeTrump(oldTrumpOnTable);
             }
 
@@ -101,17 +116,184 @@
             return this.PlayCard(chosen);
         }
 
-        protected void SyncTrumpCard(Card current)
+        private static int EnumerateMoves(GameState state, Card[] buffer)
         {
-            if (Card.Equals(current, this.lastSeenTrumpCard))
+            var hand = state.MyTurn ? state.MyHand : state.OppHand;
+
+            if (state.LedCard == null)
+            {
+                // Leading: any card in hand is legal.
+                return FillFromBitmask(hand, buffer);
+            }
+
+            // Following: validator-style restrictions.
+            var lead = state.LedCard;
+            var leadSuit = lead.Suit;
+            var leadVal = lead.GetValue();
+            var trumpSuit = state.TrumpSuit;
+
+            var n = 0;
+
+            // 1. Same-suit higher cards (must overtake when possible).
+            foreach (var t in AllTypes)
+            {
+                var hash = ((int)leadSuit * 13) + (int)t;
+                if ((hand & (1L << hash)) != 0)
+                {
+                    var c = Card.Cards[hash];
+                    if (c.GetValue() > leadVal)
+                    {
+                        buffer[n++] = c;
+                    }
+                }
+            }
+
+            if (n > 0)
+            {
+                return n;
+            }
+
+            // 2. Same-suit lower cards (when no higher exists).
+            foreach (var t in AllTypes)
+            {
+                var hash = ((int)leadSuit * 13) + (int)t;
+                if ((hand & (1L << hash)) != 0)
+                {
+                    buffer[n++] = Card.Cards[hash];
+                }
+            }
+
+            if (n > 0)
+            {
+                return n;
+            }
+
+            // 3. Trumps (when void of lead suit).
+            if (leadSuit != trumpSuit)
+            {
+                foreach (var t in AllTypes)
+                {
+                    var hash = ((int)trumpSuit * 13) + (int)t;
+                    if ((hand & (1L << hash)) != 0)
+                    {
+                        buffer[n++] = Card.Cards[hash];
+                    }
+                }
+
+                if (n > 0)
+                {
+                    return n;
+                }
+            }
+
+            // 4. Anything goes (void of lead suit, no trumps).
+            return FillFromBitmask(hand, buffer);
+        }
+
+        private static int FillFromBitmask(long hand, Card[] buffer)
+        {
+            var n = 0;
+            while (hand != 0L)
+            {
+                var hash = BitOperations.TrailingZeroCount((ulong)hand);
+                buffer[n++] = Card.Cards[hash];
+                hand &= hand - 1;
+            }
+
+            return n;
+        }
+
+        private static GameState ApplyMove(GameState state, Card card)
+        {
+            var newState = state;
+            var cardMask = 1L << card.GetHashCode();
+
+            if (state.MyTurn)
+            {
+                newState.MyHand &= ~cardMask;
+            }
+            else
+            {
+                newState.OppHand &= ~cardMask;
+            }
+
+            if (state.LedCard == null)
+            {
+                // Leading. Compute marriage announce against the PRE-removal hand (the played
+                // card itself isn't the partner being checked).
+                var announce = 0;
+                if (card.Type == CardType.King || card.Type == CardType.Queen)
+                {
+                    var partnerType = card.Type == CardType.King ? CardType.Queen : CardType.King;
+                    var partnerHash = ((int)card.Suit * 13) + (int)partnerType;
+                    var partnerMask = 1L << partnerHash;
+                    var preHand = state.MyTurn ? state.MyHand : state.OppHand;
+                    if ((preHand & partnerMask) != 0)
+                    {
+                        announce = card.Suit == state.TrumpSuit ? 40 : 20;
+                    }
+                }
+
+                if (state.MyTurn)
+                {
+                    newState.MyPoints += announce;
+                }
+                else
+                {
+                    newState.OppPoints += announce;
+                }
+
+                newState.LedCard = card;
+                newState.MyTurn = !state.MyTurn;
+            }
+            else
+            {
+                // Following. Resolve trick (winner gets both card values).
+                var leader = state.LedCard;
+                var trickValue = leader.GetValue() + card.GetValue();
+
+                bool followerWins;
+                if (leader.Suit == card.Suit)
+                {
+                    followerWins = card.GetValue() > leader.GetValue();
+                }
+                else
+                {
+                    followerWins = card.Suit == state.TrumpSuit;
+                }
+
+                // Current player (about to play) is the follower.
+                // followerWins == true => current player wins; false => the other (leader) wins.
+                // I win iff "current is me" matches "current wins" (XNOR).
+                var amWinningTrick = state.MyTurn == followerWins;
+
+                if (amWinningTrick)
+                {
+                    newState.MyPoints += trickValue;
+                }
+                else
+                {
+                    newState.OppPoints += trickValue;
+                }
+
+                newState.LedCard = null;
+                newState.MyTurn = amWinningTrick;
+            }
+
+            return newState;
+        }
+
+        private void SyncTrumpCard(Card current)
+        {
+            if (Card.Equals(current, this.LastSeenTrumpCard))
             {
                 return;
             }
 
             // Either first observation, or opponent changed the trump card. Either way, the new trump card
             // is now visible on the table, so it should not be in our "unknown" set.
-            this.unknownCards.Remove(current);
-            this.lastSeenTrumpCard = current;
+            this.UnknownCards.Remove(current);
+            this.LastSeenTrumpCard = current;
         }
 
         private void RecordPlayed(Card card)
@@ -121,11 +303,11 @@
                 return;
             }
 
-            this.unknownCards.Remove(card);
-            this.playedCards.Add(card);
+            this.UnknownCards.Remove(card);
+            this.PlayedCards.Add(card);
         }
 
-        protected virtual bool ShouldCloseGame(PlayerTurnContext context)
+        private bool ShouldCloseGame(PlayerTurnContext context)
         {
             if (!this.PlayerActionValidator.IsValid(PlayerAction.CloseGame(), context, this.Cards))
             {
@@ -154,8 +336,8 @@
                 && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.King))
                 && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Queen)))
             {
-                var oppCouldHaveAce = this.unknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ace));
-                var oppCouldHaveTen = this.unknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ten));
+                var oppCouldHaveAce = this.UnknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ace));
+                var oppCouldHaveTen = this.UnknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ten));
                 if (!oppCouldHaveAce || !oppCouldHaveTen)
                 {
                     return true;
@@ -165,11 +347,192 @@
             return false;
         }
 
-        protected virtual Card ChooseCard(PlayerTurnContext context, ICollection<Card> possibleCards)
+        private Card ChooseCard(PlayerTurnContext context, ICollection<Card> possibleCards)
         {
+            // Alpha-beta minimax for normal Phase 2 (rules apply, deck fully drawn, not closed
+            // mid-Phase-1). Otherwise UnknownCards is wider than the opponent's hand and a
+            // perfect-info search would be misled, so we fall through to the heuristic policy.
+            if (context.State.ShouldObserveRules && context.CardsLeftInDeck == 0)
+            {
+                var move = this.RunMinimax(context, possibleCards);
+                if (move != null)
+                {
+                    return move;
+                }
+            }
+
             return context.IsFirstPlayerTurn
                 ? this.ChooseLeadCard(context, possibleCards)
                 : this.ChooseFollowCard(context, possibleCards);
+        }
+
+        private Card RunMinimax(PlayerTurnContext context, ICollection<Card> possibleCards)
+        {
+            var amLeader = context.IsFirstPlayerTurn;
+
+            long myHand = 0L;
+            foreach (var c in this.Cards)
+            {
+                myHand |= 1L << c.GetHashCode();
+            }
+
+            long oppHand = 0L;
+            foreach (var c in this.UnknownCards)
+            {
+                oppHand |= 1L << c.GetHashCode();
+            }
+
+            Card ledCard = null;
+            if (!amLeader)
+            {
+                ledCard = context.FirstPlayedCard;
+                if (ledCard != null)
+                {
+                    // Opponent's lead card is still in UnknownCards (EndTurn hasn't fired for this
+                    // trick yet); subtract it so OppHand reflects what they have left to play.
+                    oppHand &= ~(1L << ledCard.GetHashCode());
+                }
+            }
+
+            // Sanity: minimax assumes opp hand size matches what we expect from a non-closed Phase 2.
+            // If something is off, decline and let the heuristic handle it.
+            if (myHand == 0L || oppHand == 0L)
+            {
+                return null;
+            }
+
+            var rootState = new GameState
+            {
+                MyHand = myHand,
+                OppHand = oppHand,
+                MyPoints = amLeader ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
+                OppPoints = amLeader ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints,
+                LedCard = ledCard,
+                MyTurn = true,
+                TrumpSuit = context.TrumpCard.Suit,
+            };
+
+            var moves = this.moveBuffers[0];
+            var count = EnumerateMoves(rootState, moves);
+            if (count == 0)
+            {
+                return null;
+            }
+
+            Card best = null;
+            var bestVal = int.MinValue;
+            var alpha = int.MinValue;
+            var beta = int.MaxValue;
+
+            for (var i = 0; i < count; i++)
+            {
+                var ns = ApplyMove(rootState, moves[i]);
+                var v = this.Search(ns, alpha, beta, 1);
+                if (v > bestVal)
+                {
+                    bestVal = v;
+                    best = moves[i];
+                }
+
+                if (bestVal > alpha)
+                {
+                    alpha = bestVal;
+                }
+            }
+
+            // Defensive: if minimax somehow picked a move the validator would reject, defer.
+            if (best != null && !possibleCards.Contains(best))
+            {
+                return null;
+            }
+
+            return best;
+        }
+
+        private int Search(GameState state, int alpha, int beta, int depth)
+        {
+            if (state.MyPoints >= 66)
+            {
+                return RoundWinReward + state.MyPoints - state.OppPoints;
+            }
+
+            if (state.OppPoints >= 66)
+            {
+                return -RoundWinReward + state.MyPoints - state.OppPoints;
+            }
+
+            if (state.MyHand == 0L && state.OppHand == 0L)
+            {
+                if (state.MyPoints > state.OppPoints)
+                {
+                    return HandOutReward + state.MyPoints - state.OppPoints;
+                }
+
+                if (state.MyPoints < state.OppPoints)
+                {
+                    return -HandOutReward + state.MyPoints - state.OppPoints;
+                }
+
+                return 0;
+            }
+
+            var moves = this.moveBuffers[depth];
+            var count = EnumerateMoves(state, moves);
+            if (count == 0)
+            {
+                return state.MyPoints - state.OppPoints;
+            }
+
+            if (state.MyTurn)
+            {
+                var best = int.MinValue;
+                for (var i = 0; i < count; i++)
+                {
+                    var ns = ApplyMove(state, moves[i]);
+                    var v = this.Search(ns, alpha, beta, depth + 1);
+                    if (v > best)
+                    {
+                        best = v;
+                    }
+
+                    if (best > alpha)
+                    {
+                        alpha = best;
+                    }
+
+                    if (alpha >= beta)
+                    {
+                        break;
+                    }
+                }
+
+                return best;
+            }
+            else
+            {
+                var best = int.MaxValue;
+                for (var i = 0; i < count; i++)
+                {
+                    var ns = ApplyMove(state, moves[i]);
+                    var v = this.Search(ns, alpha, beta, depth + 1);
+                    if (v < best)
+                    {
+                        best = v;
+                    }
+
+                    if (best < beta)
+                    {
+                        beta = best;
+                    }
+
+                    if (alpha >= beta)
+                    {
+                        break;
+                    }
+                }
+
+                return best;
+            }
         }
 
         private Card ChooseLeadCard(PlayerTurnContext context, ICollection<Card> possibleCards)
@@ -385,7 +748,7 @@
 
             var oppCouldHaveTrump = false;
             var oppCouldHaveLeadSuit = false;
-            foreach (var c in this.unknownCards)
+            foreach (var c in this.UnknownCards)
             {
                 if (c.Suit == trumpSuit)
                 {
@@ -406,14 +769,14 @@
 
             if (context.State.ShouldObserveRules)
             {
-                // Phase 2 with closed game: unknownCards includes the abandoned deck, so we can't
+                // Phase 2 with closed game: UnknownCards includes the abandoned deck, so we can't
                 // be sure whether opponent has the lead suit. Decline the "guaranteed" claim.
                 if (context.CardsLeftInDeck > 0)
                 {
                     return false;
                 }
 
-                // Phase 2 normal: unknownCards == opponent's hand. If they have any of the lead
+                // Phase 2 normal: UnknownCards == opponent's hand. If they have any of the lead
                 // suit, they must follow and can't trump us.
                 return oppCouldHaveLeadSuit;
             }
@@ -427,7 +790,7 @@
             foreach (var t in AllTypes)
             {
                 var c = Card.GetCard(lead.Suit, t);
-                if (c.GetValue() > lead.GetValue() && this.unknownCards.Contains(c))
+                if (c.GetValue() > lead.GetValue() && this.UnknownCards.Contains(c))
                 {
                     return true;
                 }
@@ -439,7 +802,7 @@
         private Card SelectSafeLead(PlayerTurnContext context, ICollection<Card> possibleCards, CardSuit trumpSuit)
         {
             var unknownPerSuit = new int[4];
-            foreach (var c in this.unknownCards)
+            foreach (var c in this.UnknownCards)
             {
                 unknownPerSuit[(int)c.Suit]++;
             }
@@ -543,10 +906,6 @@
             Card smallestSameSuitWinner = null;
             var sameSuitVal = int.MaxValue;
 
-            // Smallest non-marriage same-suit overtake (preferred for routine takes).
-            Card smallestNonMarriageWinner = null;
-            var smallestNonMarriageVal = int.MaxValue;
-
             // Biggest same-suit overtake (used when game-critical, e.g., to win/block the round).
             Card biggestSameSuitWinner = null;
             var biggestSameSuitVal = -1;
@@ -568,12 +927,6 @@
                 {
                     biggestSameSuitWinner = c;
                     biggestSameSuitVal = c.GetValue();
-                }
-
-                if (!this.IsHalfOfMyMarriage(c) && c.GetValue() < smallestNonMarriageVal)
-                {
-                    smallestNonMarriageWinner = c;
-                    smallestNonMarriageVal = c.GetValue();
                 }
             }
 
@@ -678,7 +1031,7 @@
             var oppPoints = context.FirstPlayerRoundPoints;
 
             // Single pass: pick the cheapest winner and the cheapest loser using value/marriage/trump
-            // scoring (lower is better). Avoids allocating two intermediate Lists per turn.
+            // scoring (lower is better).
             Card bestWinner = null;
             var bestWinnerScore = int.MaxValue;
             Card bestLoser = null;
@@ -757,7 +1110,7 @@
         private Card SelectDump(ICollection<Card> possibleCards, CardSuit trumpSuit)
         {
             var unknownPerSuit = new int[4];
-            foreach (var c in this.unknownCards)
+            foreach (var c in this.UnknownCards)
             {
                 unknownPerSuit[(int)c.Suit]++;
             }
@@ -790,6 +1143,17 @@
             }
 
             return best;
+        }
+
+        private struct GameState
+        {
+            public long MyHand;
+            public long OppHand;
+            public int MyPoints;
+            public int OppPoints;
+            public Card LedCard;
+            public bool MyTurn;
+            public CardSuit TrumpSuit;
         }
     }
 }
