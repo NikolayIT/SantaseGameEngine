@@ -31,13 +31,13 @@
 
             var sw = Stopwatch.StartNew();
 
-            SimulateGames(new SmartPlayersGameSimulator(), 200000);
+            //// SimulateGames(new SmartPlayersGameSimulator(), 200000);
 
-            SimulateGames(new SmartAndBestExternalPlayerGameSimulator(), 200000);
+            //// SimulateGames(new SmartAndBestExternalPlayerGameSimulator(), 200000);
 
-            SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator(), 200000);
+            //// SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator(), 200000);
 
-            SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
+            //// SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
 
             SimulateGames(new ClaudeVsBaselineSimulator(), 200000);
 
