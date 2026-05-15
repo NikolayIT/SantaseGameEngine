@@ -1,10 +1,14 @@
-﻿namespace Santase.UI
+namespace Santase.UI
 {
+    using Santase.UI.Pages;
+
     public partial class AppShell : Shell
     {
         public AppShell()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+
+            Routing.RegisterRoute("GamePage", typeof(GamePage));
         }
     }
 }

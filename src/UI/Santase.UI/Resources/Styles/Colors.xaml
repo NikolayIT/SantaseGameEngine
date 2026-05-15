@@ -41,4 +41,19 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- Santase felt-table palette -->
+    <Color x:Key="FeltDark">#0B3D1A</Color>
+    <Color x:Key="FeltMid">#0E5A2E</Color>
+    <Color x:Key="FeltLight">#127A40</Color>
+    <Color x:Key="FeltAccent">#1FA15A</Color>
+    <Color x:Key="GoldAccent">#E2B864</Color>
+    <Color x:Key="GoldHighlight">#F4D586</Color>
+    <Color x:Key="CardEdge">#0F2417</Color>
+    <Color x:Key="CardShadow">#33000000</Color>
+    <Color x:Key="ActiveGlow">#66E2B864</Color>
+
+    <SolidColorBrush x:Key="FeltDarkBrush" Color="{StaticResource FeltDark}" />
+    <SolidColorBrush x:Key="FeltMidBrush" Color="{StaticResource FeltMid}" />
+    <SolidColorBrush x:Key="GoldAccentBrush" Color="{StaticResource GoldAccent}" />
 </ResourceDictionary>

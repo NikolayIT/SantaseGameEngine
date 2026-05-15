@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:game="clr-namespace:Santase.UI.Game"
+             x:Class="Santase.UI.Pages.GamePage"
+             x:Name="ThePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource FeltDark}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <game:NotNullConverter x:Key="NotNull" />
+            <game:InverseBoolConverter x:Key="InverseBool" />
+            <game:BoolToOpacityConverter x:Key="BoolToOpacity" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- ===== Felt background ===== -->
+        <Grid.Background>
+            <RadialGradientBrush Center="0.5,0.5" Radius="1.0">
+                <GradientStop Color="{StaticResource FeltLight}" Offset="0.0" />
+                <GradientStop Color="{StaticResource FeltMid}" Offset="0.45" />
+                <GradientStop Color="{StaticResource FeltDark}" Offset="1.0" />
+            </RadialGradientBrush>
+        </Grid.Background>
+
+        <!-- ===== Main game grid ===== -->
+        <Grid Padding="10,12"
+              RowDefinitions="Auto,Auto,*,Auto,Auto,Auto"
+              RowSpacing="6">
+
+            <!-- Row 0: Opponent status bar -->
+            <Border Grid.Row="0"
+                    StrokeShape="RoundRectangle 14"
+                    StrokeThickness="0"
+                    Padding="14,8"
+                    BackgroundColor="#33000000"
+                    Opacity="{Binding OpponentTurnIndicatorOpacity}">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+                    <Ellipse Grid.Column="0"
+                             WidthRequest="10"
+                             HeightRequest="10"
+                             Fill="{StaticResource GoldAccentBrush}"
+                             VerticalOptions="Center"
+                             IsVisible="{Binding IsMyTurn, Converter={StaticResource InverseBool}}" />
+                    <Label Grid.Column="1"
+                           Text="{Binding OpponentName}"
+                           TextColor="White"
+                           FontAttributes="Bold"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                    <Border Grid.Column="2"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="0"
+                            Padding="8,2"
+                            BackgroundColor="#22FFFFFF">
+                        <Label TextColor="White" FontSize="11">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Round  " />
+                                    <Span Text="{Binding OpponentRoundPoints}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+                    <Border Grid.Column="3"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="0"
+                            Padding="8,2"
+                            BackgroundColor="{StaticResource GoldAccentBrush}">
+                        <Label TextColor="#1A1006" FontSize="11">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Game  " />
+                                    <Span Text="{Binding OpponentGamePoints}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Row 1: Opponent hand (face-down cards) -->
+            <Grid Grid.Row="1" HorizontalOptions="Center">
+                <HorizontalStackLayout Spacing="-34"
+                                       BindableLayout.ItemsSource="{Binding OpponentHand}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="game:CardSlot">
+                            <Border StrokeThickness="0"
+                                    BackgroundColor="Transparent">
+                                <Border.Shadow>
+                                    <Shadow Brush="Black" Opacity="0.5" Radius="6" Offset="2,3" />
+                                </Border.Shadow>
+                                <Image Source="{Binding ImageSource}"
+                                       WidthRequest="68"
+                                       HeightRequest="100"
+                                       Aspect="AspectFit" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- Row 2: Center area (trump+deck on left, table center) -->
+            <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+
+                <!-- Trump + deck pile -->
+                <VerticalStackLayout Grid.Column="0"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="Start"
+                                     Spacing="6">
+                    <Grid WidthRequest="120" HeightRequest="100">
+                        <!-- Trump card laying sideways under the deck -->
+                        <Border StrokeThickness="0"
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Start"
+                                VerticalOptions="Center"
+                                Rotation="90"
+                                TranslationX="20">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Opacity="0.6" Radius="6" Offset="2,3" />
+                            </Border.Shadow>
+                            <Image Source="{Binding TrumpImage}"
+                                   WidthRequest="68"
+                                   HeightRequest="100"
+                                   Aspect="AspectFit" />
+                        </Border>
+                        <!-- Deck stack on top -->
+                        <Border StrokeThickness="0"
+                                HorizontalOptions="End"
+                                VerticalOptions="Center"
+                                IsVisible="{Binding IsDeckVisible}"
+                                BackgroundColor="Transparent"
+                                TranslationX="-10">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Opacity="0.5" Radius="6" Offset="2,3" />
+                            </Border.Shadow>
+                            <Image Source="card_back.png"
+                                   WidthRequest="68"
+                                   HeightRequest="100"
+                                   Aspect="AspectFit" />
+                        </Border>
+                    </Grid>
+                    <Border StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            Padding="10,3"
+                            BackgroundColor="#44000000"
+                            HorizontalOptions="Center">
+                        <Label FontSize="11" TextColor="White">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Deck:  " />
+                                    <Span Text="{Binding DeckCountText}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Played cards on the table -->
+                <Grid Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                    <!-- Opponent's played card (offset up & left) -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="Transparent"
+                            IsVisible="{Binding OpponentPlayedCard, Converter={StaticResource NotNull}}"
+                            TranslationX="-22" TranslationY="-22"
+                            Rotation="-7">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.6" Radius="10" Offset="2,4" />
+                        </Border.Shadow>
+                        <Image Source="{Binding OpponentPlayedCard.ImageSource, FallbackValue='card_back.png'}"
+                               WidthRequest="84"
+                               HeightRequest="118"
+                               Aspect="AspectFit" />
+                    </Border>
+                    <!-- My played card (offset down & right, on top) -->
+                    <Border StrokeThickness="0"
+                            BackgroundColor="Transparent"
+                            IsVisible="{Binding MyPlayedCard, Converter={StaticResource NotNull}}"
+                            TranslationX="22" TranslationY="22"
+                            Rotation="6">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.6" Radius="10" Offset="2,4" />
+                        </Border.Shadow>
+                        <Image Source="{Binding MyPlayedCard.ImageSource, FallbackValue='card_back.png'}"
+                               WidthRequest="84"
+                               HeightRequest="118"
+                               Aspect="AspectFit" />
+                    </Border>
+                    <Label Text="{Binding StatusMessage}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="End"
+                           TextColor="#CCFFFFFF"
+                           FontSize="11"
+                           Margin="0,0,0,-22"
+                           IsVisible="{Binding MyPlayedCard, Converter={StaticResource NotNull}, FallbackValue='True'}" />
+                </Grid>
+            </Grid>
+
+            <!-- Row 3: Player hand (face-up, tappable) -->
+            <Grid Grid.Row="3" HorizontalOptions="Center">
+                <HorizontalStackLayout Spacing="-34"
+                                       BindableLayout.ItemsSource="{Binding MyHand}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="game:CardSlot">
+                            <Border StrokeThickness="0"
+                                    BackgroundColor="Transparent"
+                                    Opacity="{Binding IsPlayable, Converter={StaticResource BoolToOpacity}}">
+                                <Border.Shadow>
+                                    <Shadow Brush="Black" Opacity="0.6" Radius="8" Offset="2,3" />
+                                </Border.Shadow>
+                                <Image Source="{Binding ImageSource}"
+                                       WidthRequest="78"
+                                       HeightRequest="114"
+                                       Aspect="AspectFit" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference ThePage}, Path=BindingContext.TapCardCommand}"
+                                                          CommandParameter="{Binding}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- Row 4: My status bar -->
+            <Border Grid.Row="4"
+                    StrokeShape="RoundRectangle 14"
+                    StrokeThickness="0"
+                    Padding="14,8"
+                    BackgroundColor="#33000000"
+                    Opacity="{Binding MyTurnIndicatorOpacity}">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+                    <Ellipse Grid.Column="0"
+                             WidthRequest="10"
+                             HeightRequest="10"
+                             Fill="{StaticResource GoldAccentBrush}"
+                             VerticalOptions="Center"
+                             IsVisible="{Binding IsMyTurn}" />
+                    <Label Grid.Column="1"
+                           Text="{Binding MyName}"
+                           TextColor="White"
+                           FontAttributes="Bold"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                    <Border Grid.Column="2"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="0"
+                            Padding="8,2"
+                            BackgroundColor="#22FFFFFF">
+                        <Label TextColor="White" FontSize="11">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Round  " />
+                                    <Span Text="{Binding MyRoundPoints}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+                    <Border Grid.Column="3"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="0"
+                            Padding="8,2"
+                            BackgroundColor="{StaticResource GoldAccentBrush}">
+                        <Label TextColor="#1A1006" FontSize="11">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Game  " />
+                                    <Span Text="{Binding MyGamePoints}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Row 5: Action buttons -->
+            <HorizontalStackLayout Grid.Row="5"
+                                   HorizontalOptions="Center"
+                                   Spacing="10"
+                                   Margin="0,4,0,0">
+                <Button Text="Swap 9 ↔ Trump"
+                        Command="{Binding ChangeTrumpCommand}"
+                        IsVisible="{Binding CanChangeTrump}"
+                        HeightRequest="40"
+                        FontSize="12"
+                        Padding="12,0"
+                        CornerRadius="10"
+                        BackgroundColor="{StaticResource FeltAccent}"
+                        TextColor="White" />
+                <Button Text="Close Game"
+                        Command="{Binding CloseGameCommand}"
+                        IsVisible="{Binding CanCloseGame}"
+                        HeightRequest="40"
+                        FontSize="12"
+                        Padding="12,0"
+                        CornerRadius="10"
+                        BackgroundColor="#A0334466"
+                        TextColor="White" />
+                <Button Text="Menu"
+                        Command="{Binding LeaveCommand}"
+                        HeightRequest="40"
+                        FontSize="12"
+                        Padding="12,0"
+                        CornerRadius="10"
+                        BackgroundColor="Transparent"
+                        BorderColor="#55FFFFFF"
+                        BorderWidth="1"
+                        TextColor="White" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- ===== Toast banner ===== -->
+        <Border IsVisible="{Binding IsToastVisible}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="0"
+                BackgroundColor="{StaticResource GoldAccentBrush}"
+                Padding="20,10"
+                HorizontalOptions="Center"
+                VerticalOptions="Start"
+                Margin="0,16,0,0">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.5" Radius="14" Offset="0,3" />
+            </Border.Shadow>
+            <Label Text="{Binding ToastMessage}"
+                   TextColor="#1A1006"
+                   FontAttributes="Bold"
+                   FontSize="16" />
+        </Border>
+
+        <!-- ===== Closed-game indicator ===== -->
+        <Border IsVisible="{Binding GameClosedByMe}"
+                BackgroundColor="#88FFA040"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 6"
+                Padding="6,2"
+                HorizontalOptions="End"
+                VerticalOptions="Start"
+                Margin="0,8,8,0">
+            <Label Text="GAME CLOSED" TextColor="White" FontSize="9" FontAttributes="Bold" />
+        </Border>
+        <Border IsVisible="{Binding GameClosedByOpponent}"
+                BackgroundColor="#88FFA040"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 6"
+                Padding="6,2"
+                HorizontalOptions="End"
+                VerticalOptions="Start"
+                Margin="0,8,8,0">
+            <Label Text="OPPONENT CLOSED" TextColor="White" FontSize="9" FontAttributes="Bold" />
+        </Border>
+
+        <!-- ===== Handoff overlay ===== -->
+        <Grid IsVisible="{Binding IsHandoffOverlayVisible}"
+              BackgroundColor="#E5071A0E">
+            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20" Padding="32">
+                <Label Text="↻" FontSize="48" HorizontalOptions="Center" TextColor="{StaticResource GoldHighlight}" />
+                <Label Text="{Binding HandoffMessage}"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       TextColor="White" />
+                <Button Text="I'm ready"
+                        Command="{Binding HandoffContinueCommand}"
+                        BackgroundColor="{StaticResource GoldAccent}"
+                        TextColor="#1A1006"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        WidthRequest="220"
+                        HeightRequest="50"
+                        CornerRadius="12" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- ===== Round-end overlay ===== -->
+        <Grid IsVisible="{Binding IsRoundOverlayVisible}"
+              BackgroundColor="#CC000000">
+            <Border StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0"
+                    BackgroundColor="{StaticResource FeltMid}"
+                    Padding="28,24"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="380">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.6" Radius="20" Offset="0,4" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="{Binding RoundOverlayTitle}"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{StaticResource GoldHighlight}" />
+                    <Label Text="{Binding RoundOverlayBody}"
+                           FontSize="15"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="White" />
+                    <Button Text="Continue"
+                            Command="{Binding RoundOverlayContinueCommand}"
+                            BackgroundColor="{StaticResource GoldAccent}"
+                            TextColor="#1A1006"
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            HeightRequest="44"
+                            CornerRadius="10" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ===== Game-end overlay ===== -->
+        <Grid IsVisible="{Binding IsGameOverlayVisible}"
+              BackgroundColor="#E0000000">
+            <Border StrokeShape="RoundRectangle 22"
+                    StrokeThickness="0"
+                    BackgroundColor="{StaticResource FeltDark}"
+                    Padding="32,28"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="380">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.7" Radius="24" Offset="0,4" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="18">
+                    <Label Text="🏆"
+                           FontSize="56"
+                           HorizontalOptions="Center" />
+                    <Label Text="{Binding GameOverlayTitle}"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{StaticResource GoldHighlight}" />
+                    <Label Text="{Binding GameOverlayBody}"
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="White" />
+                    <Button Text="Back to menu"
+                            Command="{Binding LeaveCommand}"
+                            BackgroundColor="{StaticResource GoldAccent}"
+                            TextColor="#1A1006"
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            HeightRequest="48"
+                            CornerRadius="12" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

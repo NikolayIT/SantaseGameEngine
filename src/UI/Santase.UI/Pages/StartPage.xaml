@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Santase.UI.Pages.StartPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource FeltDark}">
+
+    <Grid>
+        <!-- Felt background gradient -->
+        <Grid.Background>
+            <RadialGradientBrush Center="0.5,0.4" Radius="0.9">
+                <GradientStop Color="{StaticResource FeltLight}" Offset="0.0" />
+                <GradientStop Color="{StaticResource FeltMid}" Offset="0.55" />
+                <GradientStop Color="{StaticResource FeltDark}" Offset="1.0" />
+            </RadialGradientBrush>
+        </Grid.Background>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="32,48"
+                                 Spacing="24"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 MaximumWidthRequest="480">
+
+                <!-- Title block -->
+                <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                    <Label Text="♠ ♥  SANTASE  ♦ ♣"
+                           FontSize="38"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{StaticResource GoldHighlight}" />
+                    <Label Text="66 · Schnapsen · Sechsundsechzig"
+                           FontSize="13"
+                           HorizontalOptions="Center"
+                           TextColor="#D9CFAE"
+                           CharacterSpacing="2" />
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="1" Color="#3FE2B864" Margin="0,8" />
+
+                <!-- Player names card -->
+                <Border StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0"
+                        BackgroundColor="#22000000"
+                        Padding="20">
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="PLAYERS"
+                               FontSize="11"
+                               TextColor="{StaticResource GoldAccent}"
+                               CharacterSpacing="3" />
+
+                        <Grid ColumnDefinitions="Auto,*"
+                              ColumnSpacing="14"
+                              RowDefinitions="Auto,Auto"
+                              RowSpacing="10">
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="You"
+                                   VerticalOptions="Center"
+                                   TextColor="White"
+                                   FontSize="14" />
+                            <Entry Grid.Row="0" Grid.Column="1"
+                                   x:Name="FirstPlayerEntry"
+                                   Text="Player 1"
+                                   TextColor="White"
+                                   PlaceholderColor="#7FFFFFFF"
+                                   BackgroundColor="#22000000" />
+
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Text="P2"
+                                   VerticalOptions="Center"
+                                   TextColor="White"
+                                   FontSize="14" />
+                            <Entry Grid.Row="1" Grid.Column="1"
+                                   x:Name="SecondPlayerEntry"
+                                   Text="Player 2"
+                                   TextColor="White"
+                                   PlaceholderColor="#7FFFFFFF"
+                                   BackgroundColor="#22000000" />
+                        </Grid>
+                        <Label Text="(P2 name only used in 2-player hot-seat mode)"
+                               FontSize="11"
+                               TextColor="#99FFFFFF" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Mode buttons -->
+                <VerticalStackLayout Spacing="12">
+                    <Button Text="Play vs Computer (Easy)"
+                            Clicked="OnPlayEasy"
+                            BackgroundColor="{StaticResource FeltAccent}"
+                            TextColor="White"
+                            FontSize="16"
+                            HeightRequest="54"
+                            CornerRadius="12" />
+
+                    <Button Text="Play vs Computer (Hard)"
+                            Clicked="OnPlayHard"
+                            BackgroundColor="{StaticResource GoldAccent}"
+                            TextColor="#1A1006"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HeightRequest="54"
+                            CornerRadius="12" />
+
+                    <Button Text="2-Player Hot-Seat"
+                            Clicked="OnPlayHotSeat"
+                            BackgroundColor="#33FFFFFF"
+                            BorderColor="{StaticResource GoldAccent}"
+                            BorderWidth="1"
+                            TextColor="White"
+                            FontSize="16"
+                            HeightRequest="54"
+                            CornerRadius="12" />
+                </VerticalStackLayout>
+
+                <Label Text="v1.0 · github.com/NikolayIT/SantaseGameEngine"
+                       FontSize="10"
+                       HorizontalOptions="Center"
+                       TextColor="#80FFFFFF"
+                       Margin="0,12,0,0" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
