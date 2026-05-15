@@ -46,9 +46,9 @@ namespace Santase.UI.Game
 
         private int deckCount = 12;
 
-        private CardSlot? myPlayedCard;
+        private CardSlot? slot1PlayedCard;
 
-        private CardSlot? opponentPlayedCard;
+        private CardSlot? slot2PlayedCard;
 
         private bool isMyTurn;
 
@@ -80,6 +80,10 @@ namespace Santase.UI.Game
 
         private bool gameClosedByOpponent;
 
+        private int matchWinsSlot1;
+
+        private int matchWinsSlot2;
+
         public GameViewModel(GameSession session, IDispatcher dispatcher)
         {
             this.session = session;
@@ -97,6 +101,7 @@ namespace Santase.UI.Game
             this.CloseGameCommand = new RelayCommand(this.OnCloseGame, () => this.CanCloseGame);
             this.HandoffContinueCommand = new RelayCommand(this.OnHandoffContinue);
             this.RoundOverlayContinueCommand = new RelayCommand(this.OnRoundOverlayContinue);
+            this.PlayAgainCommand = new RelayCommand(this.OnPlayAgain);
             this.LeaveCommand = new RelayCommand(this.OnLeave);
 
             this.Subscribe();
@@ -170,16 +175,31 @@ namespace Santase.UI.Game
 
         public bool IsDeckVisible => this.DeckCount > 0;
 
-        public CardSlot? MyPlayedCard
+        public CardSlot? MyPlayedCard => this.mySlot == PlayerSlot.First ? this.slot1PlayedCard : this.slot2PlayedCard;
+
+        public CardSlot? OpponentPlayedCard => this.mySlot == PlayerSlot.First ? this.slot2PlayedCard : this.slot1PlayedCard;
+
+        private void SetPlayedCard(PlayerSlot slot, CardSlot? value)
         {
-            get => this.myPlayedCard;
-            private set => this.SetField(ref this.myPlayedCard, value);
+            if (slot == PlayerSlot.First)
+            {
+                this.slot1PlayedCard = value;
+            }
+            else
+            {
+                this.slot2PlayedCard = value;
+            }
+
+            this.OnPropertyChanged(nameof(this.MyPlayedCard));
+            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
         }
 
-        public CardSlot? OpponentPlayedCard
+        private void ClearBothPlayedCards()
         {
-            get => this.opponentPlayedCard;
-            private set => this.SetField(ref this.opponentPlayedCard, value);
+            this.slot1PlayedCard = null;
+            this.slot2PlayedCard = null;
+            this.OnPropertyChanged(nameof(this.MyPlayedCard));
+            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
         }
 
         public bool IsMyTurn
@@ -308,7 +328,51 @@ namespace Santase.UI.Game
 
         public ICommand RoundOverlayContinueCommand { get; }
 
+        public ICommand PlayAgainCommand { get; }
+
         public ICommand LeaveCommand { get; }
+
+        public int MyMatchWins
+        {
+            get => this.mySlot == PlayerSlot.First ? this.matchWinsSlot1 : this.matchWinsSlot2;
+            private set
+            {
+                if (this.mySlot == PlayerSlot.First)
+                {
+                    this.matchWinsSlot1 = value;
+                }
+                else
+                {
+                    this.matchWinsSlot2 = value;
+                }
+
+                this.OnPropertyChanged(nameof(this.MyMatchWins));
+                this.OnPropertyChanged(nameof(this.MatchScoreText));
+            }
+        }
+
+        public int OpponentMatchWins
+        {
+            get => this.mySlot == PlayerSlot.First ? this.matchWinsSlot2 : this.matchWinsSlot1;
+            private set
+            {
+                if (this.mySlot == PlayerSlot.First)
+                {
+                    this.matchWinsSlot2 = value;
+                }
+                else
+                {
+                    this.matchWinsSlot1 = value;
+                }
+
+                this.OnPropertyChanged(nameof(this.OpponentMatchWins));
+                this.OnPropertyChanged(nameof(this.MatchScoreText));
+            }
+        }
+
+        public string MatchScoreText => $"{this.MyMatchWins} – {this.OpponentMatchWins}";
+
+        public bool HasMatchHistory => this.matchWinsSlot1 + this.matchWinsSlot2 > 0;
 
         public void StartGame()
         {
@@ -376,8 +440,7 @@ namespace Santase.UI.Game
                 this.MyHand.Clear();
                 this.OpponentHand.Clear();
                 this.OpponentCardsCount = 0;
-                this.MyPlayedCard = null;
-                this.OpponentPlayedCard = null;
+                this.ClearBothPlayedCards();
                 this.MyRoundPoints = 0;
                 this.OpponentRoundPoints = 0;
                 this.GameClosedByMe = false;
@@ -546,9 +609,10 @@ namespace Santase.UI.Game
             this.dispatcher.Dispatch(() =>
             {
                 var played = new CardSlot(card);
+                this.SetPlayedCard(slot, played);
+
                 if (slot == this.mySlot)
                 {
-                    this.MyPlayedCard = played;
                     var existing = this.MyHand.FirstOrDefault(s => s.Card.Equals(card));
                     if (existing != null)
                     {
@@ -565,7 +629,6 @@ namespace Santase.UI.Game
                 }
                 else
                 {
-                    this.OpponentPlayedCard = played;
                     if (this.OpponentHand.Count > 0)
                     {
                         this.OpponentHand.RemoveAt(this.OpponentHand.Count - 1);
@@ -655,12 +718,8 @@ namespace Santase.UI.Game
             // Clear the played cards just before the engine's sleep ends.
             Task.Run(async () =>
             {
-                await Task.Delay(Math.Max(0, this.session.TrickSettleMs - 200));
-                this.dispatcher.Dispatch(() =>
-                {
-                    this.MyPlayedCard = null;
-                    this.OpponentPlayedCard = null;
-                });
+                await Task.Delay(Math.Max(0, this.session.TrickSettleMs - 150));
+                this.dispatcher.Dispatch(this.ClearBothPlayedCards);
             });
         }
 
@@ -727,20 +786,56 @@ namespace Santase.UI.Game
 
         private void OnGameOver(PlayerSlot winnerSlot)
         {
+            // Update match counts (slot-based — survives perspective swaps).
+            if (winnerSlot == PlayerSlot.First)
+            {
+                this.matchWinsSlot1++;
+            }
+            else
+            {
+                this.matchWinsSlot2++;
+            }
+
             this.dispatcher.Dispatch(() =>
             {
                 this.UpdateGamePointsForPerspective(this.session.FirstGamePoints, this.session.SecondGamePoints);
 
+                this.OnPropertyChanged(nameof(this.MyMatchWins));
+                this.OnPropertyChanged(nameof(this.OpponentMatchWins));
+                this.OnPropertyChanged(nameof(this.MatchScoreText));
+                this.OnPropertyChanged(nameof(this.HasMatchHistory));
+
                 var iWon = winnerSlot == this.mySlot;
                 var winnerName = iWon ? this.MyName : this.OpponentName;
                 this.GameOverlayTitle = iWon ? "Victory!" : "Game Over";
-                this.GameOverlayBody = $"{winnerName} reached the target first.\nFinal: {this.MyGamePoints} : {this.OpponentGamePoints}";
+                this.GameOverlayBody = $"{winnerName} won this game\nFinal score  {this.MyGamePoints} – {this.OpponentGamePoints}";
                 this.IsRoundOverlayVisible = false;
                 this.IsGameOverlayVisible = true;
                 this.IsMyTurn = false;
                 this.CanChangeTrump = false;
                 this.CanCloseGame = false;
             });
+        }
+
+        private void OnPlayAgain()
+        {
+            this.IsGameOverlayVisible = false;
+            this.IsRoundOverlayVisible = false;
+            this.IsHandoffOverlayVisible = false;
+            this.MyHand.Clear();
+            this.OpponentHand.Clear();
+            this.OpponentCardsCount = 0;
+            this.ClearBothPlayedCards();
+            this.MyRoundPoints = 0;
+            this.OpponentRoundPoints = 0;
+
+            // Reset perspective to slot 1 (the start-page convention) before restarting.
+            if (this.mySlot != PlayerSlot.First)
+            {
+                this.SetPerspective(PlayerSlot.First, raiseChange: true);
+            }
+
+            this.session.Restart();
         }
 
         private void OnTapCard(CardSlot? slot)
@@ -828,9 +923,10 @@ namespace Santase.UI.Game
 
             this.OpponentCardsCount = oppCount;
 
-            // Re-evaluate played cards (perspective-relative).
-            // (We don't track which slot played which card historically here; the engine
-            // raises new CardPlayed events on the next turn, which will refresh.)
+            // Played cards are stored per-slot, so swapping perspective just means raising
+            // PropertyChanged on the derived MyPlayedCard / OpponentPlayedCard.
+            this.OnPropertyChanged(nameof(this.MyPlayedCard));
+            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
 
             // Update game points to match perspective.
             this.UpdateGamePointsForPerspective(this.session.FirstGamePoints, this.session.SecondGamePoints);

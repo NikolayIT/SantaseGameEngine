@@ -375,35 +375,51 @@
 
         <!-- ===== Round-end overlay ===== -->
         <Grid IsVisible="{Binding IsRoundOverlayVisible}"
-              BackgroundColor="#CC000000">
+              BackgroundColor="#D9000000">
             <Border StrokeShape="RoundRectangle 18"
                     StrokeThickness="0"
-                    BackgroundColor="{StaticResource FeltMid}"
+                    BackgroundColor="#F8F4E6"
                     Padding="28,24"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    MaximumWidthRequest="380">
+                    MaximumWidthRequest="420">
                 <Border.Shadow>
                     <Shadow Brush="Black" Opacity="0.6" Radius="20" Offset="0,4" />
                 </Border.Shadow>
-                <VerticalStackLayout Spacing="14">
+                <VerticalStackLayout Spacing="16">
                     <Label Text="{Binding RoundOverlayTitle}"
-                           FontSize="22"
+                           FontSize="26"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
-                           TextColor="{StaticResource GoldHighlight}" />
+                           TextColor="#0B3D1A" />
                     <Label Text="{Binding RoundOverlayBody}"
-                           FontSize="15"
+                           FontSize="18"
+                           FontAttributes="Bold"
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
-                           TextColor="White" />
+                           TextColor="#1A1006" />
+                    <Border IsVisible="{Binding HasMatchHistory}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="0"
+                            BackgroundColor="#E2B864"
+                            Padding="10,4"
+                            HorizontalOptions="Center">
+                        <Label FontSize="13" TextColor="#1A1006" FontAttributes="Bold">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Match  " />
+                                    <Span Text="{Binding MatchScoreText}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
                     <Button Text="Continue"
                             Command="{Binding RoundOverlayContinueCommand}"
-                            BackgroundColor="{StaticResource GoldAccent}"
-                            TextColor="#1A1006"
+                            BackgroundColor="{StaticResource FeltMid}"
+                            TextColor="White"
                             FontAttributes="Bold"
-                            FontSize="15"
-                            HeightRequest="44"
+                            FontSize="16"
+                            HeightRequest="48"
                             CornerRadius="10" />
                 </VerticalStackLayout>
             </Border>
@@ -411,14 +427,14 @@
 
         <!-- ===== Game-end overlay ===== -->
         <Grid IsVisible="{Binding IsGameOverlayVisible}"
-              BackgroundColor="#E0000000">
+              BackgroundColor="#E5000000">
             <Border StrokeShape="RoundRectangle 22"
                     StrokeThickness="0"
-                    BackgroundColor="{StaticResource FeltDark}"
-                    Padding="32,28"
+                    BackgroundColor="#F8F4E6"
+                    Padding="32,30"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    MaximumWidthRequest="380">
+                    MaximumWidthRequest="420">
                 <Border.Shadow>
                     <Shadow Brush="Black" Opacity="0.7" Radius="24" Offset="0,4" />
                 </Border.Shadow>
@@ -427,22 +443,78 @@
                            FontSize="56"
                            HorizontalOptions="Center" />
                     <Label Text="{Binding GameOverlayTitle}"
-                           FontSize="28"
+                           FontSize="32"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
-                           TextColor="{StaticResource GoldHighlight}" />
+                           TextColor="#0B3D1A" />
                     <Label Text="{Binding GameOverlayBody}"
-                           FontSize="14"
+                           FontSize="18"
+                           FontAttributes="Bold"
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
-                           TextColor="White" />
-                    <Button Text="Back to menu"
-                            Command="{Binding LeaveCommand}"
+                           TextColor="#1A1006" />
+
+                    <!-- Match score panel -->
+                    <Border StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            BackgroundColor="#0B3D1A"
+                            Padding="20,14"
+                            HorizontalOptions="Fill">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="MATCH SCORE"
+                                   FontSize="12"
+                                   CharacterSpacing="3"
+                                   HorizontalOptions="Center"
+                                   TextColor="#E2B864" />
+                            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="14">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding MyName}"
+                                           FontSize="14"
+                                           HorizontalOptions="Center"
+                                           TextColor="White" />
+                                    <Label Text="{Binding MyMatchWins}"
+                                           FontSize="36"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{StaticResource GoldHighlight}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1"
+                                       Text="–"
+                                       FontSize="32"
+                                       VerticalOptions="Center"
+                                       TextColor="#88FFFFFF" />
+                                <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                    <Label Text="{Binding OpponentName}"
+                                           FontSize="14"
+                                           HorizontalOptions="Center"
+                                           TextColor="White" />
+                                    <Label Text="{Binding OpponentMatchWins}"
+                                           FontSize="36"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{StaticResource GoldHighlight}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Button Text="Play again"
+                            Command="{Binding PlayAgainCommand}"
                             BackgroundColor="{StaticResource GoldAccent}"
                             TextColor="#1A1006"
                             FontAttributes="Bold"
+                            FontSize="17"
+                            HeightRequest="52"
+                            CornerRadius="12" />
+                    <Button Text="Back to menu"
+                            Command="{Binding LeaveCommand}"
+                            BackgroundColor="Transparent"
+                            BorderColor="{StaticResource FeltMid}"
+                            BorderWidth="1"
+                            TextColor="{StaticResource FeltMid}"
+                            FontAttributes="Bold"
                             FontSize="15"
-                            HeightRequest="48"
+                            HeightRequest="46"
                             CornerRadius="12" />
                 </VerticalStackLayout>
             </Border>

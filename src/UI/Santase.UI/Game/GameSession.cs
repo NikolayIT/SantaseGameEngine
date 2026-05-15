@@ -68,9 +68,9 @@ namespace Santase.UI.Game
 
     public sealed class GameSession
     {
-        private const int DefaultTrickSettleMs = 1400;
+        private const int DefaultTrickSettleMs = 900;
 
-        private const int DefaultAiThinkMs = 700;
+        private const int DefaultAiThinkMs = 400;
 
         private readonly object stateLock = new();
 
@@ -247,6 +247,29 @@ namespace Santase.UI.Game
         public void Continue()
         {
             this.pendingContinue?.TrySetResult(null);
+        }
+
+        public void Restart()
+        {
+            // Wait for any in-flight game task to finish naturally (it will because GameOver
+            // already fired). If it's stuck, Stop() unblocks pending TCSes.
+            this.Stop();
+
+            // Reset round/turn bookkeeping so the new game starts clean.
+            lock (this.stateLock)
+            {
+                this.turnEndedCount = 0;
+                this.roundEndedCount = 0;
+                this.lastFirstRoundPoints = 0;
+                this.lastSecondRoundPoints = 0;
+                this.currentTrump = null;
+            }
+
+            this.pendingContinue = null;
+            this.gameTask = null;
+            this.game = null;
+
+            this.Start();
         }
 
         public bool SubmitPlayCard(HumanPlayer player, Card card)
