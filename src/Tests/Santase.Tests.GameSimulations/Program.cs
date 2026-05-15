@@ -39,6 +39,14 @@
 
             SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
 
+            SimulateGames(new ClaudeAndSmartPlayerSimulator(), 200000);
+
+            SimulateGames(new ClaudeAndBestExternalPlayerGameSimulator(), 200000);
+
+            SimulateGames(new ClaudeAndDummyPlayerChangingTrumpSimulator(), 200000);
+
+            SimulateGames(new ClaudeAndDummyPlayersSimulator(), 200000);
+
             Console.WriteLine($"Total tests time: {sw.Elapsed}");
         }
 
