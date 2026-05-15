@@ -36,6 +36,15 @@
 
         public int RoundsPlayed { get; private set; }
 
+        // Test seam (InternalsVisibleTo-gated): exposes the next-round opener so a
+        // deterministic test can drive UpdatePoints in isolation without running a
+        // full game. Not part of the public engine API.
+        internal PlayerPosition FirstToPlay
+        {
+            get => this.firstToPlay;
+            set => this.firstToPlay = value;
+        }
+
         public PlayerPosition Start(PlayerPosition firstToPlayInFirstRound = PlayerPosition.FirstPlayer)
         {
             this.firstToPlay = firstToPlayInFirstRound;
@@ -77,7 +86,7 @@
             this.logger.LogLine($"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}");
         }
 
-        private void UpdatePoints(RoundResult roundResult)
+        internal void UpdatePoints(RoundResult roundResult)
         {
             IRoundWinnerPointsLogic roundWinnerPointsPointsLogic = new RoundWinnerPointsPointsLogic();
             var roundWinnerPoints = roundWinnerPointsPointsLogic.GetWinnerPoints(
