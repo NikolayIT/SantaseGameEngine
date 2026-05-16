@@ -12,7 +12,7 @@ The game is not published in Google Play Store.
 
 ## Desktop UI (Windows Universal App)
 
-![Santase desktop screenshot](https://github.com/NikolayIT/SantaseGameEngine/blob/master/assets/Screenshot_1.png?raw=true)
+![Santase desktop screenshot](https://github.com/NikolayIT/SantaseGameEngine/blob/master/Assets/Screenshot_1.png?raw=true)
 
 The application is published in the Microsoft Store: <https://www.microsoft.com/en-us/p/santase/9nblggh5xs6f>
 
