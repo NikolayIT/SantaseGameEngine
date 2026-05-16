@@ -75,7 +75,3 @@ The `Santase.Logic` library is extensively unit tested (255 tests in
 `Santase.Logic.Tests`).
 
 NuGet package: <https://www.nuget.org/packages/SantaseGameEngine>
-
-## Video with creating the initial code (in Bulgarian)
-
-<https://www.youtube.com/watch?v=VidaoNJ4X2Y>
