@@ -90,6 +90,15 @@ namespace Santase.UI.Game
 
         private Card? currentTrump;
 
+        // PlayerTurnContext.FirstPlayer*/SecondPlayer* on the engine actually track the *trick
+        // leader* and follower, not PlayerPosition.FirstPlayer/SecondPlayer of the game (Round
+        // re-orders Trick's args by the previous trick's winner). We latch the leader's slot on
+        // the first TurnAboutToStart of each trick so HandleTurnEndedFromObserver can translate
+        // engine values into slot-stable ones before publishing TrickResult / RoundEndInfo.
+        private PlayerSlot? currentTrickLeader;
+
+        private bool announceShownThisTrick;
+
         public GameSession(GameMode mode, string firstPlayerName, string secondPlayerName)
         {
             this.Mode = mode;
@@ -193,6 +202,11 @@ namespace Santase.UI.Game
         // Fires after a player closes the game.
         public event Action<PlayerSlot>? GameClosed;
 
+        // Fires the moment a player leads a card with a 20/40 marriage. The engine has already
+        // added the announce to that player's round points by this point, so the UI can show it
+        // and bump the score immediately instead of waiting for the trick to settle.
+        public event Action<PlayerSlot, Announce>? AnnouncementMade;
+
         // Fires after both players' EndTurn has run, so the trick is settled.
         public event Action<TrickResult>? TrickCompleted;
 
@@ -263,6 +277,8 @@ namespace Santase.UI.Game
                 this.lastFirstRoundPoints = 0;
                 this.lastSecondRoundPoints = 0;
                 this.currentTrump = null;
+                this.currentTrickLeader = null;
+                this.announceShownThisTrick = false;
             }
 
             this.pendingContinue = null;
@@ -313,6 +329,8 @@ namespace Santase.UI.Game
                     this.lastFirstRoundPoints = 0;
                     this.lastSecondRoundPoints = 0;
                     this.currentTrump = trump;
+                    this.currentTrickLeader = null;
+                    this.announceShownThisTrick = false;
                 }
 
                 this.RoundStarting?.Invoke(my, opp, trump);
@@ -327,8 +345,28 @@ namespace Santase.UI.Game
             this.FirstObserver.CardAdded += card => this.CardDealtToPlayer?.Invoke(PlayerSlot.First, card);
             this.SecondObserver.CardAdded += card => this.CardDealtToPlayer?.Invoke(PlayerSlot.Second, card);
 
-            this.FirstObserver.TurnAboutToStart += () => this.TurnStarting?.Invoke(PlayerSlot.First, this.FirstHuman != null);
-            this.SecondObserver.TurnAboutToStart += () => this.TurnStarting?.Invoke(PlayerSlot.Second, this.SecondHuman != null);
+            this.FirstObserver.TurnAboutToStart += context =>
+            {
+                lock (this.stateLock)
+                {
+                    this.currentTrickLeader ??= PlayerSlot.First;
+                }
+
+                // When the follower's turn starts, the leader has already led; if that lead was
+                // a marriage the engine has set context.FirstPlayerAnnounce. Surface it now.
+                this.TryEmitAnnounce(context);
+                this.TurnStarting?.Invoke(PlayerSlot.First, this.FirstHuman != null);
+            };
+            this.SecondObserver.TurnAboutToStart += context =>
+            {
+                lock (this.stateLock)
+                {
+                    this.currentTrickLeader ??= PlayerSlot.Second;
+                }
+
+                this.TryEmitAnnounce(context);
+                this.TurnStarting?.Invoke(PlayerSlot.Second, this.SecondHuman != null);
+            };
 
             this.FirstObserver.TurnCompleted += action => this.OnTurnCompleted(PlayerSlot.First, action);
             this.SecondObserver.TurnCompleted += action => this.OnTurnCompleted(PlayerSlot.Second, action);
@@ -368,15 +406,69 @@ namespace Santase.UI.Game
             }
         }
 
+        // Surfaces the trick leader's 20/40 marriage exactly once per trick. The engine sets
+        // context.FirstPlayerAnnounce the moment the leader leads the marriage card, so the
+        // follower's turn-start context (or, if the leader announced 40 and went straight out,
+        // the end-of-turn context) carries it. AnnouncementMade is raised outside the lock.
+        private void TryEmitAnnounce(PlayerTurnContext context)
+        {
+            PlayerSlot leader;
+            Announce announce;
+            lock (this.stateLock)
+            {
+                if (this.announceShownThisTrick
+                    || context.FirstPlayedCard == null
+                    || context.FirstPlayerAnnounce == Announce.None
+                    || this.currentTrickLeader == null)
+                {
+                    return;
+                }
+
+                this.announceShownThisTrick = true;
+                leader = this.currentTrickLeader.Value;
+                announce = context.FirstPlayerAnnounce;
+            }
+
+            this.AnnouncementMade?.Invoke(leader, announce);
+        }
+
         private void HandleTurnEndedFromObserver(PlayerTurnContext context)
         {
+            // Catches the leader-announces-40-and-goes-out case, where the follower's
+            // TurnAboutToStart never fires. No-op if already surfaced this trick.
+            this.TryEmitAnnounce(context);
+
             int n;
+            int slotFirstPoints;
+            int slotSecondPoints;
+            Card? slotFirstCard;
+            Card? slotSecondCard;
             lock (this.stateLock)
             {
                 this.turnEndedCount++;
                 n = this.turnEndedCount;
-                this.lastFirstRoundPoints = context.FirstPlayerRoundPoints;
-                this.lastSecondRoundPoints = context.SecondPlayerRoundPoints;
+
+                // Translate engine "leader / follower" values into stable slot-1 / slot-2 values.
+                // If TurnAboutToStart never set the leader (shouldn't happen in practice), default
+                // to slot 1 so we don't crash.
+                var leaderIsFirst = (this.currentTrickLeader ?? PlayerSlot.First) == PlayerSlot.First;
+                if (leaderIsFirst)
+                {
+                    slotFirstPoints = context.FirstPlayerRoundPoints;
+                    slotSecondPoints = context.SecondPlayerRoundPoints;
+                    slotFirstCard = context.FirstPlayedCard;
+                    slotSecondCard = context.SecondPlayedCard;
+                }
+                else
+                {
+                    slotFirstPoints = context.SecondPlayerRoundPoints;
+                    slotSecondPoints = context.FirstPlayerRoundPoints;
+                    slotFirstCard = context.SecondPlayedCard;
+                    slotSecondCard = context.FirstPlayedCard;
+                }
+
+                this.lastFirstRoundPoints = slotFirstPoints;
+                this.lastSecondRoundPoints = slotSecondPoints;
             }
 
             if (n < 2)
@@ -387,14 +479,16 @@ namespace Santase.UI.Game
             lock (this.stateLock)
             {
                 this.turnEndedCount = 0;
+                this.currentTrickLeader = null;
+                this.announceShownThisTrick = false;
             }
 
             var trick = new TrickResult(
-                context.FirstPlayedCard,
-                context.SecondPlayedCard,
+                slotFirstCard,
+                slotSecondCard,
                 context.FirstPlayerAnnounce,
-                context.FirstPlayerRoundPoints,
-                context.SecondPlayerRoundPoints);
+                slotFirstPoints,
+                slotSecondPoints);
 
             this.TrickCompleted?.Invoke(trick);
 

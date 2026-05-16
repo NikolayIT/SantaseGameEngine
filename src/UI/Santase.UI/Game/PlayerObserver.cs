@@ -26,7 +26,7 @@ namespace Santase.UI.Game
 
         public event Action<Card>? CardAdded;
 
-        public event Action? TurnAboutToStart;
+        public event Action<PlayerTurnContext>? TurnAboutToStart;
 
         public event Action<PlayerAction>? TurnCompleted;
 
@@ -52,7 +52,7 @@ namespace Santase.UI.Game
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
-            this.TurnAboutToStart?.Invoke();
+            this.TurnAboutToStart?.Invoke(context);
 
             if (this.ThinkDelayMs > 0 && this.Player is not HumanPlayer)
             {

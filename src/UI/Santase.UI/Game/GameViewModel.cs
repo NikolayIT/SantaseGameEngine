@@ -60,7 +60,11 @@ namespace Santase.UI.Game
 
         private string roundOverlayTitle = string.Empty;
 
-        private string roundOverlayBody = string.Empty;
+        private string roundOverlayIcon = string.Empty;
+
+        private bool roundIWon;
+
+        private bool roundOpponentWon;
 
         private bool isGameOverlayVisible;
 
@@ -158,12 +162,23 @@ namespace Santase.UI.Game
         public Card? TrumpCard
         {
             get => this.trumpCard;
-            private set => this.SetField(ref this.trumpCard, value, nameof(this.TrumpCard), nameof(this.TrumpImage), nameof(this.TrumpDescription));
+            private set => this.SetField(ref this.trumpCard, value, nameof(this.TrumpCard), nameof(this.TrumpImage), nameof(this.TrumpDescription), nameof(this.TrumpSuitGlyph), nameof(this.TrumpSuitColor));
         }
 
         public string TrumpImage => this.TrumpCard != null ? CardImageProvider.For(this.TrumpCard) : CardImageProvider.BackImage;
 
         public string TrumpDescription => this.TrumpCard != null ? $"Trump: {this.TrumpCard}" : "Trump: -";
+
+        public string TrumpSuitGlyph => this.TrumpCard?.Suit switch
+        {
+            CardSuit.Club => "♣",
+            CardSuit.Diamond => "♦",
+            CardSuit.Heart => "♥",
+            CardSuit.Spade => "♠",
+            _ => "-",
+        };
+
+        public string TrumpSuitColor => this.TrumpCard?.Suit is CardSuit.Heart or CardSuit.Diamond ? "#D6453C" : "#1A1006";
 
         public int DeckCount
         {
@@ -236,10 +251,22 @@ namespace Santase.UI.Game
             private set => this.SetField(ref this.roundOverlayTitle, value);
         }
 
-        public string RoundOverlayBody
+        public string RoundOverlayIcon
         {
-            get => this.roundOverlayBody;
-            private set => this.SetField(ref this.roundOverlayBody, value);
+            get => this.roundOverlayIcon;
+            private set => this.SetField(ref this.roundOverlayIcon, value);
+        }
+
+        public bool RoundIWon
+        {
+            get => this.roundIWon;
+            private set => this.SetField(ref this.roundIWon, value);
+        }
+
+        public bool RoundOpponentWon
+        {
+            get => this.roundOpponentWon;
+            private set => this.SetField(ref this.roundOpponentWon, value);
         }
 
         public bool IsGameOverlayVisible
@@ -409,6 +436,7 @@ namespace Santase.UI.Game
             this.session.CardPlayed += this.OnCardPlayed;
             this.session.TrumpCardSwapped += this.OnTrumpCardSwapped;
             this.session.GameClosed += this.OnGameClosed;
+            this.session.AnnouncementMade += this.OnAnnouncementMade;
             this.session.TrickCompleted += this.OnTrickCompleted;
             this.session.RoundOver += this.OnRoundOver;
             this.session.GameOver += this.OnGameOver;
@@ -425,6 +453,7 @@ namespace Santase.UI.Game
             this.session.CardPlayed -= this.OnCardPlayed;
             this.session.TrumpCardSwapped -= this.OnTrumpCardSwapped;
             this.session.GameClosed -= this.OnGameClosed;
+            this.session.AnnouncementMade -= this.OnAnnouncementMade;
             this.session.TrickCompleted -= this.OnTrickCompleted;
             this.session.RoundOver -= this.OnRoundOver;
             this.session.GameOver -= this.OnGameOver;
@@ -683,11 +712,37 @@ namespace Santase.UI.Game
             });
         }
 
+        private void OnAnnouncementMade(PlayerSlot slot, Announce announce)
+        {
+            this.dispatcher.Dispatch(() =>
+            {
+                var mine = slot == this.mySlot;
+                var who = mine ? "You" : this.OpponentName;
+
+                // The engine already added the announce to this player's round points the moment
+                // the marriage card was led; reflect it now instead of waiting for the trick to
+                // settle. OnTrickCompleted later SETs the authoritative total, so this can't
+                // double-count.
+                if (mine)
+                {
+                    this.MyRoundPoints += (int)announce;
+                }
+                else
+                {
+                    this.OpponentRoundPoints += (int)announce;
+                }
+
+                var label = announce == Announce.Forty ? "trump marriage 40!" : "marriage 20!";
+                this.ShowToast($"{who} announced {label}");
+            });
+        }
+
         private void OnTrickCompleted(TrickResult result)
         {
             this.dispatcher.Dispatch(() =>
             {
-                // Update round points based on the perspective.
+                // Update round points based on the perspective. These are authoritative and
+                // already include any announce surfaced earlier by OnAnnouncementMade.
                 if (this.mySlot == PlayerSlot.First)
                 {
                     this.MyRoundPoints = result.FirstRoundPoints;
@@ -697,20 +752,6 @@ namespace Santase.UI.Game
                 {
                     this.MyRoundPoints = result.SecondRoundPoints;
                     this.OpponentRoundPoints = result.FirstRoundPoints;
-                }
-
-                // The engine attributes Announce to context.FirstPlayerAnnounce — i.e., to
-                // whoever LED the trick (not always slot 1). Without tracking trick lead, the
-                // safest message attributes "20!"/"40!" to whoever's points just jumped by the
-                // announce amount. Simpler: announce belongs to the leader, but here we just
-                // surface "Marriage!" with the value.
-                if (result.FirstAnnounce == Announce.Twenty)
-                {
-                    this.ShowToast("Marriage 20!");
-                }
-                else if (result.FirstAnnounce == Announce.Forty)
-                {
-                    this.ShowToast("Trump marriage 40!");
                 }
             });
 
@@ -745,15 +786,25 @@ namespace Santase.UI.Game
                 // Note: info.{First,Second}GamePoints are stale here — the engine runs
                 // UpdatePoints AFTER both EndRound calls. Game-point badges refresh when
                 // the next round starts (or via OnGameOver if the game is over).
-                this.RoundOverlayTitle = "End of round";
-                if (myRound == oppRound)
+                var iWon = myRound > oppRound;
+                var tie = myRound == oppRound;
+                this.RoundIWon = !tie && iWon;
+                this.RoundOpponentWon = !tie && !iWon;
+
+                if (tie)
                 {
-                    this.RoundOverlayBody = $"The round was a tie\n{this.MyName} {myRound} : {oppRound} {this.OpponentName}";
+                    this.RoundOverlayIcon = "\U0001F91D"; // handshake
+                    this.RoundOverlayTitle = "Round tied";
+                }
+                else if (iWon)
+                {
+                    this.RoundOverlayIcon = "\U0001F3C6"; // trophy
+                    this.RoundOverlayTitle = "You won the round!";
                 }
                 else
                 {
-                    var winner = myRound > oppRound ? this.MyName : this.OpponentName;
-                    this.RoundOverlayBody = $"{winner} won the round\n{this.MyName} {myRound} : {oppRound} {this.OpponentName}";
+                    this.RoundOverlayIcon = "\U0001F0A0"; // playing card
+                    this.RoundOverlayTitle = $"{this.OpponentName} won the round";
                 }
 
                 this.IsRoundOverlayVisible = true;
@@ -957,7 +1008,7 @@ namespace Santase.UI.Game
             this.ToastMessage = message;
             Task.Run(async () =>
             {
-                await Task.Delay(2000);
+                await Task.Delay(2500);
                 this.dispatcher.Dispatch(() =>
                 {
                     if (this.ToastMessage == message)
