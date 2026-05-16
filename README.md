@@ -1,6 +1,6 @@
-# Santase Game Engine
+<img src="assets/Logo_300x300.png" alt="Santase logo" width="110" align="right" />
 
-![Santase logo](assets/Logo.png)
+# Santase Game Engine
 
 **Santase** (also known as **66**, Сантасе, **Sixty-six** or **Sechsundsechzig**) is a
 well-known card game in Bulgaria, also played in Germany and Austria (as **Schnapsen**).
@@ -12,6 +12,12 @@ The core engine in `src/Santase.Logic` is published as the
 [**SantaseGameEngine**](https://www.nuget.org/packages/SantaseGameEngine) NuGet package
 (MIT, currently version `3.0.0`, targeting **.NET 10**). Everything else in the repository
 is AI players, UIs and a benchmarking simulator built on top of that engine.
+
+## Screenshot
+
+The cross-platform .NET MAUI app (`src/UI/Santase.UI`), playing against the Smart Player:
+
+<img src="assets/Screenshot_1.png" alt="Santase MAUI app screenshot" width="300" />
 
 ## Rules of the game
 
