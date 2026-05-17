@@ -1,8 +1,10 @@
 ﻿namespace Santase.AI.ClaudePlayer
 {
+    using System;
     using System.Collections.Generic;
     using System.Numerics;
 
+    using Santase.AI.ClaudePlayer.Neural;
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
@@ -42,6 +44,8 @@
         // on every Search call. Each slot holds at most 6 cards (max hand size).
         private readonly Card[][] moveBuffers;
 
+        private float[] recordingFeatures;
+
         public ClaudePlayer()
         {
             this.moveBuffers = new Card[MaxSearchDepth][];
@@ -52,6 +56,14 @@
         }
 
         public override string Name => "Claude Player";
+
+        /// <summary>
+        /// Optional sink for training data. When set, every heuristic-path move (i.e. when the
+        /// alpha-beta minimax did NOT decide the move) is recorded as (features, card_index).
+        /// Default is null, in which case this property has zero runtime cost.
+        /// The buffer passed to the recorder is reused — copy if you need to retain it.
+        /// </summary>
+        public Action<float[], int> TrainingRecorder { get; set; }
 
         private CardCollection UnknownCards { get; set; } = new CardCollection(CardCollection.AllSantaseCardsBitMask);
 
@@ -370,9 +382,22 @@
                 }
             }
 
-            return context.IsFirstPlayerTurn
+            var chosen = context.IsFirstPlayerTurn
                 ? this.ChooseLeadCard(context, possibleCards)
                 : this.ChooseFollowCard(context, possibleCards);
+
+            if (this.TrainingRecorder != null)
+            {
+                if (this.recordingFeatures == null)
+                {
+                    this.recordingFeatures = new float[NeuralFeatureEncoder.FeatureCount];
+                }
+
+                NeuralFeatureEncoder.Encode(this.recordingFeatures, context, this.Cards, this.PlayedCards, this.UnknownCards);
+                this.TrainingRecorder(this.recordingFeatures, NeuralFeatureEncoder.CardIndex(chosen));
+            }
+
+            return chosen;
         }
 
         private Card RunMinimax(PlayerTurnContext context, ICollection<Card> possibleCards)

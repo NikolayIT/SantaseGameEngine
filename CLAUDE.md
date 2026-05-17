@@ -21,13 +21,16 @@ dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.
 # Run the human-playable Console UI (net10.0).
 dotnet run --project src\UI\Santase.UI.Console\Santase.UI.Console.csproj
 
-# Run the unit tests via CLI (xunit, 255 + 2 tests).
+# Run the cross-platform MAUI desktop/mobile UI (Santase.UI).
+dotnet build src\UI\Santase.UI\Santase.UI.csproj -t:Run
+
+# Run the unit tests via CLI (xunit, ~293 tests across 3 projects).
 dotnet test src\Santase.sln -c Release
 ```
 
 ### Unit tests
 
-`Santase.Logic.Tests` and `Santase.AI.SmartPlayer.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Logic.Tests has 255 cases; SmartPlayer.Tests has 2.
+`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, and `Santase.AI.ClaudePlayer.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~268, ClaudePlayer.Tests 23 (neural net / feature encoder / legal-move + player-vs-bot smoke), SmartPlayer.Tests 2.
 
 Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) live inside the simulator's `Exe` project and are not invoked by the simulator's `Main` or by `dotnet test` (the simulator csproj is `OutputType=Exe`, not a test SDK project) — they're VS-Test-Explorer artifacts.
 
@@ -42,11 +45,11 @@ Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) li
 ### Layering (dependencies flow downward)
 
 ```
-        Santase.UI.Console            Santase.Tests.GameSimulations (+ unit tests)
-                  │                                        │
-                  └──────────────┬─────────────────────────┘
+   Santase.UI.Console   Santase.UI (MAUI)   Santase.Tests.GameSimulations (+ unit tests)
+            │                 │                              │
+            └─────────────────┴──────────────┬───────────────┘
                                  ▼
-              AI players (SmartPlayer, DummyPlayer, External *.dll)
+     AI players (ClaudePlayer/ClaudePlayerNeural, SmartPlayer, DummyPlayer, External *.dll)
                                  │
                                  ▼
                           Santase.Logic   ← the engine, the NuGet package
@@ -77,17 +80,51 @@ Load-bearing concepts when editing the engine:
 
   This 2×2 split mirrors phase × leader-vs-follower and is where new heuristics go. `Helpers/CardTracker.cs` maintains SmartPlayer's belief over which cards remain unseen — it must stay in lockstep with `StartRound` / `AddCard` / `EndTurn` flow.
 - **`GlobalStats`** in `Santase.AI.SmartPlayer` is a static counter bag the simulator reads to print per-batch diagnostics (`GamesClosedByPlayer`, `GlobalCounterValues[4]`). It is not thread-safe; the simulator runs games in parallel, so small absolute counts have inherent jitter — don't read significance into single-digit changes between runs.
+- **`Santase.AI.ClaudePlayer`** — the strongest AI in the repo. Two players in one project:
+  - **`ClaudePlayer`** — hand-tuned heuristic + exact alpha-beta minimax for the non-closed Phase-2 perfect-info endgame. Also the supervised *teacher*: it exposes an opt-in `Action<float[],int> TrainingRecorder` that, when set, emits `(features, chosen_card)` for every heuristic-path decision (minimax decisions are not recorded). Null by default → zero production cost.
+  - **`ClaudePlayerNeural`** — same minimax endgame and rule-based trump-swap/close gates, but the heuristic card-choice tree is replaced by an MLP policy. `Temperature` (0 = argmax/production, >0 = softmax sampling) and `PpoRecorder` `(features, action, legalMask, oldLogProb)` are training-only seams, null in production.
+  - **`Neural/`** is pure managed C# — no native deps, no P/Invoke — so it runs anywhere `net10.0` runs (incl. `net10.0-android` via the MAUI UI). `NeuralNetwork` is a fixed **128→128→128→24** MLP (ReLU hidden, linear logits); the constants `InputSize/Hidden1Size/Hidden2Size/OutputSize` are load-bearing — the trainer mirrors them and the embedded weights file is sized to them, so changing the architecture is a coordinated change across `NeuralNetwork`, `NeuralFeatureEncoder`, the weights blob, and `tools/NeuralTrainer`. `NeuralFeatureEncoder` produces the 128-float input; its layout is documented in-file and **must stay in lockstep** (card index = `suit*6 + typeRank`, matching `AllTypes` order). `NeuralWeightsLoader` loads the embedded `weights.bin`, falling back to deterministic Xavier-init if the resource is absent.
+  - **Weights are committed binaries.** `Neural/weights.bin` is an `<EmbeddedResource>` (LogicalName `Santase.AI.ClaudePlayer.Neural.weights.bin`, ~144 KB, 36,120 float32) — the shipped PPO-trained policy. `Neural/weights_supervised.bin` is the supervised-clone baseline kept for comparison and as the PPO warm-start. Both are intentionally **not** git-ignored; `Neural/checkpoints/` (training scratch) is. Regenerate via `tools/NeuralTrainer` (see *Retraining the neural net*).
+  - Current strength (200k-game benchmark, `ClaudePlayerNeural` as P1): ~71% vs `ClaudePlayer`, ~73% vs `SmartPlayer`, ~76% vs `NinjaPlayer` (best external), ~100% vs the dummies. It was trained only against `ClaudePlayer` yet generalizes — so it's the simulator's strongest opponent, not a heuristic-specific exploit.
 
 ### Simulator (`src/Tests/Santase.Tests.GameSimulations`)
 
-A `net10.0` console app (not an xUnit project, despite its location). `Program.cs` runs four `IGameSimulator` workloads — each plays 200,000 games — via `Parallel.For(MaxDegreeOfParallelism = Environment.ProcessorCount)` in `BaseGameSimulator`, then prints win counts, round-point totals, and `GlobalStats` counters.
+A `net10.0` console app (not an xUnit project, despite its location). Default `Main` runs a series of `IGameSimulator` workloads — each plays 200,000 games — via `Parallel.For(MaxDegreeOfParallelism = Environment.ProcessorCount)` in `BaseGameSimulator`, then prints win counts, round-point totals, and `GlobalStats` counters. The current set is the **`ClaudePlayerNeural`-vs-all suite** (vs `ClaudePlayer`, `SmartPlayer`, `NinjaPlayer`, `DummyPlayerChangingTrump`, `DummyPlayer`) followed by the heuristic `ClaudePlayer` baselines for comparison; commented-out `SmartPlayer`-centric workloads remain in `Program.cs` for ad-hoc use.
+
+`Program.cs` also has a **training-data export mode**: `dotnet run -c Release --project ... -- --gen-training-data <games> <outpath>` plays `ClaudePlayer` self-play and writes a binary `(features, chosen_card)` dataset (header `STSE`, 513-byte records) via `Training/TrainingDataCollector.cs` + `ClaudeSelfPlayTrainingSimulator`. This feeds `tools/NeuralTrainer --supervised`. Without that flag the default benchmark runs.
 
 **This is the canonical regression check for AI changes.** Commit messages in this repo embed the simulator output as a baseline (e.g., commit `8c5084c`). Workflow for AI work:
 
-1. Run the simulator on `master` in Release; record the four blocks of output.
+1. Run the simulator on `master` in Release; record the output blocks.
 2. Make the AI change.
 3. Re-run in Release; compare game/round-point deltas against the recorded baseline.
 4. Paste the new output into the commit message (matching prior style) so the next person has a baseline too.
+
+## Retraining the neural net (`tools/NeuralTrainer`)
+
+`ClaudePlayerNeural`'s weights are produced by `tools/NeuralTrainer` — a `net10.0` console app that **is deliberately not in `src/Santase.sln`**. It's dev-only offline tooling (its only output is the already-committed `weights.bin`), so keeping it out of the solution stops `dotnet build src\Santase.sln` from compiling non-product code and keeps "what ships" unambiguous. It `ProjectReference`s `Santase.AI.ClaudePlayer`, so an API break there is caught the next time you build the tool, not by a plain sln build. Pure CPU (parallel self-play across all cores) — there is no GPU path; "use the GPU" would require an external-dependency rewrite (TorchSharp/ONNX) that contradicts the pure-managed/Android constraint.
+
+Three subcommands mirror the pipeline that produced the shipped net:
+
+```powershell
+# 0. Export a supervised dataset by ClaudePlayer self-play (the "teacher").
+dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj -- --gen-training-data 5000 dataset.bin
+
+# 1. Supervised clone: train the MLP to imitate ClaudePlayer -> the PPO warm-start.
+dotnet run -c Release --project tools\NeuralTrainer\NeuralTrainer.csproj -- --supervised --data dataset.bin --out src\AI\Santase.AI.ClaudePlayer\Neural\weights_supervised.bin --epochs 15
+
+# 2. PPO self-play fine-tune from the supervised checkpoint (the step that actually beats the heuristic).
+dotnet run -c Release --project tools\NeuralTrainer\NeuralTrainer.csproj -- --ppo --in src\AI\Santase.AI.ClaudePlayer\Neural\weights_supervised.bin --out src\AI\Santase.AI.ClaudePlayer\Neural\checkpoints --hours 9
+
+# 3. Deterministic (argmax) win rate vs the heuristic — the production-equivalent metric.
+dotnet run -c Release --project tools\NeuralTrainer\NeuralTrainer.csproj -- --validate src\AI\Santase.AI.ClaudePlayer\Neural\weights.bin 50000
+```
+
+Load-bearing facts:
+
+- **PPO is the method that works; plain REINFORCE was removed.** REINFORCE plateaued at ~48% then collapsed; PPO (clipped surrogate + a training-only critic + GAE + entropy bonus + potential-based reward shaping) climbed monotonically to ~71% over a 9-hour run. The trainer self-supervises: it evaluates the deterministic policy every N generations, keeps `checkpoints/weights.best.bin`, and early-stops on collapse or stalled progress, so a long run is safe unattended.
+- **Promotion is manual and gated.** The trainer never overwrites `weights.bin`; it writes `checkpoints/weights.best.bin`. To ship a new net: validate it at ≥50k games vs the current production `weights.bin`, and only if it's a statistically real improvement copy it over `Neural/weights.bin`, **rebuild `Santase.AI.ClaudePlayer`** (re-embeds the resource), then confirm via `ClaudeNeuralVsClaudeSimulator` + the 23 ClaudePlayer tests. `weights_supervised.bin` is the always-available revert point.
+- `Neural/checkpoints/` and `training_*.bin` are git-ignored by the **repo-root `.gitignore`** (added for this; the only `.gitignore` outside `src/`). The two shipped weight files are explicitly not ignored.
 
 ## Code style
 
@@ -102,7 +139,7 @@ StyleCop.Analyzers is enforced via `src/Rules.ruleset` + `src/stylecop.json`, ap
 
 A few files in the repo describe an older state and were not updated when the UWP / Mobile Blazor Bindings / Android UI projects were removed (commit `262e270`):
 
-- `README.md` still advertises the Windows Universal App (Microsoft Store) and the Mobile Blazor Bindings Android UI, and says **Visual Studio 2017** is required. The current solution file is tagged Visual Studio 18, and only the Console UI remains.
+- `README.md` still advertises the Windows Universal App (Microsoft Store) and the Mobile Blazor Bindings Android UI, and says **Visual Studio 2017** is required. The current solution file is tagged Visual Studio 18. The old UWP/Android UIs were removed in `262e270`; the UIs that remain are the Console UI (`Santase.UI.Console`) and a newer cross-platform **MAUI** desktop/mobile UI (`Santase.UI`, added after `262e270` in `2dec948`→`c5a2163`), both in `src/Santase.sln`.
 - `azure-pipelines.yml` still builds the solution via `VSBuild` with UWP-specific MSBuild args (`AppxBundlePlatforms`, `AppxBundle=Always`, `UapAppxPackageBuildMode=StoreUpload`). With the UWP project gone, the pipeline is effectively dead until rewritten — assume CI is not currently green.
 
 When working on related areas (CI, packaging, docs), check these against current reality before trusting them.
