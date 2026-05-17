@@ -27,4 +27,8 @@
     <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Neural\weights.bin" LogicalName="Santase.AI.ClaudePlayer.Neural.weights.bin" />
+  </ItemGroup>
+
 </Project>

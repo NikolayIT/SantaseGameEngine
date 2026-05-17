@@ -8,11 +8,18 @@
 
     using Santase.AI.SmartPlayer;
     using Santase.Tests.GameSimulations.GameSimulators;
+    using Santase.Tests.GameSimulations.Training;
 
     public static class Program
     {
-        public static void Main()
+        public static void Main(string[] args)
         {
+            if (args != null && args.Length > 0 && args[0] == "--gen-training-data")
+            {
+                RunTrainingDataGeneration(args);
+                return;
+            }
+
             Console.OutputEncoding = Encoding.Unicode;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
@@ -39,6 +46,18 @@
 
             //// SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
 
+            // ClaudePlayerNeural (the PPO-trained net) vs every other player.
+            SimulateGames(new ClaudeNeuralVsClaudeSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndSmartPlayerSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndBestExternalPlayerGameSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndDummyPlayerChangingTrumpSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndDummyPlayersSimulator(), 200000);
+
+            // Heuristic ClaudePlayer baselines (kept for comparison).
             SimulateGames(new ClaudeVsBaselineSimulator(), 200000);
 
             SimulateGames(new ClaudeAndSmartPlayerSimulator(), 200000);
@@ -63,6 +82,40 @@
             Console.WriteLine($"Round points: {simulationResult.FirstPlayerTotalRoundPoints:0,0} - {simulationResult.SecondPlayerTotalRoundPoints:0,0} (rounds: {simulationResult.RoundsPlayed:0,0})");
             Console.WriteLine($"Global counters: {string.Join(", ", GlobalStats.GlobalCounterValues)} (closed: {GlobalStats.GamesClosedByPlayer:0,0})");
             Console.WriteLine(new string('=', 75));
+        }
+
+        private static void RunTrainingDataGeneration(string[] args)
+        {
+            if (args.Length < 3)
+            {
+                Console.Error.WriteLine("Usage: --gen-training-data <games> <output-path>");
+                Environment.Exit(2);
+                return;
+            }
+
+            if (!int.TryParse(args[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var games) || games <= 0)
+            {
+                Console.Error.WriteLine($"Invalid game count: {args[1]}");
+                Environment.Exit(2);
+                return;
+            }
+
+            var outputPath = args[2];
+
+            Console.WriteLine($"Generating training data: {games:0,0} self-play games -> {outputPath}");
+
+            var collector = new TrainingDataCollector();
+            var simulator = new ClaudeSelfPlayTrainingSimulator(collector);
+
+            var sw = Stopwatch.StartNew();
+            var result = simulator.Simulate(games);
+            var elapsed = sw.Elapsed;
+
+            collector.WriteTo(outputPath);
+
+            Console.WriteLine($"Played {games:0,0} games in {elapsed}");
+            Console.WriteLine($"Wins: {result.FirstPlayerWins:0,0} - {result.SecondPlayerWins:0,0}, rounds: {result.RoundsPlayed:0,0}");
+            Console.WriteLine($"Recorded {collector.SampleCount:0,0} training samples to {outputPath}");
         }
     }
 }

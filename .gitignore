@@ -1,0 +1,12 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Neural-net training artifacts (regenerable, large). The shipped policy weights
+# (weights.bin) and the documented supervised baseline (weights_supervised.bin)
+# are intentionally NOT ignored — they are embedded resources / reference points.
+src/AI/Santase.AI.ClaudePlayer/Neural/checkpoints/
+**/checkpoints/
+training_*.bin
+weights_smoke.bin
+*.training.bin
