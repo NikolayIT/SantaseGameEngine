@@ -26,9 +26,12 @@
     {
         private const int MaxSearchDepth = 14;
 
-        // Eval magnitudes for terminal positions in the minimax.
-        private const int RoundWinReward = 1000;
-        private const int HandOutReward = 500;
+        // Eval magnitude per game-point of the round outcome.
+        // The 1/2/3 game-point engine reward (RoundWinnerPointsPointsLogic) is the actual win
+        // condition, so the minimax weights its terminal by it: a "schwarz" (opp 0 tricks → 3
+        // game-points) is worth 3× a normal 1-game-point win. Round-points margin stays as a
+        // tie-breaker below the game-point signal.
+        private const int GamePointReward = 1000;
 
         private static readonly CardSuit[] AllSuits =
         {
@@ -45,6 +48,15 @@
         private readonly Card[][] moveBuffers;
 
         private float[] recordingFeatures;
+
+        // Trick-count bookkeeping: updated in EndTurn so the minimax can seed its root state
+        // with the true (pre-search) trick counts. The schneider/schwarz game-point scoring
+        // depends on the loser's final trick count, so we have to carry this across moves.
+        private bool iWasLeaderThisTrick;
+
+        private int myTricksTakenInRound;
+
+        private int oppTricksTakenInRound;
 
         public ClaudePlayer()
         {
@@ -83,6 +95,8 @@
 
             this.PlayedCards = new CardCollection();
             this.LastSeenTrumpCard = null;
+            this.myTricksTakenInRound = 0;
+            this.oppTricksTakenInRound = 0;
         }
 
         public override void AddCard(Card card)
@@ -100,12 +114,34 @@
                 this.UnknownCards.Add(context.TrumpCard);
             }
 
+            // Trick winner counting. Both cards present => normal trick resolution; only first
+            // present => round ended on a winning announce (no actual trick completed), skip.
+            if (context.FirstPlayedCard != null && context.SecondPlayedCard != null)
+            {
+                var trumpSuit = context.TrumpCard.Suit;
+                var first = context.FirstPlayedCard;
+                var second = context.SecondPlayedCard;
+                var firstWins = first.Suit == second.Suit
+                    ? first.GetValue() > second.GetValue()
+                    : second.Suit != trumpSuit;
+                var iWon = this.iWasLeaderThisTrick == firstWins;
+                if (iWon)
+                {
+                    this.myTricksTakenInRound++;
+                }
+                else
+                {
+                    this.oppTricksTakenInRound++;
+                }
+            }
+
             this.RecordPlayed(context.FirstPlayedCard);
             this.RecordPlayed(context.SecondPlayedCard);
         }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
+            this.iWasLeaderThisTrick = context.IsFirstPlayerTurn;
             this.SyncTrumpCard(context.TrumpCard);
 
             // Trump change: trade the 9 of trump for the visible (higher) trump card. Almost always positive.
@@ -282,10 +318,12 @@
                 if (amWinningTrick)
                 {
                     newState.MyPoints += trickValue;
+                    newState.MyTricksTaken++;
                 }
                 else
                 {
                     newState.OppPoints += trickValue;
+                    newState.OppTricksTaken++;
                 }
 
                 newState.LedCard = null;
@@ -444,6 +482,8 @@
                 LedCard = ledCard,
                 MyTurn = true,
                 TrumpSuit = context.TrumpCard.Suit,
+                MyTricksTaken = this.myTricksTakenInRound,
+                OppTricksTaken = this.oppTricksTakenInRound,
             };
 
             var moves = this.moveBuffers[0];
@@ -485,26 +525,38 @@
 
         private int Search(GameState state, int alpha, int beta, int depth)
         {
+            // Mid-round 66-reach: round ends now, no +10 last-trick bonus (hands not both empty).
+            // Game-points to the winner depend on the loser's state at this instant.
             if (state.MyPoints >= 66)
             {
-                return RoundWinReward + state.MyPoints - state.OppPoints;
+                return (GamePointsForLoser(state.OppPoints, state.OppTricksTaken) * GamePointReward)
+                       + state.MyPoints - state.OppPoints;
             }
 
             if (state.OppPoints >= 66)
             {
-                return -RoundWinReward + state.MyPoints - state.OppPoints;
+                return (-GamePointsForLoser(state.MyPoints, state.MyTricksTaken) * GamePointReward)
+                       + state.MyPoints - state.OppPoints;
             }
 
+            // Both hands empty without reaching 66: +10 last-trick bonus to whoever won the
+            // last trick (state.MyTurn after trick resolution = trick winner = next leader).
+            // The bonus is applied BEFORE the schneider check, matching the engine.
             if (state.MyHand == 0L && state.OppHand == 0L)
             {
-                if (state.MyPoints > state.OppPoints)
+                var myFinal = state.MyPoints + (state.MyTurn ? 10 : 0);
+                var oppFinal = state.OppPoints + (state.MyTurn ? 0 : 10);
+
+                if (myFinal > oppFinal)
                 {
-                    return HandOutReward + state.MyPoints - state.OppPoints;
+                    return (GamePointsForLoser(oppFinal, state.OppTricksTaken) * GamePointReward)
+                           + myFinal - oppFinal;
                 }
 
-                if (state.MyPoints < state.OppPoints)
+                if (myFinal < oppFinal)
                 {
-                    return -HandOutReward + state.MyPoints - state.OppPoints;
+                    return (-GamePointsForLoser(myFinal, state.MyTricksTaken) * GamePointReward)
+                           + myFinal - oppFinal;
                 }
 
                 return 0;
@@ -1179,6 +1231,23 @@
             return best;
         }
 
+        // Engine scoring (RoundWinnerPointsPointsLogic): loser with 0 tricks → 3 game-points
+        // to the winner (schneider schwarz); loser under 33 round-points → 2; else → 1.
+        private static int GamePointsForLoser(int loserPoints, int loserTricks)
+        {
+            if (loserTricks == 0)
+            {
+                return 3;
+            }
+
+            if (loserPoints < 33)
+            {
+                return 2;
+            }
+
+            return 1;
+        }
+
         private struct GameState
         {
             public long MyHand;
@@ -1188,6 +1257,8 @@
             public Card LedCard;
             public bool MyTurn;
             public CardSuit TrumpSuit;
+            public int MyTricksTaken;
+            public int OppTricksTaken;
         }
     }
 }
