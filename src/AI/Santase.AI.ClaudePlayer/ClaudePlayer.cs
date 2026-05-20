@@ -373,7 +373,11 @@
                 return false;
             }
 
+            // Close is only legal as the trick leader (CloseGameActionValidator), so my points
+            // are the leader's points in this context.
             var trumpSuit = context.TrumpCard.Suit;
+            var myPoints = context.FirstPlayerRoundPoints;
+
             var trumpCount = 0;
             foreach (var c in this.Cards)
             {
@@ -383,17 +387,19 @@
                 }
             }
 
-            // Strong condition: 5+ trumps (SmartPlayer's baseline).
+            // 1. Trump dominance: 5+ trumps (SmartPlayer's baseline).
             if (trumpCount >= 5)
             {
                 return true;
             }
 
-            // Also close when we hold 4 trumps including the trump marriage AND opponent doesn't
-            // have both top trumps (A and 10): we control most trump tricks plus +40 announce.
-            if (trumpCount >= 4
-                && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.King))
-                && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Queen)))
+            var hasTrumpKing = this.Cards.Contains(Card.GetCard(trumpSuit, CardType.King));
+            var hasTrumpQueen = this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Queen));
+            var hasTrumpMarriage = hasTrumpKing && hasTrumpQueen;
+
+            // 2. 4 trumps + trump marriage when opp can't hold both top trumps - we control
+            //    trump suit plus the +40 announce.
+            if (trumpCount >= 4 && hasTrumpMarriage)
             {
                 var oppCouldHaveAce = this.UnknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ace));
                 var oppCouldHaveTen = this.UnknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ten));
@@ -402,6 +408,38 @@
                     return true;
                 }
             }
+
+            // 3. Trump marriage + already at 26+ round-points: closing then leading K or Q with
+            //    the +40 announce takes me to >= 66 BEFORE opp can respond (engine checks
+            //    RoundPoints right after the announce is registered in Trick.Play). Provably
+            //    safe - the announce alone delivers the win, independent of which cards opp
+            //    holds or how the rest of the closed game plays out.
+            if (hasTrumpMarriage && myPoints >= 26)
+            {
+                return true;
+            }
+
+            // 4. Any non-trump K+Q marriage + 46+ round-points: announce 20 takes me to >= 66
+            //    instantly. Provably safe, symmetric to condition 3.
+            foreach (var s in AllSuits)
+            {
+                if (s == trumpSuit)
+                {
+                    continue;
+                }
+
+                if (myPoints >= 46
+                    && this.Cards.Contains(Card.GetCard(s, CardType.King))
+                    && this.Cards.Contains(Card.GetCard(s, CardType.Queen)))
+                {
+                    return true;
+                }
+            }
+
+            // Probabilistic close conditions (trump marriage + Ace + 3 trumps; 20-marriage +
+            // heavy trump control; hand-value-sum gate) were tested and regressed against
+            // strong heuristic opponents (SmartPlayer / NinjaPlayer): the ~3 game-point cost
+            // of a failed close outweighed the wins against weaker opponents.
 
             return false;
         }
