@@ -1115,6 +1115,43 @@
                 }
             }
 
+            // Defensive trump-up. Opp is one strong trick away from schneider-ing me: their
+            // round-points plus the lead value is already at 50, and I am still under 33. If
+            // I dump, opp pockets lead + dump and gets even closer to 66 while I stay in the
+            // 2-game-point penalty zone. Winning the trick denies them the points and pulls
+            // me closer to the 33 boundary - even a small trump pays for itself here, since
+            // letting the round end with me under 33 costs an extra game-point. Preserve the
+            // announce by skipping marriage halves, and preserve top trumps by using the
+            // smallest non-marriage trump available.
+            if (ledCard.Suit != trumpSuit
+                && oppPoints + ledCard.GetValue() >= 50
+                && myPoints < 33)
+            {
+                Card smallestNonMarriageSameSuitWinner = null;
+                var smallestNonMarriageSameSuitVal = int.MaxValue;
+                foreach (var c in possibleCards)
+                {
+                    if (c.Suit == ledCard.Suit
+                        && c.GetValue() > ledCard.GetValue()
+                        && !this.IsHalfOfMyMarriage(c)
+                        && c.GetValue() < smallestNonMarriageSameSuitVal)
+                    {
+                        smallestNonMarriageSameSuitWinner = c;
+                        smallestNonMarriageSameSuitVal = c.GetValue();
+                    }
+                }
+
+                if (smallestNonMarriageSameSuitWinner != null)
+                {
+                    return smallestNonMarriageSameSuitWinner;
+                }
+
+                if (smallestTrump != null)
+                {
+                    return smallestTrump;
+                }
+            }
+
             // Routine same-suit overtake. Take with the BIGGEST non-marriage higher card -
             // empirically this matches SmartPlayer's behavior and reduces overall losses, since
             // burning high cards on overtakes makes the late-round hand safer to lead from.
