@@ -46,24 +46,27 @@
 
             //// SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
 
-            // Iteration-#1 panel: modified heuristic Claude vs every opponent, paired with
-            // the frozen ClaudePlayerBaseline vs the same opponents so the delta is visible
-            // in one invocation. Neural matchups kept at the bottom for context.
+            // ClaudePlayerNeural (the PPO-trained net) vs every other player.
+            SimulateGames(new ClaudeNeuralVsClaudeSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndSmartPlayerSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndBestExternalPlayerGameSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndDummyPlayerChangingTrumpSimulator(), 200000);
+
+            SimulateGames(new ClaudeNeuralAndDummyPlayersSimulator(), 200000);
+
+            // Heuristic ClaudePlayer baselines (kept for comparison).
             SimulateGames(new ClaudeVsBaselineSimulator(), 200000);
 
             SimulateGames(new ClaudeAndSmartPlayerSimulator(), 200000);
-            SimulateGames(new ClaudeBaselineAndSmartPlayerSimulator(), 200000);
 
             SimulateGames(new ClaudeAndBestExternalPlayerGameSimulator(), 200000);
-            SimulateGames(new ClaudeBaselineAndBestExternalPlayerGameSimulator(), 200000);
 
             SimulateGames(new ClaudeAndDummyPlayerChangingTrumpSimulator(), 200000);
-            SimulateGames(new ClaudeBaselineAndDummyPlayerChangingTrumpSimulator(), 200000);
 
             SimulateGames(new ClaudeAndDummyPlayersSimulator(), 200000);
-            SimulateGames(new ClaudeBaselineAndDummyPlayersSimulator(), 200000);
-
-            SimulateGames(new ClaudeNeuralVsClaudeSimulator(), 200000);
 
             Console.WriteLine($"Total tests time: {sw.Elapsed}");
         }
