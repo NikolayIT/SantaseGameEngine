@@ -1,20 +1,41 @@
-﻿namespace Santase.Tests.GameSimulations
+namespace Santase.Tests.GameSimulations
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Text;
     using System.Threading;
 
+    using Santase.AI.ClaudePlayer;
+    using Santase.AI.DummyPlayer;
+    using Santase.AI.NinjaPlayer;
     using Santase.AI.SmartPlayer;
+    using Santase.Logic.Players;
     using Santase.Tests.GameSimulations.GameSimulators;
+    using Santase.Tests.GameSimulations.Players;
     using Santase.Tests.GameSimulations.Training;
 
     public static class Program
     {
+        private const int DefaultGamesPerMatchup = 200000;
+
+        private const string DefaultSuiteName = "claude";
+
+        // Named matchup suites. Pick one with the first CLI arg (default: "claude"); the
+        // optional second arg overrides the game count. This replaces toggling blocks of
+        // commented-out simulator calls.
+        private static readonly Dictionary<string, Func<GameSimulator[]>> Suites =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [DefaultSuiteName] = BuildClaudeSuite,
+                ["smart"] = BuildSmartSuite,
+                ["baseline"] = BuildBaselineSuite,
+            };
+
         public static void Main(string[] args)
         {
-            if (args != null && args.Length > 0 && args[0] == "--gen-training-data")
+            if (args is { Length: > 0 } && args[0] == "--gen-training-data")
             {
                 RunTrainingDataGeneration(args);
                 return;
@@ -31,49 +52,36 @@
 #endif
             Console.Write($", CPUs={Environment.ProcessorCount}, OS={Environment.OSVersion}, .NET={Environment.Version}");
             Console.WriteLine();
+
+            var suiteName = args is { Length: > 0 } ? args[0] : DefaultSuiteName;
+            if (!Suites.TryGetValue(suiteName, out var buildSuite))
+            {
+                Console.WriteLine($"Unknown suite '{suiteName}'. Available: {string.Join(", ", Suites.Keys)}. Running '{DefaultSuiteName}'.");
+                suiteName = DefaultSuiteName;
+                buildSuite = Suites[DefaultSuiteName];
+            }
+
+            var gamesPerMatchup = args is { Length: > 1 }
+                                  && int.TryParse(args[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedGames)
+                                  && parsedGames > 0
+                                      ? parsedGames
+                                      : DefaultGamesPerMatchup;
+
+            Console.WriteLine($"Suite '{suiteName}', {gamesPerMatchup:0,0} games per matchup.");
             Console.WriteLine(new string('=', 75));
 
-            // For easier debugging start a single game:
-            //// new SantaseGame(new SmartPlayer(), new SmartPlayerOld()).Start();
-
             var sw = Stopwatch.StartNew();
-
-            //// SimulateGames(new SmartPlayersGameSimulator(), 200000);
-
-            //// SimulateGames(new SmartAndBestExternalPlayerGameSimulator(), 200000);
-
-            //// SimulateGames(new SmartAndDummyPlayerChangingTrumpSimulator(), 200000);
-
-            //// SimulateGames(new SmartAndDummyPlayersSimulator(), 200000);
-
-            // ClaudePlayerNeural (the PPO-trained net) vs every other player.
-            SimulateGames(new ClaudeNeuralVsClaudeSimulator(), 200000);
-
-            SimulateGames(new ClaudeNeuralAndSmartPlayerSimulator(), 200000);
-
-            SimulateGames(new ClaudeNeuralAndBestExternalPlayerGameSimulator(), 200000);
-
-            SimulateGames(new ClaudeNeuralAndDummyPlayerChangingTrumpSimulator(), 200000);
-
-            SimulateGames(new ClaudeNeuralAndDummyPlayersSimulator(), 200000);
-
-            // Heuristic ClaudePlayer baselines (kept for comparison).
-            SimulateGames(new ClaudeVsBaselineSimulator(), 200000);
-
-            SimulateGames(new ClaudeAndSmartPlayerSimulator(), 200000);
-
-            SimulateGames(new ClaudeAndBestExternalPlayerGameSimulator(), 200000);
-
-            SimulateGames(new ClaudeAndDummyPlayerChangingTrumpSimulator(), 200000);
-
-            SimulateGames(new ClaudeAndDummyPlayersSimulator(), 200000);
+            foreach (var simulator in buildSuite())
+            {
+                SimulateGames(simulator, gamesPerMatchup);
+            }
 
             Console.WriteLine($"Total tests time: {sw.Elapsed}");
         }
 
-        private static void SimulateGames(IGameSimulator gameSimulator, int gamesCount = 100000)
+        private static void SimulateGames(GameSimulator gameSimulator, int gamesCount)
         {
-            Console.Write($"Running {gameSimulator.GetType().Name}... ");
+            Console.Write($"Running {gameSimulator.Name}... ");
 
             var simulationResult = gameSimulator.Simulate(gamesCount);
 
@@ -82,6 +90,52 @@
             Console.WriteLine($"Round points: {simulationResult.FirstPlayerTotalRoundPoints:0,0} - {simulationResult.SecondPlayerTotalRoundPoints:0,0} (rounds: {simulationResult.RoundsPlayed:0,0})");
             Console.WriteLine($"Global counters: {string.Join(", ", GlobalStats.GlobalCounterValues)} (closed: {GlobalStats.GamesClosedByPlayer:0,0})");
             Console.WriteLine(new string('=', 75));
+        }
+
+        // ClaudePlayerNeural (the PPO-trained net) then the heuristic ClaudePlayer, each vs every
+        // other player. The ClaudePlayer-vs-ClaudePlayerBaseline matchup measures heuristic changes
+        // against the frozen snapshot.
+        private static GameSimulator[] BuildClaudeSuite()
+        {
+            return new[]
+            {
+                new GameSimulator(() => new ClaudePlayerNeural(), () => new ClaudePlayer()),
+                new GameSimulator(() => new ClaudePlayerNeural(), () => new SmartPlayer()),
+                new GameSimulator(() => new ClaudePlayerNeural(), () => new NinjaPlayer()),
+                new GameSimulator(() => new ClaudePlayerNeural(), () => new DummyPlayerChangingTrump()),
+                new GameSimulator(() => new ClaudePlayerNeural(), () => new DummyPlayer()),
+
+                new GameSimulator(() => new ClaudePlayer(), () => new ClaudePlayerBaseline()),
+                new GameSimulator(() => new ClaudePlayer(), () => new SmartPlayer()),
+                new GameSimulator(() => new ClaudePlayer(), () => new NinjaPlayer()),
+                new GameSimulator(() => new ClaudePlayer(), () => new DummyPlayerChangingTrump()),
+                new GameSimulator(() => new ClaudePlayer(), () => new DummyPlayer()),
+            };
+        }
+
+        // SmartPlayer ad-hoc workloads (kept for debugging SmartPlayer in isolation).
+        private static GameSimulator[] BuildSmartSuite()
+        {
+            return new[]
+            {
+                new GameSimulator(() => new SmartPlayer(), () => new SmartPlayerOld()),
+                new GameSimulator(() => new SmartPlayer(), () => new NinjaPlayer()),
+                new GameSimulator(() => new SmartPlayer(), () => new DummyPlayerChangingTrump()),
+                new GameSimulator(() => new SmartPlayer(), () => new DummyPlayer()),
+            };
+        }
+
+        // Frozen ClaudePlayerBaseline vs every opponent — absolute reference numbers for the
+        // within-run delta workflow when iterating on the ClaudePlayer heuristic.
+        private static GameSimulator[] BuildBaselineSuite()
+        {
+            return new[]
+            {
+                new GameSimulator(() => new ClaudePlayerBaseline(), () => new SmartPlayer()),
+                new GameSimulator(() => new ClaudePlayerBaseline(), () => new NinjaPlayer()),
+                new GameSimulator(() => new ClaudePlayerBaseline(), () => new DummyPlayerChangingTrump()),
+                new GameSimulator(() => new ClaudePlayerBaseline(), () => new DummyPlayer()),
+            };
         }
 
         private static void RunTrainingDataGeneration(string[] args)

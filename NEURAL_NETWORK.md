@@ -357,8 +357,8 @@ The trainer **never** overwrites the shipped `weights.bin`. It writes
    marginal +0.x% differences are not real).
 2. Copy the winner over `src\AI\Santase.AI.ClaudePlayer\Neural\weights.bin`.
 3. **Rebuild `Santase.AI.ClaudePlayer`** so the new resource is re-embedded.
-4. Confirm via the canonical `ClaudeNeuralVsClaudeSimulator` workload (embedded-resource
-   path) and the 23 `Santase.AI.ClaudePlayer.Tests`.
+4. Confirm via the default `claude` simulator suite — its first matchup, `ClaudePlayerNeural`
+   vs `ClaudePlayer`, exercises the embedded-resource path — and the 23 `Santase.AI.ClaudePlayer.Tests`.
 
 `weights_supervised.bin` is the always-available revert point. `Neural/checkpoints/` and
 `training_*.bin` are git-ignored by the repo-root `.gitignore`; the two shipped weight
