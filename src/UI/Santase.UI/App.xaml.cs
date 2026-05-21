@@ -6,6 +6,9 @@ namespace Santase.UI
     {
         public App()
         {
+            // Resolve the device/saved language and set the thread culture before any page builds.
+            _ = Localization.LocalizationManager.Instance;
+
             InitializeComponent();
         }
 

@@ -3,6 +3,7 @@ namespace Santase.UI.Pages
     using System.Collections.Generic;
 
     using Santase.UI.Game;
+    using Santase.UI.Localization;
 
     [QueryProperty(nameof(ModeRaw), "mode")]
     [QueryProperty(nameof(FirstName), "first")]
@@ -70,9 +71,41 @@ namespace Santase.UI.Pages
 
         protected override bool OnBackButtonPressed()
         {
-            // Confirm with the user before abandoning the game.
-            this.viewModel?.LeaveCommand.Execute(null);
-            return true;
+            _ = this.ConfirmAndLeaveAsync();
+            return true; // Handled — leaving goes through the confirmation prompt below.
+        }
+
+        private async void OnMenuClicked(object? sender, EventArgs e)
+        {
+            await this.ConfirmAndLeaveAsync();
+        }
+
+        // Confirms before abandoning a game that is still in progress; if the game is already over
+        // (or never started) it just leaves. The game-over overlay's own "Back to menu" button
+        // calls LeaveCommand directly and is intentionally not gated.
+        private async Task ConfirmAndLeaveAsync()
+        {
+            if (this.viewModel == null)
+            {
+                await Shell.Current.GoToAsync("..");
+                return;
+            }
+
+            if (this.session is { IsRunning: true })
+            {
+                var mgr = LocalizationManager.Instance;
+                var leave = await this.DisplayAlertAsync(
+                    mgr["Leave_Title"],
+                    mgr["Leave_Message"],
+                    mgr["Leave_Confirm"],
+                    mgr["Leave_Cancel"]);
+                if (!leave)
+                {
+                    return;
+                }
+            }
+
+            this.viewModel.LeaveCommand.Execute(null);
         }
     }
 }

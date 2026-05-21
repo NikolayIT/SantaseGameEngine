@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:game="clr-namespace:Santase.UI.Game"
+             xmlns:loc="clr-namespace:Santase.UI.Localization"
              x:Class="Santase.UI.Pages.StartPage"
              x:Name="ThePage"
              Shell.NavBarIsVisible="False"
@@ -10,7 +11,7 @@
     <Grid>
         <!-- Felt background gradient -->
         <Grid.Background>
-            <RadialGradientBrush Center="0.5,0.4" Radius="0.9">
+            <RadialGradientBrush Center="0.5,0.35" Radius="0.95">
                 <GradientStop Color="{StaticResource FeltLight}" Offset="0.0" />
                 <GradientStop Color="{StaticResource FeltMid}" Offset="0.55" />
                 <GradientStop Color="{StaticResource FeltDark}" Offset="1.0" />
@@ -18,11 +19,26 @@
         </Grid.Background>
 
         <ScrollView>
-            <VerticalStackLayout Padding="28,40"
-                                 Spacing="20"
+            <VerticalStackLayout Padding="24,40,24,32"
+                                 Spacing="18"
                                  HorizontalOptions="Center"
-                                 VerticalOptions="Center"
-                                 MaximumWidthRequest="520">
+                                 VerticalOptions="Start"
+                                 MaximumWidthRequest="540">
+
+                <!-- Language toggle (top-right) -->
+                <Button x:Name="LangButton"
+                        Clicked="OnToggleLanguage"
+                        HorizontalOptions="End"
+                        HeightRequest="34"
+                        MinimumWidthRequest="92"
+                        Padding="14,0"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        CornerRadius="17"
+                        BackgroundColor="#26000000"
+                        BorderColor="{StaticResource GoldAccent}"
+                        BorderWidth="1"
+                        TextColor="{StaticResource GoldHighlight}" />
 
                 <!-- Title block -->
                 <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
@@ -31,7 +47,7 @@
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
                            TextColor="{StaticResource GoldHighlight}" />
-                    <Label Text="66 · Schnapsen · Sechsundsechzig"
+                    <Label x:Name="SubtitleLabel"
                            FontSize="13"
                            HorizontalOptions="Center"
                            TextColor="#D9CFAE"
@@ -39,20 +55,24 @@
                 </VerticalStackLayout>
 
                 <!-- Player rating badge -->
-                <Border StrokeShape="RoundRectangle 14"
+                <Border StrokeShape="RoundRectangle 16"
                         StrokeThickness="0"
-                        BackgroundColor="#22000000"
-                        Padding="18,12"
-                        HorizontalOptions="Center">
+                        BackgroundColor="#26000000"
+                        Padding="20,14"
+                        HorizontalOptions="Center"
+                        MinimumWidthRequest="240">
                     <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label x:Name="RatingCaptionLabel"
+                               FontSize="11"
+                               CharacterSpacing="2"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource GoldAccent}" />
                         <Label x:Name="RatingLabel"
-                               Text="Your rating: 1000"
-                               FontSize="22"
+                               FontSize="30"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                TextColor="{StaticResource GoldHighlight}" />
                         <Label x:Name="RecordLabel"
-                               Text="No games yet"
                                FontSize="11"
                                HorizontalOptions="Center"
                                TextColor="#B9C7B0" />
@@ -62,20 +82,19 @@
                 <!-- Your name -->
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" VerticalOptions="Center">
                     <Label Grid.Column="0"
-                           Text="You"
+                           x:Name="YouLabel"
                            VerticalOptions="Center"
                            TextColor="White"
                            FontSize="14" />
                     <Entry Grid.Column="1"
                            x:Name="FirstPlayerEntry"
-                           Text="Player 1"
                            TextColor="White"
                            PlaceholderColor="#7FFFFFFF"
                            BackgroundColor="#22000000" />
                 </Grid>
 
                 <!-- Opponent list -->
-                <Label Text="CHOOSE OPPONENT"
+                <Label x:Name="ChooseOpponentLabel"
                        FontSize="11"
                        TextColor="{StaticResource GoldAccent}"
                        CharacterSpacing="3" />
@@ -121,7 +140,20 @@
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
 
-                <BoxView HeightRequest="1" Color="#3FE2B864" Margin="0,4" />
+                <!-- Recent games -->
+                <Label x:Name="RecentGamesLabel"
+                       FontSize="11"
+                       TextColor="{StaticResource GoldAccent}"
+                       CharacterSpacing="3"
+                       Margin="0,6,0,0" />
+
+                <Label x:Name="NoHistoryLabel"
+                       FontSize="12"
+                       TextColor="#99FFFFFF" />
+
+                <VerticalStackLayout x:Name="HistoryList" Spacing="6" />
+
+                <BoxView HeightRequest="1" Color="#3FE2B864" Margin="0,6" />
 
                 <!-- Hot-seat -->
                 <Border StrokeShape="RoundRectangle 14"
@@ -131,18 +163,17 @@
                     <VerticalStackLayout Spacing="10">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" VerticalOptions="Center">
                             <Label Grid.Column="0"
-                                   Text="P2"
+                                   x:Name="P2Label"
                                    VerticalOptions="Center"
                                    TextColor="White"
                                    FontSize="14" />
                             <Entry Grid.Column="1"
                                    x:Name="SecondPlayerEntry"
-                                   Text="Player 2"
                                    TextColor="White"
                                    PlaceholderColor="#7FFFFFFF"
                                    BackgroundColor="#22000000" />
                         </Grid>
-                        <Button Text="2-Player Hot-Seat"
+                        <Button x:Name="HotSeatButton"
                                 Clicked="OnPlayHotSeat"
                                 BackgroundColor="#33FFFFFF"
                                 BorderColor="{StaticResource GoldAccent}"

@@ -47,12 +47,28 @@ namespace Santase.UI.Game
 
     public sealed class RoundEndInfo
     {
-        public RoundEndInfo(int firstRoundPoints, int secondRoundPoints, int firstGamePoints, int secondGamePoints)
+        public RoundEndInfo(
+            int firstRoundPoints,
+            int secondRoundPoints,
+            int firstGamePoints,
+            int secondGamePoints,
+            int firstAwardedGamePoints,
+            int secondAwardedGamePoints,
+            PlayerSlot winnerSlot,
+            IReadOnlyList<Announce> firstAnnounces,
+            IReadOnlyList<Announce> secondAnnounces,
+            bool isGameOver)
         {
             this.FirstRoundPoints = firstRoundPoints;
             this.SecondRoundPoints = secondRoundPoints;
             this.FirstGamePoints = firstGamePoints;
             this.SecondGamePoints = secondGamePoints;
+            this.FirstAwardedGamePoints = firstAwardedGamePoints;
+            this.SecondAwardedGamePoints = secondAwardedGamePoints;
+            this.WinnerSlot = winnerSlot;
+            this.FirstAnnounces = firstAnnounces;
+            this.SecondAnnounces = secondAnnounces;
+            this.IsGameOver = isGameOver;
         }
 
         public int FirstRoundPoints { get; }
@@ -62,6 +78,22 @@ namespace Santase.UI.Game
         public int FirstGamePoints { get; }
 
         public int SecondGamePoints { get; }
+
+        // Game points (1/2/3) the engine awarded for this round: the winner gains, the loser 0.
+        public int FirstAwardedGamePoints { get; }
+
+        public int SecondAwardedGamePoints { get; }
+
+        // The slot the engine actually awarded the round to — authoritative, so it correctly
+        // handles closing-and-failing, schneider/schwarz and the last-trick rule (unlike a naive
+        // round-point comparison, which wrongly called the higher-points player the winner).
+        public PlayerSlot WinnerSlot { get; }
+
+        public IReadOnlyList<Announce> FirstAnnounces { get; }
+
+        public IReadOnlyList<Announce> SecondAnnounces { get; }
+
+        public bool IsGameOver { get; }
     }
 
     public sealed class GameSession
@@ -71,6 +103,10 @@ namespace Santase.UI.Game
         private const int DefaultAiThinkMs = 400;
 
         private readonly object stateLock = new();
+
+        private readonly List<Announce> firstRoundAnnounces = new();
+
+        private readonly List<Announce> secondRoundAnnounces = new();
 
         private SantaseGame? game;
 
@@ -96,6 +132,15 @@ namespace Santase.UI.Game
         private PlayerSlot? currentTrickLeader;
 
         private bool announceShownThisTrick;
+
+        // Game-point totals as of the start of the in-progress round. The post-round totals (read
+        // at the next StartRound, or at game end) minus these give the authoritative per-round
+        // award and winner — see BuildRoundEndInfo.
+        private int prevFirstGamePoints;
+
+        private int prevSecondGamePoints;
+
+        private bool roundResultPending;
 
         public GameSession(GameMode mode, string firstPlayerName, string secondPlayerName, AiOpponent? aiOpponent = null)
         {
@@ -160,6 +205,10 @@ namespace Santase.UI.Game
         public int FirstGamePoints => this.game?.FirstPlayerTotalPoints ?? 0;
 
         public int SecondGamePoints => this.game?.SecondPlayerTotalPoints ?? 0;
+
+        // The final round's result, computed at game over when the totals are final. The game-over
+        // overlay reads this, so the last round isn't surfaced via a separate round overlay.
+        public RoundEndInfo? LastRoundEndInfo { get; private set; }
 
         public IPlayerActionValidator ActionValidator => PlayerActionValidator.Instance;
 
@@ -231,6 +280,16 @@ namespace Santase.UI.Game
                 {
                     var winner = this.game.Start(PlayerPosition.FirstPlayer);
                     var winnerSlot = winner == PlayerPosition.FirstPlayer ? PlayerSlot.First : PlayerSlot.Second;
+
+                    // The final round never gets a following StartRound, so resolve its result
+                    // here (totals are final after the engine's last UpdatePoints) for the
+                    // game-over overlay instead of showing a separate round overlay.
+                    if (this.roundResultPending)
+                    {
+                        this.LastRoundEndInfo = this.BuildRoundEndInfo(this.FirstGamePoints, this.SecondGamePoints, isGameOver: true);
+                        this.roundResultPending = false;
+                    }
+
                     this.GameOver?.Invoke(winnerSlot);
                 }
                 catch (TaskCanceledException)
@@ -279,8 +338,14 @@ namespace Santase.UI.Game
                 this.currentTrump = null;
                 this.currentTrickLeader = null;
                 this.announceShownThisTrick = false;
+                this.prevFirstGamePoints = 0;
+                this.prevSecondGamePoints = 0;
+                this.roundResultPending = false;
+                this.firstRoundAnnounces.Clear();
+                this.secondRoundAnnounces.Clear();
             }
 
+            this.LastRoundEndInfo = null;
             this.pendingContinue = null;
             this.gameTask = null;
             this.game = null;
@@ -322,6 +387,18 @@ namespace Santase.UI.Game
         {
             this.FirstObserver.RoundStarted += (cards, trump, my, opp) =>
             {
+                // `my`/`opp` are the first player's totals at the START of this round, i.e. the
+                // engine's totals AFTER the previous round's UpdatePoints. If a round just ended,
+                // surface its result (blocking on the user's Continue) before the new round is
+                // dealt into view — this is the only point where the awarded points are known.
+                if (this.roundResultPending)
+                {
+                    this.ShowRoundResultAndWait(my, opp);
+                }
+
+                this.prevFirstGamePoints = my;
+                this.prevSecondGamePoints = opp;
+
                 lock (this.stateLock)
                 {
                     this.turnEndedCount = 0;
@@ -331,6 +408,8 @@ namespace Santase.UI.Game
                     this.currentTrump = trump;
                     this.currentTrickLeader = null;
                     this.announceShownThisTrick = false;
+                    this.firstRoundAnnounces.Clear();
+                    this.secondRoundAnnounces.Clear();
                 }
 
                 this.RoundStarting?.Invoke(my, opp, trump);
@@ -427,6 +506,17 @@ namespace Santase.UI.Game
                 this.announceShownThisTrick = true;
                 leader = this.currentTrickLeader.Value;
                 announce = context.FirstPlayerAnnounce;
+
+                // Accumulate for the end-of-round summary (a player can announce several marriages
+                // across a round). Stored slot-stable so the result overlay can list each side's.
+                if (leader == PlayerSlot.First)
+                {
+                    this.firstRoundAnnounces.Add(announce);
+                }
+                else
+                {
+                    this.secondRoundAnnounces.Add(announce);
+                }
             }
 
             this.AnnouncementMade?.Invoke(leader, announce);
@@ -517,14 +607,17 @@ namespace Santase.UI.Game
                 this.roundEndedCount = 0;
             }
 
-            // Game points haven't been updated yet (UpdatePoints runs AFTER both EndRound calls
-            // return). The overlay shows round-points only; game-point badges refresh when the
-            // next round starts (or via GameOver if the game is finished).
-            var info = new RoundEndInfo(
-                this.lastFirstRoundPoints,
-                this.lastSecondRoundPoints,
-                this.FirstGamePoints,
-                this.SecondGamePoints);
+            // The engine has NOT yet run UpdatePoints (it runs after both EndRound calls return),
+            // so the awarded game points are unknown here. Defer: the next StartRound (or game end)
+            // sees the updated totals and resolves the true winner from the delta. Resolving by
+            // round points here is wrong when a player closed and failed to reach 66.
+            this.roundResultPending = true;
+        }
+
+        private void ShowRoundResultAndWait(int newFirstGamePoints, int newSecondGamePoints)
+        {
+            var info = this.BuildRoundEndInfo(newFirstGamePoints, newSecondGamePoints, isGameOver: false);
+            this.roundResultPending = false;
 
             this.pendingContinue = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
             this.RoundOver?.Invoke(info);
@@ -543,6 +636,50 @@ namespace Santase.UI.Game
             {
                 this.pendingContinue = null;
             }
+        }
+
+        // Resolves the just-ended round from the engine's game-point delta. newFirst/newSecond are
+        // the totals AFTER the round (its UpdatePoints has run); prevFirst/prevSecond were latched
+        // at the round's start, so the difference is exactly that round's award.
+        private RoundEndInfo BuildRoundEndInfo(int newFirstGamePoints, int newSecondGamePoints, bool isGameOver)
+        {
+            int roundFirst;
+            int roundSecond;
+            List<Announce> firstAnnounces;
+            List<Announce> secondAnnounces;
+            lock (this.stateLock)
+            {
+                roundFirst = this.lastFirstRoundPoints;
+                roundSecond = this.lastSecondRoundPoints;
+                firstAnnounces = new List<Announce>(this.firstRoundAnnounces);
+                secondAnnounces = new List<Announce>(this.secondRoundAnnounces);
+            }
+
+            var awardedFirst = Math.Max(0, newFirstGamePoints - this.prevFirstGamePoints);
+            var awardedSecond = Math.Max(0, newSecondGamePoints - this.prevSecondGamePoints);
+
+            PlayerSlot winner;
+            if (awardedFirst == 0 && awardedSecond == 0)
+            {
+                // Defensive fallback; a normal round always awards >= 1 to exactly one player.
+                winner = roundFirst >= roundSecond ? PlayerSlot.First : PlayerSlot.Second;
+            }
+            else
+            {
+                winner = awardedFirst >= awardedSecond ? PlayerSlot.First : PlayerSlot.Second;
+            }
+
+            return new RoundEndInfo(
+                roundFirst,
+                roundSecond,
+                newFirstGamePoints,
+                newSecondGamePoints,
+                awardedFirst,
+                awardedSecond,
+                winner,
+                firstAnnounces,
+                secondAnnounces,
+                isGameOver);
         }
     }
 }

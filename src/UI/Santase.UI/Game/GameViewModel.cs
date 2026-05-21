@@ -15,9 +15,12 @@ namespace Santase.UI.Game
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
+    using Santase.UI.Localization;
 
     public sealed class GameViewModel : INotifyPropertyChanged, IDisposable
     {
+        private static readonly LocalizationManager Loc = LocalizationManager.Instance;
+
         private readonly GameSession session;
 
         private readonly IDispatcher dispatcher;
@@ -91,6 +94,14 @@ namespace Santase.UI.Game
         private bool isRatingChangeVisible;
 
         private string ratingChangeText = string.Empty;
+
+        private string roundAwardText = string.Empty;
+
+        private string myAnnouncesText = string.Empty;
+
+        private string opponentAnnouncesText = string.Empty;
+
+        private bool hasAnnounces;
 
         public GameViewModel(GameSession session, IDispatcher dispatcher)
         {
@@ -303,6 +314,30 @@ namespace Santase.UI.Game
             private set => this.SetField(ref this.ratingChangeText, value);
         }
 
+        public string RoundAwardText
+        {
+            get => this.roundAwardText;
+            private set => this.SetField(ref this.roundAwardText, value);
+        }
+
+        public string MyAnnouncesText
+        {
+            get => this.myAnnouncesText;
+            private set => this.SetField(ref this.myAnnouncesText, value);
+        }
+
+        public string OpponentAnnouncesText
+        {
+            get => this.opponentAnnouncesText;
+            private set => this.SetField(ref this.opponentAnnouncesText, value);
+        }
+
+        public bool HasAnnounces
+        {
+            get => this.hasAnnounces;
+            private set => this.SetField(ref this.hasAnnounces, value);
+        }
+
         public bool CanChangeTrump
         {
             get => this.canChangeTrump;
@@ -428,7 +463,7 @@ namespace Santase.UI.Game
             {
                 this.MyName = this.session.GetName(this.mySlot);
                 this.OpponentName = this.session.GetName(this.OtherSlot(this.mySlot));
-                this.StatusMessage = "Dealing...";
+                this.StatusMessage = Loc["Status_Dealing"];
             });
 
             this.session.Start();
@@ -498,7 +533,7 @@ namespace Santase.UI.Game
                 this.TrumpCard = trump;
                 this.DeckCount = 12;
                 this.UpdateGamePointsForPerspective(firstGamePoints, secondGamePoints);
-                this.StatusMessage = "New round";
+                this.StatusMessage = Loc["Status_NewRound"];
             });
         }
 
@@ -580,8 +615,8 @@ namespace Santase.UI.Game
             {
                 this.IsMyTurn = slot == this.mySlot;
                 this.StatusMessage = slot == this.mySlot
-                    ? "Your turn"
-                    : $"{this.OpponentName}'s turn...";
+                    ? Loc["Status_YourTurn"]
+                    : Loc.Format("Status_OpponentTurn", this.OpponentName);
             });
         }
 
@@ -594,7 +629,7 @@ namespace Santase.UI.Game
             this.dispatcher.Dispatch(() =>
             {
                 this.IsMyTurn = false;
-                this.HandoffMessage = $"Pass the device to {nextName}\nTap when ready to start your turn";
+                this.HandoffMessage = Loc.Format("Handoff_Pass", nextName);
                 this.IsHandoffOverlayVisible = true;
             });
 
@@ -645,7 +680,7 @@ namespace Santase.UI.Game
                 this.CanChangeTrump = validator.IsValid(PlayerAction.ChangeTrump(), context, GetPlayerCards(player));
                 this.CanCloseGame = validator.IsValid(PlayerAction.CloseGame(), context, GetPlayerCards(player));
 
-                this.StatusMessage = "Your turn";
+                this.StatusMessage = Loc["Status_YourTurn"];
             });
         }
 
@@ -709,8 +744,8 @@ namespace Santase.UI.Game
                     }
                 }
 
-                var who = slot == this.mySlot ? "You" : this.OpponentName;
-                this.ShowToast($"{who} swapped the trump 9");
+                var who = slot == this.mySlot ? Loc["Word_You"] : this.OpponentName;
+                this.ShowToast(Loc.Format("Toast_SwapTrump", who));
             });
         }
 
@@ -721,12 +756,12 @@ namespace Santase.UI.Game
                 if (slot == this.mySlot)
                 {
                     this.GameClosedByMe = true;
-                    this.ShowToast("You closed the game");
+                    this.ShowToast(Loc["Toast_YouClosed"]);
                 }
                 else
                 {
                     this.GameClosedByOpponent = true;
-                    this.ShowToast($"{this.OpponentName} closed the game");
+                    this.ShowToast(Loc.Format("Toast_OppClosed", this.OpponentName));
                 }
 
                 this.DeckCount = 0;
@@ -738,7 +773,7 @@ namespace Santase.UI.Game
             this.dispatcher.Dispatch(() =>
             {
                 var mine = slot == this.mySlot;
-                var who = mine ? "You" : this.OpponentName;
+                var who = mine ? Loc["Word_You"] : this.OpponentName;
 
                 // The engine already added the announce to this player's round points the moment
                 // the marriage card was led; reflect it now instead of waiting for the trick to
@@ -753,8 +788,9 @@ namespace Santase.UI.Game
                     this.OpponentRoundPoints += (int)announce;
                 }
 
-                var label = announce == Announce.Forty ? "trump marriage 40!" : "marriage 20!";
-                this.ShowToast($"{who} announced {label}");
+                this.ShowToast(announce == Announce.Forty
+                    ? Loc.Format("Toast_Announce40", who)
+                    : Loc.Format("Toast_Announce20", who));
             });
         }
 
@@ -789,50 +825,80 @@ namespace Santase.UI.Game
         {
             this.dispatcher.Dispatch(() =>
             {
-                int myRound, oppRound;
-                if (this.mySlot == PlayerSlot.First)
-                {
-                    myRound = info.FirstRoundPoints;
-                    oppRound = info.SecondRoundPoints;
-                }
-                else
-                {
-                    myRound = info.SecondRoundPoints;
-                    oppRound = info.FirstRoundPoints;
-                }
+                var iWon = this.ApplyRoundEndInfo(info);
 
-                this.MyRoundPoints = myRound;
-                this.OpponentRoundPoints = oppRound;
-
-                // Note: info.{First,Second}GamePoints are stale here — the engine runs
-                // UpdatePoints AFTER both EndRound calls. Game-point badges refresh when
-                // the next round starts (or via OnGameOver if the game is over).
-                var iWon = myRound > oppRound;
-                var tie = myRound == oppRound;
-                this.RoundIWon = !tie && iWon;
-                this.RoundOpponentWon = !tie && !iWon;
-
-                if (tie)
-                {
-                    this.RoundOverlayIcon = "\U0001F91D"; // handshake
-                    this.RoundOverlayTitle = "Round tied";
-                }
-                else if (iWon)
-                {
-                    this.RoundOverlayIcon = "\U0001F3C6"; // trophy
-                    this.RoundOverlayTitle = "You won the round!";
-                }
-                else
-                {
-                    this.RoundOverlayIcon = "\U0001F0A0"; // playing card
-                    this.RoundOverlayTitle = $"{this.OpponentName} won the round";
-                }
-
+                this.RoundIWon = iWon;
+                this.RoundOpponentWon = !iWon;
+                this.RoundOverlayIcon = iWon ? "\U0001F3C6" : "\U0001F0A0";
+                this.RoundOverlayTitle = iWon
+                    ? Loc["Round_YouWon"]
+                    : Loc.Format("Round_OppWon", this.OpponentName);
                 this.IsRoundOverlayVisible = true;
             });
 
-            // Engine thread is already blocked inside HandleRoundEndedFromObserver; the user
-            // tapping Continue calls session.Continue() which releases that block.
+            // The engine thread is blocked inside ShowRoundResultAndWait; tapping Continue calls
+            // session.Continue() to release it and deal the next round.
+        }
+
+        // Maps the engine-authoritative round result onto the perspective-relative score
+        // properties and returns whether the human won the round. The winner comes from the
+        // engine's awarded game-point delta (info.WinnerSlot), NOT a round-point comparison, so
+        // closing-and-failing, schneider and last-trick cases are correct. Shared by the round
+        // overlay and the game-over overlay (final round).
+        private bool ApplyRoundEndInfo(RoundEndInfo info)
+        {
+            int myRound, oppRound, myGame, oppGame, myAward, oppAward;
+            IReadOnlyList<Announce> myAnnounces, oppAnnounces;
+            if (this.mySlot == PlayerSlot.First)
+            {
+                myRound = info.FirstRoundPoints;
+                oppRound = info.SecondRoundPoints;
+                myGame = info.FirstGamePoints;
+                oppGame = info.SecondGamePoints;
+                myAward = info.FirstAwardedGamePoints;
+                oppAward = info.SecondAwardedGamePoints;
+                myAnnounces = info.FirstAnnounces;
+                oppAnnounces = info.SecondAnnounces;
+            }
+            else
+            {
+                myRound = info.SecondRoundPoints;
+                oppRound = info.FirstRoundPoints;
+                myGame = info.SecondGamePoints;
+                oppGame = info.FirstGamePoints;
+                myAward = info.SecondAwardedGamePoints;
+                oppAward = info.FirstAwardedGamePoints;
+                myAnnounces = info.SecondAnnounces;
+                oppAnnounces = info.FirstAnnounces;
+            }
+
+            this.MyRoundPoints = myRound;
+            this.OpponentRoundPoints = oppRound;
+            this.MyGamePoints = myGame;
+            this.OpponentGamePoints = oppGame;
+
+            var iWon = info.WinnerSlot == this.mySlot;
+            var award = iWon ? myAward : oppAward;
+            var who = iWon ? this.MyName : this.OpponentName;
+            this.RoundAwardText = award > 0
+                ? Loc.Format("Award_Format", who, award, award == 1 ? Loc["Word_PointSingular"] : Loc["Word_PointPlural"])
+                : string.Empty;
+
+            this.MyAnnouncesText = FormatAnnounces(myAnnounces);
+            this.OpponentAnnouncesText = FormatAnnounces(oppAnnounces);
+            this.HasAnnounces = myAnnounces.Count > 0 || oppAnnounces.Count > 0;
+
+            return iWon;
+        }
+
+        private static string FormatAnnounces(IReadOnlyList<Announce> announces)
+        {
+            if (announces == null || announces.Count == 0)
+            {
+                return "—";
+            }
+
+            return string.Join("   ", announces.Select(a => ((int)a).ToString()));
         }
 
         private void OnRoundOverlayContinue()
@@ -845,8 +911,8 @@ namespace Santase.UI.Game
         {
             this.dispatcher.Dispatch(() =>
             {
-                this.GameOverlayTitle = "Game error";
-                this.GameOverlayBody = $"An unexpected error stopped the game.\n\n{ex.GetType().Name}: {ex.Message}";
+                this.GameOverlayTitle = Loc["Error_Title"];
+                this.GameOverlayBody = Loc.Format("Error_Body", ex.GetType().Name, ex.Message);
                 this.IsHandoffOverlayVisible = false;
                 this.IsRoundOverlayVisible = false;
                 this.IsGameOverlayVisible = true;
@@ -870,14 +936,26 @@ namespace Santase.UI.Game
 
             this.dispatcher.Dispatch(() =>
             {
-                this.UpdateGamePointsForPerspective(this.session.FirstGamePoints, this.session.SecondGamePoints);
+                var iWon = winnerSlot == this.mySlot;
+
+                // Resolve the final round (award, announces, final game points) for the overlay —
+                // there is no following StartRound, so GameSession stashes it as LastRoundEndInfo.
+                var finalInfo = this.session.LastRoundEndInfo;
+                if (finalInfo != null)
+                {
+                    this.ApplyRoundEndInfo(finalInfo);
+                }
+                else
+                {
+                    this.UpdateGamePointsForPerspective(this.session.FirstGamePoints, this.session.SecondGamePoints);
+                    this.RoundAwardText = string.Empty;
+                    this.HasAnnounces = false;
+                }
 
                 this.OnPropertyChanged(nameof(this.MyMatchWins));
                 this.OnPropertyChanged(nameof(this.OpponentMatchWins));
                 this.OnPropertyChanged(nameof(this.MatchScoreText));
                 this.OnPropertyChanged(nameof(this.HasMatchHistory));
-
-                var iWon = winnerSlot == this.mySlot;
 
                 // Ranked (vs-AI) games move the persisted player rating; the AI is a fixed anchor.
                 if (this.session.IsRanked)
@@ -885,7 +963,7 @@ namespace Santase.UI.Game
                     var opponent = this.session.AiOpponent!;
                     var change = PlayerRatingStore.RecordResult(opponent.Elo, iWon);
                     var sign = change.Delta >= 0 ? "+" : string.Empty;
-                    this.RatingChangeText = $"Your rating  {change.OldElo}  →  {change.NewElo}   ({sign}{change.Delta})";
+                    this.RatingChangeText = Loc.Format("Rating_Change", change.OldElo, change.NewElo, $"{sign}{change.Delta}");
                     this.IsRatingChangeVisible = true;
                 }
                 else
@@ -893,15 +971,34 @@ namespace Santase.UI.Game
                     this.IsRatingChangeVisible = false;
                 }
 
+                this.RecordHistory(iWon);
+
                 var winnerName = iWon ? this.MyName : this.OpponentName;
-                this.GameOverlayTitle = iWon ? "Victory!" : "Game Over";
-                this.GameOverlayBody = $"{winnerName} won this game\nFinal score  {this.MyGamePoints} – {this.OpponentGamePoints}";
+                this.GameOverlayTitle = iWon ? Loc["GameOver_Victory"] : Loc["GameOver_Defeat"];
+                this.GameOverlayBody = Loc.Format("GameOver_WonGame", winnerName);
                 this.IsRoundOverlayVisible = false;
                 this.IsGameOverlayVisible = true;
                 this.IsMyTurn = false;
                 this.CanChangeTrump = false;
                 this.CanCloseGame = false;
             });
+        }
+
+        private void RecordHistory(bool iWon)
+        {
+            // Only vs-AI games go in history (hot-seat is human-vs-human). MyGamePoints /
+            // OpponentGamePoints already hold the final game-point totals for this perspective.
+            if (this.session.Mode != GameMode.VsAi)
+            {
+                return;
+            }
+
+            MatchHistoryStore.Add(new MatchHistoryEntry(
+                this.OpponentName,
+                this.MyGamePoints,
+                this.OpponentGamePoints,
+                iWon,
+                DateTime.UtcNow));
         }
 
         private void OnPlayAgain()
