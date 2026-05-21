@@ -29,6 +29,7 @@ namespace Santase.Tests.GameSimulations
             new(StringComparer.OrdinalIgnoreCase)
             {
                 [DefaultSuiteName] = BuildClaudeSuite,
+                ["ismcts"] = BuildIsmctsSuite,
                 ["smart"] = BuildSmartSuite,
                 ["baseline"] = BuildBaselineSuite,
             };
@@ -110,6 +111,21 @@ namespace Santase.Tests.GameSimulations
                 new GameSimulator(() => new ClaudePlayer(), () => new NinjaPlayer()),
                 new GameSimulator(() => new ClaudePlayer(), () => new DummyPlayerChangingTrump()),
                 new GameSimulator(() => new ClaudePlayer(), () => new DummyPlayer()),
+            };
+        }
+
+        // ClaudePlayerIsmcts (single information-set tree, the repo's strongest player) vs the panel.
+        // Each move spends its full wall-clock budget (default 100ms), so this suite is far slower
+        // per game than the others — run it with a small game count, e.g. `-- ismcts 300`.
+        private static GameSimulator[] BuildIsmctsSuite()
+        {
+            return new[]
+            {
+                new GameSimulator(() => new ClaudePlayerIsmcts(), () => new ClaudePlayerNeural()),
+                new GameSimulator(() => new ClaudePlayerIsmcts(), () => new ClaudePlayer()),
+                new GameSimulator(() => new ClaudePlayerIsmcts(), () => new SmartPlayer()),
+                new GameSimulator(() => new ClaudePlayerIsmcts(), () => new NinjaPlayer()),
+                new GameSimulator(() => new ClaudePlayerIsmcts(), () => new DummyPlayer()),
             };
         }
 
