@@ -59,6 +59,7 @@
 		<ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj" />
 		<ProjectReference Include="..\..\AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj" />
 		<ProjectReference Include="..\..\AI\Santase.AI.DummyPlayer\Santase.AI.DummyPlayer.csproj" />
+		<ProjectReference Include="..\..\AI\Santase.AI.ClaudePlayer\Santase.AI.ClaudePlayer.csproj" />
 	</ItemGroup>
 
 </Project>

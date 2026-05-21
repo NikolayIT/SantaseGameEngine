@@ -81,6 +81,14 @@
                             </Label.FormattedText>
                         </Label>
                     </Border>
+                    <Label Grid.Column="4"
+                           Text="{Binding OpponentEloText}"
+                           IsVisible="{Binding IsRanked}"
+                           TextColor="#D8C9A0"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           HorizontalOptions="End"
+                           VerticalOptions="Center" />
                 </Grid>
             </Border>
 
@@ -544,6 +552,21 @@
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
                            TextColor="#1A1006" />
+
+                    <!-- Rating change (ranked vs-AI games only) -->
+                    <Border IsVisible="{Binding IsRatingChangeVisible}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            BackgroundColor="#0B3D1A"
+                            Padding="16,10"
+                            HorizontalOptions="Fill">
+                        <Label Text="{Binding RatingChangeText}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{StaticResource GoldHighlight}" />
+                    </Border>
 
                     <!-- Match score panel -->
                     <Border StrokeShape="RoundRectangle 12"

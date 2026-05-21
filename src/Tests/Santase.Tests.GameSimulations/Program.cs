@@ -42,6 +42,12 @@ namespace Santase.Tests.GameSimulations
                 return;
             }
 
+            if (args is { Length: > 0 } && string.Equals(args[0], "elo", StringComparison.OrdinalIgnoreCase))
+            {
+                RunEloTournament(args);
+                return;
+            }
+
             Console.OutputEncoding = Encoding.Unicode;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
@@ -186,6 +192,29 @@ namespace Santase.Tests.GameSimulations
             Console.WriteLine($"Played {games:0,0} games in {elapsed}");
             Console.WriteLine($"Wins: {result.FirstPlayerWins:0,0} - {result.SecondPlayerWins:0,0}, rounds: {result.RoundsPlayed:0,0}");
             Console.WriteLine($"Recorded {collector.SampleCount:0,0} training samples to {outputPath}");
+        }
+
+        // `elo [fastGames] [ismctsGames]` — round-robin among the five UI opponents, then a
+        // Bradley-Terry/ELO fit. ISMCTS spends its full per-move budget so its pairings are
+        // capped at a much smaller game count by default.
+        private static void RunEloTournament(string[] args)
+        {
+            Console.OutputEncoding = Encoding.Unicode;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
+            var fastGames = args.Length > 1
+                            && int.TryParse(args[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedFast)
+                            && parsedFast > 0
+                                ? parsedFast
+                                : 20000;
+
+            var slowGames = args.Length > 2
+                            && int.TryParse(args[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedSlow)
+                            && parsedSlow > 0
+                                ? parsedSlow
+                                : 200;
+
+            EloTournament.Run(fastGames, slowGames);
         }
     }
 }

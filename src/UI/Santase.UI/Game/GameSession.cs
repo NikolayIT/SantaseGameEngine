@@ -6,8 +6,6 @@ namespace Santase.UI.Game
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Santase.AI.DummyPlayer;
-    using Santase.AI.SmartPlayer;
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
@@ -99,11 +97,12 @@ namespace Santase.UI.Game
 
         private bool announceShownThisTrick;
 
-        public GameSession(GameMode mode, string firstPlayerName, string secondPlayerName)
+        public GameSession(GameMode mode, string firstPlayerName, string secondPlayerName, AiOpponent? aiOpponent = null)
         {
             this.Mode = mode;
             this.FirstPlayerName = firstPlayerName;
             this.SecondPlayerName = secondPlayerName;
+            this.AiOpponent = aiOpponent;
 
             this.FirstHuman = new HumanPlayer(firstPlayerName);
             IPlayer firstInner = this.FirstHuman;
@@ -111,11 +110,8 @@ namespace Santase.UI.Game
             IPlayer secondInner;
             switch (mode)
             {
-                case GameMode.VsEasy:
-                    secondInner = new DummyPlayerChangingTrump();
-                    break;
-                case GameMode.VsHard:
-                    secondInner = new SmartPlayer();
+                case GameMode.VsAi:
+                    secondInner = (aiOpponent ?? AiOpponents.All[0]).CreatePlayer();
                     break;
                 case GameMode.HotSeat:
                     this.SecondHuman = new HumanPlayer(secondPlayerName);
@@ -142,6 +138,10 @@ namespace Santase.UI.Game
         }
 
         public GameMode Mode { get; }
+
+        public AiOpponent? AiOpponent { get; }
+
+        public bool IsRanked => this.Mode == GameMode.VsAi && this.AiOpponent != null;
 
         public string FirstPlayerName { get; }
 

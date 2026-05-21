@@ -88,6 +88,10 @@ namespace Santase.UI.Game
 
         private int matchWinsSlot2;
 
+        private bool isRatingChangeVisible;
+
+        private string ratingChangeText = string.Empty;
+
         public GameViewModel(GameSession session, IDispatcher dispatcher)
         {
             this.session = session;
@@ -287,6 +291,18 @@ namespace Santase.UI.Game
             private set => this.SetField(ref this.gameOverlayBody, value);
         }
 
+        public bool IsRatingChangeVisible
+        {
+            get => this.isRatingChangeVisible;
+            private set => this.SetField(ref this.isRatingChangeVisible, value);
+        }
+
+        public string RatingChangeText
+        {
+            get => this.ratingChangeText;
+            private set => this.SetField(ref this.ratingChangeText, value);
+        }
+
         public bool CanChangeTrump
         {
             get => this.canChangeTrump;
@@ -339,11 +355,16 @@ namespace Santase.UI.Game
 
         public string ModeLabel => this.session.Mode switch
         {
-            GameMode.VsEasy => "Easy",
-            GameMode.VsHard => "Hard",
+            GameMode.VsAi => this.session.AiOpponent?.DisplayName ?? "Computer",
             GameMode.HotSeat => "Hot-Seat",
             _ => string.Empty,
         };
+
+        public bool IsRanked => this.session.IsRanked;
+
+        public int OpponentElo => this.session.AiOpponent?.Elo ?? 0;
+
+        public string OpponentEloText => this.IsRanked ? $"ELO {this.OpponentElo}" : string.Empty;
 
         public ICommand TapCardCommand { get; }
 
@@ -857,6 +878,21 @@ namespace Santase.UI.Game
                 this.OnPropertyChanged(nameof(this.HasMatchHistory));
 
                 var iWon = winnerSlot == this.mySlot;
+
+                // Ranked (vs-AI) games move the persisted player rating; the AI is a fixed anchor.
+                if (this.session.IsRanked)
+                {
+                    var opponent = this.session.AiOpponent!;
+                    var change = PlayerRatingStore.RecordResult(opponent.Elo, iWon);
+                    var sign = change.Delta >= 0 ? "+" : string.Empty;
+                    this.RatingChangeText = $"Your rating  {change.OldElo}  →  {change.NewElo}   ({sign}{change.Delta})";
+                    this.IsRatingChangeVisible = true;
+                }
+                else
+                {
+                    this.IsRatingChangeVisible = false;
+                }
+
                 var winnerName = iWon ? this.MyName : this.OpponentName;
                 this.GameOverlayTitle = iWon ? "Victory!" : "Game Over";
                 this.GameOverlayBody = $"{winnerName} won this game\nFinal score  {this.MyGamePoints} – {this.OpponentGamePoints}";

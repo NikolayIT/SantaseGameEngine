@@ -7,6 +7,7 @@ namespace Santase.UI.Pages
     [QueryProperty(nameof(ModeRaw), "mode")]
     [QueryProperty(nameof(FirstName), "first")]
     [QueryProperty(nameof(SecondName), "second")]
+    [QueryProperty(nameof(OpponentId), "opponent")]
     public partial class GamePage : ContentPage
     {
         private GameSession? session;
@@ -20,11 +21,13 @@ namespace Santase.UI.Pages
             this.InitializeComponent();
         }
 
-        public string ModeRaw { get; set; } = nameof(GameMode.VsHard);
+        public string ModeRaw { get; set; } = nameof(GameMode.VsAi);
 
         public string FirstName { get; set; } = "Player 1";
 
         public string SecondName { get; set; } = "Player 2";
+
+        public string OpponentId { get; set; } = "smart";
 
         protected override void OnAppearing()
         {
@@ -39,9 +42,12 @@ namespace Santase.UI.Pages
 
             var mode = Enum.TryParse<GameMode>(this.ModeRaw, ignoreCase: true, out var parsed)
                 ? parsed
-                : GameMode.VsHard;
+                : GameMode.VsAi;
 
-            this.session = new GameSession(mode, this.FirstName, this.SecondName);
+            var opponent = mode == GameMode.VsAi ? AiOpponents.ById(this.OpponentId) : null;
+            var secondName = opponent?.DisplayName ?? this.SecondName;
+
+            this.session = new GameSession(mode, this.FirstName, secondName, opponent);
             this.viewModel = new GameViewModel(this.session, this.Dispatcher);
             this.BindingContext = this.viewModel;
 
