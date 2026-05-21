@@ -114,7 +114,7 @@
 
         private void CallStartRoundAndDealCards(RoundPlayerInfo player, int playerTotalPoints, int opponentTotalPoints)
         {
-            var cards = new List<Card>();
+            var cards = new List<Card>(GameRulesProvider.Santase.CardsAtStartOfTheRound);
 
             for (var i = 0; i < GameRulesProvider.Santase.CardsAtStartOfTheRound; i++)
             {

@@ -8,6 +8,8 @@
 
     internal class Trick
     {
+        private static readonly ICardWinnerLogic CardWinner = new CardWinnerLogic();
+
         private readonly RoundPlayerInfo firstToPlay;
 
         private readonly RoundPlayerInfo secondToPlay;
@@ -45,12 +47,13 @@
             var firstPlayerAction = this.GetFirstPlayerAction(this.firstToPlay, context);
             context.FirstPlayedCard = firstPlayerAction.Card;
             context.FirstPlayerAnnounce = firstPlayerAction.Announce;
-            context.FirstPlayerRoundPoints = this.firstToPlay.RoundPoints;
+            var firstToPlayRoundPoints = this.firstToPlay.RoundPoints;
+            context.FirstPlayerRoundPoints = firstToPlayRoundPoints;
 
             this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
             // When player announces something he may immediately become round winner
-            if (this.firstToPlay.RoundPoints >= this.gameRules.RoundPointsForGoingOut)
+            if (firstToPlayRoundPoints >= this.gameRules.RoundPointsForGoingOut)
             {
                 // Inform players for end turn
                 this.firstToPlay.Player.EndTurn(context);
@@ -64,8 +67,7 @@
             this.secondToPlay.Cards.Remove(secondPlayerAction.Card);
 
             // Determine winner
-            ICardWinnerLogic cardWinnerLogic = new CardWinnerLogic();
-            var winnerPosition = cardWinnerLogic.Winner(
+            var winnerPosition = CardWinner.Winner(
                 firstPlayerAction.Card,
                 secondPlayerAction.Card,
                 this.deck.TrumpCard.Suit);

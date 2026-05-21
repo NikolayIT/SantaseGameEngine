@@ -6,6 +6,8 @@
 
     public class SantaseGame : ISantaseGame
     {
+        private static readonly IRoundWinnerPointsLogic RoundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
+
         private readonly IGameRules gameRules;
 
         private readonly IPlayer firstPlayer;
@@ -88,8 +90,7 @@
 
         internal void UpdatePoints(RoundResult roundResult)
         {
-            IRoundWinnerPointsLogic roundWinnerPointsPointsLogic = new RoundWinnerPointsPointsLogic();
-            var roundWinnerPoints = roundWinnerPointsPointsLogic.GetWinnerPoints(
+            var roundWinnerPoints = RoundWinnerPointsLogic.GetWinnerPoints(
                 roundResult.FirstPlayer.RoundPoints,
                 roundResult.SecondPlayer.RoundPoints,
                 roundResult.GameClosedBy,

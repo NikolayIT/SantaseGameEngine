@@ -18,9 +18,9 @@
 
         public IPlayer Player { get; }
 
-        public ICollection<Card> Cards { get; }
+        public CardCollection Cards { get; }
 
-        public ICollection<Card> TrickCards { get; }
+        public CardCollection TrickCards { get; }
 
         public IList<Announce> Announces { get; }
 
