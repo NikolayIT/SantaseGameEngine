@@ -14,5 +14,8 @@ weights_smoke.bin
 # Local distillation-pipeline scratch (datasets, checkpoints, run logs — large, regenerable)
 tools/NeuralTrainer/_scratch/
 
+# EngineBench paired-comparison snapshots (built baseline/variant binaries, regenerable)
+tools/EngineBench/_bench/
+
 # Local Claude Code agent state
 .claude/
