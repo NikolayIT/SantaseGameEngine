@@ -1,71 +1,75 @@
-﻿namespace Santase.Logic.Cards
+namespace Santase.Logic.Cards
 {
-    using System.Collections.Generic;
-    using System.Linq;
+    using System;
 
     public class Deck : IDeck
     {
-        private static readonly IList<Card> AllCards = new List<Card>();
-        private static readonly IEnumerable<CardType> AllCardTypes = new List<CardType>
-                                                                         {
-                                                                             CardType.Nine,
-                                                                             CardType.Ten,
-                                                                             CardType.Jack,
-                                                                             CardType.Queen,
-                                                                             CardType.King,
-                                                                             CardType.Ace,
-                                                                         };
+        private static readonly Card[] AllCards = CreateAllCards();
 
-        private static readonly IEnumerable<CardSuit> AllCardSuits = new List<CardSuit>
-                                                                         {
-                                                                             CardSuit.Club,
-                                                                             CardSuit.Diamond,
-                                                                             CardSuit.Heart,
-                                                                             CardSuit.Spade,
-                                                                         };
+        // The shuffled deck. Index 0 is the trump (drawn last); cards are drawn from the
+        // top (index remaining-1) downwards. A single array + index pointer replaces the
+        // previous List + LINQ Shuffle().ToList() (which allocated a buffer, an iterator
+        // and a backing list every round).
+        private readonly Card[] cards;
 
-        private readonly IList<Card> listOfCards;
-
-        static Deck()
-        {
-            foreach (var cardSuit in AllCardSuits)
-            {
-                foreach (var cardType in AllCardTypes)
-                {
-                    AllCards.Add(Card.GetCard(cardSuit, cardType));
-                }
-            }
-        }
+        private int remaining;
 
         public Deck()
         {
-            this.listOfCards = AllCards.Shuffle().ToList();
-            this.TrumpCard = this.listOfCards[0];
+            this.cards = new Card[AllCards.Length];
+            Array.Copy(AllCards, this.cards, AllCards.Length);
+
+            // In-place Fisher-Yates. Random.Shared is thread-safe, matching the previous
+            // Enumerable.Shuffle() so the parallel simulator stays correct.
+            var rng = Random.Shared;
+            for (var i = this.cards.Length - 1; i > 0; i--)
+            {
+                var j = rng.Next(i + 1);
+                (this.cards[i], this.cards[j]) = (this.cards[j], this.cards[i]);
+            }
+
+            this.remaining = this.cards.Length;
+            this.TrumpCard = this.cards[0];
         }
 
         public Card TrumpCard { get; private set; }
 
-        public int CardsLeft => this.listOfCards.Count;
+        public int CardsLeft => this.remaining;
 
         public Card GetNextCard()
         {
-            if (this.listOfCards.Count == 0)
+            if (this.remaining == 0)
             {
                 throw new InternalGameException("Deck is empty!");
             }
 
-            var card = this.listOfCards[this.listOfCards.Count - 1];
-            this.listOfCards.RemoveAt(this.listOfCards.Count - 1);
-            return card;
+            return this.cards[--this.remaining];
         }
 
         public void ChangeTrumpCard(Card newCard)
         {
             this.TrumpCard = newCard;
-            if (this.listOfCards.Count > 0)
+            if (this.remaining > 0)
             {
-                this.listOfCards[0] = newCard;
+                this.cards[0] = newCard;
             }
+        }
+
+        private static Card[] CreateAllCards()
+        {
+            var allTypes = new[] { CardType.Nine, CardType.Ten, CardType.Jack, CardType.Queen, CardType.King, CardType.Ace };
+            var allSuits = new[] { CardSuit.Club, CardSuit.Diamond, CardSuit.Heart, CardSuit.Spade };
+            var result = new Card[allSuits.Length * allTypes.Length];
+            var index = 0;
+            foreach (var suit in allSuits)
+            {
+                foreach (var type in allTypes)
+                {
+                    result[index++] = Card.GetCard(suit, type);
+                }
+            }
+
+            return result;
         }
     }
 }

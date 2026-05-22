@@ -18,6 +18,8 @@
 
         private readonly RoundPlayerInfo secondPlayer;
 
+        private readonly Trick trick;
+
         private PlayerPosition firstToPlay;
 
         private PlayerPosition lastTrickWinner;
@@ -34,6 +36,10 @@
 
             this.firstPlayer = new RoundPlayerInfo(firstPlayer);
             this.secondPlayer = new RoundPlayerInfo(secondPlayer);
+
+            // One Trick instance is reused for every trick in the round; the leader and
+            // follower are passed to Play() rather than baked into the constructor.
+            this.trick = new Trick(this.stateManager, this.deck, this.gameRules);
 
             this.firstToPlay = firstToPlay;
             this.lastTrickWinner = PlayerPosition.NoOne;
@@ -66,11 +72,9 @@
 
         private void PlayTrick()
         {
-            var trick = this.firstToPlay == PlayerPosition.FirstPlayer
-                ? new Trick(this.firstPlayer, this.secondPlayer, this.stateManager, this.deck, this.gameRules)
-                : new Trick(this.secondPlayer, this.firstPlayer, this.stateManager, this.deck, this.gameRules);
-
-            var trickWinner = trick.Play();
+            var trickWinner = this.firstToPlay == PlayerPosition.FirstPlayer
+                ? this.trick.Play(this.firstPlayer, this.secondPlayer)
+                : this.trick.Play(this.secondPlayer, this.firstPlayer);
 
             // The one who wins the trick should play first
             this.firstToPlay = trickWinner == this.firstPlayer

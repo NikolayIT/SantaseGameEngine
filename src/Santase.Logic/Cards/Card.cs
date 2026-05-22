@@ -5,7 +5,7 @@
     /// <summary>
     /// Immutable object to represent game card with suit and type.
     /// </summary>
-    public class Card
+    public sealed class Card
     {
         public static readonly Card[] Cards = new Card[53];
 

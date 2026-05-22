@@ -6,12 +6,40 @@
 
     internal static class PlayCardActionValidator
     {
+        // Dispatcher kept for the public ICollection<Card> contract. The engine always
+        // passes the concrete CardCollection, so it takes the no-boxing fast path below;
+        // any other ICollection is copied once into a CardCollection (slow path, never hit
+        // in the engine) so the rule logic lives in exactly one place.
         public static bool CanPlayCard(
             bool isThePlayerFirst,
             Card playedCard,
             Card otherPlayerCard,
             Card trumpCard,
             ICollection<Card> playerCards,
+            bool shouldObserveRules)
+        {
+            if (playerCards is CardCollection cardCollection)
+            {
+                return CanPlayCard(isThePlayerFirst, playedCard, otherPlayerCard, trumpCard, cardCollection, shouldObserveRules);
+            }
+
+            var copy = new CardCollection();
+            foreach (var card in playerCards)
+            {
+                copy.Add(card);
+            }
+
+            return CanPlayCard(isThePlayerFirst, playedCard, otherPlayerCard, trumpCard, copy, shouldObserveRules);
+        }
+
+        // Real implementation. Iterating the concrete CardCollection uses its struct
+        // enumerator, so the per-turn legal-move scan allocates nothing.
+        public static bool CanPlayCard(
+            bool isThePlayerFirst,
+            Card playedCard,
+            Card otherPlayerCard,
+            Card trumpCard,
+            CardCollection playerCards,
             bool shouldObserveRules)
         {
             if (!playerCards.Contains(playedCard))

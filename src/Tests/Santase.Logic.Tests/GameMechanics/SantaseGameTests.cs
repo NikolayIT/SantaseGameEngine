@@ -212,7 +212,7 @@
                         break;
                     }
 
-                    info.TrickCards.Add(card);
+                    info.WinCard(card);
                     remaining -= card.GetValue();
                 }
 

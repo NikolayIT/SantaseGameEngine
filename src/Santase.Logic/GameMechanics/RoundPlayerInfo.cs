@@ -1,4 +1,4 @@
-﻿namespace Santase.Logic.GameMechanics
+namespace Santase.Logic.GameMechanics
 {
     using System.Collections.Generic;
 
@@ -7,12 +7,15 @@
 
     internal class RoundPlayerInfo
     {
+        // Lazily created: announces are rare (only when a player declares 20/40), so most
+        // rounds never allocate this list.
+        private List<Announce> announces;
+
         public RoundPlayerInfo(IPlayer player)
         {
             this.Player = player;
             this.Cards = new CardCollection();
             this.TrickCards = new CardCollection();
-            this.Announces = new List<Announce>();
             this.GameCloser = false;
         }
 
@@ -22,32 +25,14 @@
 
         public CardCollection TrickCards { get; }
 
-        public IList<Announce> Announces { get; }
+        public IList<Announce> Announces => this.announces ??= new List<Announce>();
 
         public bool GameCloser { get; set; }
 
-        public int RoundPoints
-        {
-            get
-            {
-                var points = 0;
-
-                // ReSharper disable once LoopCanBeConvertedToQuery (performance improvement)
-                foreach (var card in this.TrickCards)
-                {
-                    points += card.GetValue();
-                }
-
-                // ReSharper disable once LoopCanBeConvertedToQuery (performance improvement)
-                // ReSharper disable once ForCanBeConvertedToForeach (performance improvement)
-                for (var i = 0; i < this.Announces.Count; i++)
-                {
-                    points += (int)this.Announces[i];
-                }
-
-                return points;
-            }
-        }
+        // Maintained incrementally as cards/announces are added (see WinCard/AddAnnounce)
+        // instead of rescanning TrickCards + Announces on every read. RoundPoints is read
+        // several times per trick (PlayerTurnContext build, Trick.Play, Round.IsFinished).
+        public int RoundPoints { get; private set; }
 
         public bool HasAtLeastOneTrick => this.TrickCards.Count > 0;
 
@@ -56,6 +41,18 @@
             // We are adding the card in two different places to control what an AI player can play
             this.Cards.Add(card);
             this.Player.AddCard(card);
+        }
+
+        public void WinCard(Card card)
+        {
+            this.TrickCards.Add(card);
+            this.RoundPoints += card.GetValue();
+        }
+
+        public void AddAnnounce(Announce announce)
+        {
+            this.Announces.Add(announce);
+            this.RoundPoints += (int)announce;
         }
     }
 }

@@ -70,7 +70,7 @@
         public void RoundPointsShouldReturn20WhenAnnounceOfTwentyAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
-            roundPlayerInfo.Announces.Add(Announce.Twenty);
+            roundPlayerInfo.AddAnnounce(Announce.Twenty);
             Assert.Equal(20, roundPlayerInfo.RoundPoints);
         }
 
@@ -78,7 +78,7 @@
         public void RoundPointsShouldReturn40WhenAnnounceOfFortyAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
-            roundPlayerInfo.Announces.Add(Announce.Forty);
+            roundPlayerInfo.AddAnnounce(Announce.Forty);
             Assert.Equal(40, roundPlayerInfo.RoundPoints);
         }
 
@@ -86,8 +86,8 @@
         public void RoundPointsShouldReturn40WhenAnnouncesOfTwentyAndFortyAdded()
         {
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
-            roundPlayerInfo.Announces.Add(Announce.Twenty);
-            roundPlayerInfo.Announces.Add(Announce.Forty);
+            roundPlayerInfo.AddAnnounce(Announce.Twenty);
+            roundPlayerInfo.AddAnnounce(Announce.Forty);
             Assert.Equal(60, roundPlayerInfo.RoundPoints);
         }
 
@@ -97,8 +97,8 @@
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
             var card1 = Card.GetCard(CardSuit.Diamond, CardType.Jack);
             var card2 = Card.GetCard(CardSuit.Diamond, CardType.Ace);
-            roundPlayerInfo.TrickCards.Add(card1);
-            roundPlayerInfo.TrickCards.Add(card2);
+            roundPlayerInfo.WinCard(card1);
+            roundPlayerInfo.WinCard(card2);
             Assert.Equal(card1.GetValue() + card2.GetValue(), roundPlayerInfo.RoundPoints);
         }
 
@@ -108,9 +108,9 @@
             var roundPlayerInfo = new RoundPlayerInfo(new Mock<BasePlayer>().Object);
             var card1 = Card.GetCard(CardSuit.Diamond, CardType.Jack);
             var card2 = Card.GetCard(CardSuit.Diamond, CardType.Ace);
-            roundPlayerInfo.TrickCards.Add(card1);
-            roundPlayerInfo.TrickCards.Add(card2);
-            roundPlayerInfo.Announces.Add(Announce.Twenty);
+            roundPlayerInfo.WinCard(card1);
+            roundPlayerInfo.WinCard(card2);
+            roundPlayerInfo.AddAnnounce(Announce.Twenty);
             Assert.Equal(card1.GetValue() + card2.GetValue() + 20, roundPlayerInfo.RoundPoints);
         }
     }

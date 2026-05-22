@@ -62,6 +62,25 @@
         {
             var possibleCardsToPlay = new List<Card>(playerCards.Count);
 
+            // Iterate the concrete CardCollection (struct enumerator) when possible so the
+            // per-turn legal-move scan does not box an IEnumerator on the heap.
+            if (playerCards is CardCollection cardCollection)
+            {
+                var isFirst = context.IsFirstPlayerTurn;
+                var firstPlayedCard = context.FirstPlayedCard;
+                var trumpCard = context.TrumpCard;
+                var shouldObserveRules = context.State.ShouldObserveRules;
+                foreach (var card in cardCollection)
+                {
+                    if (PlayCardActionValidator.CanPlayCard(isFirst, card, firstPlayedCard, trumpCard, cardCollection, shouldObserveRules))
+                    {
+                        possibleCardsToPlay.Add(card);
+                    }
+                }
+
+                return possibleCardsToPlay;
+            }
+
             // ReSharper disable once LoopCanBeConvertedToQuery (performance)
             foreach (var card in playerCards)
             {

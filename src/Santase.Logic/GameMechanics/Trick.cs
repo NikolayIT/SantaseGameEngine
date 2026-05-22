@@ -10,10 +10,6 @@
     {
         private static readonly ICardWinnerLogic CardWinner = new CardWinnerLogic();
 
-        private readonly RoundPlayerInfo firstToPlay;
-
-        private readonly RoundPlayerInfo secondToPlay;
-
         private readonly IStateManager stateManager;
 
         private readonly IDeck deck;
@@ -21,50 +17,46 @@
         private readonly IGameRules gameRules;
 
         public Trick(
-            RoundPlayerInfo firstToPlay,
-            RoundPlayerInfo secondToPlay,
             IStateManager stateManager,
             IDeck deck,
             IGameRules gameRules)
         {
-            this.firstToPlay = firstToPlay;
-            this.secondToPlay = secondToPlay;
             this.stateManager = stateManager;
             this.deck = deck;
             this.gameRules = gameRules;
         }
 
-        public RoundPlayerInfo Play()
+        public RoundPlayerInfo Play(RoundPlayerInfo firstToPlay, RoundPlayerInfo secondToPlay)
         {
             var context = new PlayerTurnContext(
                 this.stateManager.State,
                 this.deck.TrumpCard,
                 this.deck.CardsLeft,
-                this.firstToPlay.RoundPoints,
-                this.secondToPlay.RoundPoints);
+                firstToPlay.RoundPoints,
+                secondToPlay.RoundPoints);
 
             // First player
-            var firstPlayerAction = this.GetFirstPlayerAction(this.firstToPlay, context);
+            var firstPlayerAction = this.GetFirstPlayerAction(firstToPlay, context);
             context.FirstPlayedCard = firstPlayerAction.Card;
             context.FirstPlayerAnnounce = firstPlayerAction.Announce;
-            var firstToPlayRoundPoints = this.firstToPlay.RoundPoints;
+            var firstToPlayRoundPoints = firstToPlay.RoundPoints;
             context.FirstPlayerRoundPoints = firstToPlayRoundPoints;
 
-            this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
+            firstToPlay.Cards.Remove(firstPlayerAction.Card);
 
             // When player announces something he may immediately become round winner
             if (firstToPlayRoundPoints >= this.gameRules.RoundPointsForGoingOut)
             {
                 // Inform players for end turn
-                this.firstToPlay.Player.EndTurn(context);
-                this.secondToPlay.Player.EndTurn(context);
-                return this.firstToPlay;
+                firstToPlay.Player.EndTurn(context);
+                secondToPlay.Player.EndTurn(context);
+                return firstToPlay;
             }
 
             // Second player
-            var secondPlayerAction = GetPlayerAction(this.secondToPlay, context);
+            var secondPlayerAction = GetPlayerAction(secondToPlay, context);
             context.SecondPlayedCard = secondPlayerAction.Card;
-            this.secondToPlay.Cards.Remove(secondPlayerAction.Card);
+            secondToPlay.Cards.Remove(secondPlayerAction.Card);
 
             // Determine winner
             var winnerPosition = CardWinner.Winner(
@@ -72,15 +64,15 @@
                 secondPlayerAction.Card,
                 this.deck.TrumpCard.Suit);
 
-            var winner = winnerPosition == PlayerPosition.FirstPlayer ? this.firstToPlay : this.secondToPlay;
-            winner.TrickCards.Add(firstPlayerAction.Card);
-            winner.TrickCards.Add(secondPlayerAction.Card);
+            var winner = winnerPosition == PlayerPosition.FirstPlayer ? firstToPlay : secondToPlay;
+            winner.WinCard(firstPlayerAction.Card);
+            winner.WinCard(secondPlayerAction.Card);
 
             // Inform players for end turn
-            context.FirstPlayerRoundPoints = this.firstToPlay.RoundPoints;
-            context.SecondPlayerRoundPoints = this.secondToPlay.RoundPoints;
-            this.firstToPlay.Player.EndTurn(context);
-            this.secondToPlay.Player.EndTurn(context);
+            context.FirstPlayerRoundPoints = firstToPlay.RoundPoints;
+            context.SecondPlayerRoundPoints = secondToPlay.RoundPoints;
+            firstToPlay.Player.EndTurn(context);
+            secondToPlay.Player.EndTurn(context);
 
             return winner;
         }
@@ -130,7 +122,7 @@
                         {
                             if (action.Announce != Announce.None)
                             {
-                                playerInfo.Announces.Add(action.Announce);
+                                playerInfo.AddAnnounce(action.Announce);
                             }
 
                             return action;

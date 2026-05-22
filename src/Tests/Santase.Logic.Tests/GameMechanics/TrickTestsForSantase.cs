@@ -26,8 +26,8 @@
 
             SimulateGame(firstPlayerInfo, secondPlayerInfo, deck);
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            var winner = trick.Play();
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            var winner = trick.Play(firstPlayerInfo, secondPlayerInfo);
 
             Assert.Equal(1, firstPlayer.GetTurnCalledCount);
             Assert.Equal(1, secondPlayer.GetTurnCalledCount);
@@ -58,11 +58,11 @@
             var deck = new Deck();
 
             // 53 points in firstPlayerInfo.TrickCards
-            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Diamond, CardType.Ace));
-            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Diamond, CardType.Ten));
-            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Spade, CardType.Ace));
-            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ace));
-            firstPlayerInfo.TrickCards.Add(Card.GetCard(CardSuit.Club, CardType.Ten));
+            firstPlayerInfo.WinCard(Card.GetCard(CardSuit.Diamond, CardType.Ace));
+            firstPlayerInfo.WinCard(Card.GetCard(CardSuit.Diamond, CardType.Ten));
+            firstPlayerInfo.WinCard(Card.GetCard(CardSuit.Spade, CardType.Ace));
+            firstPlayerInfo.WinCard(Card.GetCard(CardSuit.Club, CardType.Ace));
+            firstPlayerInfo.WinCard(Card.GetCard(CardSuit.Club, CardType.Ten));
 
             // Add cards for announcing 20
             firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.King));
@@ -72,8 +72,8 @@
             secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ten));
             secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ace));
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            var winner = trick.Play();
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            var winner = trick.Play(firstPlayerInfo, secondPlayerInfo);
 
             Assert.Equal(1, firstPlayer.GetTurnCalledCount);
             Assert.Equal(0, secondPlayer.GetTurnCalledCount);
@@ -101,8 +101,8 @@
             firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Nine));
             secondPlayerInfo.AddCard(Card.GetCard(deck.TrumpCard.Suit, CardType.Jack));
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            var winner = trick.Play();
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            var winner = trick.Play(firstPlayerInfo, secondPlayerInfo);
 
             Assert.True(winner == secondPlayerInfo);
             Assert.Equal(2, winner.RoundPoints);
@@ -139,8 +139,8 @@
             secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Diamond, CardType.Ten));
             secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Diamond, CardType.Ace));
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            trick.Play();
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            trick.Play(firstPlayerInfo, secondPlayerInfo);
 
             Assert.True(firstPlayer.GetTurnContextObject.IsFirstPlayerTurn);
             Assert.False(secondPlayer.GetTurnContextObject.IsFirstPlayerTurn);
@@ -170,8 +170,8 @@
             firstPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.King));
             secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ace));
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            Assert.Throws<InternalGameException>(() => trick.Play());
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            Assert.Throws<InternalGameException>(() => trick.Play(firstPlayerInfo, secondPlayerInfo));
         }
 
         [Fact]
@@ -187,8 +187,8 @@
             var stateManager = new StateManager();
             var deck = new Deck();
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            Assert.Throws<InternalGameException>(() => trick.Play());
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            Assert.Throws<InternalGameException>(() => trick.Play(firstPlayerInfo, secondPlayerInfo));
         }
 
         [Fact]
@@ -210,8 +210,8 @@
             secondPlayerInfo.AddCard(
                 Card.GetCard(trumpSuit == CardSuit.Heart ? CardSuit.Club : CardSuit.Heart, CardType.Ace));
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            trick.Play();
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            trick.Play(firstPlayerInfo, secondPlayerInfo);
 
             Assert.Equal(nineOfTrump, deck.TrumpCard);
             Assert.Equal(nineOfTrump, secondPlayer.GetTurnContextObject.TrumpCard);
@@ -237,8 +237,8 @@
             firstPlayerInfo.AddCard(Card.GetCard(trumpSuit, CardType.Jack));
             secondPlayerInfo.AddCard(Card.GetCard(CardSuit.Heart, CardType.Ace));
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            Assert.Throws<InternalGameException>(() => trick.Play());
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            Assert.Throws<InternalGameException>(() => trick.Play(firstPlayerInfo, secondPlayerInfo));
         }
 
         [Fact]
@@ -254,8 +254,8 @@
 
             SimulateGame(firstPlayerInfo, secondPlayerInfo, deck);
 
-            var trick = new Trick(firstPlayerInfo, secondPlayerInfo, stateManager, deck, GameRulesProvider.Santase);
-            trick.Play();
+            var trick = new Trick(stateManager, deck, GameRulesProvider.Santase);
+            trick.Play(firstPlayerInfo, secondPlayerInfo);
 
             Assert.True(firstPlayerInfo.GameCloser);
             Assert.False(secondPlayerInfo.GameCloser);
