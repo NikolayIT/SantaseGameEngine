@@ -10,3 +10,9 @@ src/AI/Santase.AI.ClaudePlayer/Neural/checkpoints/
 training_*.bin
 weights_smoke.bin
 *.training.bin
+
+# Local distillation-pipeline scratch (datasets, checkpoints, run logs — large, regenerable)
+tools/NeuralTrainer/_scratch/
+
+# Local Claude Code agent state
+.claude/

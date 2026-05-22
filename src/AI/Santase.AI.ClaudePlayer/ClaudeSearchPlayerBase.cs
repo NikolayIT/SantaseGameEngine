@@ -4,6 +4,7 @@ namespace Santase.AI.ClaudePlayer
     using System.Collections.Generic;
     using System.Numerics;
 
+    using Santase.AI.ClaudePlayer.Neural;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
@@ -169,6 +170,18 @@ namespace Santase.AI.ClaudePlayer
         /// game and runs each game on one thread), so no contention; inject a seed for tests.
         /// </summary>
         public Random Rng { get; set; } = new Random();
+
+        /// <summary>
+        /// Optional sink for policy distillation: (features128, visitDistribution24). Fires once per
+        /// searched card decision with the encoded position and the search's normalized root visit
+        /// distribution over the dense 24-card policy space — the AlphaZero-style soft target for
+        /// cloning this search into the MLP. Only the searched decisions are emitted (forced single
+        /// moves and the exact deck-empty endgame solve route elsewhere and are skipped), matching
+        /// the decision set <see cref="ClaudePlayerNeural"/> asks its net at inference. The arrays are
+        /// freshly allocated per call, so the recorder may retain them. Null by default = zero
+        /// production cost.
+        /// </summary>
+        public Action<float[], float[]> PolicyRecorder { get; set; }
 
         private CardCollection UnknownCards { get; set; } = new CardCollection(CardCollection.AllSantaseCardsBitMask);
 
@@ -511,6 +524,42 @@ namespace Santase.AI.ClaudePlayer
                 var move = this.RolloutPolicy(state);
                 state = this.ApplyMove(state, move);
             }
+        }
+
+        // Emits one distillation sample for the just-searched decision: the encoded position plus the
+        // normalized root visit distribution. moveHashes[i]/visitCounts[i] hold the engine card hash
+        // and accumulated visits of root child i; each hash is mapped into the dense 24-card policy
+        // index the net is trained on (NeuralFeatureEncoder.CardIndex). No-op unless a recorder is set.
+        protected void RecordPolicy(PlayerTurnContext context, int[] moveHashes, int[] visitCounts, int count)
+        {
+            var recorder = this.PolicyRecorder;
+            if (recorder == null)
+            {
+                return;
+            }
+
+            long totalVisits = 0;
+            for (var i = 0; i < count; i++)
+            {
+                totalVisits += visitCounts[i];
+            }
+
+            if (totalVisits <= 0)
+            {
+                return;
+            }
+
+            var features = new float[NeuralFeatureEncoder.FeatureCount];
+            NeuralFeatureEncoder.Encode(features, context, this.Cards, this.PlayedCards, this.UnknownCards);
+
+            var distribution = new float[NeuralFeatureEncoder.CardCount];
+            for (var i = 0; i < count; i++)
+            {
+                var index = NeuralFeatureEncoder.CardIndex(Card.Cards[moveHashes[i]]);
+                distribution[index] += visitCounts[i] / (float)totalVisits;
+            }
+
+            recorder(features, distribution);
         }
 
         private static int FillFromMask(long hand, int[] buffer)

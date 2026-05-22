@@ -48,6 +48,10 @@ namespace Santase.AI.ClaudePlayer
         private int nodeCount;
         private int edgeCount;
 
+        // Scratch for emitting the root visit distribution to a PolicyRecorder (distillation only).
+        private int[] rootMoveScratch;
+        private int[] rootVisitScratch;
+
         public ClaudePlayerIsmcts()
         {
             // ISMCTS wants far less exploration than the PIMC variant (which defaults to 1.4): the
@@ -83,7 +87,27 @@ namespace Santase.AI.ClaudePlayer
             }
             while (iterations < IterationCap && Stopwatch.GetTimestamp() - start < limitTicks);
 
+            if (this.PolicyRecorder != null)
+            {
+                this.RecordRootPolicy(context, rootId);
+            }
+
             return this.PickRootMove(rootId);
+        }
+
+        // Gathers the root children (our legal moves) and their visit counts, then hands them to the
+        // base recorder, which turns them into a (features, visit-distribution) distillation sample.
+        private void RecordRootPolicy(PlayerTurnContext context, int rootId)
+        {
+            var count = 0;
+            for (var e = this.nodeChildHead[rootId]; e != -1; e = this.edgeNext[e])
+            {
+                this.rootMoveScratch[count] = this.edgeMove[e];
+                this.rootVisitScratch[count] = this.nodeVisits[this.edgeChild[e]];
+                count++;
+            }
+
+            this.RecordPolicy(context, this.rootMoveScratch, this.rootVisitScratch, count);
         }
 
         private void RunIteration(int rootId, SimState state)
@@ -233,6 +257,10 @@ namespace Santase.AI.ClaudePlayer
 
             // A round is at most 24 plies, so any root-to-leaf path fits comfortably.
             this.pathBuffer = new int[32];
+
+            // Root fan-out is our own legal moves (<= hand size); 24 is a safe upper bound.
+            this.rootMoveScratch = new int[24];
+            this.rootVisitScratch = new int[24];
         }
     }
 }

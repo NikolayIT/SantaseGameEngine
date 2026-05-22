@@ -153,6 +153,95 @@ namespace Santase.Tools.NeuralTrainer
         }
 
         /// <summary>
+        /// Soft-target variant of <see cref="TrainBatch"/> for policy distillation: each label is a
+        /// full probability distribution over the 24 cards (the search's root visit fractions) rather
+        /// than a single class index. Loss is cross-entropy H(target, pred) = -sum_i t_i log p_i; the
+        /// softmax output gradient reduces to the same clean (pred - target). Returns (mean loss, mean
+        /// top-1 agreement where argmax(pred) == argmax(target)).
+        /// </summary>
+        public (float Loss, float Accuracy) TrainBatchSoft(
+            float[] features,
+            float[] targets,
+            int[] indices,
+            int batchStart,
+            int batchSize,
+            float learningRate,
+            float beta1,
+            float beta2,
+            float eps)
+        {
+            Array.Clear(this.gw1, 0, this.gw1.Length);
+            Array.Clear(this.gb1, 0, this.gb1.Length);
+            Array.Clear(this.gw2, 0, this.gw2.Length);
+            Array.Clear(this.gb2, 0, this.gb2.Length);
+            Array.Clear(this.gw3, 0, this.gw3.Length);
+            Array.Clear(this.gb3, 0, this.gb3.Length);
+
+            float totalLoss = 0f;
+            var correct = 0;
+
+            for (var s = 0; s < batchSize; s++)
+            {
+                var sampleIdx = indices[batchStart + s];
+                var xOffset = sampleIdx * InSize;
+                var tOffset = sampleIdx * OutSize;
+
+                this.Forward(features, xOffset);
+
+                var tArgmax = 0;
+                var tMax = -1f;
+                var pArgmax = 0;
+                var pMax = -1f;
+                for (var i = 0; i < OutSize; i++)
+                {
+                    var ti = targets[tOffset + i];
+                    if (ti > 0f)
+                    {
+                        var pi = this.probs[i] < 1e-12f ? 1e-12f : this.probs[i];
+                        totalLoss += -ti * MathF.Log(pi);
+                    }
+
+                    if (ti > tMax)
+                    {
+                        tMax = ti;
+                        tArgmax = i;
+                    }
+
+                    if (this.probs[i] > pMax)
+                    {
+                        pMax = this.probs[i];
+                        pArgmax = i;
+                    }
+                }
+
+                if (pArgmax == tArgmax)
+                {
+                    correct++;
+                }
+
+                this.BackwardSoft(features, xOffset, targets, tOffset);
+            }
+
+            var scale = 1f / batchSize;
+            ScaleInPlace(this.gw1, scale);
+            ScaleInPlace(this.gb1, scale);
+            ScaleInPlace(this.gw2, scale);
+            ScaleInPlace(this.gb2, scale);
+            ScaleInPlace(this.gw3, scale);
+            ScaleInPlace(this.gb3, scale);
+
+            this.adamStep++;
+            AdamUpdate(this.w1, this.gw1, this.mw1, this.vw1, learningRate, beta1, beta2, eps, this.adamStep);
+            AdamUpdate(this.b1, this.gb1, this.mb1, this.vb1, learningRate, beta1, beta2, eps, this.adamStep);
+            AdamUpdate(this.w2, this.gw2, this.mw2, this.vw2, learningRate, beta1, beta2, eps, this.adamStep);
+            AdamUpdate(this.b2, this.gb2, this.mb2, this.vb2, learningRate, beta1, beta2, eps, this.adamStep);
+            AdamUpdate(this.w3, this.gw3, this.mw3, this.vw3, learningRate, beta1, beta2, eps, this.adamStep);
+            AdamUpdate(this.b3, this.gb3, this.mb3, this.vb3, learningRate, beta1, beta2, eps, this.adamStep);
+
+            return (totalLoss / batchSize, (float)correct / batchSize);
+        }
+
+        /// <summary>
         /// Saves weights in the row-major float32 layout expected by NeuralNetwork.LoadFromStream:
         /// W1, b1, W2, b2, W3, b3.
         /// </summary>
@@ -284,7 +373,24 @@ namespace Santase.Tools.NeuralTrainer
             }
 
             this.dz3[y] -= 1f;
+            this.BackwardFromDz3(features, xOffset);
+        }
 
+        // Soft-target output gradient: dz3 = pred - target, where target is a full probability
+        // distribution over the 24 cards (softmax cross-entropy reduces to the same clean form).
+        private void BackwardSoft(float[] features, int xOffset, float[] targets, int tOffset)
+        {
+            for (var i = 0; i < OutSize; i++)
+            {
+                this.dz3[i] = this.probs[i] - targets[tOffset + i];
+            }
+
+            this.BackwardFromDz3(features, xOffset);
+        }
+
+        // Backprop from an already-populated this.dz3 through W3/W2/W1 into the gradient accumulators.
+        private void BackwardFromDz3(float[] features, int xOffset)
+        {
             for (var i = 0; i < OutSize; i++)
             {
                 var row = i * H2;

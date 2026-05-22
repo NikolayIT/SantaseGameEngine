@@ -42,6 +42,12 @@ namespace Santase.Tests.GameSimulations
                 return;
             }
 
+            if (args is { Length: > 0 } && args[0] == "--gen-distill-data")
+            {
+                RunDistillationDataGeneration(args);
+                return;
+            }
+
             if (args is { Length: > 0 } && string.Equals(args[0], "elo", StringComparison.OrdinalIgnoreCase))
             {
                 RunEloTournament(args);
@@ -192,6 +198,53 @@ namespace Santase.Tests.GameSimulations
             Console.WriteLine($"Played {games:0,0} games in {elapsed}");
             Console.WriteLine($"Wins: {result.FirstPlayerWins:0,0} - {result.SecondPlayerWins:0,0}, rounds: {result.RoundsPlayed:0,0}");
             Console.WriteLine($"Recorded {collector.SampleCount:0,0} training samples to {outputPath}");
+        }
+
+        // ISMCTS self-play soft-target distillation: both players are the strongest search player,
+        // and every searched decision is recorded as (features, root-visit-distribution). Feeds
+        // NeuralTrainer --supervised --soft. ISMCTS spends a per-move budget (default 35ms, far below
+        // play-strength 100ms — the root distribution converges fast), so this is much slower than the
+        // heuristic --gen-training-data; size the game count accordingly.
+        private static void RunDistillationDataGeneration(string[] args)
+        {
+            if (args.Length < 3)
+            {
+                Console.Error.WriteLine("Usage: --gen-distill-data <games> <output-path> [budgetMs]");
+                Environment.Exit(2);
+                return;
+            }
+
+            if (!int.TryParse(args[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var games) || games <= 0)
+            {
+                Console.Error.WriteLine($"Invalid game count: {args[1]}");
+                Environment.Exit(2);
+                return;
+            }
+
+            var outputPath = args[2];
+            var budgetMs = 35;
+            if (args.Length > 3
+                && int.TryParse(args[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedBudget)
+                && parsedBudget > 0)
+            {
+                budgetMs = parsedBudget;
+            }
+
+            Console.WriteLine($"Generating ISMCTS distillation data: {games:0,0} self-play games @ {budgetMs}ms/move -> {outputPath}");
+            Console.WriteLine($"CPUs={Environment.ProcessorCount}");
+
+            var collector = new PolicyTrainingDataCollector();
+            var simulator = new ClaudeIsmctsDistillationSimulator(collector, budgetMs);
+
+            var sw = Stopwatch.StartNew();
+            var result = simulator.Simulate(games);
+            var elapsed = sw.Elapsed;
+
+            collector.WriteTo(outputPath);
+
+            Console.WriteLine($"Played {games:0,0} games in {elapsed}");
+            Console.WriteLine($"Wins: {result.FirstPlayerWins:0,0} - {result.SecondPlayerWins:0,0}, rounds: {result.RoundsPlayed:0,0}");
+            Console.WriteLine($"Recorded {collector.SampleCount:0,0} distillation samples to {outputPath}");
         }
 
         // `elo [fastGames] [ismctsGames]` — round-robin among the five UI opponents, then a

@@ -20,12 +20,16 @@ namespace Santase.Tools.NeuralTrainer
             var batchSize = 256;
             var learningRate = 1e-3f;
             var seed = 1337;
+            var soft = false;
 
             for (var i = 0; i < args.Length; i++)
             {
                 switch (args[i])
                 {
                     case "--supervised":
+                        break;
+                    case "--soft":
+                        soft = true;
                         break;
                     case "--data":
                         dataPath = args[++i];
@@ -55,6 +59,11 @@ namespace Santase.Tools.NeuralTrainer
             {
                 Console.Error.WriteLine($"Dataset not found: {dataPath}");
                 return 2;
+            }
+
+            if (soft)
+            {
+                return RunSoft(dataPath, outPath, epochs, batchSize, learningRate, seed);
             }
 
             Console.WriteLine($"Loading dataset from {dataPath}");
@@ -106,6 +115,70 @@ namespace Santase.Tools.NeuralTrainer
                 var meanAcc = sumAcc / batches;
                 Console.WriteLine(
                     $"Epoch {epoch,3}/{epochs}: loss={meanLoss:F4} acc={meanAcc:P2} "
+                    + $"({batches:N0} batches, {epochSw.Elapsed})");
+            }
+
+            Console.WriteLine($"Training finished in {swTrain.Elapsed}");
+
+            trainer.SaveWeights(outPath);
+            var fi = new FileInfo(outPath);
+            Console.WriteLine($"Weights written to {outPath} ({fi.Length:N0} bytes)");
+            return 0;
+        }
+
+        // Soft-target distillation: same loop as the hard path but reads an STSP dataset (24-float
+        // root-visit distributions) and trains with cross-entropy against those soft labels.
+        private static int RunSoft(string dataPath, string outPath, int epochs, int batchSize, float learningRate, int seed)
+        {
+            Console.WriteLine($"Loading soft-target dataset from {dataPath}");
+            var swLoad = Stopwatch.StartNew();
+            var dataset = SoftTrainingDataset.Load(dataPath);
+            Console.WriteLine(
+                $"Loaded {dataset.SampleCount:N0} samples, "
+                + $"feature_dim={dataset.FeatureDim} target_dim={dataset.TargetDim} in {swLoad.Elapsed}");
+
+            Console.WriteLine(
+                $"Config (soft): epochs={epochs}, batch={batchSize}, lr={learningRate}, seed={seed}");
+
+            var trainer = new MLPTrainer(seed);
+            var rng = new Random(seed);
+            var indices = new int[dataset.SampleCount];
+            for (var i = 0; i < indices.Length; i++)
+            {
+                indices[i] = i;
+            }
+
+            var swTrain = Stopwatch.StartNew();
+            for (var epoch = 1; epoch <= epochs; epoch++)
+            {
+                Shuffle(indices, rng);
+
+                double sumLoss = 0;
+                double sumAcc = 0;
+                var batches = 0;
+
+                var epochSw = Stopwatch.StartNew();
+                for (var start = 0; start + batchSize <= dataset.SampleCount; start += batchSize)
+                {
+                    var (loss, acc) = trainer.TrainBatchSoft(
+                        dataset.Features,
+                        dataset.Targets,
+                        indices,
+                        start,
+                        batchSize,
+                        learningRate,
+                        beta1: 0.9f,
+                        beta2: 0.999f,
+                        eps: 1e-8f);
+                    sumLoss += loss;
+                    sumAcc += acc;
+                    batches++;
+                }
+
+                var meanLoss = sumLoss / batches;
+                var meanAcc = sumAcc / batches;
+                Console.WriteLine(
+                    $"Epoch {epoch,3}/{epochs}: loss={meanLoss:F4} agree={meanAcc:P2} "
                     + $"({batches:N0} batches, {epochSw.Elapsed})");
             }
 
