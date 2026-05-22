@@ -5,8 +5,10 @@ namespace Santase.AI.ClaudePlayer
     using System.Numerics;
 
     using Santase.AI.ClaudePlayer.Neural;
+    using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
+    using Santase.Logic.WinnerLogic;
 
     /// <summary>
     /// Variant of <see cref="ClaudePlayer"/> where the heuristic card-choice path is replaced
@@ -265,15 +267,9 @@ namespace Santase.AI.ClaudePlayer
                 var leader = state.LedCard;
                 var trickValue = leader.GetValue() + card.GetValue();
 
-                bool followerWins;
-                if (leader.Suit == card.Suit)
-                {
-                    followerWins = card.GetValue() > leader.GetValue();
-                }
-                else
-                {
-                    followerWins = card.Suit == state.TrumpSuit;
-                }
+                // The follower (the card just played) wins iff it beats the led card.
+                var followerWins =
+                    CardWinnerLogic.GetWinner(leader, card, state.TrumpSuit) == PlayerPosition.SecondPlayer;
 
                 var amWinningTrick = state.MyTurn == followerWins;
 

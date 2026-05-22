@@ -27,6 +27,24 @@
             Assert.Equal(PlayerPosition.SecondPlayer, result);
         }
 
+        [Theory]
+        [MemberData(nameof(DataSource.FirstPlayerWins), MemberType = typeof(DataSource))]
+        public void StaticGetWinnerShouldMatchInstanceWhenFirstPlayerWins(Card firstPlayerCard, Card secondPlayerCard, CardSuit trumpSuit)
+        {
+            var result = CardWinnerLogic.GetWinner(firstPlayerCard, secondPlayerCard, trumpSuit);
+            Assert.Equal(PlayerPosition.FirstPlayer, result);
+            Assert.Equal(new CardWinnerLogic().Winner(firstPlayerCard, secondPlayerCard, trumpSuit), result);
+        }
+
+        [Theory]
+        [MemberData(nameof(DataSource.SecondPlayerWins), MemberType = typeof(DataSource))]
+        public void StaticGetWinnerShouldMatchInstanceWhenSecondPlayerWins(Card firstPlayerCard, Card secondPlayerCard, CardSuit trumpSuit)
+        {
+            var result = CardWinnerLogic.GetWinner(firstPlayerCard, secondPlayerCard, trumpSuit);
+            Assert.Equal(PlayerPosition.SecondPlayer, result);
+            Assert.Equal(new CardWinnerLogic().Winner(firstPlayerCard, secondPlayerCard, trumpSuit), result);
+        }
+
         public static class DataSource
         {
             public static readonly IEnumerable<object[]> FirstPlayerWins = new List<object[]>

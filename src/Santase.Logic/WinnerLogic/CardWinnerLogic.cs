@@ -6,6 +6,15 @@
     {
         public PlayerPosition Winner(Card firstPlayerCard, Card secondPlayerCard, CardSuit trumpSuit)
         {
+            return GetWinner(firstPlayerCard, secondPlayerCard, trumpSuit);
+        }
+
+        // The trick winner given the led card (first), the response (second) and the trump suit.
+        // This is the engine's authoritative trick rule, exposed as a pure, allocation-free static
+        // so card players can reuse it in their search / evaluation loops instead of re-deriving the
+        // same comparison. The instance Winner above (and the ICardWinnerLogic seam) delegate here.
+        public static PlayerPosition GetWinner(Card firstPlayerCard, Card secondPlayerCard, CardSuit trumpSuit)
+        {
             if (firstPlayerCard.Suit == secondPlayerCard.Suit)
             {
                 // If both players play the same suit, the higher card wins.

@@ -8,6 +8,7 @@
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
+    using Santase.Logic.WinnerLogic;
 
     /// <summary>
     /// Santase player. Stays well under 0.01 seconds per turn.
@@ -118,12 +119,9 @@
             // present => round ended on a winning announce (no actual trick completed), skip.
             if (context.FirstPlayedCard != null && context.SecondPlayedCard != null)
             {
-                var trumpSuit = context.TrumpCard.Suit;
-                var first = context.FirstPlayedCard;
-                var second = context.SecondPlayedCard;
-                var firstWins = first.Suit == second.Suit
-                    ? first.GetValue() > second.GetValue()
-                    : second.Suit != trumpSuit;
+                var firstWins = CardWinnerLogic.GetWinner(
+                    context.FirstPlayedCard, context.SecondPlayedCard, context.TrumpCard.Suit)
+                    == PlayerPosition.FirstPlayer;
                 var iWon = this.iWasLeaderThisTrick == firstWins;
                 if (iWon)
                 {
@@ -300,15 +298,9 @@
                 var leader = state.LedCard;
                 var trickValue = leader.GetValue() + card.GetValue();
 
-                bool followerWins;
-                if (leader.Suit == card.Suit)
-                {
-                    followerWins = card.GetValue() > leader.GetValue();
-                }
-                else
-                {
-                    followerWins = card.Suit == state.TrumpSuit;
-                }
+                // The follower (the card just played) wins iff it beats the led card.
+                var followerWins =
+                    CardWinnerLogic.GetWinner(leader, card, state.TrumpSuit) == PlayerPosition.SecondPlayer;
 
                 // Current player (about to play) is the follower.
                 // followerWins == true => current player wins; false => the other (leader) wins.
@@ -768,7 +760,7 @@
         {
             foreach (var c in possibleCards)
             {
-                var announceBonus = this.AnnounceBonusFor(c, context, trumpSuit);
+                var announceBonus = this.AnnounceBonusFor(c, context);
 
                 // Engine ends the trick the moment my announce pushes me past 66 (round-end check before opponent plays).
                 if (myPoints + announceBonus >= 66)
@@ -787,25 +779,18 @@
             return null;
         }
 
-        private int AnnounceBonusFor(Card card, PlayerTurnContext context, CardSuit trumpSuit)
+        private int AnnounceBonusFor(Card card, PlayerTurnContext context)
         {
             if (!context.State.CanAnnounce20Or40)
             {
                 return 0;
             }
 
-            if (card.Type != CardType.King && card.Type != CardType.Queen)
-            {
-                return 0;
-            }
-
-            var partnerType = card.Type == CardType.King ? CardType.Queen : CardType.King;
-            if (!this.Cards.Contains(Card.GetCard(card.Suit, partnerType)))
-            {
-                return 0;
-            }
-
-            return card.Suit == trumpSuit ? 40 : 20;
+            // Reuse the engine's own marriage rule instead of re-deriving it. The Announce enum
+            // values are the bonus itself (None = 0, Twenty = 20, Forty = 40); this is only ever
+            // evaluated for a card we are considering leading, so we ask as the trick leader.
+            return (int)this.AnnounceValidator.GetPossibleAnnounce(
+                this.Cards, card, context.TrumpCard, context.IsFirstPlayerTurn);
         }
 
         private Card FindBestGuaranteedWinner(PlayerTurnContext context, ICollection<Card> possibleCards, CardSuit trumpSuit)

@@ -5,9 +5,11 @@ namespace Santase.AI.ClaudePlayer
     using System.Numerics;
 
     using Santase.AI.ClaudePlayer.Neural;
+    using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
+    using Santase.Logic.WinnerLogic;
 
     /// <summary>
     /// Shared scaffolding for determinized-search Santase players (currently <see cref="ClaudePlayerIsmcts"/>).
@@ -222,12 +224,9 @@ namespace Santase.AI.ClaudePlayer
 
             if (context.FirstPlayedCard != null && context.SecondPlayedCard != null)
             {
-                var trumpSuit = context.TrumpCard.Suit;
-                var first = context.FirstPlayedCard;
-                var second = context.SecondPlayedCard;
-                var firstWins = first.Suit == second.Suit
-                    ? first.GetValue() > second.GetValue()
-                    : second.Suit != trumpSuit;
+                var firstWins = CardWinnerLogic.GetWinner(
+                    context.FirstPlayedCard, context.SecondPlayedCard, context.TrumpCard.Suit)
+                    == PlayerPosition.FirstPlayer;
                 var iWon = this.iWasLeaderThisTrick == firstWins;
                 if (iWon)
                 {
@@ -453,6 +452,9 @@ namespace Santase.AI.ClaudePlayer
             var moveValue = ValueByHash[move];
             var trickValue = ledValue + moveValue;
 
+            // Trick resolution over the bitmask representation (mirrors CardWinnerLogic.GetWinner).
+            // Kept inline on this hot rollout/search path to work off the precomputed hash tables
+            // rather than materializing Card instances per simulated ply.
             bool followerWins = ledSuit == moveSuit
                 ? moveValue > ledValue
                 : moveSuit == this.worldTrumpSuit;
