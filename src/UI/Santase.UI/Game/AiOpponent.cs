@@ -86,28 +86,28 @@ namespace Santase.UI.Game
                 "Opp_Smart_Name",
                 "Opp_Smart_Tag",
                 2,
-                2050,
+                2049,
                 () => new SmartPlayer()),
             new AiOpponent(
                 "claude",
                 "Opp_Claude_Name",
                 "Opp_Claude_Tag",
                 3,
-                2093,
+                2090,
                 () => new ClaudePlayer()),
             new AiOpponent(
                 "neural",
                 "Opp_Neural_Name",
                 "Opp_Neural_Tag",
                 4,
-                2302,
+                2331,
                 () => new ClaudePlayerNeural()),
             new AiOpponent(
                 "ismcts",
                 "Opp_Ismcts_Name",
                 "Opp_Ismcts_Tag",
                 5,
-                2415,
+                2443,
                 () => new ClaudePlayerIsmcts()),
         };
 
