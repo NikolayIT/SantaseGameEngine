@@ -1,0 +1,1 @@
+First release. Play Santase / 66 / Schnapsen against a strong on-device AI — fully offline, no ads, in English and Bulgarian.

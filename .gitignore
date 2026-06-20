@@ -19,3 +19,10 @@ tools/EngineBench/_bench/
 
 # Local Claude Code agent state
 .claude/
+
+# Android release signing — NEVER commit the upload keystore or its passwords.
+# Losing this file (or its passwords) means you can no longer push updates under
+# the same upload key; keep an off-machine backup. See src/UI/Santase.UI/PLAYSTORE.md.
+*.keystore
+*.jks
+signing.user.props
