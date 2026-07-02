@@ -9,16 +9,20 @@ namespace Santase.UI.Game
 
     public sealed class MatchHistoryEntry
     {
-        public MatchHistoryEntry(string opponentName, int myScore, int opponentScore, bool won, DateTime whenUtc)
+        public MatchHistoryEntry(string opponentName, int myScore, int opponentScore, bool won, DateTime whenUtc, string opponentId = "")
         {
             this.OpponentName = opponentName;
             this.MyScore = myScore;
             this.OpponentScore = opponentScore;
             this.Won = won;
             this.WhenUtc = whenUtc;
+            this.OpponentId = opponentId;
         }
 
         public string OpponentName { get; }
+
+        /// <summary>Stable, language-independent opponent id (empty on records from app v1.0).</summary>
+        public string OpponentId { get; }
 
         public int MyScore { get; }
 
@@ -39,7 +43,7 @@ namespace Santase.UI.Game
     public static class MatchHistoryStore
     {
         private const string Key = "match.history";
-        private const int MaxEntries = 30;
+        private const int MaxEntries = 100;
         private const char FieldSeparator = '|';
         private const char RecordSeparator = '\n';
 
@@ -65,7 +69,8 @@ namespace Santase.UI.Game
                     ParseInt(fields[1]),
                     ParseInt(fields[2]),
                     fields[0] == "1",
-                    ParseDate(fields[4])));
+                    ParseDate(fields[4]),
+                    fields.Length >= 6 ? fields[5] : string.Empty));
             }
 
             return list;
@@ -91,7 +96,8 @@ namespace Santase.UI.Game
             e.MyScore.ToString(CultureInfo.InvariantCulture),
             e.OpponentScore.ToString(CultureInfo.InvariantCulture),
             Sanitize(e.OpponentName),
-            e.WhenUtc.ToString("o", CultureInfo.InvariantCulture));
+            e.WhenUtc.ToString("o", CultureInfo.InvariantCulture),
+            Sanitize(e.OpponentId));
 
         private static string Sanitize(string name) =>
             name.Replace(FieldSeparator, ' ').Replace(RecordSeparator, ' ');
