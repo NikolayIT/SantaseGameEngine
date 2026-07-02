@@ -9,6 +9,9 @@ namespace Santase.UI
             this.InitializeComponent();
 
             Routing.RegisterRoute("GamePage", typeof(GamePage));
+            Routing.RegisterRoute("SettingsPage", typeof(SettingsPage));
+            Routing.RegisterRoute("StatisticsPage", typeof(StatisticsPage));
+            Routing.RegisterRoute("RulesPage", typeof(RulesPage));
         }
     }
 }

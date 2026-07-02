@@ -22,9 +22,11 @@ namespace Santase.UI.Pages
 
             this.SelectOpponentCommand = new RelayCommand<AiOpponent>(opponent => _ = this.OnSelectOpponent(opponent));
 
-            // Set once; AiOpponent raises PropertyChanged on a language switch so the bound name /
-            // tagline labels refresh in place (no list rebuild needed).
+            // Set once; AiOpponent raises PropertyChanged on a language switch or a stats update,
+            // so the bound rows refresh in place (no list rebuild needed).
             BindableLayout.SetItemsSource(this.OpponentList, AiOpponents.All);
+
+            this.FirstPlayerEntry.Text = AppSettings.PlayerName;
         }
 
         public ICommand SelectOpponentCommand { get; }
@@ -41,24 +43,35 @@ namespace Santase.UI.Pages
             this.ApplyTexts();
         }
 
-        // Refreshes everything that is set from code (so it follows a language switch): the rating
-        // block, the opponent list (rebuilt so localized taglines re-render), the recent-games list,
-        // entry placeholders and the language button. Static XAML text uses {loc:Tr} and updates
-        // itself via the LocalizationManager indexer.
+        private async void OnOpenSettings(object? sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("SettingsPage");
+        }
+
+        private async void OnOpenStatistics(object? sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("StatisticsPage");
+        }
+
+        private async void OnOpenRules(object? sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("RulesPage");
+        }
+
+        private void OnPlayerNameChanged(object? sender, EventArgs e)
+        {
+            AppSettings.PlayerName = this.FirstPlayerEntry.Text?.Trim() ?? string.Empty;
+        }
+
+        // Refreshes everything composed in code (so it follows a language switch): the rating
+        // block, the recent-games list and the language button. Static text uses {loc:Tr}
+        // bindings and refreshes itself via the LocalizationManager indexer.
         private void ApplyTexts()
         {
             var mgr = LocalizationManager.Instance;
 
             this.LangButton.Text = mgr.IsBulgarian ? "English" : "Български";
-
-            // The start page is the only screen with a live language toggle, so its text is set
-            // here in code (rather than via {loc:Tr} bindings) to guarantee it re-renders on switch.
-            this.SubtitleLabel.Text = mgr["Start_Subtitle"];
-            this.YouLabel.Text = mgr["Start_You"];
-            this.ChooseOpponentLabel.Text = mgr["Start_ChooseOpponent"];
-            this.RecentGamesLabel.Text = mgr["Start_RecentGames"];
-            this.P2Label.Text = mgr["Start_P2"];
-            this.HotSeatButton.Text = mgr["Start_HotSeat"];
+            this.SeeAllLabel.Text = $"{mgr["Start_SeeAll"]} ›";
 
             this.RatingCaptionLabel.Text = mgr["Start_YourRating"].ToUpperInvariant();
             this.RatingLabel.Text = PlayerRatingStore.CurrentElo.ToString(CultureInfo.InvariantCulture);
@@ -68,9 +81,6 @@ namespace Santase.UI.Pages
                 ? mgr.Format("Start_RecordFormat", games, PlayerRatingStore.Wins, PlayerRatingStore.Losses)
                 : mgr["Start_NoGames"];
 
-            this.FirstPlayerEntry.Placeholder = mgr["Start_Player1"];
-            this.SecondPlayerEntry.Placeholder = mgr["Start_Player2"];
-
             this.RebuildHistory(mgr);
         }
 
@@ -78,9 +88,9 @@ namespace Santase.UI.Pages
         {
             this.HistoryList.Clear();
 
-            var entries = MatchHistoryStore.All().Take(6).ToList();
-            this.NoHistoryLabel.Text = mgr["Start_NoHistory"];
+            var entries = MatchHistoryStore.All().Take(3).ToList();
             this.NoHistoryLabel.IsVisible = entries.Count == 0;
+            this.SeeAllLabel.IsVisible = entries.Count > 0;
 
             foreach (var entry in entries)
             {
@@ -147,10 +157,19 @@ namespace Santase.UI.Pages
             };
         }
 
+        private string ResolveFirstPlayerName()
+        {
+            var name = string.IsNullOrWhiteSpace(this.FirstPlayerEntry.Text)
+                ? LocalizationManager.Instance["Start_Player1"]
+                : this.FirstPlayerEntry.Text.Trim();
+            AppSettings.PlayerName = string.IsNullOrWhiteSpace(this.FirstPlayerEntry.Text) ? string.Empty : name;
+            return name;
+        }
+
         private async void OnPlayHotSeat(object? sender, EventArgs e)
         {
             var mgr = LocalizationManager.Instance;
-            var first = string.IsNullOrWhiteSpace(this.FirstPlayerEntry.Text) ? mgr["Start_Player1"] : this.FirstPlayerEntry.Text.Trim();
+            var first = this.ResolveFirstPlayerName();
             var second = string.IsNullOrWhiteSpace(this.SecondPlayerEntry.Text) ? mgr["Start_Player2"] : this.SecondPlayerEntry.Text.Trim();
 
             var query = $"?mode={GameMode.HotSeat}&first={Uri.EscapeDataString(first)}&second={Uri.EscapeDataString(second)}";
@@ -164,8 +183,7 @@ namespace Santase.UI.Pages
                 return Task.CompletedTask;
             }
 
-            var mgr = LocalizationManager.Instance;
-            var first = string.IsNullOrWhiteSpace(this.FirstPlayerEntry.Text) ? mgr["Start_Player1"] : this.FirstPlayerEntry.Text.Trim();
+            var first = this.ResolveFirstPlayerName();
             var query = $"?mode={GameMode.VsAi}&first={Uri.EscapeDataString(first)}&opponent={Uri.EscapeDataString(opponent.Id)}";
             return Shell.Current.GoToAsync($"GamePage{query}");
         }

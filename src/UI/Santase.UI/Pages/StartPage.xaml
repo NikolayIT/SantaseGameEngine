@@ -19,82 +19,134 @@
         </Grid.Background>
 
         <ScrollView>
-            <VerticalStackLayout Padding="24,40,24,32"
+            <VerticalStackLayout Padding="24,20,24,32"
                                  Spacing="18"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Start"
                                  MaximumWidthRequest="540">
 
-                <!-- Language toggle (top-right) -->
-                <Button x:Name="LangButton"
-                        Clicked="OnToggleLanguage"
-                        HorizontalOptions="End"
-                        HeightRequest="34"
-                        MinimumWidthRequest="92"
-                        Padding="14,0"
-                        FontSize="13"
-                        FontAttributes="Bold"
-                        CornerRadius="17"
-                        BackgroundColor="#26000000"
-                        BorderColor="{StaticResource GoldAccent}"
-                        BorderWidth="1"
-                        TextColor="{StaticResource GoldHighlight}" />
+                <!-- Top bar: language toggle + settings -->
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                    <Button Grid.Column="1"
+                            x:Name="LangButton"
+                            Clicked="OnToggleLanguage"
+                            HeightRequest="34"
+                            MinimumWidthRequest="92"
+                            Padding="14,0"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            CornerRadius="17"
+                            BackgroundColor="#26000000"
+                            BorderColor="{StaticResource GoldAccent}"
+                            BorderWidth="1"
+                            TextColor="{StaticResource GoldHighlight}" />
+                    <Button Grid.Column="2"
+                            Text="⚙"
+                            Clicked="OnOpenSettings"
+                            HeightRequest="34"
+                            WidthRequest="40"
+                            Padding="0"
+                            FontSize="16"
+                            CornerRadius="17"
+                            BackgroundColor="#26000000"
+                            BorderColor="{StaticResource GoldAccent}"
+                            BorderWidth="1"
+                            TextColor="{StaticResource GoldHighlight}" />
+                </Grid>
 
-                <!-- Title block -->
+                <!-- Title block. Composed of three no-wrap labels (small suits flanking the
+                     wordmark) so it always stays on one line, even on narrow phones. -->
                 <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
-                    <Label Text="♠ ♥  SANTASE  ♦ ♣"
-                           FontSize="36"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           TextColor="{StaticResource GoldHighlight}" />
-                    <Label x:Name="SubtitleLabel"
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="♠ ♥"
+                               FontSize="16"
+                               LineBreakMode="NoWrap"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource GoldAccent}" />
+                        <Label Text="SANTASE"
+                               FontSize="30"
+                               FontAttributes="Bold"
+                               CharacterSpacing="3"
+                               LineBreakMode="NoWrap"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource GoldHighlight}" />
+                        <Label Text="♦ ♣"
+                               FontSize="16"
+                               LineBreakMode="NoWrap"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource GoldAccent}" />
+                    </HorizontalStackLayout>
+                    <Label Text="{loc:Tr Start_Subtitle}"
                            FontSize="13"
                            HorizontalOptions="Center"
                            TextColor="#D9CFAE"
                            CharacterSpacing="2" />
                 </VerticalStackLayout>
 
-                <!-- Player rating badge -->
+                <!-- Player rating card (tap → statistics) -->
                 <Border StrokeShape="RoundRectangle 16"
                         StrokeThickness="0"
                         BackgroundColor="#26000000"
                         Padding="20,14"
-                        HorizontalOptions="Center"
-                        MinimumWidthRequest="240">
-                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                        <Label x:Name="RatingCaptionLabel"
-                               FontSize="11"
-                               CharacterSpacing="2"
-                               HorizontalOptions="Center"
-                               TextColor="{StaticResource GoldAccent}" />
-                        <Label x:Name="RatingLabel"
-                               FontSize="30"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"
-                               TextColor="{StaticResource GoldHighlight}" />
-                        <Label x:Name="RecordLabel"
-                               FontSize="11"
-                               HorizontalOptions="Center"
-                               TextColor="#B9C7B0" />
-                    </VerticalStackLayout>
+                        HorizontalOptions="Fill">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnOpenStatistics" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
+                            <Label x:Name="RatingCaptionLabel"
+                                   FontSize="11"
+                                   CharacterSpacing="2"
+                                   HorizontalOptions="Center"
+                                   TextColor="{StaticResource GoldAccent}" />
+                            <Label x:Name="RatingLabel"
+                                   FontSize="30"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{StaticResource GoldHighlight}" />
+                            <Label x:Name="RecordLabel"
+                                   FontSize="11"
+                                   HorizontalOptions="Center"
+                                   TextColor="#B9C7B0" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                            <Label Text="📊"
+                                   FontSize="18"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{loc:Tr Start_Statistics}"
+                                   FontSize="10"
+                                   TextColor="#D9CFAE" />
+                        </VerticalStackLayout>
+                    </Grid>
                 </Border>
 
+                <!-- How to play -->
+                <Button Text="{loc:Tr Start_HowToPlay}"
+                        Clicked="OnOpenRules"
+                        HeightRequest="44"
+                        FontSize="14"
+                        CornerRadius="12"
+                        BackgroundColor="#22000000"
+                        BorderColor="#3FE2B864"
+                        BorderWidth="1"
+                        TextColor="#EDE3C3" />
+
                 <!-- Your name -->
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" VerticalOptions="Center">
-                    <Label Grid.Column="0"
-                           x:Name="YouLabel"
-                           VerticalOptions="Center"
-                           TextColor="White"
-                           FontSize="14" />
-                    <Entry Grid.Column="1"
-                           x:Name="FirstPlayerEntry"
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{loc:Tr Start_YourName}"
+                           FontSize="11"
+                           TextColor="{StaticResource GoldAccent}"
+                           CharacterSpacing="3" />
+                    <Entry x:Name="FirstPlayerEntry"
+                           Placeholder="{loc:Tr Start_Player1}"
                            TextColor="White"
                            PlaceholderColor="#7FFFFFFF"
-                           BackgroundColor="#22000000" />
-                </Grid>
+                           BackgroundColor="#22000000"
+                           Unfocused="OnPlayerNameChanged" />
+                </VerticalStackLayout>
 
                 <!-- Opponent list -->
-                <Label x:Name="ChooseOpponentLabel"
+                <Label Text="{loc:Tr Start_ChooseOpponent}"
                        FontSize="11"
                        TextColor="{StaticResource GoldAccent}"
                        CharacterSpacing="3" />
@@ -105,35 +157,69 @@
                             <Border StrokeShape="RoundRectangle 14"
                                     StrokeThickness="0"
                                     BackgroundColor="#26000000"
-                                    Padding="16,12">
+                                    Padding="14,12">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding Source={x:Reference ThePage}, Path=SelectOpponentCommand}"
                                                           CommandParameter="{Binding}" />
                                 </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                    <VerticalStackLayout Grid.Column="0" Spacing="3">
-                                        <Label Text="{Binding DisplayName}"
-                                               FontSize="17"
-                                               FontAttributes="Bold"
-                                               TextColor="White" />
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <!-- Avatar -->
+                                    <Border Grid.Column="0"
+                                            StrokeShape="RoundRectangle 23"
+                                            StrokeThickness="1"
+                                            Stroke="#59E2B864"
+                                            BackgroundColor="#1F000000"
+                                            WidthRequest="46"
+                                            HeightRequest="46"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding Avatar}"
+                                               FontSize="22"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                    <!-- Name, difficulty, tagline, personal record -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding DisplayName}"
+                                                   FontSize="17"
+                                                   FontAttributes="Bold"
+                                                   VerticalOptions="Center"
+                                                   TextColor="White" />
+                                            <Border StrokeShape="RoundRectangle 7"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="#26FFFFFF"
+                                                    Padding="7,2"
+                                                    VerticalOptions="Center">
+                                                <Label Text="{Binding DifficultyLabel}"
+                                                       FontSize="10"
+                                                       TextColor="#E2D9B8" />
+                                            </Border>
+                                        </HorizontalStackLayout>
                                         <Label Text="{Binding Tagline}"
                                                FontSize="12"
                                                TextColor="#C7D2BD" />
-                                        <Label Text="{Binding DifficultyStars}"
-                                               FontSize="13"
+                                        <Label Text="{Binding RecordText}"
+                                               IsVisible="{Binding HasRecord}"
+                                               FontSize="11"
                                                TextColor="{StaticResource GoldHighlight}" />
                                     </VerticalStackLayout>
-                                    <Border Grid.Column="1"
-                                            StrokeShape="RoundRectangle 9"
-                                            StrokeThickness="0"
-                                            Padding="12,6"
-                                            VerticalOptions="Center"
-                                            BackgroundColor="{StaticResource GoldHighlight}">
-                                        <Label Text="{Binding EloText}"
-                                               FontSize="14"
-                                               FontAttributes="Bold"
-                                               TextColor="#1A1006" />
-                                    </Border>
+                                    <!-- ELO + stars -->
+                                    <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                                        <Border StrokeShape="RoundRectangle 9"
+                                                StrokeThickness="0"
+                                                Padding="12,5"
+                                                HorizontalOptions="Center"
+                                                BackgroundColor="{StaticResource GoldHighlight}">
+                                            <Label Text="{Binding EloText}"
+                                                   FontSize="13"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#1A1006" />
+                                        </Border>
+                                        <Label Text="{Binding DifficultyStars}"
+                                               FontSize="11"
+                                               HorizontalOptions="Center"
+                                               TextColor="{StaticResource GoldHighlight}" />
+                                    </VerticalStackLayout>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -141,13 +227,26 @@
                 </VerticalStackLayout>
 
                 <!-- Recent games -->
-                <Label x:Name="RecentGamesLabel"
-                       FontSize="11"
-                       TextColor="{StaticResource GoldAccent}"
-                       CharacterSpacing="3"
-                       Margin="0,6,0,0" />
+                <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                    <Label Grid.Column="0"
+                           Text="{loc:Tr Start_RecentGames}"
+                           FontSize="11"
+                           TextColor="{StaticResource GoldAccent}"
+                           CharacterSpacing="3"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="1"
+                           x:Name="SeeAllLabel"
+                           FontSize="12"
+                           TextColor="#D9CFAE"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnOpenStatistics" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
 
                 <Label x:Name="NoHistoryLabel"
+                       Text="{loc:Tr Start_NoHistory}"
                        FontSize="12"
                        TextColor="#99FFFFFF" />
 
@@ -161,19 +260,19 @@
                         BackgroundColor="#22000000"
                         Padding="16,12">
                     <VerticalStackLayout Spacing="10">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" VerticalOptions="Center">
-                            <Label Grid.Column="0"
-                                   x:Name="P2Label"
-                                   VerticalOptions="Center"
-                                   TextColor="White"
-                                   FontSize="14" />
-                            <Entry Grid.Column="1"
-                                   x:Name="SecondPlayerEntry"
-                                   TextColor="White"
-                                   PlaceholderColor="#7FFFFFFF"
-                                   BackgroundColor="#22000000" />
-                        </Grid>
-                        <Button x:Name="HotSeatButton"
+                        <Label Text="{loc:Tr Start_HotSeatTitle}"
+                               FontSize="11"
+                               TextColor="{StaticResource GoldAccent}"
+                               CharacterSpacing="3" />
+                        <Label Text="{loc:Tr Start_HotSeatHint}"
+                               FontSize="12"
+                               TextColor="#C7D2BD" />
+                        <Entry x:Name="SecondPlayerEntry"
+                               Placeholder="{loc:Tr Start_Player2}"
+                               TextColor="White"
+                               PlaceholderColor="#7FFFFFFF"
+                               BackgroundColor="#22000000" />
+                        <Button Text="{loc:Tr Start_HotSeat}"
                                 Clicked="OnPlayHotSeat"
                                 BackgroundColor="#33FFFFFF"
                                 BorderColor="{StaticResource GoldAccent}"
@@ -185,7 +284,7 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Label Text="v1.0 · github.com/NikolayIT/SantaseGameEngine"
+                <Label Text="v1.1 · github.com/NikolayIT/SantaseGameEngine"
                        FontSize="10"
                        HorizontalOptions="Center"
                        TextColor="#80FFFFFF"
