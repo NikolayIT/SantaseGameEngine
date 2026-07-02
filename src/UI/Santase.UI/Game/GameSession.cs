@@ -98,11 +98,10 @@ namespace Santase.UI.Game
 
     public sealed class GameSession
     {
-        private const int DefaultTrickSettleMs = 900;
-
-        private const int DefaultAiThinkMs = 400;
-
         private readonly object stateLock = new();
+
+        // Shadow ClaudePlayer mirroring the human's knowledge; answers hint requests (vs-AI only).
+        private readonly HintAdvisor? hintAdvisor;
 
         private readonly List<Announce> firstRoundAnnounces = new();
 
@@ -157,6 +156,7 @@ namespace Santase.UI.Game
             {
                 case GameMode.VsAi:
                     secondInner = (aiOpponent ?? AiOpponents.All[0]).CreatePlayer();
+                    this.hintAdvisor = new HintAdvisor();
                     break;
                 case GameMode.HotSeat:
                     this.SecondHuman = new HumanPlayer(secondPlayerName);
@@ -166,8 +166,10 @@ namespace Santase.UI.Game
                     throw new ArgumentOutOfRangeException(nameof(mode));
             }
 
-            this.FirstObserver = new PlayerObserver(firstInner) { ThinkDelayMs = DefaultAiThinkMs };
-            this.SecondObserver = new PlayerObserver(secondInner) { ThinkDelayMs = DefaultAiThinkMs };
+            var thinkDelayMs = AppSettings.AiThinkDelayMs;
+            this.TrickSettleMs = AppSettings.TrickSettleMs;
+            this.FirstObserver = new PlayerObserver(firstInner) { ThinkDelayMs = thinkDelayMs };
+            this.SecondObserver = new PlayerObserver(secondInner) { ThinkDelayMs = thinkDelayMs };
 
             this.WireObservers();
 
@@ -200,7 +202,20 @@ namespace Santase.UI.Game
 
         public PlayerObserver SecondObserver { get; }
 
-        public int TrickSettleMs { get; set; } = DefaultTrickSettleMs;
+        public int TrickSettleMs { get; set; }
+
+        /// <summary>Game points needed to win the whole game (11 under standard Santase rules).</summary>
+        public int GamePointsTarget => GameRulesProvider.Santase.GamePointsNeededForWin;
+
+        /// <summary>Whether this session can produce move hints (vs-AI games only).</summary>
+        public bool SupportsHints => this.hintAdvisor != null;
+
+        /// <summary>
+        /// The advisor's suggested action for the human turn currently awaiting input.
+        /// Precomputed on the engine thread each time the human's GetTurn starts, so reading it
+        /// from the UI is instant and race-free. Null when no hint is available.
+        /// </summary>
+        public PlayerAction? CurrentHint { get; private set; }
 
         public int FirstGamePoints => this.game?.FirstPlayerTotalPoints ?? 0;
 
@@ -346,6 +361,7 @@ namespace Santase.UI.Game
             }
 
             this.LastRoundEndInfo = null;
+            this.CurrentHint = null;
             this.pendingContinue = null;
             this.gameTask = null;
             this.game = null;
@@ -412,6 +428,10 @@ namespace Santase.UI.Game
                     this.secondRoundAnnounces.Clear();
                 }
 
+                // Mirror the human's round start into the hint advisor (its StartRound copies
+                // the collection, so sharing `cards` is safe).
+                this.hintAdvisor?.StartRound(cards, trump, my, opp);
+
                 this.RoundStarting?.Invoke(my, opp, trump);
                 this.PlayerHandInitialized?.Invoke(PlayerSlot.First, cards.ToList());
             };
@@ -421,7 +441,11 @@ namespace Santase.UI.Game
                 this.PlayerHandInitialized?.Invoke(PlayerSlot.Second, cards.ToList());
             };
 
-            this.FirstObserver.CardAdded += card => this.CardDealtToPlayer?.Invoke(PlayerSlot.First, card);
+            this.FirstObserver.CardAdded += card =>
+            {
+                this.hintAdvisor?.AddCard(card);
+                this.CardDealtToPlayer?.Invoke(PlayerSlot.First, card);
+            };
             this.SecondObserver.CardAdded += card => this.CardDealtToPlayer?.Invoke(PlayerSlot.Second, card);
 
             this.FirstObserver.TurnAboutToStart += context =>
@@ -450,16 +474,34 @@ namespace Santase.UI.Game
             this.FirstObserver.TurnCompleted += action => this.OnTurnCompleted(PlayerSlot.First, action);
             this.SecondObserver.TurnCompleted += action => this.OnTurnCompleted(PlayerSlot.Second, action);
 
+            // The advisor mirrors only the human seat (slot 1); it must see EndTurn before the
+            // shared handler below sleeps out the trick-settle delay.
+            this.FirstObserver.TurnEnded += context => this.hintAdvisor?.EndTurn(context);
+
             this.FirstObserver.TurnEnded += this.HandleTurnEndedFromObserver;
             this.SecondObserver.TurnEnded += this.HandleTurnEndedFromObserver;
 
-            this.FirstObserver.RoundEnded += () => this.HandleRoundEndedFromObserver();
+            this.FirstObserver.RoundEnded += () =>
+            {
+                this.hintAdvisor?.EndRound();
+                this.HandleRoundEndedFromObserver();
+            };
             this.SecondObserver.RoundEnded += () => this.HandleRoundEndedFromObserver();
         }
 
         private void OnHumanTurnRequested(HumanPlayer player, PlayerTurnContext context)
         {
             var slot = ReferenceEquals(player, this.FirstHuman) ? PlayerSlot.First : PlayerSlot.Second;
+
+            if (slot == PlayerSlot.First && this.hintAdvisor != null)
+            {
+                // Precompute the hint eagerly on the engine thread: (a) it is ready the instant
+                // the user asks, (b) every advisor mutation stays on this thread (no races with
+                // the mirrored lifecycle events), and (c) the advisor's internal leader-flag
+                // bookkeeping gets refreshed every trick. ClaudePlayer answers in <10 ms.
+                this.CurrentHint = this.hintAdvisor.ComputeHint(player.CardsSnapshot, context);
+            }
+
             this.HumanInputRequested?.Invoke(slot, player, context);
         }
 

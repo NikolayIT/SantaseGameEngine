@@ -13,6 +13,10 @@ namespace Santase.UI.Game
 
         private bool isFaceDown;
 
+        private bool isHinted;
+
+        private string announceText = string.Empty;
+
         public CardSlot(Card card, bool isFaceDown = false)
         {
             this.Card = card;
@@ -46,6 +50,22 @@ namespace Santase.UI.Game
         }
 
         public bool IsDimmed => !this.IsPlayable;
+
+        /// <summary>Gold outline while this card is being suggested by the hint advisor.</summary>
+        public bool IsHinted
+        {
+            get => this.isHinted;
+            set => this.SetField(ref this.isHinted, value, nameof(this.IsHinted));
+        }
+
+        /// <summary>"20" / "40" when leading this card would announce a marriage; empty otherwise.</summary>
+        public string AnnounceText
+        {
+            get => this.announceText;
+            set => this.SetField(ref this.announceText, value, nameof(this.AnnounceText), nameof(this.HasAnnounce));
+        }
+
+        public bool HasAnnounce => this.announceText.Length > 0;
 
         private void SetField<T>(ref T field, T value, params string[] propertyNames)
         {

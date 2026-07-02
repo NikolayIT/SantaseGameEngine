@@ -84,7 +84,7 @@
                                 <FormattedString>
                                     <Span Text="{loc:Tr Game_Game}" />
                                     <Span Text="  " />
-                                    <Span Text="{Binding OpponentGamePoints}" FontAttributes="Bold" />
+                                    <Span Text="{Binding OpponentGamePointsDisplay}" FontAttributes="Bold" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
@@ -180,7 +180,8 @@
                             StrokeThickness="0"
                             Padding="10,3"
                             BackgroundColor="#44000000"
-                            HorizontalOptions="Center">
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsGameClosed, Converter={StaticResource InverseBool}}">
                         <Label FontSize="11" TextColor="White">
                             <Label.FormattedText>
                                 <FormattedString>
@@ -190,6 +191,18 @@
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
+                    </Border>
+                    <!-- Closed-game chip replaces the deck counter once someone closes. -->
+                    <Border StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            Padding="10,3"
+                            BackgroundColor="#CC9A5B00"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsGameClosed}">
+                        <Label Text="{Binding ClosedChipText}"
+                               FontSize="9"
+                               FontAttributes="Bold"
+                               TextColor="White" />
                     </Border>
                     <Button Text="{loc:Tr Game_SwapTrump}"
                             Command="{Binding ChangeTrumpCommand}"
@@ -203,7 +216,7 @@
                             BackgroundColor="{StaticResource GoldAccent}"
                             TextColor="#1A1006" />
                     <Button Text="{loc:Tr Game_Close}"
-                            Command="{Binding CloseGameCommand}"
+                            Clicked="OnCloseClicked"
                             IsVisible="{Binding CanCloseGame}"
                             HeightRequest="34"
                             FontSize="11"
@@ -213,13 +226,37 @@
                             HorizontalOptions="Center"
                             BackgroundColor="#A0334466"
                             TextColor="White" />
+                    <!-- Last-trick mini display -->
+                    <VerticalStackLayout Spacing="2"
+                                         HorizontalOptions="Center"
+                                         IsVisible="{Binding HasLastTrick}">
+                        <Label Text="{loc:Tr Game_LastTrick}"
+                               FontSize="9"
+                               TextColor="#B9C7B0"
+                               HorizontalOptions="Center" />
+                        <HorizontalStackLayout Spacing="3" HorizontalOptions="Center">
+                            <Image Source="{Binding LastTrickOpponentCard.ImageSource, FallbackValue='card_back.png'}"
+                                   IsVisible="{Binding LastTrickOpponentCard, Converter={StaticResource NotNull}}"
+                                   WidthRequest="30"
+                                   HeightRequest="44"
+                                   Aspect="AspectFit" />
+                            <Image Source="{Binding LastTrickMyCard.ImageSource, FallbackValue='card_back.png'}"
+                                   IsVisible="{Binding LastTrickMyCard, Converter={StaticResource NotNull}}"
+                                   WidthRequest="30"
+                                   HeightRequest="44"
+                                   Aspect="AspectFit" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
 
                 <!-- Played cards on the table -->
-                <Grid Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                <Grid Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Fill">
                     <!-- Opponent's played card (offset up & left) -->
-                    <Border StrokeThickness="0"
+                    <Border x:Name="OppPlayedBorder"
+                            StrokeThickness="0"
                             BackgroundColor="Transparent"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
                             IsVisible="{Binding OpponentPlayedCard, Converter={StaticResource NotNull}}"
                             TranslationX="-22" TranslationY="-22"
                             Rotation="-7">
@@ -232,8 +269,11 @@
                                Aspect="AspectFit" />
                     </Border>
                     <!-- My played card (offset down & right, on top) -->
-                    <Border StrokeThickness="0"
+                    <Border x:Name="MyPlayedBorder"
+                            StrokeThickness="0"
                             BackgroundColor="Transparent"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
                             IsVisible="{Binding MyPlayedCard, Converter={StaticResource NotNull}}"
                             TranslationX="22" TranslationY="22"
                             Rotation="6">
@@ -245,13 +285,20 @@
                                HeightRequest="118"
                                Aspect="AspectFit" />
                     </Border>
-                    <Label Text="{Binding StatusMessage}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="End"
-                           TextColor="#CCFFFFFF"
-                           FontSize="11"
-                           Margin="0,0,0,-22"
-                           IsVisible="{Binding MyPlayedCard, Converter={StaticResource NotNull}, FallbackValue='True'}" />
+                    <!-- Always-visible status pill (your turn / waiting / dealing) -->
+                    <Border StrokeShape="RoundRectangle 11"
+                            StrokeThickness="0"
+                            BackgroundColor="#3D000000"
+                            Padding="12,4"
+                            HorizontalOptions="Center"
+                            VerticalOptions="End"
+                            Margin="0,0,0,2"
+                            IsVisible="{Binding StatusMessage, Converter={StaticResource NotEmpty}}">
+                        <Label Text="{Binding StatusMessage}"
+                               TextColor="#E6FFFFFF"
+                               FontSize="12"
+                               HorizontalTextAlignment="Center" />
+                    </Border>
                 </Grid>
             </Grid>
 
@@ -262,15 +309,39 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="game:CardSlot">
                             <Border StrokeThickness="0"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 6"
                                     BackgroundColor="Transparent"
                                     Opacity="{Binding IsPlayable, Converter={StaticResource BoolToOpacity}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsHinted}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource GoldHighlight}" />
+                                        <Setter Property="StrokeThickness" Value="3" />
+                                    </DataTrigger>
+                                </Border.Triggers>
                                 <Border.Shadow>
                                     <Shadow Brush="Black" Opacity="0.6" Radius="8" Offset="2,3" />
                                 </Border.Shadow>
-                                <Image Source="{Binding ImageSource}"
-                                       WidthRequest="78"
-                                       HeightRequest="114"
-                                       Aspect="AspectFit" />
+                                <Grid>
+                                    <Image Source="{Binding ImageSource}"
+                                           WidthRequest="78"
+                                           HeightRequest="114"
+                                           Aspect="AspectFit" />
+                                    <!-- 20/40 marriage badge (beginner assist) -->
+                                    <Border IsVisible="{Binding HasAnnounce}"
+                                            StrokeShape="RoundRectangle 7"
+                                            StrokeThickness="0"
+                                            BackgroundColor="{StaticResource GoldHighlight}"
+                                            Padding="5,1"
+                                            HorizontalOptions="Start"
+                                            VerticalOptions="Start"
+                                            Margin="5,4,0,0">
+                                        <Label Text="{Binding AnnounceText}"
+                                               TextColor="#1A1006"
+                                               FontSize="10"
+                                               FontAttributes="Bold" />
+                                    </Border>
+                                </Grid>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding Source={x:Reference ThePage}, Path=BindingContext.TapCardCommand}"
                                                           CommandParameter="{Binding}" />
@@ -329,11 +400,27 @@
                                 <FormattedString>
                                     <Span Text="{loc:Tr Game_Game}" />
                                     <Span Text="  " />
-                                    <Span Text="{Binding MyGamePoints}" FontAttributes="Bold" />
+                                    <Span Text="{Binding MyGamePointsDisplay}" FontAttributes="Bold" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
                     </Border>
+                    <!-- Hint button (vs-AI games with assists enabled, only on my turn) -->
+                    <Button Grid.Column="4"
+                            Text="{loc:Tr Game_Hint}"
+                            Command="{Binding HintCommand}"
+                            IsVisible="{Binding IsHintVisible}"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            HeightRequest="34"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            Padding="12,0"
+                            CornerRadius="10"
+                            BackgroundColor="#26FFFFFF"
+                            BorderColor="{StaticResource GoldAccent}"
+                            BorderWidth="1"
+                            TextColor="{StaticResource GoldHighlight}" />
                 </Grid>
             </Border>
 
@@ -356,7 +443,8 @@
                 TextColor="White" />
 
         <!-- ===== Toast banner ===== -->
-        <Border IsVisible="{Binding IsToastVisible}"
+        <Border x:Name="ToastBorder"
+                IsVisible="{Binding IsToastVisible}"
                 StrokeShape="RoundRectangle 16"
                 Stroke="#1A1006"
                 StrokeThickness="2"
@@ -373,28 +461,6 @@
                    FontAttributes="Bold"
                    FontSize="24"
                    HorizontalTextAlignment="Center" />
-        </Border>
-
-        <!-- ===== Closed-game indicator ===== -->
-        <Border IsVisible="{Binding GameClosedByMe}"
-                BackgroundColor="#88FFA040"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 6"
-                Padding="6,2"
-                HorizontalOptions="End"
-                VerticalOptions="Start"
-                Margin="0,54,8,0">
-            <Label Text="{loc:Tr Game_ClosedByYou}" TextColor="White" FontSize="9" FontAttributes="Bold" />
-        </Border>
-        <Border IsVisible="{Binding GameClosedByOpponent}"
-                BackgroundColor="#88FFA040"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 6"
-                Padding="6,2"
-                HorizontalOptions="End"
-                VerticalOptions="Start"
-                Margin="0,54,8,0">
-            <Label Text="{loc:Tr Game_ClosedByOpp}" TextColor="White" FontSize="9" FontAttributes="Bold" />
         </Border>
 
         <!-- ===== Handoff overlay ===== -->
@@ -420,7 +486,8 @@
         </Grid>
 
         <!-- ===== Round-end overlay ===== -->
-        <Grid IsVisible="{Binding IsRoundOverlayVisible}"
+        <Grid x:Name="RoundOverlayRoot"
+              IsVisible="{Binding IsRoundOverlayVisible}"
               BackgroundColor="#D9000000">
             <Border StrokeShape="RoundRectangle 18"
                     StrokeThickness="0"
@@ -599,7 +666,8 @@
         </Grid>
 
         <!-- ===== Game-end overlay ===== -->
-        <Grid IsVisible="{Binding IsGameOverlayVisible}"
+        <Grid x:Name="GameOverlayRoot"
+              IsVisible="{Binding IsGameOverlayVisible}"
               BackgroundColor="#E5000000">
             <Border StrokeShape="RoundRectangle 22"
                     StrokeThickness="0"
@@ -612,7 +680,7 @@
                     <Shadow Brush="Black" Opacity="0.7" Radius="24" Offset="0,4" />
                 </Border.Shadow>
                 <VerticalStackLayout Spacing="18">
-                    <Label Text="🏆"
+                    <Label Text="{Binding GameOverlayIcon}"
                            FontSize="56"
                            HorizontalOptions="Center" />
                     <Label Text="{Binding GameOverlayTitle}"

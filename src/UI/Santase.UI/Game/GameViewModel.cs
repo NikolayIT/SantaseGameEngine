@@ -10,6 +10,7 @@ namespace Santase.UI.Game
     using System.Windows.Input;
 
     using Microsoft.Maui.Controls;
+    using Microsoft.Maui.Devices;
     using Microsoft.Maui.Dispatching;
 
     using Santase.Logic;
@@ -103,6 +104,12 @@ namespace Santase.UI.Game
 
         private bool hasAnnounces;
 
+        private string gameOverlayIcon = "\U0001F3C6";
+
+        private CardSlot? lastTrickSlot1Card;
+
+        private CardSlot? lastTrickSlot2Card;
+
         public GameViewModel(GameSession session, IDispatcher dispatcher)
         {
             this.session = session;
@@ -118,6 +125,7 @@ namespace Santase.UI.Game
             this.TapCardCommand = new RelayCommand<CardSlot>(this.OnTapCard);
             this.ChangeTrumpCommand = new RelayCommand(this.OnChangeTrump, () => this.CanChangeTrump);
             this.CloseGameCommand = new RelayCommand(this.OnCloseGame, () => this.CanCloseGame);
+            this.HintCommand = new RelayCommand(this.OnHint);
             this.HandoffContinueCommand = new RelayCommand(this.OnHandoffContinue);
             this.RoundOverlayContinueCommand = new RelayCommand(this.OnRoundOverlayContinue);
             this.PlayAgainCommand = new RelayCommand(this.OnPlayAgain);
@@ -147,14 +155,20 @@ namespace Santase.UI.Game
         public int MyGamePoints
         {
             get => this.myGamePoints;
-            private set => this.SetField(ref this.myGamePoints, value);
+            private set => this.SetField(ref this.myGamePoints, value, nameof(this.MyGamePoints), nameof(this.MyGamePointsDisplay));
         }
 
         public int OpponentGamePoints
         {
             get => this.opponentGamePoints;
-            private set => this.SetField(ref this.opponentGamePoints, value);
+            private set => this.SetField(ref this.opponentGamePoints, value, nameof(this.OpponentGamePoints), nameof(this.OpponentGamePointsDisplay));
         }
+
+        // The status-bar chips show the running game score against the 11-point target so new
+        // players always see how far the race has to go.
+        public string MyGamePointsDisplay => $"{this.MyGamePoints} / {this.session.GamePointsTarget}";
+
+        public string OpponentGamePointsDisplay => $"{this.OpponentGamePoints} / {this.session.GamePointsTarget}";
 
         public int MyRoundPoints
         {
@@ -232,11 +246,51 @@ namespace Santase.UI.Game
             this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
         }
 
+        private void ClearLastTrick()
+        {
+            this.lastTrickSlot1Card = null;
+            this.lastTrickSlot2Card = null;
+            this.RaiseLastTrickChanged();
+        }
+
+        private void RaiseLastTrickChanged()
+        {
+            this.OnPropertyChanged(nameof(this.LastTrickMyCard));
+            this.OnPropertyChanged(nameof(this.LastTrickOpponentCard));
+            this.OnPropertyChanged(nameof(this.HasLastTrick));
+        }
+
+        private static void Haptic(HapticFeedbackType type)
+        {
+            if (!AppSettings.HapticsEnabled)
+            {
+                return;
+            }
+
+            try
+            {
+                HapticFeedback.Default.Perform(type);
+            }
+            catch
+            {
+                // Not supported on this platform (e.g. desktop) — silently skip.
+            }
+        }
+
         public bool IsMyTurn
         {
             get => this.isMyTurn;
-            private set => this.SetField(ref this.isMyTurn, value, nameof(this.IsMyTurn), nameof(this.MyTurnIndicatorOpacity), nameof(this.OpponentTurnIndicatorOpacity));
+            private set => this.SetField(ref this.isMyTurn, value, nameof(this.IsMyTurn), nameof(this.MyTurnIndicatorOpacity), nameof(this.OpponentTurnIndicatorOpacity), nameof(this.IsHintVisible));
         }
+
+        /// <summary>The hint button shows only on the human's turn in vs-AI games with assists on.</summary>
+        public bool IsHintVisible => this.IsMyTurn && this.session.SupportsHints && AppSettings.AssistsEnabled;
+
+        public CardSlot? LastTrickMyCard => this.mySlot == PlayerSlot.First ? this.lastTrickSlot1Card : this.lastTrickSlot2Card;
+
+        public CardSlot? LastTrickOpponentCard => this.mySlot == PlayerSlot.First ? this.lastTrickSlot2Card : this.lastTrickSlot1Card;
+
+        public bool HasLastTrick => this.lastTrickSlot1Card != null || this.lastTrickSlot2Card != null;
 
         public double MyTurnIndicatorOpacity => this.IsMyTurn ? 1.0 : 0.25;
 
@@ -379,13 +433,23 @@ namespace Santase.UI.Game
         public bool GameClosedByMe
         {
             get => this.gameClosedByMe;
-            private set => this.SetField(ref this.gameClosedByMe, value);
+            private set => this.SetField(ref this.gameClosedByMe, value, nameof(this.GameClosedByMe), nameof(this.IsGameClosed), nameof(this.ClosedChipText));
         }
 
         public bool GameClosedByOpponent
         {
             get => this.gameClosedByOpponent;
-            private set => this.SetField(ref this.gameClosedByOpponent, value);
+            private set => this.SetField(ref this.gameClosedByOpponent, value, nameof(this.GameClosedByOpponent), nameof(this.IsGameClosed), nameof(this.ClosedChipText));
+        }
+
+        public bool IsGameClosed => this.GameClosedByMe || this.GameClosedByOpponent;
+
+        public string ClosedChipText => this.GameClosedByMe ? Loc["Game_ClosedByYou"] : Loc["Game_ClosedByOpp"];
+
+        public string GameOverlayIcon
+        {
+            get => this.gameOverlayIcon;
+            private set => this.SetField(ref this.gameOverlayIcon, value);
         }
 
         public string ModeLabel => this.session.Mode switch
@@ -406,6 +470,8 @@ namespace Santase.UI.Game
         public ICommand ChangeTrumpCommand { get; }
 
         public ICommand CloseGameCommand { get; }
+
+        public ICommand HintCommand { get; }
 
         public ICommand HandoffContinueCommand { get; }
 
@@ -526,6 +592,7 @@ namespace Santase.UI.Game
                 this.OpponentHand.Clear();
                 this.OpponentCardsCount = 0;
                 this.ClearBothPlayedCards();
+                this.ClearLastTrick();
                 this.MyRoundPoints = 0;
                 this.OpponentRoundPoints = 0;
                 this.GameClosedByMe = false;
@@ -669,18 +736,37 @@ namespace Santase.UI.Game
                 this.TrumpCard = context.TrumpCard;
 
                 var validator = player.ActionValidator;
-                var possibleCards = validator.GetPossibleCardsToPlay(context, GetPlayerCards(player));
+                var cards = GetPlayerCards(player);
+                var possibleCards = validator.GetPossibleCardsToPlay(context, cards);
                 var possibleSet = new HashSet<Card>(possibleCards);
+
+                // Beginner assist: badge the King/Queen leads that would announce a marriage.
+                // Mirrors the engine's own announce path (state gate + announce validator).
+                var canAnnounce = AppSettings.AssistsEnabled
+                    && context.State.CanAnnounce20Or40
+                    && context.IsFirstPlayerTurn;
 
                 foreach (var slotItem in this.MyHand)
                 {
                     slotItem.IsPlayable = possibleSet.Contains(slotItem.Card);
+                    slotItem.IsHinted = false;
+
+                    var announce = canAnnounce && slotItem.IsPlayable
+                        ? this.session.AnnounceValidator.GetPossibleAnnounce(cards, slotItem.Card, context.TrumpCard)
+                        : Announce.None;
+                    slotItem.AnnounceText = announce switch
+                    {
+                        Announce.Forty => "40",
+                        Announce.Twenty => "20",
+                        _ => string.Empty,
+                    };
                 }
 
-                this.CanChangeTrump = validator.IsValid(PlayerAction.ChangeTrump(), context, GetPlayerCards(player));
-                this.CanCloseGame = validator.IsValid(PlayerAction.CloseGame(), context, GetPlayerCards(player));
+                this.CanChangeTrump = validator.IsValid(PlayerAction.ChangeTrump(), context, cards);
+                this.CanCloseGame = validator.IsValid(PlayerAction.CloseGame(), context, cards);
 
                 this.StatusMessage = Loc["Status_YourTurn"];
+                Haptic(HapticFeedbackType.Click);
             });
         }
 
@@ -710,6 +796,8 @@ namespace Santase.UI.Game
                     foreach (var s in this.MyHand)
                     {
                         s.IsPlayable = false;
+                        s.IsHinted = false;
+                        s.AnnounceText = string.Empty;
                     }
                 }
                 else
@@ -813,11 +901,18 @@ namespace Santase.UI.Game
             });
 
             // Stay visible during TrickSettleMs (handled in session by Thread.Sleep).
-            // Clear the played cards just before the engine's sleep ends.
+            // Clear the played cards just before the engine's sleep ends; the cleared trick
+            // becomes the "last trick" mini-display so players can review what was just won.
             Task.Run(async () =>
             {
                 await Task.Delay(Math.Max(0, this.session.TrickSettleMs - 150));
-                this.dispatcher.Dispatch(this.ClearBothPlayedCards);
+                this.dispatcher.Dispatch(() =>
+                {
+                    this.lastTrickSlot1Card = result.FirstCard != null ? new CardSlot(result.FirstCard) : null;
+                    this.lastTrickSlot2Card = result.SecondCard != null ? new CardSlot(result.SecondCard) : null;
+                    this.RaiseLastTrickChanged();
+                    this.ClearBothPlayedCards();
+                });
             });
         }
 
@@ -834,6 +929,7 @@ namespace Santase.UI.Game
                     ? Loc["Round_YouWon"]
                     : Loc.Format("Round_OppWon", this.OpponentName);
                 this.IsRoundOverlayVisible = true;
+                Haptic(HapticFeedbackType.LongPress);
             });
 
             // The engine thread is blocked inside ShowRoundResultAndWait; tapping Continue calls
@@ -974,6 +1070,7 @@ namespace Santase.UI.Game
                 this.RecordHistory(iWon);
 
                 var winnerName = iWon ? this.MyName : this.OpponentName;
+                this.GameOverlayIcon = iWon ? "\U0001F3C6" : "\U0001F494";
                 this.GameOverlayTitle = iWon ? Loc["GameOver_Victory"] : Loc["GameOver_Defeat"];
                 this.GameOverlayBody = Loc.Format("GameOver_WonGame", winnerName);
                 this.IsRoundOverlayVisible = false;
@@ -981,6 +1078,7 @@ namespace Santase.UI.Game
                 this.IsMyTurn = false;
                 this.CanChangeTrump = false;
                 this.CanCloseGame = false;
+                Haptic(HapticFeedbackType.LongPress);
             });
         }
 
@@ -993,12 +1091,15 @@ namespace Santase.UI.Game
                 return;
             }
 
+            var opponentId = this.session.AiOpponent?.Id ?? string.Empty;
             MatchHistoryStore.Add(new MatchHistoryEntry(
                 this.OpponentName,
                 this.MyGamePoints,
                 this.OpponentGamePoints,
                 iWon,
-                DateTime.UtcNow));
+                DateTime.UtcNow,
+                opponentId));
+            OpponentStatsStore.Record(opponentId, iWon);
         }
 
         private void OnPlayAgain()
@@ -1010,6 +1111,7 @@ namespace Santase.UI.Game
             this.OpponentHand.Clear();
             this.OpponentCardsCount = 0;
             this.ClearBothPlayedCards();
+            this.ClearLastTrick();
             this.MyRoundPoints = 0;
             this.OpponentRoundPoints = 0;
 
@@ -1036,6 +1138,57 @@ namespace Santase.UI.Game
             }
 
             this.session.SubmitPlayCard(human, slot.Card);
+        }
+
+        // Reveals the precomputed advisor suggestion: highlights the suggested card, or explains
+        // a swap/close suggestion in the toast. The hint was computed when this turn started, so
+        // this is instant.
+        private void OnHint()
+        {
+            if (!this.IsMyTurn)
+            {
+                return;
+            }
+
+            var hint = this.session.CurrentHint;
+            if (hint == null)
+            {
+                this.ShowToast(Loc["Hint_None"]);
+                return;
+            }
+
+            switch (hint.Type)
+            {
+                case PlayerActionType.PlayCard:
+                    var slot = this.MyHand.FirstOrDefault(s => s.Card.Equals(hint.Card));
+                    if (slot == null || !slot.IsPlayable)
+                    {
+                        this.ShowToast(Loc["Hint_None"]);
+                        return;
+                    }
+
+                    foreach (var s in this.MyHand)
+                    {
+                        s.IsHinted = false;
+                    }
+
+                    slot.IsHinted = true;
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(2500);
+                        this.dispatcher.Dispatch(() => slot.IsHinted = false);
+                    });
+                    break;
+                case PlayerActionType.ChangeTrump:
+                    this.ShowToast(Loc["Hint_SwapTrump"]);
+                    break;
+                case PlayerActionType.CloseGame:
+                    this.ShowToast(Loc["Hint_CloseGame"]);
+                    break;
+                default:
+                    this.ShowToast(Loc["Hint_None"]);
+                    break;
+            }
         }
 
         private void OnChangeTrump()
@@ -1107,10 +1260,11 @@ namespace Santase.UI.Game
 
             this.OpponentCardsCount = oppCount;
 
-            // Played cards are stored per-slot, so swapping perspective just means raising
-            // PropertyChanged on the derived MyPlayedCard / OpponentPlayedCard.
+            // Played cards + last trick are stored per-slot, so swapping perspective just means
+            // raising PropertyChanged on the derived, perspective-mapped properties.
             this.OnPropertyChanged(nameof(this.MyPlayedCard));
             this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
+            this.RaiseLastTrickChanged();
 
             // Update game points to match perspective.
             this.UpdateGamePointsForPerspective(this.session.FirstGamePoints, this.session.SecondGamePoints);

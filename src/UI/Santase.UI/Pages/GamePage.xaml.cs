@@ -1,6 +1,9 @@
 namespace Santase.UI.Pages
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
+
+    using Microsoft.Maui.Devices;
 
     using Santase.UI.Game;
     using Santase.UI.Localization;
@@ -34,6 +37,8 @@ namespace Santase.UI.Pages
         {
             base.OnAppearing();
 
+            SetKeepScreenOn(true);
+
             if (this.started)
             {
                 return;
@@ -50,6 +55,7 @@ namespace Santase.UI.Pages
 
             this.session = new GameSession(mode, this.FirstName, secondName, opponent);
             this.viewModel = new GameViewModel(this.session, this.Dispatcher);
+            this.viewModel.PropertyChanged += this.OnViewModelPropertyChanged;
             this.BindingContext = this.viewModel;
 
             this.viewModel.StartGame();
@@ -59,8 +65,11 @@ namespace Santase.UI.Pages
         {
             base.OnDisappearing();
 
+            SetKeepScreenOn(false);
+
             if (this.viewModel != null)
             {
+                this.viewModel.PropertyChanged -= this.OnViewModelPropertyChanged;
                 this.viewModel.Dispose();
                 this.viewModel = null;
             }
@@ -78,6 +87,27 @@ namespace Santase.UI.Pages
         private async void OnMenuClicked(object? sender, EventArgs e)
         {
             await this.ConfirmAndLeaveAsync();
+        }
+
+        // Closing is the one irreversible in-game action a player can regret (fail to reach 66
+        // and the opponent scores 3), so it gets a short confirmation that also teaches the rule.
+        private async void OnCloseClicked(object? sender, EventArgs e)
+        {
+            if (this.viewModel == null || !this.viewModel.CanCloseGame)
+            {
+                return;
+            }
+
+            var mgr = LocalizationManager.Instance;
+            var confirmed = await this.DisplayAlertAsync(
+                mgr["Close_Title"],
+                mgr.Format("Close_Message", this.viewModel.OpponentName),
+                mgr["Close_Confirm"],
+                mgr["Common_Cancel"]);
+            if (confirmed)
+            {
+                this.viewModel.CloseGameCommand.Execute(null);
+            }
         }
 
         // Confirms before abandoning a game that is still in progress; if the game is already over
@@ -106,6 +136,74 @@ namespace Santase.UI.Pages
             }
 
             this.viewModel.LeaveCommand.Execute(null);
+        }
+
+        // View-only animations reacting to view-model state changes. PropertyChanged is always
+        // raised on the UI thread (the view model dispatches), so animating here is safe.
+        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            var vm = this.viewModel;
+            if (vm == null)
+            {
+                return;
+            }
+
+            switch (e.PropertyName)
+            {
+                case nameof(GameViewModel.MyPlayedCard) when vm.MyPlayedCard != null:
+                    AnimateCardPop(this.MyPlayedBorder);
+                    break;
+                case nameof(GameViewModel.OpponentPlayedCard) when vm.OpponentPlayedCard != null:
+                    AnimateCardPop(this.OppPlayedBorder);
+                    break;
+                case nameof(GameViewModel.IsToastVisible) when vm.IsToastVisible:
+                    AnimateToastPop(this.ToastBorder);
+                    break;
+                case nameof(GameViewModel.IsRoundOverlayVisible) when vm.IsRoundOverlayVisible:
+                    AnimateOverlayFadeIn(this.RoundOverlayRoot);
+                    break;
+                case nameof(GameViewModel.IsGameOverlayVisible) when vm.IsGameOverlayVisible:
+                    AnimateOverlayFadeIn(this.GameOverlayRoot);
+                    break;
+            }
+        }
+
+        private static void AnimateCardPop(VisualElement element)
+        {
+            element.CancelAnimations();
+            element.Scale = 0.6;
+            element.Opacity = 0;
+            _ = element.ScaleToAsync(1.0, 180, Easing.CubicOut);
+            _ = element.FadeToAsync(1.0, 140, Easing.CubicOut);
+        }
+
+        private static void AnimateToastPop(VisualElement element)
+        {
+            element.CancelAnimations();
+            element.Scale = 0.85;
+            element.Opacity = 0;
+            _ = element.ScaleToAsync(1.0, 200, Easing.SpringOut);
+            _ = element.FadeToAsync(1.0, 150, Easing.CubicOut);
+        }
+
+        private static void AnimateOverlayFadeIn(VisualElement element)
+        {
+            element.CancelAnimations();
+            element.Opacity = 0;
+            _ = element.FadeToAsync(1.0, 220, Easing.CubicOut);
+        }
+
+        // Card games get abandoned mid-hand when the screen sleeps; keep it awake during play.
+        private static void SetKeepScreenOn(bool value)
+        {
+            try
+            {
+                DeviceDisplay.Current.KeepScreenOn = value;
+            }
+            catch
+            {
+                // Not supported on this platform — fine to ignore.
+            }
         }
     }
 }
