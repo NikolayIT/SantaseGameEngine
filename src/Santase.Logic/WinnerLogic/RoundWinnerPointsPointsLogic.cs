@@ -27,6 +27,10 @@
                 }
             }
 
+            // Failed close: the opponent always wins 3 game points. This is the intended
+            // (Bulgarian Santase) rule — a flat 3, NOT German 66's "2, or 3 only if the
+            // opponent was trickless at the moment of closing". The same branch also covers
+            // the rare case where the non-closer reaches 66 first: the closer still forfeits 3.
             if (gameClosedBy == PlayerPosition.FirstPlayer)
             {
                 if (firstPlayerPoints < gameRules.RoundPointsForGoingOut)
@@ -49,6 +53,10 @@
                 return RoundWinnerPoints.Draw();
             }
 
+            // Unreachable through real engine play: a non-closed round that runs to exhaustion
+            // distributes 120 card points + the 10-point bonus, so "both below 66" forces the
+            // exact 65-65 draw handled above, and a closed round returned earlier. Kept because
+            // this method is public and callable with arbitrary inputs.
             if (firstPlayerPoints < gameRules.RoundPointsForGoingOut && secondPlayerPoints < gameRules.RoundPointsForGoingOut)
             {
                 if (firstPlayerPoints > secondPlayerPoints)

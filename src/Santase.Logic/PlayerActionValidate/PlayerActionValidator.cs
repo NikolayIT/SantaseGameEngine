@@ -17,18 +17,28 @@
 
         public bool IsValid(PlayerAction action, PlayerTurnContext context, ICollection<Card> playerCards)
         {
+            if (action == null)
+            {
+                return false;
+            }
+
             if (context.State.CanAnnounce20Or40)
             {
+                // Melds are compulsory by design: the engine computes the announce itself and
+                // overwrites whatever is on the action, so leading a King or Queen while holding
+                // its marriage partner always declares the 20/40. Declining a meld (legal in
+                // over-the-table play, never beneficial points-wise) is deliberately not modeled.
                 action.Announce = this.announceValidator.GetPossibleAnnounce(
                     playerCards,
                     action.Card,
                     context.TrumpCard,
                     context.IsFirstPlayerTurn);
             }
-
-            if (action == null)
+            else
             {
-                return false;
+                // States that forbid announcing (the first trick) must also clear any announce
+                // already present on the action — Trick credits action.Announce unvalidated.
+                action.Announce = Announce.None;
             }
 
             if (action.Type == PlayerActionType.PlayCard)

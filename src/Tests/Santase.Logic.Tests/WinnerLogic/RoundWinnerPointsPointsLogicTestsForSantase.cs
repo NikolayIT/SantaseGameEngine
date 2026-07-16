@@ -245,6 +245,36 @@
             Assert.Equal(expectedPoints, result.Points);
         }
 
+        // Failed close pins the intended Bulgarian Santase rule: a flat 3 game points to the
+        // opponent — whether or not the opponent has tricks, and also in the rare case where
+        // the non-closer reached 66 first. (German 66 would award 2 unless the opponent was
+        // trickless at the moment of closing; that variant is deliberately NOT implemented.)
+        [Theory]
+        [InlineData(65, 40, PlayerPosition.FirstPlayer, PlayerPosition.NoOne, PlayerPosition.SecondPlayer)]
+        [InlineData(65, 0, PlayerPosition.FirstPlayer, PlayerPosition.SecondPlayer, PlayerPosition.SecondPlayer)]
+        [InlineData(40, 70, PlayerPosition.FirstPlayer, PlayerPosition.NoOne, PlayerPosition.SecondPlayer)]
+        [InlineData(40, 65, PlayerPosition.SecondPlayer, PlayerPosition.NoOne, PlayerPosition.FirstPlayer)]
+        [InlineData(0, 65, PlayerPosition.SecondPlayer, PlayerPosition.FirstPlayer, PlayerPosition.FirstPlayer)]
+        [InlineData(70, 40, PlayerPosition.SecondPlayer, PlayerPosition.NoOne, PlayerPosition.FirstPlayer)]
+        public void GetWinnerPointsShouldAwardFlatThreePointsWheneverTheCloserFailsToReachSixtySix(
+            int firstPlayerPoints,
+            int secondPlayerPoints,
+            PlayerPosition gameClosedBy,
+            PlayerPosition noTricksPlayer,
+            PlayerPosition expectedWinner)
+        {
+            IRoundWinnerPointsLogic roundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
+            var result = roundWinnerPointsLogic.GetWinnerPoints(
+                firstPlayerPoints,
+                secondPlayerPoints,
+                gameClosedBy,
+                noTricksPlayer,
+                PlayerPosition.NoOne,
+                GameRulesProvider.Santase);
+            Assert.Equal(expectedWinner, result.Winner);
+            Assert.Equal(3, result.Points);
+        }
+
         [Fact]
         public void GetWinnerPointsShouldYieldDrawWhenScoresStillEqualAfterBonus()
         {

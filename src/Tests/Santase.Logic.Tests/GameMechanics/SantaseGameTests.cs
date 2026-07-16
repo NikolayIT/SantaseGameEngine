@@ -175,6 +175,56 @@
                 "Not started at least 4 rounds per game for the second player");
         }
 
+        [Fact]
+        public void GameShouldEndExactlyWhenAPlayerReachesTheGamePointsThreshold()
+        {
+            const int GamesToPlay = 100;
+
+            var threshold = GameRulesProvider.Santase.GamePointsNeededForWin;
+
+            for (var i = 0; i < GamesToPlay; i++)
+            {
+                var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+                var secondPlayer = new ValidPlayerWithMethodsCallCounting();
+                var game = new SantaseGame(firstPlayer, secondPlayer);
+
+                var winner = game.Start(i % 2 == 0 ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer);
+
+                var winnerPoints = winner == PlayerPosition.FirstPlayer
+                                       ? game.FirstPlayerTotalPoints
+                                       : game.SecondPlayerTotalPoints;
+                var loserPoints = winner == PlayerPosition.FirstPlayer
+                                      ? game.SecondPlayerTotalPoints
+                                      : game.FirstPlayerTotalPoints;
+
+                // The game must stop the moment someone reaches the threshold (11): before the
+                // final round the eventual winner had at most 10, and a round awards at most 3.
+                Assert.InRange(winnerPoints, threshold, threshold + 2);
+                Assert.InRange(loserPoints, 0, threshold - 1);
+            }
+        }
+
+        [Fact]
+        public void GameShouldUseThePluggableGamePointsNeededForWin()
+        {
+            var firstPlayer = new ValidPlayerWithMethodsCallCounting();
+            var secondPlayer = new ValidPlayerWithMethodsCallCounting();
+            var game = new SantaseGame(firstPlayer, secondPlayer, new OnePointGameRules(), new NoLogger());
+
+            var winner = game.Start();
+
+            // With a 1-point target the first scored round decides the game, so the winner
+            // ends with 1..3 points and the loser with exactly 0.
+            var winnerPoints = winner == PlayerPosition.FirstPlayer
+                                   ? game.FirstPlayerTotalPoints
+                                   : game.SecondPlayerTotalPoints;
+            var loserPoints = winner == PlayerPosition.FirstPlayer
+                                  ? game.SecondPlayerTotalPoints
+                                  : game.FirstPlayerTotalPoints;
+            Assert.InRange(winnerPoints, 1, 3);
+            Assert.Equal(0, loserPoints);
+        }
+
         private static RoundResult BuildRoundResult(
             IPlayer firstPlayer,
             IPlayer secondPlayer,
@@ -223,6 +273,17 @@
             }
 
             Assert.Equal(0, remaining);
+        }
+
+        private class OnePointGameRules : IGameRules
+        {
+            public int RoundPointsForGoingOut => 66;
+
+            public int HalfRoundPoints => 33;
+
+            public int GamePointsNeededForWin => 1;
+
+            public int CardsAtStartOfTheRound => 6;
         }
     }
 }
