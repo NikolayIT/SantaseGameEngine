@@ -939,7 +939,7 @@
                 }
 
                 var suitCount = unknownPerSuit[(int)c.Suit];
-                var val = c.GetValue();
+                var val = c.GetValue() + (this.IsLiveMarriageHalf(c) ? 5 : 0);
                 if (suitCount < bestNonTrumpSuitCount
                     || (suitCount == bestNonTrumpSuitCount && val < bestNonTrumpValue))
                 {
@@ -1066,6 +1066,20 @@
 
             var partner = Card.GetCard(c.Suit, c.Type == CardType.King ? CardType.Queen : CardType.King);
             return this.Cards.Contains(partner);
+        }
+
+        // K/Q whose partner is neither in my hand nor already played: the partner may still be
+        // drawn, so dumping this card forfeits a potential future marriage (Karamanov's
+        // noPossibleCoupleCard). Weaker protection than a held marriage half.
+        private bool IsLiveMarriageHalf(Card c)
+        {
+            if (c.Type != CardType.King && c.Type != CardType.Queen)
+            {
+                return false;
+            }
+
+            var partner = Card.GetCard(c.Suit, c.Type == CardType.King ? CardType.Queen : CardType.King);
+            return !this.Cards.Contains(partner) && !this.PlayedCards.Contains(partner);
         }
 
         private Card ChooseFollowCard(PlayerTurnContext context, ICollection<Card> possibleCards)
@@ -1196,6 +1210,8 @@
             // Routine same-suit overtake. Take with the BIGGEST non-marriage higher card -
             // empirically this matches SmartPlayer's behavior and reduces overall losses, since
             // burning high cards on overtakes makes the late-round hand safer to lead from.
+            // (Excluding live-partner K/Q here was tested and regressed badly - conceding
+            // tricks for a speculative marriage bleeds points.)
             Card biggestNonMarriageWinner = null;
             var biggestNonMarriageVal = -1;
             foreach (var c in possibleCards)
@@ -1364,6 +1380,10 @@
                 if (this.IsHalfOfMyMarriage(c))
                 {
                     score += 18;
+                }
+                else if (this.IsLiveMarriageHalf(c))
+                {
+                    score += 8;
                 }
 
                 var suitCount = unknownPerSuit[(int)c.Suit];
