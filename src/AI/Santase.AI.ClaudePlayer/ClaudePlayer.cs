@@ -991,6 +991,58 @@
             return best;
         }
 
+        private Card SelectRuffTrump(PlayerTurnContext context, ICollection<Card> possibleCards, CardSuit trumpSuit)
+        {
+            // Spend preference (Karamanov's OrdinaryTrumpCard order): J first; the 9 only once
+            // its trump-swap is dead (talon at/below 4, or the face-up card is the J so the swap
+            // gains nothing); Q/K only when their marriage partner was already played; then 10;
+            // A last. Marriage halves whose partner we hold are excluded outright (announce
+            // pending); a live-swap 9 and live-partner Q/K are soft-deprioritized - spent only
+            // when no other trump can ruff.
+            Card best = null;
+            var bestScore = int.MaxValue;
+            foreach (var c in possibleCards)
+            {
+                if (c.Suit != trumpSuit || this.IsHalfOfMyMarriage(c))
+                {
+                    continue;
+                }
+
+                int score;
+                switch (c.Type)
+                {
+                    case CardType.Jack:
+                        score = 0;
+                        break;
+                    case CardType.Nine:
+                        var swapDead = context.CardsLeftInDeck <= 4
+                            || (context.TrumpCard != null && context.TrumpCard.Type == CardType.Jack);
+                        score = swapDead ? 1 : 50;
+                        break;
+                    case CardType.Queen:
+                        score = this.PlayedCards.Contains(Card.GetCard(trumpSuit, CardType.King)) ? 2 : 30;
+                        break;
+                    case CardType.King:
+                        score = this.PlayedCards.Contains(Card.GetCard(trumpSuit, CardType.Queen)) ? 3 : 31;
+                        break;
+                    case CardType.Ten:
+                        score = 4;
+                        break;
+                    default:
+                        score = 5;
+                        break;
+                }
+
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    best = c;
+                }
+            }
+
+            return best;
+        }
+
         private bool HoldsAnyMarriage()
         {
             foreach (var s in AllSuits)
@@ -1058,37 +1110,22 @@
                 }
             }
 
-            // Smallest non-marriage trump (only useful when leading suit is non-trump).
+            // Cheapest trump to ruff with (only useful when leading suit is non-trump).
             Card smallestTrump = null;
-            var smallestTrumpVal = int.MaxValue;
             Card biggestTrump = null;
             var biggestTrumpVal = -1;
             if (ledCard.Suit != trumpSuit)
             {
                 foreach (var c in possibleCards)
                 {
-                    if (c.Suit != trumpSuit)
-                    {
-                        continue;
-                    }
-
-                    if (c.GetValue() > biggestTrumpVal)
+                    if (c.Suit == trumpSuit && c.GetValue() > biggestTrumpVal)
                     {
                         biggestTrump = c;
                         biggestTrumpVal = c.GetValue();
                     }
-
-                    if (this.IsHalfOfMyMarriage(c))
-                    {
-                        continue;
-                    }
-
-                    if (c.GetValue() < smallestTrumpVal)
-                    {
-                        smallestTrump = c;
-                        smallestTrumpVal = c.GetValue();
-                    }
                 }
+
+                smallestTrump = this.SelectRuffTrump(context, possibleCards, trumpSuit);
             }
 
             var dump = this.SelectDump(possibleCards, trumpSuit);
