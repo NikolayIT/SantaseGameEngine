@@ -748,16 +748,17 @@
                 }
             }
 
-            // 5. In Phase 1, also cash in any guaranteed-winning lead (typically a top trump).
-            //    Saving it for later rarely pays off: opponents almost never lead high cards
-            //    that would let us catch them with our saved high card.
-            var guaranteed = this.FindBestGuaranteedWinner(context, possibleCards, trumpSuit);
-            if (guaranteed != null)
-            {
-                return guaranteed;
-            }
+            // 5. No routine cashing of guaranteed winners in Phase 1 (stance ported from the
+            //    santase-android AI, whose attack chain only cashes a master when it wins the
+            //    round). Hoarding masters until the deck runs out converts far better: Phase 2's
+            //    follow-suit/overtake obligations (played perfectly by the minimax) squeeze the
+            //    opponent with them, while cashing early just lets the opponent shed trash.
+            //    Tested at 200k games/matchup: cashing everything (the old behavior) was -4.4pp
+            //    vs the frozen baseline and -3.8pp vs NinjaPlayer; cashing only A/10 masters or
+            //    only trump masters was also strictly worse than full hoarding. Round-winning
+            //    cashes are still taken by rules 1/1b above.
 
-            // 6. Otherwise lead a low-value safe card.
+            // 6. Lead a low-value safe card.
             return this.SelectSafeLead(context, possibleCards, trumpSuit);
         }
 
