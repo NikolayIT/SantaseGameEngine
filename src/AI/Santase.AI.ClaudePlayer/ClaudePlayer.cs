@@ -22,6 +22,12 @@
     ///     announcing, drains opponent trumps before announcing in Phase 2 leads, has a two-trick
     ///     "trump-now-then-announce" lookahead, and only closes on 5+ trumps (or 4 trumps + the
     ///     trump marriage when opponent doesn't hold both A and 10 of trump).
+    ///     Several Phase-1 behaviors are ports measured in from Dimitar Karamanov's
+    ///     santase-android AI: masters are hoarded for the Phase-2 squeeze instead of cashed,
+    ///     cheap leads are ruffed to seize the lead when a marriage is announceable, ruff trumps
+    ///     are spent in a preservation order (J first, live-swap 9 and live-partner K/Q last),
+    ///     dumps avoid K/Q whose partner could still be drawn, and the last talon trick prefers
+    ///     voiding a suit.
     /// </summary>
     public class ClaudePlayer : BasePlayer
     {
