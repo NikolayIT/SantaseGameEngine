@@ -6,6 +6,15 @@
 
     internal static class PlayCardActionValidator
     {
+        // Precomputed masks over the CardCollection bit layout (bit index =
+        // Card.GetHashCode() = suit*13 + type). SuitMasks[suit] holds every card of that
+        // suit; HigherSameSuitMasks[card] holds the same-suit cards with a strictly higher
+        // value. They turn the "does the hand contain ..." scans below into single AND
+        // tests instead of hand enumerations.
+        private static readonly long[] SuitMasks = CreateSuitMasks();
+
+        private static readonly long[] HigherSameSuitMasks = CreateHigherSameSuitMasks();
+
         // Dispatcher kept for the public ICollection<Card> contract. The engine always
         // passes the concrete CardCollection, so it takes the no-boxing fast path below;
         // any other ICollection is copied once into a CardCollection (slow path, never hit
@@ -32,8 +41,10 @@
             return CanPlayCard(isThePlayerFirst, playedCard, otherPlayerCard, trumpCard, copy, shouldObserveRules);
         }
 
-        // Real implementation. Iterating the concrete CardCollection uses its struct
-        // enumerator, so the per-turn legal-move scan allocates nothing.
+        // Real implementation. The played card is still in playerCards at validation time,
+        // but it can never satisfy the masks it is tested against (it is not higher than a
+        // card it failed to beat, and it is excluded from the led/trump suit checks by the
+        // surrounding branches), so no exclusion is needed.
         public static bool CanPlayCard(
             bool isThePlayerFirst,
             Card playedCard,
@@ -59,6 +70,7 @@
                 return true;
             }
 
+            var handBits = playerCards.BitMask;
             if (otherPlayerCard.Suit == playedCard.Suit)
             {
                 // Played bigger card of the same suit - OK
@@ -68,49 +80,62 @@
                 }
 
                 // When a card is led, the opponent must play a higher card of the same suit if possible
-                // ReSharper disable once LoopCanBeConvertedToQuery (performance critical)
-                foreach (var card in playerCards)
-                {
-                    if (card.Suit == otherPlayerCard.Suit && card.GetValue() > otherPlayerCard.GetValue())
-                    {
-                        // Found bigger card which is not played => wrong action
-                        return false;
-                    }
-                }
+                return (handBits & HigherSameSuitMasks[otherPlayerCard.GetHashCode()]) == 0;
             }
-            else
+
+            // Having no higher card, the second player MUST play a lower card of the suit that was led
+            if ((handBits & SuitMasks[(int)otherPlayerCard.Suit]) != 0)
             {
-                // Having no higher card, the second player MUST play a lower card of the suit that was led
-                // ReSharper disable once LoopCanBeConvertedToQuery (performance critical)
-                foreach (var card in playerCards)
-                {
-                    if (card.Suit == otherPlayerCard.Suit)
-                    {
-                        // Found same suit card which is not played => wrong action
-                        return false;
-                    }
-                }
+                return false;
+            }
 
-                // Player has no card of the same suit and plays trump - OK
-                if (playedCard.Suit == trumpCard.Suit)
-                {
-                    return true;
-                }
+            // Player has no card of the same suit and plays trump - OK
+            if (playedCard.Suit == trumpCard.Suit)
+            {
+                return true;
+            }
 
-                // If the player has no card of the suit played by the first player he must play a trump if possible
-                // ReSharper disable once LoopCanBeConvertedToQuery (performance critical)
-                foreach (var card in playerCards)
+            // If the player has no card of the suit played by the first player he must play a trump if possible
+            return (handBits & SuitMasks[(int)trumpCard.Suit]) == 0;
+        }
+
+        private static long[] CreateSuitMasks()
+        {
+            var masks = new long[4];
+            foreach (var card in Card.Cards)
+            {
+                if (card != null)
                 {
-                    // Found trump card which is not played => wrong action
-                    if (card.Suit == trumpCard.Suit)
-                    {
-                        return false;
-                    }
+                    masks[(int)card.Suit] |= 1L << card.GetHashCode();
                 }
             }
 
-            // Having no cards of the suit led and no trumps, the second player may throw any card.
-            return true;
+            return masks;
+        }
+
+        private static long[] CreateHigherSameSuitMasks()
+        {
+            var masks = new long[Card.Cards.Length];
+            foreach (var card in Card.Cards)
+            {
+                if (card == null)
+                {
+                    continue;
+                }
+
+                long mask = 0;
+                foreach (var other in Card.Cards)
+                {
+                    if (other != null && other.Suit == card.Suit && other.GetValue() > card.GetValue())
+                    {
+                        mask |= 1L << other.GetHashCode();
+                    }
+                }
+
+                masks[card.GetHashCode()] = mask;
+            }
+
+            return masks;
         }
     }
 }

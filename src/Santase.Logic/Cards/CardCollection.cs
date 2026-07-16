@@ -28,6 +28,11 @@
 
         public bool IsReadOnly => false;
 
+        // Raw 53-bit card mask (bit index = Card.GetHashCode()). Lets same-assembly rule
+        // code answer set questions ("any card of suit X?") with a single AND instead of
+        // enumerating the collection.
+        internal long BitMask => this.cards;
+
         // Returns the struct enumerator by concrete type so that foreach over a
         // CardCollection-typed reference allocates nothing (the BCL List<T> pattern).
         // Interface-typed iteration still works through the explicit implementations below.

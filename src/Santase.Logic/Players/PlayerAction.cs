@@ -4,6 +4,14 @@
 
     public sealed class PlayerAction
     {
+        // ChangeTrump and CloseGame actions carry no card and their Announce is never
+        // written (PlayerActionValidator only touches Announce on PlayCard actions), so a
+        // single shared instance serves every call — per-turn "can I change the trump?"
+        // probes stop allocating.
+        private static readonly PlayerAction ChangeTrumpAction = new PlayerAction(PlayerActionType.ChangeTrump, null);
+
+        private static readonly PlayerAction CloseGameAction = new PlayerAction(PlayerActionType.CloseGame, null);
+
         private PlayerAction(PlayerActionType type, Card card)
         {
             this.Type = type;
@@ -24,12 +32,12 @@
 
         public static PlayerAction ChangeTrump()
         {
-            return new PlayerAction(PlayerActionType.ChangeTrump, null);
+            return ChangeTrumpAction;
         }
 
         public static PlayerAction CloseGame()
         {
-            return new PlayerAction(PlayerActionType.CloseGame, null);
+            return CloseGameAction;
         }
 
         public override string ToString()
