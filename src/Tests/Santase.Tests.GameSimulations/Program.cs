@@ -32,6 +32,7 @@ namespace Santase.Tests.GameSimulations
                 ["ismcts"] = BuildIsmctsSuite,
                 ["smart"] = BuildSmartSuite,
                 ["baseline"] = BuildBaselineSuite,
+                ["ab"] = BuildAbSuite,
             };
 
         public static void Main(string[] args)
@@ -150,6 +151,19 @@ namespace Santase.Tests.GameSimulations
                 new GameSimulator(() => new SmartPlayer(), () => new NinjaPlayer()),
                 new GameSimulator(() => new SmartPlayer(), () => new DummyPlayerChangingTrump()),
                 new GameSimulator(() => new SmartPlayer(), () => new DummyPlayer()),
+            };
+        }
+
+        // Focused A/B suite for heuristic ClaudePlayer iteration: candidate vs the frozen
+        // baseline (primary metric) plus the two strongest independent heuristics as a
+        // regression guard against overfitting to the baseline twin.
+        private static GameSimulator[] BuildAbSuite()
+        {
+            return new[]
+            {
+                new GameSimulator(() => new ClaudePlayer(), () => new ClaudePlayerBaseline()),
+                new GameSimulator(() => new ClaudePlayer(), () => new SmartPlayer()),
+                new GameSimulator(() => new ClaudePlayer(), () => new NinjaPlayer()),
             };
         }
 

@@ -44,6 +44,11 @@
             CardType.Nine, CardType.Jack, CardType.Queen, CardType.King, CardType.Ten, CardType.Ace,
         };
 
+        private static readonly CardType[] SwapSetupTrumpOrder =
+        {
+            CardType.Jack, CardType.Ten, CardType.Ace,
+        };
+
         // Per-instance scratch buffers indexed by recursion depth, to avoid Card[] allocations
         // on every Search call. Each slot holds at most 6 cards (max hand size).
         private readonly Card[][] moveBuffers;
@@ -986,6 +991,20 @@
             return best;
         }
 
+        private bool HoldsAnyMarriage()
+        {
+            foreach (var s in AllSuits)
+            {
+                if (this.Cards.Contains(Card.GetCard(s, CardType.King))
+                    && this.Cards.Contains(Card.GetCard(s, CardType.Queen)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private bool IsHalfOfMyMarriage(Card c)
         {
             if (c.Type != CardType.King && c.Type != CardType.Queen)
@@ -1165,6 +1184,37 @@
                 && smallestTrump != null)
             {
                 return smallestTrump;
+            }
+
+            // Seize the lead to announce (Karamanov's OrdinaryTrump4Couple): a held marriage is
+            // worth 20/40 the moment we lead, so winning even a junk trick with a spare trump
+            // pays for itself. Also covers the swap-completes-forty setup: holding the trump 9
+            // plus one of trump K/Q while the face-up card is the other - winning this trick
+            // lets us swap the 9 next lead and announce the trump marriage after that.
+            if (ledCard.Suit != trumpSuit)
+            {
+                if (smallestTrump != null && this.HoldsAnyMarriage())
+                {
+                    return smallestTrump;
+                }
+
+                if (context.CardsLeftInDeck >= 6
+                    && context.TrumpCard != null
+                    && (context.TrumpCard.Type == CardType.King || context.TrumpCard.Type == CardType.Queen)
+                    && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Nine))
+                    && (this.Cards.Contains(Card.GetCard(trumpSuit, CardType.King))
+                        || this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Queen))))
+                {
+                    // Spend a trump that is neither the swap 9 nor a K/Q half: J, then 10, then A.
+                    foreach (var t in SwapSetupTrumpOrder)
+                    {
+                        var c = Card.GetCard(trumpSuit, t);
+                        if (this.Cards.Contains(c))
+                        {
+                            return c;
+                        }
+                    }
+                }
             }
 
             return dump;
