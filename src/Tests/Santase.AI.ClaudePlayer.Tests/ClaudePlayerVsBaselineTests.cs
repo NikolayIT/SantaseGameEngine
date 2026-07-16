@@ -16,12 +16,14 @@
         [Fact]
         public void ClaudePlayerShouldNotRegressNoticeablyBelowBaseline()
         {
-            // Note: when ClaudePlayer.cs and ClaudePlayerBaseline.cs are identical, the expected
-            // win-count is ~500/1000 (50%). The threshold of 470 (47%) allows ~5% noise + small
-            // natural variance from the random shuffle. A change that loses by more than this is
-            // almost certainly a regression.
-            const int GamesToPlay = 1000;
-            const int RegressionThreshold = 470;
+            // Note: when ClaudePlayer.cs and ClaudePlayerBaseline.cs are identical (right after
+            // a baseline refresh), the expected win-count is ~1000/2000 (50%) with sigma ~22, so
+            // the 46% threshold sits ~3.6 sigma below parity: false-failure odds ~0.02% per run
+            // (the old 1000-game/47% version flaked ~3% of runs at parity). A change that loses
+            // by more than this is almost certainly a regression - the ab simulator suite, not
+            // this tripwire, is the precise measure.
+            const int GamesToPlay = 2000;
+            const int RegressionThreshold = 920;
 
             IPlayer current = new ClaudePlayer();
             IPlayer baseline = new ClaudePlayerBaseline();
