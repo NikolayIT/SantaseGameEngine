@@ -163,7 +163,9 @@ namespace Santase.AI.ClaudePlayer
                 var untried = legalMask & ~covered;
                 if (untried != 0L && this.nodeCount < NodeCapacity && this.edgeCount < EdgeCapacity)
                 {
-                    // Expand one untried legal move.
+                    // Expand one untried legal move. The pick is arbitrary (lowest hash) on
+                    // purpose: expanding the rollout policy's preferred move first measured
+                    // -0.7pp in mirror A/B (see the ISMCTS notes in CLAUDE.md).
                     var move = BitOperations.TrailingZeroCount((ulong)untried);
                     state = this.ApplyMove(state, move);
                     var childId = this.NewNode(state.MyTurn);

@@ -99,12 +99,21 @@ namespace Santase.AI.ClaudePlayer
         private int rootOppPoints;
         private long myHandMask;
         private int poolCount;
+        private long poolMask;
 
         // Round bookkeeping (kept in lockstep with StartRound / AddCard / EndTurn).
         private bool iWasLeaderThisTrick;
         private int myTricksTakenInRound;
         private int oppTricksTakenInRound;
         private bool iClosedThisRound;
+
+        // Card-location inference (bit = engine card hash): cards provably in the opponent's
+        // hand, a subset of UnknownCards until played.
+        private long oppKnownMask;
+
+        // Per-move deal plan derived from the mask by ConfigureMove (zero = plain uniform deal).
+        private long dealKnownMask;
+        private int dealFreeCount;
 
         static ClaudeSearchPlayerBase()
         {
@@ -168,6 +177,19 @@ namespace Santase.AI.ClaudePlayer
         public double ExplorationConstant { get; set; } = 1.4;
 
         /// <summary>
+        /// Deal sampled worlds using cards whose hand-location is proven by public events: a
+        /// marriage announce reveals the partner K/Q in the opponent's hand; an opponent trump
+        /// swap moves the old face-up trump into their hand (previously mis-modeled back into
+        /// the unknown pool, where it could be buried in the sampled talon); and when the deck
+        /// reaches two cards the trick loser draws the face-up trump. Off = the plain uniform
+        /// deal over all unknown cards (pre-inference behavior); A/B seam for the ismcts-ab
+        /// simulator suite. NOTE: the natural extension — also excluding provably-absent cards
+        /// (no-announce K/Q leads, closed-game follow voids) from the sampled hand — measured
+        /// NEGATIVE (see the ISMCTS notes in CLAUDE.md); don't re-add it blindly.
+        /// </summary>
+        public bool UseCardInference { get; set; } = true;
+
+        /// <summary>
         /// RNG for determinization shuffling. Per-instance (the simulator builds a fresh player per
         /// game and runs each game on one thread), so no contention; inject a seed for tests.
         /// </summary>
@@ -206,29 +228,32 @@ namespace Santase.AI.ClaudePlayer
             this.myTricksTakenInRound = 0;
             this.oppTricksTakenInRound = 0;
             this.iClosedThisRound = false;
+            this.oppKnownMask = 0L;
         }
 
         public override void AddCard(Card card)
         {
             base.AddCard(card);
             this.UnknownCards.Remove(card);
+
+            // Defensive: a card provably in the opponent's hand can never be dealt to us.
+            this.oppKnownMask &= ~(1L << card.GetHashCode());
         }
 
         public override void EndTurn(PlayerTurnContext context)
         {
-            // The face-up trump transitions from "on table" to "in a hand" as the deck reaches 2.
-            if (context.CardsLeftInDeck == 2 && context.TrumpCard != null)
-            {
-                this.UnknownCards.Add(context.TrumpCard);
-            }
+            var firstPlayed = context.FirstPlayedCard;
+            var secondPlayed = context.SecondPlayedCard;
+            var trickCompleted = firstPlayed != null && secondPlayed != null;
+            var iWonTrick = false;
 
-            if (context.FirstPlayedCard != null && context.SecondPlayedCard != null)
+            if (trickCompleted)
             {
                 var firstWins = CardWinnerLogic.GetWinner(
-                    context.FirstPlayedCard, context.SecondPlayedCard, context.TrumpCard.Suit)
+                    firstPlayed, secondPlayed, context.TrumpCard.Suit)
                     == PlayerPosition.FirstPlayer;
-                var iWon = this.iWasLeaderThisTrick == firstWins;
-                if (iWon)
+                iWonTrick = this.iWasLeaderThisTrick == firstWins;
+                if (iWonTrick)
                 {
                     this.myTricksTakenInRound++;
                 }
@@ -238,14 +263,30 @@ namespace Santase.AI.ClaudePlayer
                 }
             }
 
-            this.RecordPlayed(context.FirstPlayedCard);
-            this.RecordPlayed(context.SecondPlayedCard);
+            // The face-up trump transitions from "on table" to "in a hand" as the deck reaches 2:
+            // this trick's winner draws the last face-down card, the loser draws the face-up
+            // trump. So when we won, the opponent provably holds the trump card.
+            if (context.CardsLeftInDeck == 2 && context.TrumpCard != null)
+            {
+                this.UnknownCards.Add(context.TrumpCard);
+                if (trickCompleted && iWonTrick)
+                {
+                    this.oppKnownMask |= 1L << context.TrumpCard.GetHashCode();
+                }
+            }
+
+            this.RecordPlayed(firstPlayed);
+            this.RecordPlayed(secondPlayed);
         }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
             this.iWasLeaderThisTrick = context.IsFirstPlayerTurn;
             this.SyncTrumpCard(context.TrumpCard);
+            if (!context.IsFirstPlayerTurn)
+            {
+                this.ObserveOpponentLead(context);
+            }
 
             if (this.PlayerActionValidator.IsValid(PlayerAction.ChangeTrump(), context, this.Cards))
             {
@@ -315,6 +356,22 @@ namespace Santase.AI.ClaudePlayer
                 }
             }
 
+            this.dealKnownMask = 0L;
+            this.dealFreeCount = this.oppHandCount;
+            if (this.UseCardInference)
+            {
+                // Only pool cards matter (the on-table led card is excluded from the pool even
+                // when we had located it in their hand). A known-count above the hand size would
+                // mean a bookkeeping bug — fall back to the plain uniform deal for this move.
+                var known = this.oppKnownMask & this.poolMask;
+                var knownCount = BitOperations.PopCount((ulong)known);
+                if (knownCount > 0 && knownCount <= this.oppHandCount)
+                {
+                    this.dealKnownMask = known;
+                    this.dealFreeCount = this.oppHandCount - knownCount;
+                }
+            }
+
             return true;
         }
 
@@ -325,25 +382,68 @@ namespace Santase.AI.ClaudePlayer
         {
             this.Shuffle(this.poolCount);
 
-            long oppMask = 0L;
-            for (var i = 0; i < this.oppHandCount; i++)
+            long oppMask;
+            if (this.dealKnownMask == 0L)
             {
-                oppMask |= 1L << this.unknownPool[i];
-            }
+                // Plain uniform deal: opponent takes a shuffled prefix, talon the rest.
+                oppMask = 0L;
+                for (var i = 0; i < this.oppHandCount; i++)
+                {
+                    oppMask |= 1L << this.unknownPool[i];
+                }
 
-            if (this.worldClosed)
-            {
-                this.worldDeckLength = 0;
+                if (this.worldClosed)
+                {
+                    this.worldDeckLength = 0;
+                }
+                else
+                {
+                    for (var i = 0; i < this.faceDownDeck; i++)
+                    {
+                        this.worldDeck[i] = this.unknownPool[this.oppHandCount + i];
+                    }
+
+                    this.worldDeck[this.faceDownDeck] = this.trumpHash;
+                    this.worldDeckLength = this.faceDownDeck + 1;
+                }
             }
             else
             {
-                for (var i = 0; i < this.faceDownDeck; i++)
+                // Constrained deal: cards proven to be in the opponent's hand go there up front;
+                // the remaining hand slots take the first free cards in shuffled order (a uniform
+                // random subset), and whatever is left fills the talon in shuffled order.
+                oppMask = this.dealKnownMask;
+                var free = this.dealFreeCount;
+                var deckIndex = 0;
+                for (var i = 0; i < this.poolCount; i++)
                 {
-                    this.worldDeck[i] = this.unknownPool[this.oppHandCount + i];
+                    var hash = this.unknownPool[i];
+                    var bit = 1L << hash;
+                    if ((this.dealKnownMask & bit) != 0L)
+                    {
+                        continue;
+                    }
+
+                    if (free > 0)
+                    {
+                        oppMask |= bit;
+                        free--;
+                    }
+                    else if (!this.worldClosed)
+                    {
+                        this.worldDeck[deckIndex++] = hash;
+                    }
                 }
 
-                this.worldDeck[this.faceDownDeck] = this.trumpHash;
-                this.worldDeckLength = this.faceDownDeck + 1;
+                if (this.worldClosed)
+                {
+                    this.worldDeckLength = 0;
+                }
+                else
+                {
+                    this.worldDeck[deckIndex] = this.trumpHash;
+                    this.worldDeckLength = deckIndex + 1;
+                }
             }
 
             return new SimState
@@ -1102,6 +1202,7 @@ namespace Santase.AI.ClaudePlayer
         private int FillPool(int excludeHash)
         {
             var n = 0;
+            this.poolMask = 0L;
             foreach (var card in this.UnknownCards)
             {
                 var hash = card.GetHashCode();
@@ -1111,6 +1212,7 @@ namespace Santase.AI.ClaudePlayer
                 }
 
                 this.unknownPool[n++] = hash;
+                this.poolMask |= 1L << hash;
             }
 
             return n;
@@ -1146,10 +1248,40 @@ namespace Santase.AI.ClaudePlayer
             if (this.LastSeenTrumpCard != null)
             {
                 this.UnknownCards.Add(this.LastSeenTrumpCard);
+
+                // We pre-set LastSeenTrumpCard when swapping ourselves, so seeing the face-up
+                // card turn into the trump Nine here means the OPPONENT swapped — the old
+                // face-up trump is provably in their hand now, not somewhere in the talon.
+                if (current.Type == CardType.Nine && current.Suit == this.LastSeenTrumpCard.Suit)
+                {
+                    this.oppKnownMask |= 1L << this.LastSeenTrumpCard.GetHashCode();
+                }
             }
 
             this.UnknownCards.Remove(current);
             this.LastSeenTrumpCard = current;
+        }
+
+        // Card inference from the opponent's lead: the engine validator force-sets the announce
+        // on every legal K/Q lead, so an announce proves the marriage partner is in their hand.
+        private void ObserveOpponentLead(PlayerTurnContext context)
+        {
+            if (context.FirstPlayerAnnounce == Announce.None)
+            {
+                return;
+            }
+
+            var partnerBit = PartnerMask[context.FirstPlayedCard.GetHashCode()];
+            if (partnerBit == 0L)
+            {
+                return;
+            }
+
+            var partner = Card.Cards[BitOperations.TrailingZeroCount((ulong)partnerBit)];
+            if (this.UnknownCards.Contains(partner))
+            {
+                this.oppKnownMask |= partnerBit;
+            }
         }
 
         private void RecordPlayed(Card card)
@@ -1161,6 +1293,7 @@ namespace Santase.AI.ClaudePlayer
 
             this.UnknownCards.Remove(card);
             this.PlayedCards.Add(card);
+            this.oppKnownMask &= ~(1L << card.GetHashCode());
         }
 
         private bool ShouldCloseGame(PlayerTurnContext context)

@@ -22,6 +22,13 @@ namespace Santase.Tests.GameSimulations
 
         private const string DefaultSuiteName = "claude";
 
+        // ismcts-ab configuration, set from CLI args 3/4: which candidate feature flags to turn
+        // on (k = known-card inference; "none" = pure mirror sanity check, which measured 49.35%
+        // over 4,000 games — the harness itself is unbiased) and the per-move budget.
+        private static string ismctsAbFlags = "k";
+
+        private static int ismctsAbBudgetMs = 30;
+
         // Named matchup suites. Pick one with the first CLI arg (default: "claude"); the
         // optional second arg overrides the game count. This replaces toggling blocks of
         // commented-out simulator calls.
@@ -33,6 +40,7 @@ namespace Santase.Tests.GameSimulations
                 ["smart"] = BuildSmartSuite,
                 ["baseline"] = BuildBaselineSuite,
                 ["ab"] = BuildAbSuite,
+                ["ismcts-ab"] = BuildIsmctsAbSuite,
             };
 
         public static void Main(string[] args)
@@ -80,6 +88,18 @@ namespace Santase.Tests.GameSimulations
                                   && parsedGames > 0
                                       ? parsedGames
                                       : DefaultGamesPerMatchup;
+
+            if (args is { Length: > 2 })
+            {
+                ismctsAbFlags = args[2];
+            }
+
+            if (args is { Length: > 3 }
+                && int.TryParse(args[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedBudget)
+                && parsedBudget > 0)
+            {
+                ismctsAbBudgetMs = parsedBudget;
+            }
 
             Console.WriteLine($"Suite '{suiteName}', {gamesPerMatchup:0,0} games per matchup.");
             Console.WriteLine(new string('=', 75));
@@ -164,6 +184,32 @@ namespace Santase.Tests.GameSimulations
                 new GameSimulator(() => new ClaudePlayer(), () => new ClaudePlayerBaseline()),
                 new GameSimulator(() => new ClaudePlayer(), () => new SmartPlayer()),
                 new GameSimulator(() => new ClaudePlayer(), () => new NinjaPlayer()),
+            };
+        }
+
+        // Mirror A/B for ISMCTS iteration: the candidate configuration vs a baseline-configured
+        // twin (feature flags off = pre-change behavior). Seats alternate per game as usual.
+        // CLI: `ismcts-ab <games> [flags] [budgetMs]`, e.g. `ismcts-ab 4000 k` or a screen at a
+        // reduced budget followed by a confirm at the production 100ms (`ismcts-ab 3000 k 100`).
+        // Noise: 1 sigma ~= 1.1pp at 2,000 games, ~= 0.8pp at 4,000, ~= 0.9pp at 3,000.
+        private static GameSimulator[] BuildIsmctsAbSuite()
+        {
+            var flags = ismctsAbFlags;
+            var budget = ismctsAbBudgetMs;
+            Console.WriteLine($"ISMCTS A/B candidate flags: '{flags}', budget {budget}ms/move.");
+            return new[]
+            {
+                new GameSimulator(
+                    () => new ClaudePlayerIsmcts
+                    {
+                        TimeLimitMilliseconds = budget,
+                        UseCardInference = flags.Contains('k'),
+                    },
+                    () => new ClaudePlayerIsmcts
+                    {
+                        TimeLimitMilliseconds = budget,
+                        UseCardInference = false,
+                    }),
             };
         }
 
