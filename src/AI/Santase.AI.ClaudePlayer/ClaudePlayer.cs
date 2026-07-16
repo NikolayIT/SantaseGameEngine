@@ -1169,6 +1169,25 @@
                 {
                     return biggestTrump;
                 }
+
+                // Can't win the trick: damage-control dump (Karamanov's checkForExitResponse) -
+                // the preservation-scored dump can cross the 66 line where the plain cheapest
+                // card would keep the opponent short, so feed the minimum instead.
+                Card minCard = null;
+                var minVal = int.MaxValue;
+                foreach (var c in possibleCards)
+                {
+                    if (c.GetValue() < minVal)
+                    {
+                        minCard = c;
+                        minVal = c.GetValue();
+                    }
+                }
+
+                if (oppPoints + ledCard.GetValue() + minVal < 66)
+                {
+                    return minCard;
+                }
             }
 
             // Defensive trump-up. Opp is one strong trick away from schneider-ing me: their
