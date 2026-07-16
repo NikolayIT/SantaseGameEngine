@@ -6,20 +6,26 @@
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
+    using Santase.Logic.WinnerLogic;
 
     /// <summary>
     /// FROZEN reference snapshot of <see cref="ClaudePlayer"/>. DO NOT MODIFY this file when
     /// iterating on improvements - it exists so head-to-head simulations and regression tests
     /// can compare a candidate ClaudePlayer against a stable baseline. Update only after a
     /// proven improvement has shipped, so further gains stay measurable.
+    /// Snapshot: July 2026, after the six santase-android heuristic ports (the previous
+    /// snapshot lost to this one 35.4% - 64.6% over 200k games).
     /// </summary>
     public class ClaudePlayerBaseline : BasePlayer
     {
         private const int MaxSearchDepth = 14;
 
-        // Eval magnitudes for terminal positions in the minimax.
-        private const int RoundWinReward = 1000;
-        private const int HandOutReward = 500;
+        // Eval magnitude per game-point of the round outcome.
+        // The 1/2/3 game-point engine reward (RoundWinnerPointsPointsLogic) is the actual win
+        // condition, so the minimax weights its terminal by it: a "schwarz" (opp 0 tricks → 3
+        // game-points) is worth 3× a normal 1-game-point win. Round-points margin stays as a
+        // tie-breaker below the game-point signal.
+        private const int GamePointReward = 1000;
 
         private static readonly CardSuit[] AllSuits =
         {
@@ -31,9 +37,23 @@
             CardType.Nine, CardType.Jack, CardType.Queen, CardType.King, CardType.Ten, CardType.Ace,
         };
 
+        private static readonly CardType[] SwapSetupTrumpOrder =
+        {
+            CardType.Jack, CardType.Ten, CardType.Ace,
+        };
+
         // Per-instance scratch buffers indexed by recursion depth, to avoid Card[] allocations
         // on every Search call. Each slot holds at most 6 cards (max hand size).
         private readonly Card[][] moveBuffers;
+
+        // Trick-count bookkeeping: updated in EndTurn so the minimax can seed its root state
+        // with the true (pre-search) trick counts. The schneider/schwarz game-point scoring
+        // depends on the loser's final trick count, so we have to carry this across moves.
+        private bool iWasLeaderThisTrick;
+
+        private int myTricksTakenInRound;
+
+        private int oppTricksTakenInRound;
 
         public ClaudePlayerBaseline()
         {
@@ -64,6 +84,8 @@
 
             this.PlayedCards = new CardCollection();
             this.LastSeenTrumpCard = null;
+            this.myTricksTakenInRound = 0;
+            this.oppTricksTakenInRound = 0;
         }
 
         public override void AddCard(Card card)
@@ -81,12 +103,31 @@
                 this.UnknownCards.Add(context.TrumpCard);
             }
 
+            // Trick winner counting. Both cards present => normal trick resolution; only first
+            // present => round ended on a winning announce (no actual trick completed), skip.
+            if (context.FirstPlayedCard != null && context.SecondPlayedCard != null)
+            {
+                var firstWins = CardWinnerLogic.GetWinner(
+                    context.FirstPlayedCard, context.SecondPlayedCard, context.TrumpCard.Suit)
+                    == PlayerPosition.FirstPlayer;
+                var iWon = this.iWasLeaderThisTrick == firstWins;
+                if (iWon)
+                {
+                    this.myTricksTakenInRound++;
+                }
+                else
+                {
+                    this.oppTricksTakenInRound++;
+                }
+            }
+
             this.RecordPlayed(context.FirstPlayedCard);
             this.RecordPlayed(context.SecondPlayedCard);
         }
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
+            this.iWasLeaderThisTrick = context.IsFirstPlayerTurn;
             this.SyncTrumpCard(context.TrumpCard);
 
             // Trump change: trade the 9 of trump for the visible (higher) trump card. Almost always positive.
@@ -245,15 +286,9 @@
                 var leader = state.LedCard;
                 var trickValue = leader.GetValue() + card.GetValue();
 
-                bool followerWins;
-                if (leader.Suit == card.Suit)
-                {
-                    followerWins = card.GetValue() > leader.GetValue();
-                }
-                else
-                {
-                    followerWins = card.Suit == state.TrumpSuit;
-                }
+                // The follower (the card just played) wins iff it beats the led card.
+                var followerWins =
+                    CardWinnerLogic.GetWinner(leader, card, state.TrumpSuit) == PlayerPosition.SecondPlayer;
 
                 // Current player (about to play) is the follower.
                 // followerWins == true => current player wins; false => the other (leader) wins.
@@ -263,10 +298,12 @@
                 if (amWinningTrick)
                 {
                     newState.MyPoints += trickValue;
+                    newState.MyTricksTaken++;
                 }
                 else
                 {
                     newState.OppPoints += trickValue;
+                    newState.OppTricksTaken++;
                 }
 
                 newState.LedCard = null;
@@ -316,7 +353,11 @@
                 return false;
             }
 
+            // Close is only legal as the trick leader (CloseGameActionValidator), so my points
+            // are the leader's points in this context.
             var trumpSuit = context.TrumpCard.Suit;
+            var myPoints = context.FirstPlayerRoundPoints;
+
             var trumpCount = 0;
             foreach (var c in this.Cards)
             {
@@ -326,17 +367,19 @@
                 }
             }
 
-            // Strong condition: 5+ trumps (SmartPlayer's baseline).
+            // 1. Trump dominance: 5+ trumps (SmartPlayer's baseline).
             if (trumpCount >= 5)
             {
                 return true;
             }
 
-            // Also close when we hold 4 trumps including the trump marriage AND opponent doesn't
-            // have both top trumps (A and 10): we control most trump tricks plus +40 announce.
-            if (trumpCount >= 4
-                && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.King))
-                && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Queen)))
+            var hasTrumpKing = this.Cards.Contains(Card.GetCard(trumpSuit, CardType.King));
+            var hasTrumpQueen = this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Queen));
+            var hasTrumpMarriage = hasTrumpKing && hasTrumpQueen;
+
+            // 2. 4 trumps + trump marriage when opp can't hold both top trumps - we control
+            //    trump suit plus the +40 announce.
+            if (trumpCount >= 4 && hasTrumpMarriage)
             {
                 var oppCouldHaveAce = this.UnknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ace));
                 var oppCouldHaveTen = this.UnknownCards.Contains(Card.GetCard(trumpSuit, CardType.Ten));
@@ -345,6 +388,38 @@
                     return true;
                 }
             }
+
+            // 3. Trump marriage + already at 26+ round-points: closing then leading K or Q with
+            //    the +40 announce takes me to >= 66 BEFORE opp can respond (engine checks
+            //    RoundPoints right after the announce is registered in Trick.Play). Provably
+            //    safe - the announce alone delivers the win, independent of which cards opp
+            //    holds or how the rest of the closed game plays out.
+            if (hasTrumpMarriage && myPoints >= 26)
+            {
+                return true;
+            }
+
+            // 4. Any non-trump K+Q marriage + 46+ round-points: announce 20 takes me to >= 66
+            //    instantly. Provably safe, symmetric to condition 3.
+            foreach (var s in AllSuits)
+            {
+                if (s == trumpSuit)
+                {
+                    continue;
+                }
+
+                if (myPoints >= 46
+                    && this.Cards.Contains(Card.GetCard(s, CardType.King))
+                    && this.Cards.Contains(Card.GetCard(s, CardType.Queen)))
+                {
+                    return true;
+                }
+            }
+
+            // Probabilistic close conditions (trump marriage + Ace + 3 trumps; 20-marriage +
+            // heavy trump control; hand-value-sum gate) were tested and regressed against
+            // strong heuristic opponents (SmartPlayer / NinjaPlayer): the ~3 game-point cost
+            // of a failed close outweighed the wins against weaker opponents.
 
             return false;
         }
@@ -412,6 +487,8 @@
                 LedCard = ledCard,
                 MyTurn = true,
                 TrumpSuit = context.TrumpCard.Suit,
+                MyTricksTaken = this.myTricksTakenInRound,
+                OppTricksTaken = this.oppTricksTakenInRound,
             };
 
             var moves = this.moveBuffers[0];
@@ -453,26 +530,38 @@
 
         private int Search(GameState state, int alpha, int beta, int depth)
         {
+            // Mid-round 66-reach: round ends now, no +10 last-trick bonus (hands not both empty).
+            // Game-points to the winner depend on the loser's state at this instant.
             if (state.MyPoints >= 66)
             {
-                return RoundWinReward + state.MyPoints - state.OppPoints;
+                return (GamePointsForLoser(state.OppPoints, state.OppTricksTaken) * GamePointReward)
+                       + state.MyPoints - state.OppPoints;
             }
 
             if (state.OppPoints >= 66)
             {
-                return -RoundWinReward + state.MyPoints - state.OppPoints;
+                return (-GamePointsForLoser(state.MyPoints, state.MyTricksTaken) * GamePointReward)
+                       + state.MyPoints - state.OppPoints;
             }
 
+            // Both hands empty without reaching 66: +10 last-trick bonus to whoever won the
+            // last trick (state.MyTurn after trick resolution = trick winner = next leader).
+            // The bonus is applied BEFORE the schneider check, matching the engine.
             if (state.MyHand == 0L && state.OppHand == 0L)
             {
-                if (state.MyPoints > state.OppPoints)
+                var myFinal = state.MyPoints + (state.MyTurn ? 10 : 0);
+                var oppFinal = state.OppPoints + (state.MyTurn ? 0 : 10);
+
+                if (myFinal > oppFinal)
                 {
-                    return HandOutReward + state.MyPoints - state.OppPoints;
+                    return (GamePointsForLoser(oppFinal, state.OppTricksTaken) * GamePointReward)
+                           + myFinal - oppFinal;
                 }
 
-                if (state.MyPoints < state.OppPoints)
+                if (myFinal < oppFinal)
                 {
-                    return -HandOutReward + state.MyPoints - state.OppPoints;
+                    return (-GamePointsForLoser(myFinal, state.MyTricksTaken) * GamePointReward)
+                           + myFinal - oppFinal;
                 }
 
                 return 0;
@@ -629,16 +718,17 @@
                 }
             }
 
-            // 5. In Phase 1, also cash in any guaranteed-winning lead (typically a top trump).
-            //    Saving it for later rarely pays off: opponents almost never lead high cards
-            //    that would let us catch them with our saved high card.
-            var guaranteed = this.FindBestGuaranteedWinner(context, possibleCards, trumpSuit);
-            if (guaranteed != null)
-            {
-                return guaranteed;
-            }
+            // 5. No routine cashing of guaranteed winners in Phase 1 (stance ported from the
+            //    santase-android AI, whose attack chain only cashes a master when it wins the
+            //    round). Hoarding masters until the deck runs out converts far better: Phase 2's
+            //    follow-suit/overtake obligations (played perfectly by the minimax) squeeze the
+            //    opponent with them, while cashing early just lets the opponent shed trash.
+            //    Tested at 200k games/matchup: cashing everything (the old behavior) was -4.4pp
+            //    vs the frozen baseline and -3.8pp vs NinjaPlayer; cashing only A/10 masters or
+            //    only trump masters was also strictly worse than full hoarding. Round-winning
+            //    cashes are still taken by rules 1/1b above.
 
-            // 6. Otherwise lead a low-value safe card.
+            // 6. Lead a low-value safe card.
             return this.SelectSafeLead(context, possibleCards, trumpSuit);
         }
 
@@ -646,7 +736,7 @@
         {
             foreach (var c in possibleCards)
             {
-                var announceBonus = this.AnnounceBonusFor(c, context, trumpSuit);
+                var announceBonus = this.AnnounceBonusFor(c, context);
 
                 // Engine ends the trick the moment my announce pushes me past 66 (round-end check before opponent plays).
                 if (myPoints + announceBonus >= 66)
@@ -665,25 +755,18 @@
             return null;
         }
 
-        private int AnnounceBonusFor(Card card, PlayerTurnContext context, CardSuit trumpSuit)
+        private int AnnounceBonusFor(Card card, PlayerTurnContext context)
         {
             if (!context.State.CanAnnounce20Or40)
             {
                 return 0;
             }
 
-            if (card.Type != CardType.King && card.Type != CardType.Queen)
-            {
-                return 0;
-            }
-
-            var partnerType = card.Type == CardType.King ? CardType.Queen : CardType.King;
-            if (!this.Cards.Contains(Card.GetCard(card.Suit, partnerType)))
-            {
-                return 0;
-            }
-
-            return card.Suit == trumpSuit ? 40 : 20;
+            // Reuse the engine's own marriage rule instead of re-deriving it. The Announce enum
+            // values are the bonus itself (None = 0, Twenty = 20, Forty = 40); this is only ever
+            // evaluated for a card we are considering leading, so we ask as the trick leader.
+            return (int)this.AnnounceValidator.GetPossibleAnnounce(
+                this.Cards, card, context.TrumpCard, context.IsFirstPlayerTurn);
         }
 
         private Card FindBestGuaranteedWinner(PlayerTurnContext context, ICollection<Card> possibleCards, CardSuit trumpSuit)
@@ -827,7 +910,7 @@
                 }
 
                 var suitCount = unknownPerSuit[(int)c.Suit];
-                var val = c.GetValue();
+                var val = c.GetValue() + (this.IsLiveMarriageHalf(c) ? 5 : 0);
                 if (suitCount < bestNonTrumpSuitCount
                     || (suitCount == bestNonTrumpSuitCount && val < bestNonTrumpValue))
                 {
@@ -879,6 +962,72 @@
             return best;
         }
 
+        private Card SelectRuffTrump(PlayerTurnContext context, ICollection<Card> possibleCards, CardSuit trumpSuit)
+        {
+            // Spend preference (Karamanov's OrdinaryTrumpCard order): J first; the 9 only once
+            // its trump-swap is dead (talon at/below 4, or the face-up card is the J so the swap
+            // gains nothing); Q/K only when their marriage partner was already played; then 10;
+            // A last. Marriage halves whose partner we hold are excluded outright (announce
+            // pending); a live-swap 9 and live-partner Q/K are soft-deprioritized - spent only
+            // when no other trump can ruff.
+            Card best = null;
+            var bestScore = int.MaxValue;
+            foreach (var c in possibleCards)
+            {
+                if (c.Suit != trumpSuit || this.IsHalfOfMyMarriage(c))
+                {
+                    continue;
+                }
+
+                int score;
+                switch (c.Type)
+                {
+                    case CardType.Jack:
+                        score = 0;
+                        break;
+                    case CardType.Nine:
+                        var swapDead = context.CardsLeftInDeck <= 4
+                            || (context.TrumpCard != null && context.TrumpCard.Type == CardType.Jack);
+                        score = swapDead ? 1 : 50;
+                        break;
+                    case CardType.Queen:
+                        score = this.PlayedCards.Contains(Card.GetCard(trumpSuit, CardType.King)) ? 2 : 30;
+                        break;
+                    case CardType.King:
+                        score = this.PlayedCards.Contains(Card.GetCard(trumpSuit, CardType.Queen)) ? 3 : 31;
+                        break;
+                    case CardType.Ten:
+                        score = 4;
+                        break;
+                    default:
+                        score = 5;
+                        break;
+                }
+
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    best = c;
+                }
+            }
+
+            return best;
+        }
+
+        private bool HoldsAnyMarriage()
+        {
+            foreach (var s in AllSuits)
+            {
+                if (this.Cards.Contains(Card.GetCard(s, CardType.King))
+                    && this.Cards.Contains(Card.GetCard(s, CardType.Queen)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private bool IsHalfOfMyMarriage(Card c)
         {
             if (c.Type != CardType.King && c.Type != CardType.Queen)
@@ -888,6 +1037,20 @@
 
             var partner = Card.GetCard(c.Suit, c.Type == CardType.King ? CardType.Queen : CardType.King);
             return this.Cards.Contains(partner);
+        }
+
+        // K/Q whose partner is neither in my hand nor already played: the partner may still be
+        // drawn, so dumping this card forfeits a potential future marriage (Karamanov's
+        // noPossibleCoupleCard). Weaker protection than a held marriage half.
+        private bool IsLiveMarriageHalf(Card c)
+        {
+            if (c.Type != CardType.King && c.Type != CardType.Queen)
+            {
+                return false;
+            }
+
+            var partner = Card.GetCard(c.Suit, c.Type == CardType.King ? CardType.Queen : CardType.King);
+            return !this.Cards.Contains(partner) && !this.PlayedCards.Contains(partner);
         }
 
         private Card ChooseFollowCard(PlayerTurnContext context, ICollection<Card> possibleCards)
@@ -932,37 +1095,22 @@
                 }
             }
 
-            // Smallest non-marriage trump (only useful when leading suit is non-trump).
+            // Cheapest trump to ruff with (only useful when leading suit is non-trump).
             Card smallestTrump = null;
-            var smallestTrumpVal = int.MaxValue;
             Card biggestTrump = null;
             var biggestTrumpVal = -1;
             if (ledCard.Suit != trumpSuit)
             {
                 foreach (var c in possibleCards)
                 {
-                    if (c.Suit != trumpSuit)
-                    {
-                        continue;
-                    }
-
-                    if (c.GetValue() > biggestTrumpVal)
+                    if (c.Suit == trumpSuit && c.GetValue() > biggestTrumpVal)
                     {
                         biggestTrump = c;
                         biggestTrumpVal = c.GetValue();
                     }
-
-                    if (this.IsHalfOfMyMarriage(c))
-                    {
-                        continue;
-                    }
-
-                    if (c.GetValue() < smallestTrumpVal)
-                    {
-                        smallestTrump = c;
-                        smallestTrumpVal = c.GetValue();
-                    }
                 }
+
+                smallestTrump = this.SelectRuffTrump(context, possibleCards, trumpSuit);
             }
 
             var dump = this.SelectDump(possibleCards, trumpSuit);
@@ -991,11 +1139,69 @@
                 {
                     return biggestTrump;
                 }
+
+                // Can't win the trick: damage-control dump (Karamanov's checkForExitResponse) -
+                // the preservation-scored dump can cross the 66 line where the plain cheapest
+                // card would keep the opponent short, so feed the minimum instead.
+                Card minCard = null;
+                var minVal = int.MaxValue;
+                foreach (var c in possibleCards)
+                {
+                    if (c.GetValue() < minVal)
+                    {
+                        minCard = c;
+                        minVal = c.GetValue();
+                    }
+                }
+
+                if (oppPoints + ledCard.GetValue() + minVal < 66)
+                {
+                    return minCard;
+                }
+            }
+
+            // Defensive trump-up. Opp is one strong trick away from schneider-ing me: their
+            // round-points plus the lead value is already at 50, and I am still under 33. If
+            // I dump, opp pockets lead + dump and gets even closer to 66 while I stay in the
+            // 2-game-point penalty zone. Winning the trick denies them the points and pulls
+            // me closer to the 33 boundary - even a small trump pays for itself here, since
+            // letting the round end with me under 33 costs an extra game-point. Preserve the
+            // announce by skipping marriage halves, and preserve top trumps by using the
+            // smallest non-marriage trump available.
+            if (ledCard.Suit != trumpSuit
+                && oppPoints + ledCard.GetValue() >= 50
+                && myPoints < 33)
+            {
+                Card smallestNonMarriageSameSuitWinner = null;
+                var smallestNonMarriageSameSuitVal = int.MaxValue;
+                foreach (var c in possibleCards)
+                {
+                    if (c.Suit == ledCard.Suit
+                        && c.GetValue() > ledCard.GetValue()
+                        && !this.IsHalfOfMyMarriage(c)
+                        && c.GetValue() < smallestNonMarriageSameSuitVal)
+                    {
+                        smallestNonMarriageSameSuitWinner = c;
+                        smallestNonMarriageSameSuitVal = c.GetValue();
+                    }
+                }
+
+                if (smallestNonMarriageSameSuitWinner != null)
+                {
+                    return smallestNonMarriageSameSuitWinner;
+                }
+
+                if (smallestTrump != null)
+                {
+                    return smallestTrump;
+                }
             }
 
             // Routine same-suit overtake. Take with the BIGGEST non-marriage higher card -
             // empirically this matches SmartPlayer's behavior and reduces overall losses, since
             // burning high cards on overtakes makes the late-round hand safer to lead from.
+            // (Excluding live-partner K/Q here was tested and regressed badly - conceding
+            // tricks for a speculative marriage bleeds points.)
             Card biggestNonMarriageWinner = null;
             var biggestNonMarriageVal = -1;
             foreach (var c in possibleCards)
@@ -1021,6 +1227,75 @@
                 && smallestTrump != null)
             {
                 return smallestTrump;
+            }
+
+            // Seize the lead to announce (Karamanov's OrdinaryTrump4Couple): a held marriage is
+            // worth 20/40 the moment we lead, so winning even a junk trick with a spare trump
+            // pays for itself. Also covers the swap-completes-forty setup: holding the trump 9
+            // plus one of trump K/Q while the face-up card is the other - winning this trick
+            // lets us swap the 9 next lead and announce the trump marriage after that.
+            if (ledCard.Suit != trumpSuit)
+            {
+                if (smallestTrump != null && this.HoldsAnyMarriage())
+                {
+                    return smallestTrump;
+                }
+
+                if (context.CardsLeftInDeck >= 6
+                    && context.TrumpCard != null
+                    && (context.TrumpCard.Type == CardType.King || context.TrumpCard.Type == CardType.Queen)
+                    && this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Nine))
+                    && (this.Cards.Contains(Card.GetCard(trumpSuit, CardType.King))
+                        || this.Cards.Contains(Card.GetCard(trumpSuit, CardType.Queen))))
+                {
+                    // Spend a trump that is neither the swap 9 nor a K/Q half: J, then 10, then A.
+                    foreach (var t in SwapSetupTrumpOrder)
+                    {
+                        var c = Card.GetCard(trumpSuit, t);
+                        if (this.Cards.Contains(c))
+                        {
+                            return c;
+                        }
+                    }
+                }
+            }
+
+            // Phase-transition dump (Karamanov's OrdinaryLeftTwoCard): on the last talon trick,
+            // prefer to void a suit - dump a lone, weak, non-trump loser so the obligatory
+            // phase that starts next trick can ruff that suit instead of following it.
+            if (context.CardsLeftInDeck == 2)
+            {
+                var handSuitCounts = new int[4];
+                foreach (var c in this.Cards)
+                {
+                    handSuitCounts[(int)c.Suit]++;
+                }
+
+                Card lone = null;
+                var loneVal = int.MaxValue;
+                foreach (var c in possibleCards)
+                {
+                    if (c.Suit == trumpSuit || c.GetValue() >= 10 || handSuitCounts[(int)c.Suit] != 1)
+                    {
+                        continue;
+                    }
+
+                    if (!this.UnknownHasHigherSameSuit(c))
+                    {
+                        continue;
+                    }
+
+                    if (c.GetValue() < loneVal)
+                    {
+                        lone = c;
+                        loneVal = c.GetValue();
+                    }
+                }
+
+                if (lone != null && oppPoints + ledCard.GetValue() + lone.GetValue() < 66)
+                {
+                    return lone;
+                }
             }
 
             return dump;
@@ -1134,6 +1409,10 @@
                 {
                     score += 18;
                 }
+                else if (this.IsLiveMarriageHalf(c))
+                {
+                    score += 8;
+                }
 
                 var suitCount = unknownPerSuit[(int)c.Suit];
                 if (score < bestScore || (score == bestScore && suitCount > bestSuitCount))
@@ -1147,6 +1426,23 @@
             return best;
         }
 
+        // Engine scoring (RoundWinnerPointsPointsLogic): loser with 0 tricks → 3 game-points
+        // to the winner (schneider schwarz); loser under 33 round-points → 2; else → 1.
+        private static int GamePointsForLoser(int loserPoints, int loserTricks)
+        {
+            if (loserTricks == 0)
+            {
+                return 3;
+            }
+
+            if (loserPoints < 33)
+            {
+                return 2;
+            }
+
+            return 1;
+        }
+
         private struct GameState
         {
             public long MyHand;
@@ -1156,6 +1452,8 @@
             public Card LedCard;
             public bool MyTurn;
             public CardSuit TrumpSuit;
+            public int MyTricksTaken;
+            public int OppTricksTaken;
         }
     }
 }
