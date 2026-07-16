@@ -1270,6 +1270,44 @@
                 }
             }
 
+            // Phase-transition dump (Karamanov's OrdinaryLeftTwoCard): on the last talon trick,
+            // prefer to void a suit - dump a lone, weak, non-trump loser so the obligatory
+            // phase that starts next trick can ruff that suit instead of following it.
+            if (context.CardsLeftInDeck == 2)
+            {
+                var handSuitCounts = new int[4];
+                foreach (var c in this.Cards)
+                {
+                    handSuitCounts[(int)c.Suit]++;
+                }
+
+                Card lone = null;
+                var loneVal = int.MaxValue;
+                foreach (var c in possibleCards)
+                {
+                    if (c.Suit == trumpSuit || c.GetValue() >= 10 || handSuitCounts[(int)c.Suit] != 1)
+                    {
+                        continue;
+                    }
+
+                    if (!this.UnknownHasHigherSameSuit(c))
+                    {
+                        continue;
+                    }
+
+                    if (c.GetValue() < loneVal)
+                    {
+                        lone = c;
+                        loneVal = c.GetValue();
+                    }
+                }
+
+                if (lone != null && oppPoints + ledCard.GetValue() + lone.GetValue() < 66)
+                {
+                    return lone;
+                }
+            }
+
             return dump;
         }
 
