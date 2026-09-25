@@ -1,8 +1,6 @@
 ﻿namespace Santase.AI.SmartPlayer.Strategies
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.Logic.Cards;
@@ -11,7 +9,11 @@
 
     public class PlayingFirstAndRulesApplyStrategy : BaseChooseCardStrategy
     {
-        private static readonly Array CardSuits = Enum.GetValues(typeof(CardSuit));
+        // Enum.GetValues(typeof(CardSuit)) order.
+        private static readonly CardSuit[] CardSuits =
+        {
+            CardSuit.Club, CardSuit.Diamond, CardSuit.Heart, CardSuit.Spade,
+        };
 
         public PlayingFirstAndRulesApplyStrategy(CardTracker cardTracker, IAnnounceValidator announceValidator, ICollection<Card> cards)
             : base(cardTracker, announceValidator, cards)
@@ -21,7 +23,7 @@
         public override PlayerAction ChooseCard(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
             // Find card that will surely win the trick
-            var opponentHasTrump = this.Tracker.UnknownCards.Any(x => x.Suit == context.TrumpCard.Suit);
+            var opponentHasTrump = CountOfSuit(this.Tracker.UnknownCards, context.TrumpCard.Suit) > 0;
 
             var trumpCard = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, opponentHasTrump);
             if (trumpCard != null)
@@ -29,7 +31,7 @@
                 return PlayerAction.PlayCard(trumpCard);
             }
 
-            foreach (CardSuit suit in CardSuits)
+            foreach (var suit in CardSuits)
             {
                 var possibleCard = this.GetCardWhichWillSurelyWinTheTrick(
                     suit,
@@ -48,18 +50,14 @@
             }
 
             // Smallest non-trump card
-            var cardToPlay =
-                possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
-                    .OrderBy(x => this.Tracker.UnknownCards.Count(y => y.Suit == x.Suit))
-                    .ThenBy(x => x.GetValue())
-                    .FirstOrDefault();
+            var cardToPlay = this.SmallestNonTrumpFromShortestOpponentSuit(possibleCardsToPlay, context.TrumpCard.Suit);
             if (cardToPlay != null)
             {
                 return PlayerAction.PlayCard(cardToPlay);
             }
 
             // Smallest card
-            cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            cardToPlay = Lowest(possibleCardsToPlay);
             return PlayerAction.PlayCard(cardToPlay);
         }
     }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.Logic.Cards;
@@ -18,20 +17,24 @@
 
         public override PlayerAction ChooseCard(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
-            // If bigger card is available => play it
-            var biggerCard =
-                possibleCardsToPlay.Where(
-                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
-                    .OrderBy(x => x.GetValue())
-                    .FirstOrDefault();
+            // If bigger card is available => play it (the smallest one that is bigger)
+            Card biggerCard = null;
+            foreach (var card in possibleCardsToPlay)
+            {
+                if (card.Suit == context.FirstPlayedCard.Suit && card.GetValue() > context.FirstPlayedCard.GetValue()
+                    && (biggerCard == null || card.GetValue() < biggerCard.GetValue()))
+                {
+                    biggerCard = card;
+                }
+            }
 
             if (biggerCard != null)
             {
                 var typeToTry = this.GetNextBiggerCardType(biggerCard.Type);
-                while (possibleCardsToPlay.Any(x => x.Suit == biggerCard.Suit && x.Type == typeToTry)
-                           || this.Tracker.PlayedCards.Any(x => x.Suit == biggerCard.Suit && x.Type == typeToTry))
+                while (possibleCardsToPlay.Contains(Card.GetCard(biggerCard.Suit, typeToTry))
+                           || this.Tracker.PlayedCards.Contains(Card.GetCard(biggerCard.Suit, typeToTry)))
                 {
-                    if (possibleCardsToPlay.Any(x => x.Suit == biggerCard.Suit && x.Type == typeToTry))
+                    if (possibleCardsToPlay.Contains(Card.GetCard(biggerCard.Suit, typeToTry)))
                     {
                         biggerCard = Card.GetCard(biggerCard.Suit, typeToTry);
                     }
@@ -48,17 +51,14 @@
             }
 
             // Play smallest trump card?
-            var smallestTrumpCard =
-                possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
-                    .OrderBy(x => x.GetValue())
-                    .FirstOrDefault();
+            var smallestTrumpCard = LowestOfSuit(possibleCardsToPlay, context.TrumpCard.Suit);
             if (smallestTrumpCard != null)
             {
                 return PlayerAction.PlayCard(smallestTrumpCard);
             }
 
             // Smallest card
-            var cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            var cardToPlay = Lowest(possibleCardsToPlay);
             return PlayerAction.PlayCard(cardToPlay);
         }
 

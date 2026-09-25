@@ -1,7 +1,6 @@
 ﻿namespace Santase.AI.SmartPlayer.Strategies
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.Logic.Cards;
@@ -22,7 +21,7 @@
             if (cardFor20Or40 != null)
             {
                 // When playing a trump card and then announcing 40 or 20 will win the round then do it.
-                var opponentHasTrump = this.Tracker.UnknownCards.Any(x => x.Suit == context.TrumpCard.Suit);
+                var opponentHasTrump = CountOfSuit(this.Tracker.UnknownCards, context.TrumpCard.Suit) > 0;
                 var cardWhichWillSurelyWinTheTrick = this.GetCardWhichWillSurelyWinTheTrick(context.TrumpCard.Suit, opponentHasTrump);
                 if (cardWhichWillSurelyWinTheTrick != null)
                 {
@@ -57,18 +56,14 @@
             }
 
             // Smallest non-trump card from the shortest opponent suit
-            var cardToPlay =
-                possibleCardsToPlay.Where(x => x.Suit != context.TrumpCard.Suit)
-                    .OrderBy(x => this.Tracker.UnknownCards.Count(y => y.Suit == x.Suit))
-                    .ThenBy(x => x.GetValue())
-                    .FirstOrDefault();
+            var cardToPlay = this.SmallestNonTrumpFromShortestOpponentSuit(possibleCardsToPlay, context.TrumpCard.Suit);
             if (cardToPlay != null)
             {
                 return PlayerAction.PlayCard(cardToPlay);
             }
 
             // Should never happen
-            cardToPlay = possibleCardsToPlay.OrderBy(x => x.GetValue()).FirstOrDefault();
+            cardToPlay = Lowest(possibleCardsToPlay);
             return PlayerAction.PlayCard(cardToPlay);
         }
     }

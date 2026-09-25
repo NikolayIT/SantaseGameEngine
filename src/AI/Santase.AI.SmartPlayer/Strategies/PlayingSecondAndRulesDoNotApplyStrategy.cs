@@ -1,7 +1,6 @@
 ﻿namespace Santase.AI.SmartPlayer.Strategies
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.Logic.Cards;
@@ -17,12 +16,13 @@
 
         public override PlayerAction ChooseCard(PlayerTurnContext context, ICollection<Card> possibleCardsToPlay)
         {
-            // If bigger card is available => play it
-            var biggerCard =
-                possibleCardsToPlay.Where(
-                    x => x.Suit == context.FirstPlayedCard.Suit && x.GetValue() > context.FirstPlayedCard.GetValue())
-                    .OrderByDescending(x => x.GetValue())
-                    .FirstOrDefault();
+            // If bigger card is available => play it (the biggest one)
+            var biggerCard = HighestOfSuit(possibleCardsToPlay, context.FirstPlayedCard.Suit);
+            if (biggerCard != null && biggerCard.GetValue() <= context.FirstPlayedCard.GetValue())
+            {
+                biggerCard = null;
+            }
+
             if (biggerCard != null)
             {
                 // If other player wins with this trick => take it
@@ -47,14 +47,23 @@
                 }
             }
 
-            // Smallest card
-            var smallestCard = possibleCardsToPlay.OrderBy(x => x.GetValue()).ThenByDescending(x => this.Tracker.UnknownCards.Count(uc => uc.Suit == x.Suit)).FirstOrDefault();
+            // Smallest card (from the suit the opponent may hold the most of on ties)
+            Card smallestCard = null;
+            var smallestCardSuitCount = 0;
+            foreach (var card in possibleCardsToPlay)
+            {
+                var suitCount = CountOfSuit(this.Tracker.UnknownCards, card.Suit);
+                if (smallestCard == null || card.GetValue() < smallestCard.GetValue()
+                    || (card.GetValue() == smallestCard.GetValue() && suitCount > smallestCardSuitCount))
+                {
+                    smallestCard = card;
+                    smallestCardSuitCount = suitCount;
+                }
+            }
 
             if (context.FirstPlayedCard.Suit != context.TrumpCard.Suit)
             {
-                var biggestTrump =
-                    possibleCardsToPlay.Where(x => x.Suit == context.TrumpCard.Suit)
-                        .OrderByDescending(x => x.GetValue()).FirstOrDefault();
+                var biggestTrump = HighestOfSuit(possibleCardsToPlay, context.TrumpCard.Suit);
 
                 if (biggestTrump != null)
                 {

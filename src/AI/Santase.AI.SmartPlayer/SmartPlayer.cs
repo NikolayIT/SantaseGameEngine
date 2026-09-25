@@ -1,7 +1,6 @@
 ﻿namespace Santase.AI.SmartPlayer
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.AI.SmartPlayer.Strategies;
@@ -80,7 +79,16 @@
                 return false;
             }
 
-            return this.Cards.Count(x => x.Suit == context.TrumpCard.Suit) == 5;
+            var trumpCount = 0;
+            foreach (var card in this.Cards)
+            {
+                if (card.Suit == context.TrumpCard.Suit)
+                {
+                    trumpCount++;
+                }
+            }
+
+            return trumpCount == 5;
         }
 
         private PlayerAction ChooseCard(PlayerTurnContext context)
