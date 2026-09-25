@@ -32,5 +32,13 @@
         /// Gets the trick winner (the leader when <see cref="FollowCard"/> is null).
         /// </summary>
         public PlayerPosition Winner { get; init; }
+
+        /// <summary>
+        /// Gets the number of cards in the talon (the face-up trump card included) while the trick
+        /// was played, before the draws. It stops changing once the talon is closed; the trick
+        /// played with 2 is the last one before the talon runs out, and its loser takes the trump
+        /// card.
+        /// </summary>
+        public int CardsLeftInDeck { get; init; }
     }
 }

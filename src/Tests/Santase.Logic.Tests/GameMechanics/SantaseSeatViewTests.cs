@@ -169,6 +169,20 @@
                         if (t > 0)
                         {
                             Assert.Equal(view.Tricks[t - 1].Winner, trick.Leader);
+
+                            // The talon shrinks by two a trick until it runs out or is closed,
+                            // then stays put.
+                            var previous = view.Tricks[t - 1].CardsLeftInDeck;
+                            var drawn = previous - trick.CardsLeftInDeck;
+                            Assert.True(drawn == 2 || (drawn == 0 && (previous == 0 || view.ClosedBy != PlayerPosition.NoOne)), $"talon {previous} -> {trick.CardsLeftInDeck}");
+                            if (t > 1 && view.Tricks[t - 2].CardsLeftInDeck == previous)
+                            {
+                                Assert.Equal(0, drawn);
+                            }
+                        }
+                        else
+                        {
+                            Assert.Equal(12, trick.CardsLeftInDeck);
                         }
                     }
 

@@ -7,6 +7,7 @@ namespace Santase.AI.ClaudePlayer
     using Santase.AI.ClaudePlayer.Neural;
     using Santase.Logic;
     using Santase.Logic.Cards;
+    using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
     using Santase.Logic.RoundStates;
     using Santase.Logic.WinnerLogic;
@@ -25,7 +26,7 @@ namespace Santase.AI.ClaudePlayer
     /// The only thing subclasses provide is <see cref="RunSearch"/> — how they spend the time budget
     /// turning sampled worlds into a chosen card.
     /// </summary>
-    public abstract class ClaudeSearchPlayerBase : BasePlayer
+    public abstract class ClaudeSearchPlayerBase : BasePlayer, IRestorablePlayer
     {
         protected const int MaxHandSize = 6;
 
@@ -235,6 +236,47 @@ namespace Santase.AI.ClaudePlayer
 
             // Defensive: a card provably in the opponent's hand can never be dealt to us.
             this.oppKnownMask &= ~(1L << card.GetHashCode());
+        }
+
+        public void Restore(SantaseSeatView view)
+        {
+            this.RestoreHand(view);
+            var me = view.Seat;
+            var opponent = SeatViewMemory.Opponent(me);
+            this.UnknownCards = SeatViewMemory.UnknownCards(view);
+            this.PlayedCards = view.GetPlayedCards();
+            this.LastSeenTrumpCard = view.TrumpCard;
+            this.myTricksTakenInRound = SeatViewMemory.TricksWonBy(view, me);
+            this.oppTricksTakenInRound = SeatViewMemory.TricksWonBy(view, opponent);
+            this.iClosedThisRound = view.ClosedBy == me;
+
+            // The card inference, from the same public events (see SyncTrumpCard,
+            // ObserveOpponentLead and EndTurn), less the cards played since.
+            var known = 0L;
+            if (view.TrumpSwappedBy == opponent && view.SwappedTrumpCard != null)
+            {
+                known |= 1L << view.SwappedTrumpCard.GetHashCode();
+            }
+
+            foreach (var trick in view.Tricks)
+            {
+                if (trick.Leader == opponent && trick.Announce != Announce.None && trick.FollowCard != null)
+                {
+                    known |= PartnerMask[trick.LeadCard.GetHashCode()];
+                }
+
+                if (trick.CardsLeftInDeck == 2 && trick.FollowCard != null && trick.Winner == me)
+                {
+                    known |= 1L << view.TrumpCard.GetHashCode();
+                }
+            }
+
+            foreach (var card in this.PlayedCards)
+            {
+                known &= ~(1L << card.GetHashCode());
+            }
+
+            this.oppKnownMask = known;
         }
 
         public override void EndTurn(PlayerTurnContext context)

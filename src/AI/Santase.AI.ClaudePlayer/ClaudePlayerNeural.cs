@@ -5,6 +5,7 @@ namespace Santase.AI.ClaudePlayer
 
     using Santase.AI.ClaudePlayer.Neural;
     using Santase.Logic.Cards;
+    using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
 
     /// <summary>
@@ -19,7 +20,7 @@ namespace Santase.AI.ClaudePlayer
     /// The trump-swap and close-game gates are kept rule-based — they're discrete tactical
     /// gates, not scoring decisions, and keeping them avoids fighting the engine validators.
     /// </summary>
-    public class ClaudePlayerNeural : BasePlayer
+    public class ClaudePlayerNeural : BasePlayer, IRestorablePlayer
     {
         // Exact solver for the perfect-information Phase-2 endgame (see ChooseCard).
         private readonly EndgameSolver endgameSolver = new EndgameSolver(EndgameSolver.Evaluation.Neural);
@@ -91,6 +92,14 @@ namespace Santase.AI.ClaudePlayer
         {
             base.AddCard(card);
             this.UnknownCards.Remove(card);
+        }
+
+        public void Restore(SantaseSeatView view)
+        {
+            this.RestoreHand(view);
+            this.UnknownCards = SeatViewMemory.UnknownCards(view);
+            this.PlayedCards = view.GetPlayedCards();
+            this.LastSeenTrumpCard = view.TrumpCard;
         }
 
         public override void EndTurn(PlayerTurnContext context)

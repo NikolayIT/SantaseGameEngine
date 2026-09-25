@@ -6,6 +6,7 @@
     using Santase.AI.ClaudePlayer.Neural;
     using Santase.Logic;
     using Santase.Logic.Cards;
+    using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
     using Santase.Logic.WinnerLogic;
 
@@ -28,7 +29,7 @@
     ///     dumps avoid K/Q whose partner could still be drawn, and the last talon trick prefers
     ///     voiding a suit.
     /// </summary>
-    public class ClaudePlayer : BasePlayer
+    public class ClaudePlayer : BasePlayer, IRestorablePlayer
     {
         private static readonly CardSuit[] AllSuits =
         {
@@ -95,6 +96,16 @@
         {
             base.AddCard(card);
             this.UnknownCards.Remove(card);
+        }
+
+        public void Restore(SantaseSeatView view)
+        {
+            this.RestoreHand(view);
+            this.UnknownCards = SeatViewMemory.UnknownCards(view);
+            this.PlayedCards = view.GetPlayedCards();
+            this.LastSeenTrumpCard = view.TrumpCard;
+            this.myTricksTakenInRound = SeatViewMemory.TricksWonBy(view, view.Seat);
+            this.oppTricksTakenInRound = SeatViewMemory.TricksWonBy(view, SeatViewMemory.Opponent(view.Seat));
         }
 
         public override void EndTurn(PlayerTurnContext context)

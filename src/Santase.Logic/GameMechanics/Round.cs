@@ -297,6 +297,7 @@
                 Announce = this.context.FirstPlayerAnnounce,
                 FollowCard = this.context.SecondPlayedCard,
                 Winner = trickWinner,
+                CardsLeftInDeck = this.context.CardsLeftInDeck,
             });
 
             // The trick winner leads next and, while the talon is open, draws first.

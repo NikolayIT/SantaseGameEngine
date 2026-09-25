@@ -3,13 +3,14 @@
     using System;
     using System.Linq;
 
+    using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
 
     /// <summary>
     /// This dummy player follows the rules and always plays random card.
     /// When possible Dummy changes the trump.
     /// </summary>
-    public class DummyPlayerChangingTrump : BasePlayer
+    public class DummyPlayerChangingTrump : BasePlayer, IRestorablePlayer
     {
         public DummyPlayerChangingTrump()
         {
@@ -17,6 +18,12 @@
         }
 
         public override string Name { get; }
+
+        /// <summary>
+        /// Gets or sets the random source for the card choice. Defaults to <see cref="Random.Shared"/>;
+        /// set a seeded one for reproducible games.
+        /// </summary>
+        public Random Rng { get; set; } = Random.Shared;
 
         public override PlayerAction GetTurn(PlayerTurnContext context)
         {
@@ -30,8 +37,14 @@
 
             // Uniform random pick (same distribution as Shuffle().First()) without
             // materializing a shuffle buffer on every turn.
-            var cardToPlay = possibleCardsToPlay.ElementAt(Random.Shared.Next(possibleCardsToPlay.Count));
+            var cardToPlay = possibleCardsToPlay.ElementAt(this.Rng.Next(possibleCardsToPlay.Count));
             return this.PlayCard(cardToPlay);
+        }
+
+        public void Restore(SantaseSeatView view)
+        {
+            // A dummy remembers nothing but its hand.
+            this.RestoreHand(view);
         }
     }
 }

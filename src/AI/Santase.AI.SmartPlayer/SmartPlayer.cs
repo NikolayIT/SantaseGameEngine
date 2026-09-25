@@ -5,10 +5,11 @@
     using Santase.AI.SmartPlayer.Helpers;
     using Santase.AI.SmartPlayer.Strategies;
     using Santase.Logic.Cards;
+    using Santase.Logic.GameMechanics;
     using Santase.Logic.Players;
 
     // Overall strategy can be based on the game score. When opponent is close to the winning the player should be riskier.
-    public class SmartPlayer : BasePlayer
+    public class SmartPlayer : BasePlayer, IRestorablePlayer
     {
         private readonly CardTracker cardTracker = new CardTracker();
 
@@ -57,6 +58,12 @@
         {
             base.AddCard(card);
             this.cardTracker.UnknownCards.Remove(card);
+        }
+
+        public void Restore(SantaseSeatView view)
+        {
+            this.RestoreHand(view);
+            this.cardTracker.Restore(view);
         }
 
         public override void EndTurn(PlayerTurnContext context)
