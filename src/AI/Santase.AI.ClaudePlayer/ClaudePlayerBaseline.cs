@@ -1,7 +1,6 @@
 ﻿namespace Santase.AI.ClaudePlayer
 {
     using System.Collections.Generic;
-    using System.Numerics;
 
     using Santase.Logic;
     using Santase.Logic.Cards;
@@ -18,15 +17,6 @@
     /// </summary>
     public class ClaudePlayerBaseline : BasePlayer
     {
-        private const int MaxSearchDepth = 14;
-
-        // Eval magnitude per game-point of the round outcome.
-        // The 1/2/3 game-point engine reward (RoundWinnerPointsPointsLogic) is the actual win
-        // condition, so the minimax weights its terminal by it: a "schwarz" (opp 0 tricks → 3
-        // game-points) is worth 3× a normal 1-game-point win. Round-points margin stays as a
-        // tie-breaker below the game-point signal.
-        private const int GamePointReward = 1000;
-
         private static readonly CardSuit[] AllSuits =
         {
             CardSuit.Club, CardSuit.Diamond, CardSuit.Heart, CardSuit.Spade,
@@ -42,9 +32,8 @@
             CardType.Jack, CardType.Ten, CardType.Ace,
         };
 
-        // Per-instance scratch buffers indexed by recursion depth, to avoid Card[] allocations
-        // on every Search call. Each slot holds at most 6 cards (max hand size).
-        private readonly Card[][] moveBuffers;
+        // Exact solver for the perfect-information Phase-2 endgame (see ChooseCard).
+        private readonly EndgameSolver endgameSolver = new EndgameSolver(EndgameSolver.Evaluation.GamePoints);
 
         // Trick-count bookkeeping: updated in EndTurn so the minimax can seed its root state
         // with the true (pre-search) trick counts. The schneider/schwarz game-point scoring
@@ -54,15 +43,6 @@
         private int myTricksTakenInRound;
 
         private int oppTricksTakenInRound;
-
-        public ClaudePlayerBaseline()
-        {
-            this.moveBuffers = new Card[MaxSearchDepth][];
-            for (var i = 0; i < MaxSearchDepth; i++)
-            {
-                this.moveBuffers[i] = new Card[6];
-            }
-        }
 
         public override string Name => "Claude Player (Baseline)";
 
@@ -148,169 +128,6 @@
             var possibleCards = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
             var chosen = this.ChooseCard(context, possibleCards);
             return this.PlayCard(chosen);
-        }
-
-        private static int EnumerateMoves(GameState state, Card[] buffer)
-        {
-            var hand = state.MyTurn ? state.MyHand : state.OppHand;
-
-            if (state.LedCard == null)
-            {
-                // Leading: any card in hand is legal.
-                return FillFromBitmask(hand, buffer);
-            }
-
-            // Following: validator-style restrictions.
-            var lead = state.LedCard;
-            var leadSuit = lead.Suit;
-            var leadVal = lead.GetValue();
-            var trumpSuit = state.TrumpSuit;
-
-            var n = 0;
-
-            // 1. Same-suit higher cards (must overtake when possible).
-            foreach (var t in AllTypes)
-            {
-                var hash = ((int)leadSuit * 13) + (int)t;
-                if ((hand & (1L << hash)) != 0)
-                {
-                    var c = Card.Cards[hash];
-                    if (c.GetValue() > leadVal)
-                    {
-                        buffer[n++] = c;
-                    }
-                }
-            }
-
-            if (n > 0)
-            {
-                return n;
-            }
-
-            // 2. Same-suit lower cards (when no higher exists).
-            foreach (var t in AllTypes)
-            {
-                var hash = ((int)leadSuit * 13) + (int)t;
-                if ((hand & (1L << hash)) != 0)
-                {
-                    buffer[n++] = Card.Cards[hash];
-                }
-            }
-
-            if (n > 0)
-            {
-                return n;
-            }
-
-            // 3. Trumps (when void of lead suit).
-            if (leadSuit != trumpSuit)
-            {
-                foreach (var t in AllTypes)
-                {
-                    var hash = ((int)trumpSuit * 13) + (int)t;
-                    if ((hand & (1L << hash)) != 0)
-                    {
-                        buffer[n++] = Card.Cards[hash];
-                    }
-                }
-
-                if (n > 0)
-                {
-                    return n;
-                }
-            }
-
-            // 4. Anything goes (void of lead suit, no trumps).
-            return FillFromBitmask(hand, buffer);
-        }
-
-        private static int FillFromBitmask(long hand, Card[] buffer)
-        {
-            var n = 0;
-            while (hand != 0L)
-            {
-                var hash = BitOperations.TrailingZeroCount((ulong)hand);
-                buffer[n++] = Card.Cards[hash];
-                hand &= hand - 1;
-            }
-
-            return n;
-        }
-
-        private static GameState ApplyMove(GameState state, Card card)
-        {
-            var newState = state;
-            var cardMask = 1L << card.GetHashCode();
-
-            if (state.MyTurn)
-            {
-                newState.MyHand &= ~cardMask;
-            }
-            else
-            {
-                newState.OppHand &= ~cardMask;
-            }
-
-            if (state.LedCard == null)
-            {
-                // Leading. Compute marriage announce against the PRE-removal hand (the played
-                // card itself isn't the partner being checked).
-                var announce = 0;
-                if (card.Type == CardType.King || card.Type == CardType.Queen)
-                {
-                    var partnerType = card.Type == CardType.King ? CardType.Queen : CardType.King;
-                    var partnerHash = ((int)card.Suit * 13) + (int)partnerType;
-                    var partnerMask = 1L << partnerHash;
-                    var preHand = state.MyTurn ? state.MyHand : state.OppHand;
-                    if ((preHand & partnerMask) != 0)
-                    {
-                        announce = card.Suit == state.TrumpSuit ? 40 : 20;
-                    }
-                }
-
-                if (state.MyTurn)
-                {
-                    newState.MyPoints += announce;
-                }
-                else
-                {
-                    newState.OppPoints += announce;
-                }
-
-                newState.LedCard = card;
-                newState.MyTurn = !state.MyTurn;
-            }
-            else
-            {
-                // Following. Resolve trick (winner gets both card values).
-                var leader = state.LedCard;
-                var trickValue = leader.GetValue() + card.GetValue();
-
-                // The follower (the card just played) wins iff it beats the led card.
-                var followerWins =
-                    CardWinnerLogic.GetWinner(leader, card, state.TrumpSuit) == PlayerPosition.SecondPlayer;
-
-                // Current player (about to play) is the follower.
-                // followerWins == true => current player wins; false => the other (leader) wins.
-                // I win iff "current is me" matches "current wins" (XNOR).
-                var amWinningTrick = state.MyTurn == followerWins;
-
-                if (amWinningTrick)
-                {
-                    newState.MyPoints += trickValue;
-                    newState.MyTricksTaken++;
-                }
-                else
-                {
-                    newState.OppPoints += trickValue;
-                    newState.OppTricksTaken++;
-                }
-
-                newState.LedCard = null;
-                newState.MyTurn = amWinningTrick;
-            }
-
-            return newState;
         }
 
         private void SyncTrumpCard(Card current)
@@ -459,16 +276,13 @@
                 oppHand |= 1L << c.GetHashCode();
             }
 
-            Card ledCard = null;
+            var ledHash = -1;
             if (!amLeader)
             {
-                ledCard = context.FirstPlayedCard;
-                if (ledCard != null)
-                {
-                    // Opponent's lead card is still in UnknownCards (EndTurn hasn't fired for this
-                    // trick yet); subtract it so OppHand reflects what they have left to play.
-                    oppHand &= ~(1L << ledCard.GetHashCode());
-                }
+                // Opponent's lead card is still in UnknownCards (EndTurn hasn't fired for this
+                // trick yet); subtract it so OppHand reflects what they have left to play.
+                ledHash = context.FirstPlayedCard.GetHashCode();
+                oppHand &= ~(1L << ledHash);
             }
 
             // Sanity: minimax assumes opp hand size matches what we expect from a non-closed Phase 2.
@@ -478,152 +292,23 @@
                 return null;
             }
 
-            var rootState = new GameState
-            {
-                MyHand = myHand,
-                OppHand = oppHand,
-                MyPoints = amLeader ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
-                OppPoints = amLeader ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints,
-                LedCard = ledCard,
-                MyTurn = true,
-                TrumpSuit = context.TrumpCard.Suit,
-                MyTricksTaken = this.myTricksTakenInRound,
-                OppTricksTaken = this.oppTricksTakenInRound,
-            };
-
-            var moves = this.moveBuffers[0];
-            var count = EnumerateMoves(rootState, moves);
-            if (count == 0)
+            var bestHash = this.endgameSolver.FindBestMove(
+                myHand,
+                oppHand,
+                amLeader ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
+                amLeader ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints,
+                ledHash,
+                context.TrumpCard.Suit,
+                this.myTricksTakenInRound,
+                this.oppTricksTakenInRound);
+            if (bestHash < 0)
             {
                 return null;
-            }
-
-            Card best = null;
-            var bestVal = int.MinValue;
-            var alpha = int.MinValue;
-            var beta = int.MaxValue;
-
-            for (var i = 0; i < count; i++)
-            {
-                var ns = ApplyMove(rootState, moves[i]);
-                var v = this.Search(ns, alpha, beta, 1);
-                if (v > bestVal)
-                {
-                    bestVal = v;
-                    best = moves[i];
-                }
-
-                if (bestVal > alpha)
-                {
-                    alpha = bestVal;
-                }
             }
 
             // Defensive: if minimax somehow picked a move the validator would reject, defer.
-            if (best != null && !possibleCards.Contains(best))
-            {
-                return null;
-            }
-
-            return best;
-        }
-
-        private int Search(GameState state, int alpha, int beta, int depth)
-        {
-            // Mid-round 66-reach: round ends now, no +10 last-trick bonus (hands not both empty).
-            // Game-points to the winner depend on the loser's state at this instant.
-            if (state.MyPoints >= 66)
-            {
-                return (GamePointsForLoser(state.OppPoints, state.OppTricksTaken) * GamePointReward)
-                       + state.MyPoints - state.OppPoints;
-            }
-
-            if (state.OppPoints >= 66)
-            {
-                return (-GamePointsForLoser(state.MyPoints, state.MyTricksTaken) * GamePointReward)
-                       + state.MyPoints - state.OppPoints;
-            }
-
-            // Both hands empty without reaching 66: +10 last-trick bonus to whoever won the
-            // last trick (state.MyTurn after trick resolution = trick winner = next leader).
-            // The bonus is applied BEFORE the schneider check, matching the engine.
-            if (state.MyHand == 0L && state.OppHand == 0L)
-            {
-                var myFinal = state.MyPoints + (state.MyTurn ? 10 : 0);
-                var oppFinal = state.OppPoints + (state.MyTurn ? 0 : 10);
-
-                if (myFinal > oppFinal)
-                {
-                    return (GamePointsForLoser(oppFinal, state.OppTricksTaken) * GamePointReward)
-                           + myFinal - oppFinal;
-                }
-
-                if (myFinal < oppFinal)
-                {
-                    return (-GamePointsForLoser(myFinal, state.MyTricksTaken) * GamePointReward)
-                           + myFinal - oppFinal;
-                }
-
-                return 0;
-            }
-
-            var moves = this.moveBuffers[depth];
-            var count = EnumerateMoves(state, moves);
-            if (count == 0)
-            {
-                return state.MyPoints - state.OppPoints;
-            }
-
-            if (state.MyTurn)
-            {
-                var best = int.MinValue;
-                for (var i = 0; i < count; i++)
-                {
-                    var ns = ApplyMove(state, moves[i]);
-                    var v = this.Search(ns, alpha, beta, depth + 1);
-                    if (v > best)
-                    {
-                        best = v;
-                    }
-
-                    if (best > alpha)
-                    {
-                        alpha = best;
-                    }
-
-                    if (alpha >= beta)
-                    {
-                        break;
-                    }
-                }
-
-                return best;
-            }
-            else
-            {
-                var best = int.MaxValue;
-                for (var i = 0; i < count; i++)
-                {
-                    var ns = ApplyMove(state, moves[i]);
-                    var v = this.Search(ns, alpha, beta, depth + 1);
-                    if (v < best)
-                    {
-                        best = v;
-                    }
-
-                    if (best < beta)
-                    {
-                        beta = best;
-                    }
-
-                    if (alpha >= beta)
-                    {
-                        break;
-                    }
-                }
-
-                return best;
-            }
+            var best = Card.Cards[bestHash];
+            return possibleCards.Contains(best) ? best : null;
         }
 
         private Card ChooseLeadCard(PlayerTurnContext context, ICollection<Card> possibleCards)
@@ -1424,36 +1109,6 @@
             }
 
             return best;
-        }
-
-        // Engine scoring (RoundWinnerPointsPointsLogic): loser with 0 tricks → 3 game-points
-        // to the winner (schneider schwarz); loser under 33 round-points → 2; else → 1.
-        private static int GamePointsForLoser(int loserPoints, int loserTricks)
-        {
-            if (loserTricks == 0)
-            {
-                return 3;
-            }
-
-            if (loserPoints < 33)
-            {
-                return 2;
-            }
-
-            return 1;
-        }
-
-        private struct GameState
-        {
-            public long MyHand;
-            public long OppHand;
-            public int MyPoints;
-            public int OppPoints;
-            public Card LedCard;
-            public bool MyTurn;
-            public CardSuit TrumpSuit;
-            public int MyTricksTaken;
-            public int OppTricksTaken;
         }
     }
 }

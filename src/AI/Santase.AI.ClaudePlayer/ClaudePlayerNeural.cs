@@ -2,13 +2,10 @@ namespace Santase.AI.ClaudePlayer
 {
     using System;
     using System.Collections.Generic;
-    using System.Numerics;
 
     using Santase.AI.ClaudePlayer.Neural;
-    using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
-    using Santase.Logic.WinnerLogic;
 
     /// <summary>
     /// Variant of <see cref="ClaudePlayer"/> where the heuristic card-choice path is replaced
@@ -24,11 +21,9 @@ namespace Santase.AI.ClaudePlayer
     /// </summary>
     public class ClaudePlayerNeural : BasePlayer
     {
-        private const int MaxSearchDepth = 14;
-        private const int RoundWinReward = 1000;
-        private const int HandOutReward = 500;
+        // Exact solver for the perfect-information Phase-2 endgame (see ChooseCard).
+        private readonly EndgameSolver endgameSolver = new EndgameSolver(EndgameSolver.Evaluation.Neural);
 
-        private readonly Card[][] moveBuffers;
         private readonly NeuralNetwork network;
         private readonly float[] features;
         private readonly float[] logits;
@@ -45,12 +40,6 @@ namespace Santase.AI.ClaudePlayer
             this.features = new float[NeuralFeatureEncoder.FeatureCount];
             this.logits = new float[NeuralNetwork.OutputSize];
             this.sampleProbs = new float[NeuralNetwork.OutputSize];
-
-            this.moveBuffers = new Card[MaxSearchDepth][];
-            for (var i = 0; i < MaxSearchDepth; i++)
-            {
-                this.moveBuffers[i] = new Card[6];
-            }
         }
 
         public override string Name => "Claude Player (Neural)";
@@ -134,159 +123,6 @@ namespace Santase.AI.ClaudePlayer
             var possibleCards = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
             var chosen = this.ChooseCard(context, possibleCards);
             return this.PlayCard(chosen);
-        }
-
-        private static int EnumerateMoves(GameState state, Card[] buffer)
-        {
-            var hand = state.MyTurn ? state.MyHand : state.OppHand;
-
-            if (state.LedCard == null)
-            {
-                return FillFromBitmask(hand, buffer);
-            }
-
-            var lead = state.LedCard;
-            var leadSuit = lead.Suit;
-            var leadVal = lead.GetValue();
-            var trumpSuit = state.TrumpSuit;
-            var allTypes = new[]
-            {
-                CardType.Nine, CardType.Jack, CardType.Queen, CardType.King, CardType.Ten, CardType.Ace,
-            };
-
-            var n = 0;
-
-            foreach (var t in allTypes)
-            {
-                var hash = ((int)leadSuit * 13) + (int)t;
-                if ((hand & (1L << hash)) != 0)
-                {
-                    var c = Card.Cards[hash];
-                    if (c.GetValue() > leadVal)
-                    {
-                        buffer[n++] = c;
-                    }
-                }
-            }
-
-            if (n > 0)
-            {
-                return n;
-            }
-
-            foreach (var t in allTypes)
-            {
-                var hash = ((int)leadSuit * 13) + (int)t;
-                if ((hand & (1L << hash)) != 0)
-                {
-                    buffer[n++] = Card.Cards[hash];
-                }
-            }
-
-            if (n > 0)
-            {
-                return n;
-            }
-
-            if (leadSuit != trumpSuit)
-            {
-                foreach (var t in allTypes)
-                {
-                    var hash = ((int)trumpSuit * 13) + (int)t;
-                    if ((hand & (1L << hash)) != 0)
-                    {
-                        buffer[n++] = Card.Cards[hash];
-                    }
-                }
-
-                if (n > 0)
-                {
-                    return n;
-                }
-            }
-
-            return FillFromBitmask(hand, buffer);
-        }
-
-        private static int FillFromBitmask(long hand, Card[] buffer)
-        {
-            var n = 0;
-            while (hand != 0L)
-            {
-                var hash = BitOperations.TrailingZeroCount((ulong)hand);
-                buffer[n++] = Card.Cards[hash];
-                hand &= hand - 1;
-            }
-
-            return n;
-        }
-
-        private static GameState ApplyMove(GameState state, Card card)
-        {
-            var newState = state;
-            var cardMask = 1L << card.GetHashCode();
-
-            if (state.MyTurn)
-            {
-                newState.MyHand &= ~cardMask;
-            }
-            else
-            {
-                newState.OppHand &= ~cardMask;
-            }
-
-            if (state.LedCard == null)
-            {
-                var announce = 0;
-                if (card.Type == CardType.King || card.Type == CardType.Queen)
-                {
-                    var partnerType = card.Type == CardType.King ? CardType.Queen : CardType.King;
-                    var partnerHash = ((int)card.Suit * 13) + (int)partnerType;
-                    var partnerMask = 1L << partnerHash;
-                    var preHand = state.MyTurn ? state.MyHand : state.OppHand;
-                    if ((preHand & partnerMask) != 0)
-                    {
-                        announce = card.Suit == state.TrumpSuit ? 40 : 20;
-                    }
-                }
-
-                if (state.MyTurn)
-                {
-                    newState.MyPoints += announce;
-                }
-                else
-                {
-                    newState.OppPoints += announce;
-                }
-
-                newState.LedCard = card;
-                newState.MyTurn = !state.MyTurn;
-            }
-            else
-            {
-                var leader = state.LedCard;
-                var trickValue = leader.GetValue() + card.GetValue();
-
-                // The follower (the card just played) wins iff it beats the led card.
-                var followerWins =
-                    CardWinnerLogic.GetWinner(leader, card, state.TrumpSuit) == PlayerPosition.SecondPlayer;
-
-                var amWinningTrick = state.MyTurn == followerWins;
-
-                if (amWinningTrick)
-                {
-                    newState.MyPoints += trickValue;
-                }
-                else
-                {
-                    newState.OppPoints += trickValue;
-                }
-
-                newState.LedCard = null;
-                newState.MyTurn = amWinningTrick;
-            }
-
-            return newState;
         }
 
         private void SyncTrumpCard(Card current)
@@ -485,14 +321,13 @@ namespace Santase.AI.ClaudePlayer
                 oppHand |= 1L << c.GetHashCode();
             }
 
-            Card ledCard = null;
+            var ledHash = -1;
             if (!amLeader)
             {
-                ledCard = context.FirstPlayedCard;
-                if (ledCard != null)
-                {
-                    oppHand &= ~(1L << ledCard.GetHashCode());
-                }
+                // Opponent's lead card is still in UnknownCards (EndTurn hasn't fired for this
+                // trick yet); subtract it so OppHand reflects what they have left to play.
+                ledHash = context.FirstPlayedCard.GetHashCode();
+                oppHand &= ~(1L << ledHash);
             }
 
             if (myHand == 0L || oppHand == 0L)
@@ -500,148 +335,22 @@ namespace Santase.AI.ClaudePlayer
                 return null;
             }
 
-            var rootState = new GameState
-            {
-                MyHand = myHand,
-                OppHand = oppHand,
-                MyPoints = amLeader ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
-                OppPoints = amLeader ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints,
-                LedCard = ledCard,
-                MyTurn = true,
-                TrumpSuit = context.TrumpCard.Suit,
-            };
-
-            var moves = this.moveBuffers[0];
-            var count = EnumerateMoves(rootState, moves);
-            if (count == 0)
+            var bestHash = this.endgameSolver.FindBestMove(
+                myHand,
+                oppHand,
+                amLeader ? context.FirstPlayerRoundPoints : context.SecondPlayerRoundPoints,
+                amLeader ? context.SecondPlayerRoundPoints : context.FirstPlayerRoundPoints,
+                ledHash,
+                context.TrumpCard.Suit,
+                0,
+                0);
+            if (bestHash < 0)
             {
                 return null;
             }
 
-            Card best = null;
-            var bestVal = int.MinValue;
-            var alpha = int.MinValue;
-            var beta = int.MaxValue;
-
-            for (var i = 0; i < count; i++)
-            {
-                var ns = ApplyMove(rootState, moves[i]);
-                var v = this.Search(ns, alpha, beta, 1);
-                if (v > bestVal)
-                {
-                    bestVal = v;
-                    best = moves[i];
-                }
-
-                if (bestVal > alpha)
-                {
-                    alpha = bestVal;
-                }
-            }
-
-            if (best != null && !possibleCards.Contains(best))
-            {
-                return null;
-            }
-
-            return best;
-        }
-
-        private int Search(GameState state, int alpha, int beta, int depth)
-        {
-            if (state.MyPoints >= 66)
-            {
-                return RoundWinReward + state.MyPoints - state.OppPoints;
-            }
-
-            if (state.OppPoints >= 66)
-            {
-                return -RoundWinReward + state.MyPoints - state.OppPoints;
-            }
-
-            if (state.MyHand == 0L && state.OppHand == 0L)
-            {
-                if (state.MyPoints > state.OppPoints)
-                {
-                    return HandOutReward + state.MyPoints - state.OppPoints;
-                }
-
-                if (state.MyPoints < state.OppPoints)
-                {
-                    return -HandOutReward + state.MyPoints - state.OppPoints;
-                }
-
-                return 0;
-            }
-
-            var moves = this.moveBuffers[depth];
-            var count = EnumerateMoves(state, moves);
-            if (count == 0)
-            {
-                return state.MyPoints - state.OppPoints;
-            }
-
-            if (state.MyTurn)
-            {
-                var best = int.MinValue;
-                for (var i = 0; i < count; i++)
-                {
-                    var ns = ApplyMove(state, moves[i]);
-                    var v = this.Search(ns, alpha, beta, depth + 1);
-                    if (v > best)
-                    {
-                        best = v;
-                    }
-
-                    if (best > alpha)
-                    {
-                        alpha = best;
-                    }
-
-                    if (alpha >= beta)
-                    {
-                        break;
-                    }
-                }
-
-                return best;
-            }
-            else
-            {
-                var best = int.MaxValue;
-                for (var i = 0; i < count; i++)
-                {
-                    var ns = ApplyMove(state, moves[i]);
-                    var v = this.Search(ns, alpha, beta, depth + 1);
-                    if (v < best)
-                    {
-                        best = v;
-                    }
-
-                    if (best < beta)
-                    {
-                        beta = best;
-                    }
-
-                    if (alpha >= beta)
-                    {
-                        break;
-                    }
-                }
-
-                return best;
-            }
-        }
-
-        private struct GameState
-        {
-            public long MyHand;
-            public long OppHand;
-            public int MyPoints;
-            public int OppPoints;
-            public Card LedCard;
-            public bool MyTurn;
-            public CardSuit TrumpSuit;
+            var best = Card.Cards[bestHash];
+            return possibleCards.Contains(best) ? best : null;
         }
     }
 }
