@@ -233,6 +233,33 @@
             Assert.Equal(fastPathResult.OrderBy(x => x.GetHashCode()), slowPathResult.OrderBy(x => x.GetHashCode()));
         }
 
+        [Fact]
+        public void GetPossibleCardsToPlayShouldKeepTheHandOrderAndNotShareStateWithTheHand()
+        {
+            // Second phase, led 9♥ (trump ♣), follower holds no ♥: the legal moves are the trumps
+            // 9♣ and A♣, and they must come back in the hand's own enumeration order.
+            var context = CreateContext(FinalState(), Card.GetCard(CardSuit.Club, CardType.Ten));
+            context.FirstPlayedCard = Card.GetCard(CardSuit.Heart, CardType.Nine);
+            var playerCards = new CardCollection
+                                  {
+                                      Card.GetCard(CardSuit.Club, CardType.Ace),
+                                      Card.GetCard(CardSuit.Diamond, CardType.King),
+                                      Card.GetCard(CardSuit.Club, CardType.Nine),
+                                      Card.GetCard(CardSuit.Spade, CardType.Jack),
+                                  };
+
+            var possibleCards = PlayerActionValidator.Instance.GetPossibleCardsToPlay(context, playerCards);
+
+            var expected = playerCards.Where(x => x.Suit == CardSuit.Club).ToList();
+            Assert.Equal(expected, possibleCards);
+            Assert.Contains(Card.GetCard(CardSuit.Club, CardType.Ace), possibleCards);
+            Assert.DoesNotContain(Card.GetCard(CardSuit.Diamond, CardType.King), possibleCards);
+
+            possibleCards.Remove(Card.GetCard(CardSuit.Club, CardType.Ace));
+            Assert.Equal(4, playerCards.Count);
+            Assert.Contains(Card.GetCard(CardSuit.Club, CardType.Ace), playerCards);
+        }
+
         private static PlayerTurnContext CreateContext(BaseRoundState state, Card trumpCard)
         {
             return new PlayerTurnContext(state, trumpCard, 12, 0, 0);

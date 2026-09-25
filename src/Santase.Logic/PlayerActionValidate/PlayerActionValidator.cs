@@ -73,26 +73,31 @@
 
         public ICollection<Card> GetPossibleCardsToPlay(PlayerTurnContext context, ICollection<Card> playerCards)
         {
-            var possibleCardsToPlay = new List<Card>(playerCards.Count);
-
-            // Iterate the concrete CardCollection (struct enumerator) when possible so the
-            // per-turn legal-move scan does not box an IEnumerator on the heap.
+            // Fast path for the engine's own hand type (every BasePlayer's Cards): iterate the
+            // struct enumerator and return the legal cards as a new CardCollection — a single
+            // small object instead of a List plus its backing array on every turn, with O(1)
+            // Contains. The order is unchanged: the hand enumerates in ascending card hash, so the
+            // List this used to return held the legal cards in that same order.
             if (playerCards is CardCollection cardCollection)
             {
                 var isFirst = context.IsFirstPlayerTurn;
                 var firstPlayedCard = context.FirstPlayedCard;
                 var trumpCard = context.TrumpCard;
                 var shouldObserveRules = context.State.ShouldObserveRules;
+                long legalCards = 0;
                 foreach (var card in cardCollection)
                 {
                     if (PlayCardActionValidator.CanPlayCard(isFirst, card, firstPlayedCard, trumpCard, cardCollection, shouldObserveRules))
                     {
-                        possibleCardsToPlay.Add(card);
+                        legalCards |= 1L << card.GetHashCode();
                     }
                 }
 
-                return possibleCardsToPlay;
+                return new CardCollection(legalCards);
             }
+
+            // Any other collection: a List in the caller's enumeration order.
+            var possibleCardsToPlay = new List<Card>(playerCards.Count);
 
             // ReSharper disable once LoopCanBeConvertedToQuery (performance)
             foreach (var card in playerCards)
