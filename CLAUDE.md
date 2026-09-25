@@ -24,13 +24,13 @@ dotnet run --project src\UI\Santase.UI.Console\Santase.UI.Console.csproj
 # Run the cross-platform MAUI desktop/mobile UI (Santase.UI).
 dotnet build src\UI\Santase.UI\Santase.UI.csproj -t:Run
 
-# Run the unit tests via CLI (xunit, ~293 tests across 3 projects).
+# Run the unit tests via CLI (xunit, ~394 tests across 3 projects).
 dotnet test src\Santase.sln -c Release
 ```
 
 ### Unit tests
 
-`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, and `Santase.AI.ClaudePlayer.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~268, ClaudePlayer.Tests 26 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests), SmartPlayer.Tests 2.
+`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, and `Santase.AI.ClaudePlayer.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~366, ClaudePlayer.Tests 26 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests), SmartPlayer.Tests 2.
 
 Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) live inside the simulator's `Exe` project and are not invoked by the simulator's `Main` or by `dotnet test` (the simulator csproj is `OutputType=Exe`, not a test SDK project) — they're VS-Test-Explorer artifacts.
 
@@ -65,14 +65,17 @@ Two load-bearing UI facts:
 
 ### Engine core (`src/Santase.Logic`)
 
-Public entry point: `SantaseGame` in `GameMechanics/SantaseGame.cs`. Hand it two `IPlayer` instances and call `Start()`; it plays rounds until someone reaches `IGameRules.GamePointsNeededForWin` (default 11, from `SantaseGameRules`).
+Public entry points, both in `GameMechanics/`:
+
+- **`SantaseMatch`** holds the rules. It is driven from outside, one action at a time: `Start()`, then read `ToMove`, give that player `CreateTurnContext()`, and pass their answer to `Act(player, action)`. The match plays forward (resolves the trick, draws, scores the round, deals the next one) up to the next decision. It never waits for a player, which is what a game server needs (no thread held while a person thinks). `Act` returns `SantaseActResult` (`Ok`, `InvalidAction`, `NotYourTurn`, `MatchFinished`) and changes nothing unless `Ok`. Optional per-seat `IPlayer` observers get every callback except `GetTurn`, in the engine's usual order. `SantaseMatchOptions` sets the first player, rules, logger and `Shuffle` (a `Func<int,int>` random source for every deal; see `Deck` for the exact, documented draw order).
+- **`SantaseGame`** plays whole matches between two `IPlayer`s: a ~15-line loop over `SantaseMatch` (ask the player to move, `Act`, throw `InternalGameException` on an illegal move). It plays until someone reaches `IGameRules.GamePointsNeededForWin` (default 11, from `SantaseGameRules`). The simulator, trainer, UIs and bot tests use it. It was rebuilt on `SantaseMatch` in September 2026; the callback traces of 300,000 simulated games were identical before and after.
 
 Load-bearing concepts when editing the engine:
 
 - **`IPlayer` is the only seam for AI.** `Players/IPlayer.cs` defines the player contract (`StartGame` / `StartRound` / `AddCard` / `GetTurn` / `EndTurn` / `EndRound` / `EndGame`). Every AI inherits from `BasePlayer`, which owns the `Cards` collection and exposes `ChangeTrump`, `PlayCard`, `CloseGame` helpers. **Adding members to `IPlayer` breaks the external `AI.External/*.dll` players** — those are binary references with no source, so a signature change there is effectively unfixable without losing them as simulator opponents. Prefer extending `PlayerTurnContext` or adding to `BasePlayer` over changing `IPlayer`.
 - **Round state machine** (`RoundStates/`). The two phases of Santase (talon still has cards / talon closed or empty) are modeled with the State pattern: `StartRoundState` → `MoreThanTwoCardsLeftRoundState` → `TwoCardsLeftRoundState` → `FinalRoundState`, coordinated by `StateManager`. `BaseRoundState` exposes booleans (`ShouldObserveRules`, `CanClose`, `CanChangeTrump`, `CanAnnounce20Or40`, `ShouldDrawCard`) — these flags are how AIs and validators know which phase they're in. If you add a phase-dependent rule, add the flag here rather than scattering `if (cardsLeftInDeck == ...)` checks.
 - **`PlayerActionValidate/`** is the single source of truth for legal moves in a given `PlayerTurnContext`. Both `IAnnounceValidator` and `IPlayerActionValidator` are exposed as singletons via a static `.Instance`. AIs use these to filter their move generation; the engine uses them to reject invalid `PlayerAction`s. `GetPossibleCardsToPlay` returns a `CardCollection` (ascending card-hash order, O(1) `Contains`, one small object per call) when the hand is a `CardCollection` — every `BasePlayer` hand — and a `List<Card>` in the caller's order otherwise. It is typed `ICollection<Card>`: never cast the result to `List<Card>`/`IList<Card>` (the external DLL players were decompiled and checked — they don't).
-- **Engine `internal` surface + `InternalsVisibleTo`.** `GameMechanics/Round.cs`, `Trick.cs`, `RoundResult.cs`, etc. are `internal` and exposed to tests via per-project files named `InternalsVisibleToContainer.cs` containing `[assembly: InternalsVisibleTo(...)]`. Don't make engine internals `public` to "test something easily" — add the test assembly to that file instead.
+- **Engine `internal` surface + `InternalsVisibleTo`.** `GameMechanics/Round.cs` (one deal as a step-by-step state machine; there is no separate `Trick` class any more), `RoundResult.cs`, etc. are `internal` and exposed to tests via per-project files named `InternalsVisibleToContainer.cs` containing `[assembly: InternalsVisibleTo(...)]`. Don't make engine internals `public` to "test something easily" — add the test assembly to that file instead.
 - **`PlayerTurnContext` implements `IDeepCloneable<PlayerTurnContext>`** because `SmartPlayer` (and any future lookahead AI) clones contexts to do simulation. If you add a field to `PlayerTurnContext`, also wire it into `DeepClone()`, or lookahead silently loses information.
 - **`Card` is a flyweight.** `Cards/Card.cs` pre-allocates all 52 (+1 dummy) cards into a static array, and the public constructor is `[Obsolete]`. Always use `Card.GetCard(suit, type)` — never `new Card(...)`. `Card.Equals`/`GetHashCode` are based on `(Suit, Type)`, so two `GetCard` calls return the same instance and equality is a pointer compare in practice. Hot simulator loops depend on this.
 - **Game rules are pluggable** via `IGameRules` (`SantaseGameRules` is the default, exposed through `GameRulesProvider.Santase`). To prototype rule variants, implement a new `IGameRules` rather than editing `SantaseGameRules`.

@@ -31,7 +31,7 @@
                 var secondPlayer = new DrawRecordingPlayer(sharedSequence);
                 var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase);
 
-                round.Play(0, 0);
+                RoundTestDriver.Play(round, 0, 0);
 
                 Assert.Equal(firstPlayer.TrumpCardAtRoundStart, secondPlayer.TrumpCardAtRoundStart);
                 var trumpSuit = firstPlayer.TrumpCardAtRoundStart.Suit;
@@ -82,6 +82,40 @@
 
             Assert.True(pairsChecked > 0, "expected at least one draw pair with a card-decided trick");
             Assert.True(fullTalonRounds > 0, "expected at least one round with a fully exhausted talon");
+        }
+
+        [Fact]
+        public void DrawnCardsShouldComeOffTheTalonInOrderWinnerFirstAndTheTrumpLast()
+        {
+            // A stacked deal with a known talon: every draw must take the next talon card, the
+            // trick winner first, and the twelfth draw must be the face-up trump. Every King and
+            // Queen pair is split between the hands and the talon holds none, so no announce can
+            // end the round early; with these hands nobody reaches 66 in the first six tricks
+            // (61 - 6), so all twelve draws happen.
+            const string Talon = "9C JC 9D JD 9H JH 10C 10D 10H 10S JS";
+            var shuffle = StackedDeal.Create("AS", "AC AD KC KD KH QS", "AH 9S KS QC QD QH", Talon);
+            var sharedSequence = new int[1];
+            var firstPlayer = new DrawRecordingPlayer(sharedSequence);
+            var secondPlayer = new DrawRecordingPlayer(sharedSequence);
+            var round = new Round(firstPlayer, secondPlayer, GameRulesProvider.Santase, PlayerPosition.FirstPlayer, shuffle);
+
+            round.Start(0, 0);
+            for (var trick = 0; trick < 6 && !round.IsFinished; trick++)
+            {
+                RoundTestDriver.PlayTrick(round);
+            }
+
+            Assert.False(round.IsFinished);
+            Assert.Equal(61, round.FirstPlayer.RoundPoints);
+            Assert.Equal(6, round.SecondPlayer.RoundPoints);
+            Assert.Equal(0, round.Deck.CardsLeft);
+
+            var draws = firstPlayer.Draws.Select(d => (d.Sequence, d.Card))
+                .Concat(secondPlayer.Draws.Select(d => (d.Sequence, d.Card)))
+                .OrderBy(d => d.Sequence)
+                .Select(d => d.Card)
+                .ToList();
+            Assert.Equal(TestCards.List(Talon + " AS"), draws);
         }
 
         private sealed class DrawRecordingPlayer : BasePlayer

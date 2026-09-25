@@ -1,13 +1,18 @@
 ﻿namespace Santase.Logic.GameMechanics
 {
+    using System;
+
     using Santase.Logic.Logger;
     using Santase.Logic.Players;
-    using Santase.Logic.WinnerLogic;
 
+    /// <summary>
+    /// Plays whole matches between two <see cref="IPlayer"/>s: a thin loop over
+    /// <see cref="SantaseMatch"/> that asks the player to move for an action and applies it. The
+    /// rules live in <see cref="SantaseMatch"/>; use it directly when moves arrive from outside
+    /// (e.g. over the network) instead of from an <see cref="IPlayer"/>.
+    /// </summary>
     public class SantaseGame : ISantaseGame
     {
-        private static readonly IRoundWinnerPointsLogic RoundWinnerPointsLogic = new RoundWinnerPointsPointsLogic();
-
         private readonly IGameRules gameRules;
 
         private readonly IPlayer firstPlayer;
@@ -16,7 +21,9 @@
 
         private readonly ILogger logger;
 
-        private PlayerPosition firstToPlay = PlayerPosition.NoOne;
+        private readonly Func<int, int> shuffle;
+
+        private SantaseMatch match;
 
         public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer)
             : this(firstPlayer, secondPlayer, GameRulesProvider.Santase, new NoLogger())
@@ -24,106 +31,61 @@
         }
 
         public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, IGameRules gameRules, ILogger logger)
+            : this(firstPlayer, secondPlayer, gameRules, logger, null)
         {
-            this.RestartGame();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SantaseGame"/> class.
+        /// </summary>
+        /// <param name="firstPlayer">The first player.</param>
+        /// <param name="secondPlayer">The second player.</param>
+        /// <param name="gameRules">The rules.</param>
+        /// <param name="logger">Receives one line per round.</param>
+        /// <param name="shuffle">Random source for the deals (see <see cref="SantaseMatchOptions.Shuffle"/>);
+        /// null means <see cref="Random.Shared"/>.</param>
+        public SantaseGame(IPlayer firstPlayer, IPlayer secondPlayer, IGameRules gameRules, ILogger logger, Func<int, int> shuffle)
+        {
             this.firstPlayer = firstPlayer;
             this.secondPlayer = secondPlayer;
             this.gameRules = gameRules;
             this.logger = logger;
+            this.shuffle = shuffle;
         }
 
-        public int FirstPlayerTotalPoints { get; private set; }
+        public int FirstPlayerTotalPoints => this.match?.FirstPlayerTotalPoints ?? 0;
 
-        public int SecondPlayerTotalPoints { get; private set; }
+        public int SecondPlayerTotalPoints => this.match?.SecondPlayerTotalPoints ?? 0;
 
-        public int RoundsPlayed { get; private set; }
-
-        // Test seam (InternalsVisibleTo-gated): exposes the next-round opener so a
-        // deterministic test can drive UpdatePoints in isolation without running a
-        // full game. Not part of the public engine API.
-        internal PlayerPosition FirstToPlay
-        {
-            get => this.firstToPlay;
-            set => this.firstToPlay = value;
-        }
+        public int RoundsPlayed => this.match?.RoundsPlayed ?? 0;
 
         public PlayerPosition Start(PlayerPosition firstToPlayInFirstRound = PlayerPosition.FirstPlayer)
         {
-            this.firstToPlay = firstToPlayInFirstRound;
-            this.RestartGame();
-
-            // Inform players
-            this.firstPlayer.StartGame(this.secondPlayer.Name);
-            this.secondPlayer.StartGame(this.firstPlayer.Name);
-
-            // Play rounds until game winner is determined
-            while (this.GameWinner() == PlayerPosition.NoOne)
+            var options = new SantaseMatchOptions
             {
-                this.PlayRound();
-                this.RoundsPlayed++;
+                FirstToPlay = firstToPlayInFirstRound,
+                Rules = this.gameRules,
+                Logger = this.logger,
+                Shuffle = this.shuffle,
+            };
+
+            var currentMatch = new SantaseMatch(this.firstPlayer, this.secondPlayer, options);
+            this.match = currentMatch;
+            currentMatch.Start();
+
+            while (!currentMatch.IsFinished)
+            {
+                var toMove = currentMatch.ToMove;
+                var player = toMove == PlayerPosition.FirstPlayer ? this.firstPlayer : this.secondPlayer;
+                var action = player.GetTurn(currentMatch.CreateTurnContext());
+                if (currentMatch.Act(toMove, action) != SantaseActResult.Ok)
+                {
+                    // A bot is code: an illegal move from it is a bug, not a game situation.
+                    throw new InternalGameException($"Invalid action played from {player.Name}");
+                }
             }
 
-            var gameWinner = this.GameWinner();
-
-            // Inform players
-            this.firstPlayer.EndGame(gameWinner == PlayerPosition.FirstPlayer);
-            this.secondPlayer.EndGame(gameWinner == PlayerPosition.SecondPlayer);
-
-            return gameWinner;
-        }
-
-        private void RestartGame()
-        {
-            this.FirstPlayerTotalPoints = 0;
-            this.SecondPlayerTotalPoints = 0;
-            this.RoundsPlayed = 0;
-        }
-
-        private void PlayRound()
-        {
-            var round = new Round(this.firstPlayer, this.secondPlayer, this.gameRules, this.firstToPlay);
-            var roundResult = round.Play(this.FirstPlayerTotalPoints, this.SecondPlayerTotalPoints);
-            this.UpdatePoints(roundResult);
-
-            this.logger.LogLine($"{roundResult.FirstPlayer.RoundPoints} - {roundResult.SecondPlayer.RoundPoints}");
-        }
-
-        internal void UpdatePoints(RoundResult roundResult)
-        {
-            var roundWinnerPoints = RoundWinnerPointsLogic.GetWinnerPoints(
-                roundResult.FirstPlayer.RoundPoints,
-                roundResult.SecondPlayer.RoundPoints,
-                roundResult.GameClosedBy,
-                roundResult.NoTricksPlayer,
-                roundResult.LastTrickWinner,
-                this.gameRules);
-
-            switch (roundWinnerPoints.Winner)
-            {
-                case PlayerPosition.FirstPlayer:
-                    this.FirstPlayerTotalPoints += roundWinnerPoints.Points;
-                    this.firstToPlay = PlayerPosition.SecondPlayer;
-                    break;
-                case PlayerPosition.SecondPlayer:
-                    this.SecondPlayerTotalPoints += roundWinnerPoints.Points;
-                    this.firstToPlay = PlayerPosition.FirstPlayer;
-                    break;
-            }
-        }
-
-        private PlayerPosition GameWinner()
-        {
-            if (this.FirstPlayerTotalPoints >= this.gameRules.GamePointsNeededForWin)
-            {
-                return PlayerPosition.FirstPlayer;
-            }
-
-            if (this.SecondPlayerTotalPoints >= this.gameRules.GamePointsNeededForWin)
-            {
-                return PlayerPosition.SecondPlayer;
-            }
-
-            return PlayerPosition.NoOne;
+            return currentMatch.Winner;
         }
     }
 }

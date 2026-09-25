@@ -11,6 +11,8 @@ namespace Santase.Logic.GameMechanics
         // rounds never allocate this list.
         private List<Announce> announces;
 
+        // player is the seat's observer: it receives AddCard for every card drawn. It may be null
+        // when nobody listens (a SantaseMatch driven by a server rather than by IPlayer bots).
         public RoundPlayerInfo(IPlayer player)
         {
             this.Player = player;
@@ -31,7 +33,7 @@ namespace Santase.Logic.GameMechanics
 
         // Maintained incrementally as cards/announces are added (see WinCard/AddAnnounce)
         // instead of rescanning TrickCards + Announces on every read. RoundPoints is read
-        // several times per trick (PlayerTurnContext build, Trick.Play, Round.IsFinished).
+        // several times per trick (turn contexts, the going-out checks in Round).
         public int RoundPoints { get; private set; }
 
         public bool HasAtLeastOneTrick => this.TrickCards.Count > 0;
@@ -40,7 +42,7 @@ namespace Santase.Logic.GameMechanics
         {
             // We are adding the card in two different places to control what an AI player can play
             this.Cards.Add(card);
-            this.Player.AddCard(card);
+            this.Player?.AddCard(card);
         }
 
         public void WinCard(Card card)

@@ -2,6 +2,8 @@
 {
     using System;
 
+    using Moq;
+
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
     using Santase.Logic.Logger;
@@ -113,16 +115,16 @@
             // exactly the input shape RoundWinnerPointsPointsLogic resolves to Draw.
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
-            var game = new SantaseGame(firstPlayer, secondPlayer);
-            game.FirstToPlay = openerBefore;
+            var match = new SantaseMatch(firstPlayer, secondPlayer);
+            match.FirstToPlay = openerBefore;
 
             var drawnRound = BuildRoundResult(firstPlayer, secondPlayer, firstPlayerCardPoints: 60, secondPlayerCardPoints: 60);
 
-            game.UpdatePoints(drawnRound);
+            match.UpdatePoints(drawnRound);
 
-            Assert.Equal(0, game.FirstPlayerTotalPoints);
-            Assert.Equal(0, game.SecondPlayerTotalPoints);
-            Assert.Equal(openerBefore, game.FirstToPlay);
+            Assert.Equal(0, match.FirstPlayerTotalPoints);
+            Assert.Equal(0, match.SecondPlayerTotalPoints);
+            Assert.Equal(openerBefore, match.FirstToPlay);
         }
 
         [Theory]
@@ -141,16 +143,16 @@
             // must flip to the LOSER for the next round — regardless of who opened it.
             var firstPlayer = new ValidPlayerWithMethodsCallCounting();
             var secondPlayer = new ValidPlayerWithMethodsCallCounting();
-            var game = new SantaseGame(firstPlayer, secondPlayer);
-            game.FirstToPlay = PlayerPosition.FirstPlayer;
+            var match = new SantaseMatch(firstPlayer, secondPlayer);
+            match.FirstToPlay = PlayerPosition.FirstPlayer;
 
             var wonRound = BuildRoundResult(firstPlayer, secondPlayer, firstPlayerCardPoints, secondPlayerCardPoints);
 
-            game.UpdatePoints(wonRound);
+            match.UpdatePoints(wonRound);
 
-            Assert.Equal(expectedFirstPlayerTotal, game.FirstPlayerTotalPoints);
-            Assert.Equal(expectedSecondPlayerTotal, game.SecondPlayerTotalPoints);
-            Assert.Equal(expectedOpenerAfter, game.FirstToPlay);
+            Assert.Equal(expectedFirstPlayerTotal, match.FirstPlayerTotalPoints);
+            Assert.Equal(expectedSecondPlayerTotal, match.SecondPlayerTotalPoints);
+            Assert.Equal(expectedOpenerAfter, match.FirstToPlay);
         }
 
         [Fact]
@@ -223,6 +225,90 @@
                                   : game.FirstPlayerTotalPoints;
             Assert.InRange(winnerPoints, 1, 3);
             Assert.Equal(0, loserPoints);
+        }
+
+        [Fact]
+        public void AnIllegalMoveFromAPlayerShouldThrowAnExceptionNamingThePlayer()
+        {
+            var cheater = new Mock<IPlayer>();
+            cheater.Setup(x => x.Name).Returns("Cheater");
+            cheater.Setup(x => x.GetTurn(It.IsAny<PlayerTurnContext>()))
+                .Returns(() => PlayerAction.PlayCard(Card.GetCard(CardSuit.Club, CardType.Ace)));
+            var game = new SantaseGame(
+                cheater.Object,
+                new ValidPlayerWithMethodsCallCounting(),
+                GameRulesProvider.Santase,
+                new NoLogger(),
+                StackedDeal.Create("AS", "AH QC QS 9C 9H KH", "AC JD JH JC AD 10D"));
+
+            var exception = Assert.Throws<InternalGameException>(() => game.Start());
+
+            Assert.Equal("Invalid action played from Cheater", exception.Message);
+        }
+
+        [Fact]
+        public void ANullMoveFromAPlayerShouldThrowAnException()
+        {
+            var player = new Mock<IPlayer>();
+            player.Setup(x => x.GetTurn(It.IsAny<PlayerTurnContext>())).Returns((PlayerAction)null);
+            var game = new SantaseGame(player.Object, new ValidPlayerWithMethodsCallCounting());
+
+            Assert.Throws<InternalGameException>(() => game.Start());
+        }
+
+        [Fact]
+        public void TheSameShuffleSourceShouldReplayTheSameGame()
+        {
+            // Deterministic players + the same deals = the same game, to the last round.
+            var first = PlayWithSeed(20260925);
+            var second = PlayWithSeed(20260925);
+
+            Assert.Equal(first, second);
+            Assert.True(first.Rounds >= 4);
+        }
+
+        [Fact]
+        public void StartShouldRejectNoOneAsTheFirstToPlay()
+        {
+            var game = new SantaseGame(new ValidPlayerWithMethodsCallCounting(), new ValidPlayerWithMethodsCallCounting());
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => game.Start(PlayerPosition.NoOne));
+        }
+
+        [Fact]
+        public void TotalsShouldBeZeroBeforeTheFirstStart()
+        {
+            var game = new SantaseGame(new ValidPlayerWithMethodsCallCounting(), new ValidPlayerWithMethodsCallCounting());
+
+            Assert.Equal(0, game.FirstPlayerTotalPoints);
+            Assert.Equal(0, game.SecondPlayerTotalPoints);
+            Assert.Equal(0, game.RoundsPlayed);
+        }
+
+        [Fact]
+        public void TheLoggerShouldReceiveOneLinePerRound()
+        {
+            var logger = new MemoryLogger();
+            var game = new SantaseGame(new ValidPlayerWithMethodsCallCounting(), new ValidPlayerWithMethodsCallCounting(), GameRulesProvider.Santase, logger);
+
+            game.Start();
+
+            var lines = logger.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+            Assert.Equal(game.RoundsPlayed, lines.Length);
+            Assert.All(lines, line => Assert.Matches(@"^\d+ - \d+$", line));
+        }
+
+        private static (PlayerPosition Winner, int First, int Second, int Rounds) PlayWithSeed(int seed)
+        {
+            var random = new Random(seed);
+            var game = new SantaseGame(
+                new ValidPlayerWithMethodsCallCounting(),
+                new ValidPlayerWithMethodsCallCounting(),
+                GameRulesProvider.Santase,
+                new NoLogger(),
+                random.Next);
+            var winner = game.Start();
+            return (winner, game.FirstPlayerTotalPoints, game.SecondPlayerTotalPoints, game.RoundsPlayed);
         }
 
         private static RoundResult BuildRoundResult(

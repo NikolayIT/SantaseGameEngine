@@ -9,7 +9,7 @@
 
     using Xunit;
 
-    // Closed-game behavior through the real pipeline (Round -> RoundResult -> scoring),
+    // Closed-game behavior through the real pipeline (Round -> RoundResult -> match scoring),
     // driven by a player that closes at its first legal opportunity.
     public class RoundClosedGameTests
     {
@@ -27,7 +27,7 @@
                 var opponent = new ValidPlayerWithMethodsCallCounting();
                 var round = new Round(closer, opponent, GameRulesProvider.Santase);
 
-                var result = round.Play(0, 0);
+                var result = RoundTestDriver.Play(round, 0, 0);
 
                 // Only the ClosingPlayer ever returns a CloseGame action.
                 Assert.NotEqual(PlayerPosition.SecondPlayer, result.GameClosedBy);
@@ -46,6 +46,9 @@
                 Assert.Equal(closer.DrawnCardsWhenClosing, closer.DrawnCardsCount);
                 Assert.Equal(closer.DrawnCardsCount, opponent.AddCardCalledCount);
 
+                // The closed talon keeps its cards: 24 - 12 dealt - 2 per pre-close draw pair.
+                Assert.Equal(12 - (2 * closer.DrawnCardsWhenClosing), round.Deck.CardsLeft);
+
                 // The +10 last-trick bonus is suspended in closed rounds: whatever
                 // LastTrickWinner the real round produced must not influence the scoring.
                 var scored = GetWinnerPoints(pointsLogic, result, result.LastTrickWinner);
@@ -53,19 +56,19 @@
                 Assert.Equal(scoredWithoutBonus.Winner, scored.Winner);
                 Assert.Equal(scoredWithoutBonus.Points, scored.Points);
 
-                // Game-point award through SantaseGame.UpdatePoints: a failed close forfeits
+                // Game-point award through the match's round scoring: a failed close forfeits
                 // a flat 3 to the opponent; a successful close wins 1..3 for the closer.
-                var game = new SantaseGame(closer, opponent);
-                game.UpdatePoints(result);
+                var match = new SantaseMatch();
+                match.UpdatePoints(result);
                 if (result.FirstPlayer.RoundPoints < GameRulesProvider.Santase.RoundPointsForGoingOut)
                 {
-                    Assert.Equal(0, game.FirstPlayerTotalPoints);
-                    Assert.Equal(3, game.SecondPlayerTotalPoints);
+                    Assert.Equal(0, match.FirstPlayerTotalPoints);
+                    Assert.Equal(3, match.SecondPlayerTotalPoints);
                 }
                 else
                 {
-                    Assert.InRange(game.FirstPlayerTotalPoints, 1, 3);
-                    Assert.Equal(0, game.SecondPlayerTotalPoints);
+                    Assert.InRange(match.FirstPlayerTotalPoints, 1, 3);
+                    Assert.Equal(0, match.SecondPlayerTotalPoints);
                 }
             }
 
