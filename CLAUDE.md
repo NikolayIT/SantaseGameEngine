@@ -37,7 +37,7 @@ Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) li
 ### Platform notes
 
 - Every project targets `net10.0`. Before the .NET 10 migration the library + AI projects were `netstandard2.0`, the simulator was `netcoreapp3.1`, and the console UI was `net5.0` — recent commits in `git log` still reference those frameworks if you need to compare.
-- `Santase.Logic` is the published [SantaseGameEngine](https://www.nuget.org/packages/SantaseGameEngine) NuGet package — bumping its TFM is a breaking change for downstream consumers (current package version is `3.0.0`, post-migration).
+- `Santase.Logic` is the published [SantaseGameEngine](https://www.nuget.org/packages/SantaseGameEngine) NuGet package — bumping its TFM is a breaking change for downstream consumers (package version `3.1.0`: the server-facing `SantaseMatch` API, views and restorable bots; not yet pushed to nuget.org as of September 2026). The three bot projects are packable too (`SantaseGameEngine.ClaudePlayer` / `.SmartPlayer` / `.DummyPlayer`, depending on the engine package); CI packs all four into the `nuget-package` artifact.
 - The third-party AI players in `src/AI/External/*.dll` (`BotskoPlayer`, `NinjaPlayer`, `ProPlayer`) are binary references — no source. They're `.NETPortable` (PCL) assemblies, which load fine from `net10.0`. Treat their `IPlayer` contract as load-bearing for the simulator.
 
 ## Architecture

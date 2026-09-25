@@ -13,10 +13,23 @@
     <Authors>Claude</Authors>
     <RepositoryUrl>https://github.com/NikolayIT/SantaseGameEngine</RepositoryUrl>
     <Product>SantaseGameEngine</Product>
+    <PackageId>SantaseGameEngine.ClaudePlayer</PackageId>
+    <Description>The strongest Santase (66) bots for SantaseGameEngine: ClaudePlayer (hand-tuned heuristics with an exact endgame solver), ClaudePlayerNeural (a small built-in neural network, pure managed code) and ClaudePlayerIsmcts (information set Monte Carlo tree search). All can decide from a seat view (IRestorablePlayer).</Description>
+    <PackageTags>Santase, 66, Сантасе, Sixty-six, Schnapsen, card game, AI, bot</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageIcon>Logo_300x300.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\assets\Logo_300x300.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

@@ -13,10 +13,23 @@
     <Authors>Nikolay.IT</Authors>
     <RepositoryUrl>https://github.com/NikolayIT/SantaseGameEngine</RepositoryUrl>
     <Product>SantaseGameEngine</Product>
+    <PackageId>SantaseGameEngine.DummyPlayer</PackageId>
+    <Description>DummyPlayerChangingTrump, a Santase (66) bot for SantaseGameEngine that plays a random legal card (and always exchanges the trump nine), with an injectable random generator. Can decide from a seat view (IRestorablePlayer).</Description>
+    <PackageTags>Santase, 66, Сантасе, Sixty-six, Schnapsen, card game, AI, bot</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageIcon>Logo_300x300.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\assets\Logo_300x300.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

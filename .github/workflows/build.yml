@@ -62,7 +62,14 @@ jobs:
           path: '**/TestResults/*.trx'
           if-no-files-found: warn
 
-      - name: Upload NuGet package
+      # The engine packs on build (GeneratePackageOnBuild); the bot packages are packed here.
+      - name: Pack bots
+        run: |
+          dotnet pack src/AI/Santase.AI.ClaudePlayer/Santase.AI.ClaudePlayer.csproj -c Release --no-build -o src/Santase.Logic/bin/Release
+          dotnet pack src/AI/Santase.AI.SmartPlayer/Santase.AI.SmartPlayer.csproj -c Release --no-build -o src/Santase.Logic/bin/Release
+          dotnet pack src/AI/Santase.AI.DummyPlayer/Santase.AI.DummyPlayer.csproj -c Release --no-build -o src/Santase.Logic/bin/Release
+
+      - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
         with:
           name: nuget-package
