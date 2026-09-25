@@ -1,5 +1,6 @@
 namespace Santase.AI.ClaudePlayer.Neural
 {
+    using System;
     using System.IO;
     using System.Reflection;
 
@@ -9,6 +10,9 @@ namespace Santase.AI.ClaudePlayer.Neural
     ///   1. Trained weights shipped as an embedded resource named
     ///      <see cref="EmbeddedResourceName"/> in this assembly.
     ///   2. Deterministic Xavier-init fallback (Phase 1 placeholder).
+    /// The network is immutable and thread-safe, so it is resolved once per process and shared:
+    /// the simulator builds a fresh <see cref="ClaudePlayerNeural"/> per game, and re-reading the
+    /// ~144 KB resource each time used to dominate the player's construction cost.
     /// </summary>
     public static class NeuralWeightsLoader
     {
@@ -16,7 +20,14 @@ namespace Santase.AI.ClaudePlayer.Neural
 
         public const int DefaultXavierSeed = 4242;
 
+        private static readonly Lazy<NeuralNetwork> SharedNetwork = new Lazy<NeuralNetwork>(LoadNetwork);
+
         public static NeuralNetwork Load()
+        {
+            return SharedNetwork.Value;
+        }
+
+        private static NeuralNetwork LoadNetwork()
         {
             var assembly = typeof(NeuralWeightsLoader).Assembly;
             using (var stream = OpenEmbeddedWeights(assembly))
