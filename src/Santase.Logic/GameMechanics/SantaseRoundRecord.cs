@@ -43,7 +43,8 @@
         public PlayerPosition ClosedBy { get; init; }
 
         /// <summary>
-        /// Gets how the round was scored.
+        /// Gets how the round was scored; null for the round a match was stopped in
+        /// (see <see cref="SantaseMatch.Stop"/>).
         /// </summary>
         public SantaseRoundSummary Result { get; init; }
     }

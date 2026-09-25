@@ -25,7 +25,9 @@
     /// </para>
     /// <para>
     /// For a server: <see cref="GetView"/> is what one seat may see (show it to that player, or
-    /// give it to a bot) and <see cref="GetFinalView"/> the whole match once it is over.
+    /// give it to a bot), <see cref="GetFinalView"/> the whole match once it is over,
+    /// <see cref="Validate"/> checks a move without making it and <see cref="Stop"/> ends a match
+    /// early.
     /// </para>
     /// <para>Not thread-safe: drive a match from one thread at a time (e.g. a table actor).</para>
     /// </summary>
@@ -105,8 +107,14 @@
 
         /// <summary>
         /// Gets the match winner once <see cref="IsFinished"/>; otherwise <see cref="PlayerPosition.NoOne"/>.
+        /// A match ended by <see cref="Stop"/> has no winner.
         /// </summary>
         public PlayerPosition Winner { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether <see cref="Stop"/> ended the match before the rules did.
+        /// </summary>
+        public bool IsStopped { get; private set; }
 
         /// <summary>
         /// Gets the player who must act now, or <see cref="PlayerPosition.NoOne"/> before
@@ -165,19 +173,10 @@
         /// <returns>What happened.</returns>
         public SantaseActResult Act(PlayerPosition player, PlayerAction action)
         {
-            if (!this.started)
+            var check = this.CheckTurn(player);
+            if (check != SantaseActResult.Ok)
             {
-                throw new InvalidOperationException("Start the match before acting.");
-            }
-
-            if (this.IsFinished)
-            {
-                return SantaseActResult.MatchFinished;
-            }
-
-            if (player != this.round.ToMove)
-            {
-                return SantaseActResult.NotYourTurn;
+                return check;
             }
 
             if (!this.round.TryAct(action))
@@ -191,6 +190,47 @@
             }
 
             return SantaseActResult.Ok;
+        }
+
+        /// <summary>
+        /// Checks a move without making it: returns what <see cref="Act"/> would return, and changes
+        /// nothing.
+        /// </summary>
+        /// <param name="player">The player who would act.</param>
+        /// <param name="action">The action.</param>
+        /// <returns>What <see cref="Act"/> would return.</returns>
+        public SantaseActResult Validate(PlayerPosition player, PlayerAction action)
+        {
+            var check = this.CheckTurn(player);
+            if (check != SantaseActResult.Ok)
+            {
+                return check;
+            }
+
+            return this.round.IsValid(action) ? SantaseActResult.Ok : SantaseActResult.InvalidAction;
+        }
+
+        /// <summary>
+        /// Ends the match before the rules do: a resignation, a timeout, an abandoned table. No more
+        /// moves are accepted, the observers get no more callbacks, and <see cref="GetFinalView"/> and
+        /// <see cref="GetRecord"/> become available, with the unfinished round last (its
+        /// <see cref="SantaseRoundRecord.Result"/> is null). There is no <see cref="Winner"/>: who won
+        /// is the caller's decision. Does nothing on a match that is already over.
+        /// </summary>
+        public void Stop()
+        {
+            if (!this.started)
+            {
+                throw new InvalidOperationException("Start the match first.");
+            }
+
+            if (this.IsFinished)
+            {
+                return;
+            }
+
+            this.IsFinished = true;
+            this.IsStopped = true;
         }
 
         /// <summary>
@@ -209,7 +249,8 @@
         }
 
         /// <summary>
-        /// The view after the match: no seat and no hand, but with the full <see cref="SantaseMatchRecord"/>.
+        /// The view after the match (or after <see cref="Stop"/>): no seat and no hand, but with the full
+        /// <see cref="SantaseMatchRecord"/>.
         /// </summary>
         /// <returns>A new view.</returns>
         public SantaseSeatView GetFinalView()
@@ -226,12 +267,27 @@
             this.EnsureHistory();
             if (!this.IsFinished)
             {
-                throw new InvalidOperationException("The record reveals every hand; it is available once the match is over.");
+                throw new InvalidOperationException("The record reveals every hand; it is available once the match is over (or stopped).");
+            }
+
+            var rounds = new List<SantaseRoundRecord>(this.finishedRounds);
+            if (this.IsStopped)
+            {
+                // The round the match was stopped in, as far as it got.
+                rounds.Add(new SantaseRoundRecord
+                {
+                    FirstToPlay = this.round.FirstToPlay,
+                    Deal = this.round.Deal ?? Array.Empty<Card>(),
+                    Tricks = ToArray(this.round.Tricks),
+                    TrumpSwappedBy = this.round.TrumpSwappedBy,
+                    SwappedTrumpCard = this.round.SwappedTrumpCard,
+                    ClosedBy = ClosedBy(this.round.FirstPlayer, this.round.SecondPlayer),
+                });
             }
 
             return new SantaseMatchRecord
             {
-                Rounds = this.finishedRounds.ToArray(),
+                Rounds = rounds.ToArray(),
                 Winner = this.Winner,
                 FirstPlayerTotalPoints = this.FirstPlayerTotalPoints,
                 SecondPlayerTotalPoints = this.SecondPlayerTotalPoints,
@@ -286,6 +342,21 @@
         private static T[] ToArray<T>(IEnumerable<T> items)
         {
             return new List<T>(items).ToArray();
+        }
+
+        private SantaseActResult CheckTurn(PlayerPosition player)
+        {
+            if (!this.started)
+            {
+                throw new InvalidOperationException("Start the match before acting.");
+            }
+
+            if (this.IsFinished)
+            {
+                return SantaseActResult.MatchFinished;
+            }
+
+            return player == this.round.ToMove ? SantaseActResult.Ok : SantaseActResult.NotYourTurn;
         }
 
         private void EnsureHistory()
@@ -347,7 +418,7 @@
                 MatchWinner = this.Winner,
                 FirstPlayerTotalPoints = this.FirstPlayerTotalPoints,
                 SecondPlayerTotalPoints = this.SecondPlayerTotalPoints,
-                RoundNumber = this.IsFinished ? this.RoundsPlayed : this.RoundsPlayed + 1,
+                RoundNumber = this.IsFinished && !this.IsStopped ? this.RoundsPlayed : this.RoundsPlayed + 1,
                 PreviousRounds = previousRounds,
                 Phase = RoundPhases.Of(currentRound.StateManager.State),
                 ClosedBy = ClosedBy(first, second),

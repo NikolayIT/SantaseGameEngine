@@ -32,7 +32,8 @@
         public bool IsMatchFinished { get; init; }
 
         /// <summary>
-        /// Gets the match winner once it is over.
+        /// Gets the match winner once it is over (<see cref="PlayerPosition.NoOne"/> for a match ended by
+        /// <see cref="SantaseMatch.Stop"/>).
         /// </summary>
         public PlayerPosition MatchWinner { get; init; }
 

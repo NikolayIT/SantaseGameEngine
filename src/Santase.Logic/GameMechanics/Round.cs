@@ -177,6 +177,18 @@
 
         // Applies the action of the player to move (see ToMove). Returns false, changing nothing,
         // when the action is not legal for them now.
+        // Whether TryAct would accept the action. Changes nothing.
+        public bool IsValid(PlayerAction action)
+        {
+            if (this.context == null)
+            {
+                throw new InvalidOperationException("Nobody is to move in this round.");
+            }
+
+            var mover = this.waitingForFollower ? Other(this.leader) : this.leader;
+            return PlayerActionValidator.Instance.IsValid(action, this.context, this.Info(mover).Cards);
+        }
+
         public bool TryAct(PlayerAction action)
         {
             if (this.context == null)
