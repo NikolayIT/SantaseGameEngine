@@ -32,4 +32,8 @@
     <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
 </Project>

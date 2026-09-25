@@ -28,6 +28,13 @@
         public Func<int, int> Shuffle { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the match keeps its history (tricks, deals,
+        /// round results), which <see cref="SantaseMatch.GetView"/>, <see cref="SantaseMatch.GetFinalView"/>
+        /// and <see cref="SantaseMatch.GetRecord"/> need. On by default; about 1 KB per round.
+        /// </summary>
+        public bool RecordHistory { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the logger that receives one line per round ("firstPoints - secondPoints");
         /// null means none.
         /// </summary>

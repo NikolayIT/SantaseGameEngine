@@ -67,6 +67,9 @@
                 Rules = this.gameRules,
                 Logger = this.logger,
                 Shuffle = this.shuffle,
+
+                // Whole-match loops never ask for views; skip the bookkeeping.
+                RecordHistory = false,
             };
 
             var currentMatch = new SantaseMatch(this.firstPlayer, this.secondPlayer, options);

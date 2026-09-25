@@ -109,6 +109,18 @@ namespace Santase.Logic.Cards
             }
         }
 
+        // The cards in the order they will be drawn (the trump card last). Read before any draw.
+        internal Card[] GetDrawOrder()
+        {
+            var order = new Card[this.remaining];
+            for (var i = 0; i < order.Length; i++)
+            {
+                order[i] = this.cards[this.remaining - 1 - i];
+            }
+
+            return order;
+        }
+
         private static Card[] CreateAllCards()
         {
             var allTypes = new[] { CardType.Nine, CardType.Ten, CardType.Jack, CardType.Queen, CardType.King, CardType.Ace };

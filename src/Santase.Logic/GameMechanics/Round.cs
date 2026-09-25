@@ -28,6 +28,11 @@
 
         private readonly RoundPlayerInfo secondPlayer;
 
+        // History for views and records; null unless recording.
+        private readonly List<SantaseTrick> tricks;
+
+        private readonly Card[] deal;
+
         // The player who leads the current trick.
         private PlayerPosition leader;
 
@@ -43,14 +48,16 @@
             IPlayer secondPlayer,
             IGameRules gameRules,
             PlayerPosition firstToPlay = PlayerPosition.FirstPlayer,
-            Func<int, int> shuffle = null)
+            Func<int, int> shuffle = null,
+            bool recordHistory = false)
             : this(
                 new RoundPlayerInfo(firstPlayer),
                 new RoundPlayerInfo(secondPlayer),
                 new Deck(shuffle),
                 new StateManager(),
                 gameRules,
-                firstToPlay)
+                firstToPlay,
+                recordHistory)
         {
         }
 
@@ -63,7 +70,8 @@
             IDeck deck,
             IStateManager stateManager,
             IGameRules gameRules,
-            PlayerPosition firstToPlay)
+            PlayerPosition firstToPlay,
+            bool recordHistory = false)
         {
             if (firstToPlay != PlayerPosition.FirstPlayer && firstToPlay != PlayerPosition.SecondPlayer)
             {
@@ -76,7 +84,13 @@
             this.stateManager = stateManager;
             this.gameRules = gameRules;
             this.leader = firstToPlay;
+            this.FirstToPlay = firstToPlay;
             this.lastTrickWinner = PlayerPosition.NoOne;
+            if (recordHistory)
+            {
+                this.tricks = new List<SantaseTrick>(12);
+                this.deal = (deck as Deck)?.GetDrawOrder();
+            }
         }
 
         public RoundPlayerInfo FirstPlayer => this.firstPlayer;
@@ -88,6 +102,23 @@
         public IStateManager StateManager => this.stateManager;
 
         public bool IsFinished { get; private set; }
+
+        // Who led the first trick.
+        public PlayerPosition FirstToPlay { get; }
+
+        // Who exchanged the Nine of trumps (NoOne if nobody), and the face-up card they took.
+        public PlayerPosition TrumpSwappedBy { get; private set; }
+
+        public Card SwappedTrumpCard { get; private set; }
+
+        // The finished tricks, in order; null unless the round records its history.
+        public IReadOnlyList<SantaseTrick> Tricks => this.tricks;
+
+        // The whole shuffled deck in draw order; null unless recording (and dealt from a Deck).
+        public IReadOnlyList<Card> Deal => this.deal;
+
+        // The live context of the trick in progress (null when nobody is to move). Read only.
+        public PlayerTurnContext Context => this.context;
 
         // Tricks finished so far this round (a lead that took the leader out counts as one).
         public int TricksPlayed { get; private set; }
@@ -181,6 +212,8 @@
                         // The leader swaps the Nine of trumps for the face-up trump card and leads again.
                         var oldTrumpCard = this.deck.TrumpCard;
                         var nineOfTrump = Card.GetCard(oldTrumpCard.Suit, CardType.Nine);
+                        this.TrumpSwappedBy = this.leader;
+                        this.SwappedTrumpCard = oldTrumpCard;
                         this.deck.ChangeTrumpCard(nineOfTrump);
                         this.context.TrumpCard = nineOfTrump;
                         leaderInfo.Cards.Remove(nineOfTrump);
@@ -257,6 +290,15 @@
 
         private void CompleteTrick(PlayerPosition trickWinner)
         {
+            this.tricks?.Add(new SantaseTrick
+            {
+                Leader = this.leader,
+                LeadCard = this.context.FirstPlayedCard,
+                Announce = this.context.FirstPlayerAnnounce,
+                FollowCard = this.context.SecondPlayedCard,
+                Winner = trickWinner,
+            });
+
             // The trick winner leads next and, while the talon is open, draws first.
             this.leader = trickWinner;
             this.lastTrickWinner = trickWinner;

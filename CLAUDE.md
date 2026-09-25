@@ -24,13 +24,13 @@ dotnet run --project src\UI\Santase.UI.Console\Santase.UI.Console.csproj
 # Run the cross-platform MAUI desktop/mobile UI (Santase.UI).
 dotnet build src\UI\Santase.UI\Santase.UI.csproj -t:Run
 
-# Run the unit tests via CLI (xunit, ~394 tests across 3 projects).
+# Run the unit tests via CLI (xunit, ~424 tests across 3 projects).
 dotnet test src\Santase.sln -c Release
 ```
 
 ### Unit tests
 
-`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, and `Santase.AI.ClaudePlayer.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~366, ClaudePlayer.Tests 26 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests), SmartPlayer.Tests 2.
+`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, and `Santase.AI.ClaudePlayer.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~396, ClaudePlayer.Tests 26 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests), SmartPlayer.Tests 2.
 
 Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) live inside the simulator's `Exe` project and are not invoked by the simulator's `Main` or by `dotnet test` (the simulator csproj is `OutputType=Exe`, not a test SDK project) — they're VS-Test-Explorer artifacts.
 
@@ -68,6 +68,7 @@ Two load-bearing UI facts:
 Public entry points, both in `GameMechanics/`:
 
 - **`SantaseMatch`** holds the rules. It is driven from outside, one action at a time: `Start()`, then read `ToMove`, give that player `CreateTurnContext()`, and pass their answer to `Act(player, action)`. The match plays forward (resolves the trick, draws, scores the round, deals the next one) up to the next decision. It never waits for a player, which is what a game server needs (no thread held while a person thinks). `Act` returns `SantaseActResult` (`Ok`, `InvalidAction`, `NotYourTurn`, `MatchFinished`) and changes nothing unless `Ok`. Optional per-seat `IPlayer` observers get every callback except `GetTurn`, in the engine's usual order. `SantaseMatchOptions` sets the first player, rules, logger and `Shuffle` (a `Func<int,int>` random source for every deal; see `Deck` for the exact, documented draw order).
+- **Views and records (plain models; the engine has no opinion on wire formats).** `GetView(seat)` returns a `SantaseSeatView`: what that seat may see now (own hand, `PlayableCards`/`CanChangeTrump`/`CanClose` when it is their move, counts, points, phase, the round's tricks, the last trick, earlier round summaries) and never the opponent's hand. `view.CreateTurnContext()` rebuilds the exact `PlayerTurnContext` the engine would give, so a view is enough to feed a validator or a bot. After the match, `GetFinalView()` (seat `NoOne`, no hand) carries the full `SantaseMatchRecord` (every round's deal in draw order, tricks, swaps, closes, results); `GetRecord()` returns it alone, and neither is available before the end. The view and record types are plain classes whose public properties are all there is: a host maps them to its own models and back, and serializes those itself. **Don't add serializer attributes, DTO copies of engine types or anything specific to one consumer to the engine** (tried in September 2026 and rejected: the engine must not know its consumers or their formats). `Cards/CardCode.cs` gives card text codes (`9C 10D JH QS KC AH`, parse is case-insensitive and returns the shared instances), which is what a host needs to carry cards as text; tests use `src/Tests/Shared/ModelCopy.cs` (linked into the test projects) to copy views property by property the way a host would. Views need the history the match keeps by default (`SantaseMatchOptions.RecordHistory`, about 1 KB per round); `SantaseGame` turns it off, so the simulator pays nothing. The trace check was re-run with history on and both seats' views built before every move: identical.
 - **`SantaseGame`** plays whole matches between two `IPlayer`s: a ~15-line loop over `SantaseMatch` (ask the player to move, `Act`, throw `InternalGameException` on an illegal move). It plays until someone reaches `IGameRules.GamePointsNeededForWin` (default 11, from `SantaseGameRules`). The simulator, trainer, UIs and bot tests use it. It was rebuilt on `SantaseMatch` in September 2026; the callback traces of 300,000 simulated games were identical before and after.
 
 Load-bearing concepts when editing the engine:
