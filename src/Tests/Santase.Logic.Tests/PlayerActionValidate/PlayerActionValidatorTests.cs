@@ -39,6 +39,19 @@
         }
 
         [Fact]
+        public void IsValidShouldReturnFalseForPlayingNoCard()
+        {
+            // A host can build PlayCard(null) from bad input; it is an invalid move, not a crash.
+            var playerCards = new CardCollection { Card.GetCard(CardSuit.Heart, CardType.King), Card.GetCard(CardSuit.Heart, CardType.Queen) };
+            foreach (var state in new[] { StartState(), MidRoundState() })
+            {
+                var context = CreateContext(state, Card.GetCard(CardSuit.Club, CardType.Nine));
+
+                Assert.False(PlayerActionValidator.Instance.IsValid(PlayerAction.PlayCard(null), context, playerCards));
+            }
+        }
+
+        [Fact]
         public void IsValidShouldComputeTwentyWhenLeadingANonTrumpMarriageCard()
         {
             var context = CreateContext(MidRoundState(), Card.GetCard(CardSuit.Club, CardType.Nine));

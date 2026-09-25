@@ -24,6 +24,11 @@
 
             if (action.Type == PlayerActionType.PlayCard)
             {
+                if (action.Card == null)
+                {
+                    return false;
+                }
+
                 // Announce is computed for PlayCard actions only: ChangeTrump/CloseGame
                 // actions are shared immutable instances (their Announce is always None and
                 // is never read by the engine), so they must not be written to here.
