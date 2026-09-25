@@ -21,12 +21,18 @@ namespace Santase.Tools.NeuralTrainer
     /// </summary>
     public sealed class SelfPlayBatchRunner
     {
-        private readonly byte[] weightSnapshot;
+        // NeuralNetwork is immutable and thread-safe, so every game of the batch shares one instance
+        // built from the snapshot instead of re-parsing the weights per game.
+        private readonly NeuralNetwork network;
         private readonly float temperature;
 
         public SelfPlayBatchRunner(byte[] weightSnapshot, float temperature)
         {
-            this.weightSnapshot = weightSnapshot;
+            using (var ms = new MemoryStream(weightSnapshot, writable: false))
+            {
+                this.network = NeuralNetwork.LoadFromStream(ms);
+            }
+
             this.temperature = temperature;
         }
 
@@ -47,13 +53,7 @@ namespace Santase.Tools.NeuralTrainer
                 () => 0,
                 (gameIdx, _, localWins) =>
             {
-                NeuralNetwork perGameNet;
-                using (var ms = new MemoryStream(this.weightSnapshot, writable: false))
-                {
-                    perGameNet = NeuralNetwork.LoadFromStream(ms);
-                }
-
-                var neural = new ClaudePlayerNeural(perGameNet) { Temperature = 0f };
+                var neural = new ClaudePlayerNeural(this.network) { Temperature = 0f };
                 var heuristic = new ClaudePlayer();
 
                 IPlayer first;
@@ -114,13 +114,7 @@ namespace Santase.Tools.NeuralTrainer
             {
                 var steps = new List<PpoStep>(64);
 
-                NeuralNetwork perGameNet;
-                using (var ms = new MemoryStream(this.weightSnapshot, writable: false))
-                {
-                    perGameNet = NeuralNetwork.LoadFromStream(ms);
-                }
-
-                var neural = new ClaudePlayerNeural(perGameNet)
+                var neural = new ClaudePlayerNeural(this.network)
                 {
                     Temperature = 1f,
                     PpoRecorder = (features, action, mask, oldLp) =>
