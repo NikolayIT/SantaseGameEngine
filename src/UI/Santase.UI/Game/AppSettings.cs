@@ -12,7 +12,7 @@ namespace Santase.UI.Game
     /// <summary>
     /// Device-persisted app options (MAUI <see cref="Preferences"/>). All values have sensible
     /// defaults so a fresh install needs no setup screen. The speed presets translate into the
-    /// two pacing knobs <see cref="GameSession"/> exposes (AI think delay + trick settle time).
+    /// game's <see cref="GamePace"/> (AI think delay + trick settle time).
     /// </summary>
     public static class AppSettings
     {

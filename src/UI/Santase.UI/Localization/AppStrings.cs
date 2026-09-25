@@ -88,6 +88,7 @@ namespace Santase.UI.Localization
             // ----- Round / game end -----
             ["Round_YouWon"] = "You won the round!",
             ["Round_OppWon"] = "{0} won the round",
+            ["Round_Draw"] = "A draw — no points this round",
             ["Round_ScoreHeader"] = "ROUND POINTS",
             ["Round_Winner"] = "WINNER",
             ["Round_GamePointsHeader"] = "GAME POINTS",
@@ -259,6 +260,7 @@ namespace Santase.UI.Localization
             // ----- Round / game end -----
             ["Round_YouWon"] = "Спечели ръката!",
             ["Round_OppWon"] = "{0} спечели ръката",
+            ["Round_Draw"] = "Равенство — никой не печели точки",
             ["Round_ScoreHeader"] = "ТОЧКИ В РЪКАТА",
             ["Round_Winner"] = "ПОБЕДИТЕЛ",
             ["Round_GamePointsHeader"] = "ТОЧКИ ЗА ИГРАТА",

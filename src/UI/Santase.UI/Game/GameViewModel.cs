@@ -6,29 +6,41 @@ namespace Santase.UI.Game
     using System.ComponentModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using System.Threading.Tasks;
     using System.Windows.Input;
 
-    using Microsoft.Maui.Controls;
     using Microsoft.Maui.Devices;
     using Microsoft.Maui.Dispatching;
 
     using Santase.Logic;
     using Santase.Logic.Cards;
+    using Santase.Logic.GameMechanics;
+    using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
     using Santase.UI.Localization;
 
+    /// <summary>
+    /// The game table. It shows one seat's view of the <see cref="GameSession"/> ("my" seat: the
+    /// person in a game against the computer, the seat to move in a hot-seat game) and turns taps
+    /// into moves. The session raises its events on the UI thread, so every handler here updates
+    /// the screen directly; the dispatcher is only used to time toasts and hint highlights.
+    /// </summary>
     public sealed class GameViewModel : INotifyPropertyChanged, IDisposable
     {
         private static readonly LocalizationManager Loc = LocalizationManager.Instance;
 
+        // What a face-down card is drawn with; only the count of the opponent's hand is shown.
+        private static readonly Card FaceDown = Card.GetCard(CardSuit.Club, CardType.Nine);
+
+        private static readonly TimeSpan NoticeDuration = TimeSpan.FromMilliseconds(2500);
+
         private readonly GameSession session;
+
+        private readonly AiOpponent? opponent;
 
         private readonly IDispatcher dispatcher;
 
-        private TaskCompletionSource<object?>? pendingHandoff;
-
-        private PlayerSlot pendingHandoffSlot;
+        // Hot-seat: the seat that must take the device before it can move.
+        private PlayerSlot? pendingHandoffSlot;
 
         private PlayerSlot mySlot = PlayerSlot.First;
 
@@ -110,17 +122,18 @@ namespace Santase.UI.Game
 
         private CardSlot? lastTrickSlot2Card;
 
-        public GameViewModel(GameSession session, IDispatcher dispatcher)
+        public GameViewModel(GameSession session, AiOpponent? opponent, IDispatcher dispatcher)
         {
             this.session = session;
+            this.opponent = opponent;
             this.dispatcher = dispatcher;
 
             this.MyHand = new ObservableCollection<CardSlot>();
             this.OpponentHand = new ObservableCollection<CardSlot>();
 
-            // VS-AI mode: always show the human (slot 1) at the bottom.
-            // Hot-seat: starts at slot 1; swaps when slot 2's turn comes.
-            this.SetPerspective(PlayerSlot.First, raiseChange: false);
+            // Against the computer the person (slot 1) is always at the bottom. Hot-seat starts
+            // with slot 1 and hands the device over when the other seat is to move.
+            this.SetPerspective(PlayerSlot.First);
 
             this.TapCardCommand = new RelayCommand<CardSlot>(this.OnTapCard);
             this.ChangeTrumpCommand = new RelayCommand(this.OnChangeTrump, () => this.CanChangeTrump);
@@ -135,6 +148,13 @@ namespace Santase.UI.Game
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private enum RoundOutcome
+        {
+            Won,
+            Lost,
+            Draw,
+        }
 
         public ObservableCollection<CardSlot> MyHand { get; }
 
@@ -223,67 +243,13 @@ namespace Santase.UI.Game
 
         public CardSlot? OpponentPlayedCard => this.mySlot == PlayerSlot.First ? this.slot2PlayedCard : this.slot1PlayedCard;
 
-        private void SetPlayedCard(PlayerSlot slot, CardSlot? value)
-        {
-            if (slot == PlayerSlot.First)
-            {
-                this.slot1PlayedCard = value;
-            }
-            else
-            {
-                this.slot2PlayedCard = value;
-            }
-
-            this.OnPropertyChanged(nameof(this.MyPlayedCard));
-            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
-        }
-
-        private void ClearBothPlayedCards()
-        {
-            this.slot1PlayedCard = null;
-            this.slot2PlayedCard = null;
-            this.OnPropertyChanged(nameof(this.MyPlayedCard));
-            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
-        }
-
-        private void ClearLastTrick()
-        {
-            this.lastTrickSlot1Card = null;
-            this.lastTrickSlot2Card = null;
-            this.RaiseLastTrickChanged();
-        }
-
-        private void RaiseLastTrickChanged()
-        {
-            this.OnPropertyChanged(nameof(this.LastTrickMyCard));
-            this.OnPropertyChanged(nameof(this.LastTrickOpponentCard));
-            this.OnPropertyChanged(nameof(this.HasLastTrick));
-        }
-
-        private static void Haptic(HapticFeedbackType type)
-        {
-            if (!AppSettings.HapticsEnabled)
-            {
-                return;
-            }
-
-            try
-            {
-                HapticFeedback.Default.Perform(type);
-            }
-            catch
-            {
-                // Not supported on this platform (e.g. desktop) — silently skip.
-            }
-        }
-
         public bool IsMyTurn
         {
             get => this.isMyTurn;
             private set => this.SetField(ref this.isMyTurn, value, nameof(this.IsMyTurn), nameof(this.MyTurnIndicatorOpacity), nameof(this.OpponentTurnIndicatorOpacity), nameof(this.IsHintVisible));
         }
 
-        /// <summary>The hint button shows only on the human's turn in vs-AI games with assists on.</summary>
+        /// <summary>The hint button shows only on the person's turn in vs-AI games with assists on.</summary>
         public bool IsHintVisible => this.IsMyTurn && this.session.SupportsHints && AppSettings.AssistsEnabled;
 
         public CardSlot? LastTrickMyCard => this.mySlot == PlayerSlot.First ? this.lastTrickSlot1Card : this.lastTrickSlot2Card;
@@ -454,14 +420,14 @@ namespace Santase.UI.Game
 
         public string ModeLabel => this.session.Mode switch
         {
-            GameMode.VsAi => this.session.AiOpponent?.DisplayName ?? "Computer",
+            GameMode.VsAi => this.opponent?.DisplayName ?? "Computer",
             GameMode.HotSeat => "Hot-Seat",
             _ => string.Empty,
         };
 
-        public bool IsRanked => this.session.IsRanked;
+        public bool IsRanked => this.session.Mode == GameMode.VsAi && this.opponent != null;
 
-        public int OpponentElo => this.session.AiOpponent?.Elo ?? 0;
+        public int OpponentElo => this.opponent?.Elo ?? 0;
 
         public string OpponentEloText => this.IsRanked ? $"ELO {this.OpponentElo}" : string.Empty;
 
@@ -481,43 +447,9 @@ namespace Santase.UI.Game
 
         public ICommand LeaveCommand { get; }
 
-        public int MyMatchWins
-        {
-            get => this.mySlot == PlayerSlot.First ? this.matchWinsSlot1 : this.matchWinsSlot2;
-            private set
-            {
-                if (this.mySlot == PlayerSlot.First)
-                {
-                    this.matchWinsSlot1 = value;
-                }
-                else
-                {
-                    this.matchWinsSlot2 = value;
-                }
+        public int MyMatchWins => this.mySlot == PlayerSlot.First ? this.matchWinsSlot1 : this.matchWinsSlot2;
 
-                this.OnPropertyChanged(nameof(this.MyMatchWins));
-                this.OnPropertyChanged(nameof(this.MatchScoreText));
-            }
-        }
-
-        public int OpponentMatchWins
-        {
-            get => this.mySlot == PlayerSlot.First ? this.matchWinsSlot2 : this.matchWinsSlot1;
-            private set
-            {
-                if (this.mySlot == PlayerSlot.First)
-                {
-                    this.matchWinsSlot2 = value;
-                }
-                else
-                {
-                    this.matchWinsSlot1 = value;
-                }
-
-                this.OnPropertyChanged(nameof(this.OpponentMatchWins));
-                this.OnPropertyChanged(nameof(this.MatchScoreText));
-            }
-        }
+        public int OpponentMatchWins => this.mySlot == PlayerSlot.First ? this.matchWinsSlot2 : this.matchWinsSlot1;
 
         public string MatchScoreText => $"{this.MyMatchWins} – {this.OpponentMatchWins}";
 
@@ -525,471 +457,36 @@ namespace Santase.UI.Game
 
         public void StartGame()
         {
-            this.dispatcher.Dispatch(() =>
-            {
-                this.MyName = this.session.GetName(this.mySlot);
-                this.OpponentName = this.session.GetName(this.OtherSlot(this.mySlot));
-                this.StatusMessage = Loc["Status_Dealing"];
-            });
-
+            this.StatusMessage = Loc["Status_Dealing"];
             this.session.Start();
         }
 
         public void Dispose()
         {
             this.Unsubscribe();
-
-            // Release the engine if it's blocked in RequestHandoffAndBlock.
-            this.pendingHandoff?.TrySetCanceled();
-            this.pendingHandoff = null;
-
             this.session.Stop();
         }
 
-        private PlayerSlot OtherSlot(PlayerSlot slot) => slot == PlayerSlot.First ? PlayerSlot.Second : PlayerSlot.First;
-
-        private void Subscribe()
+        private static void Haptic(HapticFeedbackType type)
         {
-            this.session.RoundStarting += this.OnRoundStarting;
-            this.session.PlayerHandInitialized += this.OnPlayerHandInitialized;
-            this.session.CardDealtToPlayer += this.OnCardDealtToPlayer;
-            this.session.TurnStarting += this.OnTurnStarting;
-            this.session.HumanInputRequested += this.OnHumanInputRequested;
-            this.session.CardPlayed += this.OnCardPlayed;
-            this.session.TrumpCardSwapped += this.OnTrumpCardSwapped;
-            this.session.GameClosed += this.OnGameClosed;
-            this.session.AnnouncementMade += this.OnAnnouncementMade;
-            this.session.TrickCompleted += this.OnTrickCompleted;
-            this.session.RoundOver += this.OnRoundOver;
-            this.session.GameOver += this.OnGameOver;
-            this.session.GameError += this.OnGameError;
-        }
-
-        private void Unsubscribe()
-        {
-            this.session.RoundStarting -= this.OnRoundStarting;
-            this.session.PlayerHandInitialized -= this.OnPlayerHandInitialized;
-            this.session.CardDealtToPlayer -= this.OnCardDealtToPlayer;
-            this.session.TurnStarting -= this.OnTurnStarting;
-            this.session.HumanInputRequested -= this.OnHumanInputRequested;
-            this.session.CardPlayed -= this.OnCardPlayed;
-            this.session.TrumpCardSwapped -= this.OnTrumpCardSwapped;
-            this.session.GameClosed -= this.OnGameClosed;
-            this.session.AnnouncementMade -= this.OnAnnouncementMade;
-            this.session.TrickCompleted -= this.OnTrickCompleted;
-            this.session.RoundOver -= this.OnRoundOver;
-            this.session.GameOver -= this.OnGameOver;
-            this.session.GameError -= this.OnGameError;
-        }
-
-        private void OnRoundStarting(int firstGamePoints, int secondGamePoints, Card trump)
-        {
-            this.dispatcher.Dispatch(() =>
+            if (!AppSettings.HapticsEnabled)
             {
-                // Note: the (my, opp) parameters in the engine are RELATIVE to the first player.
-                // So firstGamePoints = first player's total, secondGamePoints = second player's total.
-                this.MyHand.Clear();
-                this.OpponentHand.Clear();
-                this.OpponentCardsCount = 0;
-                this.ClearBothPlayedCards();
-                this.ClearLastTrick();
-                this.MyRoundPoints = 0;
-                this.OpponentRoundPoints = 0;
-                this.GameClosedByMe = false;
-                this.GameClosedByOpponent = false;
-                this.TrumpCard = trump;
-                this.DeckCount = 12;
-                this.UpdateGamePointsForPerspective(firstGamePoints, secondGamePoints);
-                this.StatusMessage = Loc["Status_NewRound"];
-            });
-        }
-
-        private void OnPlayerHandInitialized(PlayerSlot slot, IReadOnlyList<Card> cards)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                if (slot == this.mySlot)
-                {
-                    this.MyHand.Clear();
-                    foreach (var c in this.SortHand(cards))
-                    {
-                        this.MyHand.Add(new CardSlot(c));
-                    }
-                }
-                else
-                {
-                    this.OpponentHand.Clear();
-                    var dummy = Card.GetCard(CardSuit.Club, CardType.Nine);
-                    for (var i = 0; i < cards.Count; i++)
-                    {
-                        this.OpponentHand.Add(new CardSlot(dummy, isFaceDown: true));
-                    }
-
-                    this.OpponentCardsCount = cards.Count;
-                }
-
-                // DeckCount is set to 12 in OnRoundStarting and decremented per draw in
-                // OnCardDealtToPlayer; the initial 6+6 deal is implicit in that 12.
-            });
-        }
-
-        private void OnCardDealtToPlayer(PlayerSlot slot, Card card)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                if (slot == this.mySlot)
-                {
-                    var slotItem = new CardSlot(card);
-                    var inserted = false;
-
-                    // Keep the hand sorted on insert.
-                    var sorted = this.SortHand(this.MyHand.Select(s => s.Card).Concat(new[] { card })).ToList();
-                    var idx = sorted.IndexOf(card);
-                    if (idx >= 0 && idx <= this.MyHand.Count)
-                    {
-                        this.MyHand.Insert(idx, slotItem);
-                        inserted = true;
-                    }
-
-                    if (!inserted)
-                    {
-                        this.MyHand.Add(slotItem);
-                    }
-                }
-                else
-                {
-                    var dummy = Card.GetCard(CardSuit.Club, CardType.Nine);
-                    this.OpponentHand.Add(new CardSlot(dummy, isFaceDown: true));
-                    this.OpponentCardsCount++;
-                }
-
-                if (this.DeckCount > 0)
-                {
-                    this.DeckCount--;
-                }
-            });
-        }
-
-        private void OnTurnStarting(PlayerSlot slot, bool isHuman)
-        {
-            // Hot-seat handoff: swap perspective if needed BEFORE letting the next human play.
-            if (this.session.Mode == GameMode.HotSeat && isHuman && slot != this.mySlot)
-            {
-                this.RequestHandoffAndBlock(slot);
+                return;
             }
-
-            this.dispatcher.Dispatch(() =>
-            {
-                this.IsMyTurn = slot == this.mySlot;
-                this.StatusMessage = slot == this.mySlot
-                    ? Loc["Status_YourTurn"]
-                    : Loc.Format("Status_OpponentTurn", this.OpponentName);
-            });
-        }
-
-        private void RequestHandoffAndBlock(PlayerSlot nextSlot)
-        {
-            this.pendingHandoffSlot = nextSlot;
-            this.pendingHandoff = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var nextName = this.session.GetName(nextSlot);
-            this.dispatcher.Dispatch(() =>
-            {
-                this.IsMyTurn = false;
-                this.HandoffMessage = Loc.Format("Handoff_Pass", nextName);
-                this.IsHandoffOverlayVisible = true;
-            });
 
             try
             {
-                this.pendingHandoff.Task.GetAwaiter().GetResult();
+                HapticFeedback.Default.Perform(type);
             }
-            catch (TaskCanceledException)
+            catch
             {
+                // Not supported on this platform (e.g. desktop) — silently skip.
             }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private void OnHandoffContinue()
-        {
-            // Runs on the UI thread (button command). Swap perspective synchronously
-            // BEFORE unblocking the engine, so the new hand is visible when the next
-            // GetTurn fires HumanInputRequested.
-            this.SetPerspective(this.pendingHandoffSlot, raiseChange: true);
-            this.IsHandoffOverlayVisible = false;
-            this.pendingHandoff?.TrySetResult(null);
-            this.pendingHandoff = null;
-        }
-
-        private void OnHumanInputRequested(PlayerSlot slot, HumanPlayer player, PlayerTurnContext context)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                if (slot != this.mySlot)
-                {
-                    return;
-                }
-
-                this.IsMyTurn = true;
-                this.TrumpCard = context.TrumpCard;
-
-                var validator = player.ActionValidator;
-                var cards = GetPlayerCards(player);
-                var possibleCards = validator.GetPossibleCardsToPlay(context, cards);
-                var possibleSet = new HashSet<Card>(possibleCards);
-
-                // Beginner assist: badge the King/Queen leads that would announce a marriage.
-                // Mirrors the engine's own announce path (state gate + announce validator).
-                var canAnnounce = AppSettings.AssistsEnabled
-                    && context.State.CanAnnounce20Or40
-                    && context.IsFirstPlayerTurn;
-
-                foreach (var slotItem in this.MyHand)
-                {
-                    slotItem.IsPlayable = possibleSet.Contains(slotItem.Card);
-                    slotItem.IsHinted = false;
-
-                    var announce = canAnnounce && slotItem.IsPlayable
-                        ? this.session.AnnounceValidator.GetPossibleAnnounce(cards, slotItem.Card, context.TrumpCard)
-                        : Announce.None;
-                    slotItem.AnnounceText = announce switch
-                    {
-                        Announce.Forty => "40",
-                        Announce.Twenty => "20",
-                        _ => string.Empty,
-                    };
-                }
-
-                this.CanChangeTrump = validator.IsValid(PlayerAction.ChangeTrump(), context, cards);
-                this.CanCloseGame = validator.IsValid(PlayerAction.CloseGame(), context, cards);
-
-                this.StatusMessage = Loc["Status_YourTurn"];
-                Haptic(HapticFeedbackType.Click);
-            });
-        }
-
-        private static ICollection<Card> GetPlayerCards(HumanPlayer player)
-        {
-            return player.CardsSnapshot.ToList();
-        }
-
-        private void OnCardPlayed(PlayerSlot slot, Card card)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                var played = new CardSlot(card);
-                this.SetPlayedCard(slot, played);
-
-                if (slot == this.mySlot)
-                {
-                    var existing = this.MyHand.FirstOrDefault(s => s.Card.Equals(card));
-                    if (existing != null)
-                    {
-                        this.MyHand.Remove(existing);
-                    }
-
-                    this.IsMyTurn = false;
-                    this.CanChangeTrump = false;
-                    this.CanCloseGame = false;
-                    foreach (var s in this.MyHand)
-                    {
-                        s.IsPlayable = false;
-                        s.IsHinted = false;
-                        s.AnnounceText = string.Empty;
-                    }
-                }
-                else
-                {
-                    if (this.OpponentHand.Count > 0)
-                    {
-                        this.OpponentHand.RemoveAt(this.OpponentHand.Count - 1);
-                    }
-
-                    this.OpponentCardsCount = Math.Max(0, this.OpponentCardsCount - 1);
-                }
-            });
-        }
-
-        private void OnTrumpCardSwapped(PlayerSlot slot, Card newTrump)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                this.TrumpCard = newTrump;
-
-                if (slot == this.mySlot)
-                {
-                    // The 9 left my hand and the old trump card is now in my hand.
-                    var human = this.session.GetHuman(slot);
-                    if (human != null)
-                    {
-                        this.MyHand.Clear();
-                        foreach (var c in this.SortHand(human.CardsSnapshot))
-                        {
-                            this.MyHand.Add(new CardSlot(c));
-                        }
-                    }
-                }
-
-                var who = slot == this.mySlot ? Loc["Word_You"] : this.OpponentName;
-                this.ShowToast(Loc.Format("Toast_SwapTrump", who));
-            });
-        }
-
-        private void OnGameClosed(PlayerSlot slot)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                if (slot == this.mySlot)
-                {
-                    this.GameClosedByMe = true;
-                    this.ShowToast(Loc["Toast_YouClosed"]);
-                }
-                else
-                {
-                    this.GameClosedByOpponent = true;
-                    this.ShowToast(Loc.Format("Toast_OppClosed", this.OpponentName));
-                }
-
-                this.DeckCount = 0;
-            });
-        }
-
-        private void OnAnnouncementMade(PlayerSlot slot, Announce announce)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                var mine = slot == this.mySlot;
-                var who = mine ? Loc["Word_You"] : this.OpponentName;
-
-                // The engine already added the announce to this player's round points the moment
-                // the marriage card was led; reflect it now instead of waiting for the trick to
-                // settle. OnTrickCompleted later SETs the authoritative total, so this can't
-                // double-count.
-                if (mine)
-                {
-                    this.MyRoundPoints += (int)announce;
-                }
-                else
-                {
-                    this.OpponentRoundPoints += (int)announce;
-                }
-
-                this.ShowToast(announce == Announce.Forty
-                    ? Loc.Format("Toast_Announce40", who)
-                    : Loc.Format("Toast_Announce20", who));
-            });
-        }
-
-        private void OnTrickCompleted(TrickResult result)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                // Update round points based on the perspective. These are authoritative and
-                // already include any announce surfaced earlier by OnAnnouncementMade.
-                if (this.mySlot == PlayerSlot.First)
-                {
-                    this.MyRoundPoints = result.FirstRoundPoints;
-                    this.OpponentRoundPoints = result.SecondRoundPoints;
-                }
-                else
-                {
-                    this.MyRoundPoints = result.SecondRoundPoints;
-                    this.OpponentRoundPoints = result.FirstRoundPoints;
-                }
-            });
-
-            // Stay visible during TrickSettleMs (handled in session by Thread.Sleep).
-            // Clear the played cards just before the engine's sleep ends; the cleared trick
-            // becomes the "last trick" mini-display so players can review what was just won.
-            Task.Run(async () =>
-            {
-                await Task.Delay(Math.Max(0, this.session.TrickSettleMs - 150));
-                this.dispatcher.Dispatch(() =>
-                {
-                    this.lastTrickSlot1Card = result.FirstCard != null ? new CardSlot(result.FirstCard) : null;
-                    this.lastTrickSlot2Card = result.SecondCard != null ? new CardSlot(result.SecondCard) : null;
-                    this.RaiseLastTrickChanged();
-                    this.ClearBothPlayedCards();
-                });
-            });
-        }
-
-        private void OnRoundOver(RoundEndInfo info)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                var iWon = this.ApplyRoundEndInfo(info);
-
-                this.RoundIWon = iWon;
-                this.RoundOpponentWon = !iWon;
-                this.RoundOverlayIcon = iWon ? "\U0001F3C6" : "\U0001F0A0";
-                this.RoundOverlayTitle = iWon
-                    ? Loc["Round_YouWon"]
-                    : Loc.Format("Round_OppWon", this.OpponentName);
-                this.IsRoundOverlayVisible = true;
-                Haptic(HapticFeedbackType.LongPress);
-            });
-
-            // The engine thread is blocked inside ShowRoundResultAndWait; tapping Continue calls
-            // session.Continue() to release it and deal the next round.
-        }
-
-        // Maps the engine-authoritative round result onto the perspective-relative score
-        // properties and returns whether the human won the round. The winner comes from the
-        // engine's awarded game-point delta (info.WinnerSlot), NOT a round-point comparison, so
-        // closing-and-failing, schneider and last-trick cases are correct. Shared by the round
-        // overlay and the game-over overlay (final round).
-        private bool ApplyRoundEndInfo(RoundEndInfo info)
-        {
-            int myRound, oppRound, myGame, oppGame, myAward, oppAward;
-            IReadOnlyList<Announce> myAnnounces, oppAnnounces;
-            if (this.mySlot == PlayerSlot.First)
-            {
-                myRound = info.FirstRoundPoints;
-                oppRound = info.SecondRoundPoints;
-                myGame = info.FirstGamePoints;
-                oppGame = info.SecondGamePoints;
-                myAward = info.FirstAwardedGamePoints;
-                oppAward = info.SecondAwardedGamePoints;
-                myAnnounces = info.FirstAnnounces;
-                oppAnnounces = info.SecondAnnounces;
-            }
-            else
-            {
-                myRound = info.SecondRoundPoints;
-                oppRound = info.FirstRoundPoints;
-                myGame = info.SecondGamePoints;
-                oppGame = info.FirstGamePoints;
-                myAward = info.SecondAwardedGamePoints;
-                oppAward = info.FirstAwardedGamePoints;
-                myAnnounces = info.SecondAnnounces;
-                oppAnnounces = info.FirstAnnounces;
-            }
-
-            this.MyRoundPoints = myRound;
-            this.OpponentRoundPoints = oppRound;
-            this.MyGamePoints = myGame;
-            this.OpponentGamePoints = oppGame;
-
-            var iWon = info.WinnerSlot == this.mySlot;
-            var award = iWon ? myAward : oppAward;
-            var who = iWon ? this.MyName : this.OpponentName;
-            this.RoundAwardText = award > 0
-                ? Loc.Format("Award_Format", who, award, award == 1 ? Loc["Word_PointSingular"] : Loc["Word_PointPlural"])
-                : string.Empty;
-
-            this.MyAnnouncesText = FormatAnnounces(myAnnounces);
-            this.OpponentAnnouncesText = FormatAnnounces(oppAnnounces);
-            this.HasAnnounces = myAnnounces.Count > 0 || oppAnnounces.Count > 0;
-
-            return iWon;
         }
 
         private static string FormatAnnounces(IReadOnlyList<Announce> announces)
         {
-            if (announces == null || announces.Count == 0)
+            if (announces.Count == 0)
             {
                 return "—";
             }
@@ -997,322 +494,10 @@ namespace Santase.UI.Game
             return string.Join("   ", announces.Select(a => ((int)a).ToString()));
         }
 
-        private void OnRoundOverlayContinue()
-        {
-            this.IsRoundOverlayVisible = false;
-            this.session.Continue();
-        }
-
-        private void OnGameError(Exception ex)
-        {
-            this.dispatcher.Dispatch(() =>
-            {
-                this.GameOverlayTitle = Loc["Error_Title"];
-                this.GameOverlayBody = Loc.Format("Error_Body", ex.GetType().Name, ex.Message);
-                this.IsHandoffOverlayVisible = false;
-                this.IsRoundOverlayVisible = false;
-                this.IsGameOverlayVisible = true;
-                this.IsMyTurn = false;
-                this.CanChangeTrump = false;
-                this.CanCloseGame = false;
-            });
-        }
-
-        private void OnGameOver(PlayerSlot winnerSlot)
-        {
-            // Update match counts (slot-based — survives perspective swaps).
-            if (winnerSlot == PlayerSlot.First)
-            {
-                this.matchWinsSlot1++;
-            }
-            else
-            {
-                this.matchWinsSlot2++;
-            }
-
-            this.dispatcher.Dispatch(() =>
-            {
-                var iWon = winnerSlot == this.mySlot;
-
-                // Resolve the final round (award, announces, final game points) for the overlay —
-                // there is no following StartRound, so GameSession stashes it as LastRoundEndInfo.
-                var finalInfo = this.session.LastRoundEndInfo;
-                if (finalInfo != null)
-                {
-                    this.ApplyRoundEndInfo(finalInfo);
-                }
-                else
-                {
-                    this.UpdateGamePointsForPerspective(this.session.FirstGamePoints, this.session.SecondGamePoints);
-                    this.RoundAwardText = string.Empty;
-                    this.HasAnnounces = false;
-                }
-
-                this.OnPropertyChanged(nameof(this.MyMatchWins));
-                this.OnPropertyChanged(nameof(this.OpponentMatchWins));
-                this.OnPropertyChanged(nameof(this.MatchScoreText));
-                this.OnPropertyChanged(nameof(this.HasMatchHistory));
-
-                // Ranked (vs-AI) games move the persisted player rating; the AI is a fixed anchor.
-                if (this.session.IsRanked)
-                {
-                    var opponent = this.session.AiOpponent!;
-                    var change = PlayerRatingStore.RecordResult(opponent.Elo, iWon);
-                    var sign = change.Delta >= 0 ? "+" : string.Empty;
-                    this.RatingChangeText = Loc.Format("Rating_Change", change.OldElo, change.NewElo, $"{sign}{change.Delta}");
-                    this.IsRatingChangeVisible = true;
-                }
-                else
-                {
-                    this.IsRatingChangeVisible = false;
-                }
-
-                this.RecordHistory(iWon);
-
-                var winnerName = iWon ? this.MyName : this.OpponentName;
-                this.GameOverlayIcon = iWon ? "\U0001F3C6" : "\U0001F494";
-                this.GameOverlayTitle = iWon ? Loc["GameOver_Victory"] : Loc["GameOver_Defeat"];
-                this.GameOverlayBody = Loc.Format("GameOver_WonGame", winnerName);
-                this.IsRoundOverlayVisible = false;
-                this.IsGameOverlayVisible = true;
-                this.IsMyTurn = false;
-                this.CanChangeTrump = false;
-                this.CanCloseGame = false;
-                Haptic(HapticFeedbackType.LongPress);
-            });
-        }
-
-        private void RecordHistory(bool iWon)
-        {
-            // Only vs-AI games go in history (hot-seat is human-vs-human). MyGamePoints /
-            // OpponentGamePoints already hold the final game-point totals for this perspective.
-            if (this.session.Mode != GameMode.VsAi)
-            {
-                return;
-            }
-
-            var opponentId = this.session.AiOpponent?.Id ?? string.Empty;
-            MatchHistoryStore.Add(new MatchHistoryEntry(
-                this.OpponentName,
-                this.MyGamePoints,
-                this.OpponentGamePoints,
-                iWon,
-                DateTime.UtcNow,
-                opponentId));
-            OpponentStatsStore.Record(opponentId, iWon);
-        }
-
-        private void OnPlayAgain()
-        {
-            this.IsGameOverlayVisible = false;
-            this.IsRoundOverlayVisible = false;
-            this.IsHandoffOverlayVisible = false;
-            this.MyHand.Clear();
-            this.OpponentHand.Clear();
-            this.OpponentCardsCount = 0;
-            this.ClearBothPlayedCards();
-            this.ClearLastTrick();
-            this.MyRoundPoints = 0;
-            this.OpponentRoundPoints = 0;
-
-            // Reset perspective to slot 1 (the start-page convention) before restarting.
-            if (this.mySlot != PlayerSlot.First)
-            {
-                this.SetPerspective(PlayerSlot.First, raiseChange: true);
-            }
-
-            this.session.Restart();
-        }
-
-        private void OnTapCard(CardSlot? slot)
-        {
-            if (slot == null || !slot.IsPlayable)
-            {
-                return;
-            }
-
-            var human = this.session.GetHuman(this.mySlot);
-            if (human == null || !human.IsAwaitingInput)
-            {
-                return;
-            }
-
-            this.session.SubmitPlayCard(human, slot.Card);
-        }
-
-        // Reveals the precomputed advisor suggestion: highlights the suggested card, or explains
-        // a swap/close suggestion in the toast. The hint was computed when this turn started, so
-        // this is instant.
-        private void OnHint()
-        {
-            if (!this.IsMyTurn)
-            {
-                return;
-            }
-
-            var hint = this.session.CurrentHint;
-            if (hint == null)
-            {
-                this.ShowToast(Loc["Hint_None"]);
-                return;
-            }
-
-            switch (hint.Type)
-            {
-                case PlayerActionType.PlayCard:
-                    var slot = this.MyHand.FirstOrDefault(s => s.Card.Equals(hint.Card));
-                    if (slot == null || !slot.IsPlayable)
-                    {
-                        this.ShowToast(Loc["Hint_None"]);
-                        return;
-                    }
-
-                    foreach (var s in this.MyHand)
-                    {
-                        s.IsHinted = false;
-                    }
-
-                    slot.IsHinted = true;
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(2500);
-                        this.dispatcher.Dispatch(() => slot.IsHinted = false);
-                    });
-                    break;
-                case PlayerActionType.ChangeTrump:
-                    this.ShowToast(Loc["Hint_SwapTrump"]);
-                    break;
-                case PlayerActionType.CloseGame:
-                    this.ShowToast(Loc["Hint_CloseGame"]);
-                    break;
-                default:
-                    this.ShowToast(Loc["Hint_None"]);
-                    break;
-            }
-        }
-
-        private void OnChangeTrump()
-        {
-            var human = this.session.GetHuman(this.mySlot);
-            if (human == null || !human.IsAwaitingInput || !this.CanChangeTrump)
-            {
-                return;
-            }
-
-            this.session.SubmitChangeTrump(human);
-        }
-
-        private void OnCloseGame()
-        {
-            var human = this.session.GetHuman(this.mySlot);
-            if (human == null || !human.IsAwaitingInput || !this.CanCloseGame)
-            {
-                return;
-            }
-
-            this.session.SubmitCloseGame(human);
-        }
-
-        private void OnLeave()
-        {
-            this.session.Stop();
-            this.IsGameOverlayVisible = false;
-            _ = Microsoft.Maui.Controls.Shell.Current?.GoToAsync("..");
-        }
-
-        private void SetPerspective(PlayerSlot newMe, bool raiseChange)
-        {
-            this.mySlot = newMe;
-            this.MyName = this.session.GetName(newMe);
-            this.OpponentName = this.session.GetName(this.OtherSlot(newMe));
-
-            // Rebuild hand views to match the new perspective.
-            var myHuman = this.session.GetHuman(newMe);
-            var oppHuman = this.session.GetHuman(this.OtherSlot(newMe));
-
-            this.MyHand.Clear();
-            if (myHuman != null)
-            {
-                foreach (var c in this.SortHand(myHuman.CardsSnapshot))
-                {
-                    this.MyHand.Add(new CardSlot(c));
-                }
-            }
-
-            this.OpponentHand.Clear();
-            var dummy = Card.GetCard(CardSuit.Club, CardType.Nine);
-            int oppCount;
-            if (oppHuman != null)
-            {
-                oppCount = oppHuman.CardsSnapshot.Count;
-            }
-            else
-            {
-                oppCount = this.OtherSlot(newMe) == PlayerSlot.First
-                    ? this.session.FirstObserver.CardsCount
-                    : this.session.SecondObserver.CardsCount;
-            }
-
-            for (var i = 0; i < oppCount; i++)
-            {
-                this.OpponentHand.Add(new CardSlot(dummy, isFaceDown: true));
-            }
-
-            this.OpponentCardsCount = oppCount;
-
-            // Played cards + last trick are stored per-slot, so swapping perspective just means
-            // raising PropertyChanged on the derived, perspective-mapped properties.
-            this.OnPropertyChanged(nameof(this.MyPlayedCard));
-            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
-            this.RaiseLastTrickChanged();
-
-            // Update game points to match perspective.
-            this.UpdateGamePointsForPerspective(this.session.FirstGamePoints, this.session.SecondGamePoints);
-
-            if (raiseChange)
-            {
-                this.OnPropertyChanged(nameof(this.MyName));
-                this.OnPropertyChanged(nameof(this.OpponentName));
-            }
-        }
-
-        private void UpdateGamePointsForPerspective(int firstGamePoints, int secondGamePoints)
-        {
-            if (this.mySlot == PlayerSlot.First)
-            {
-                this.MyGamePoints = firstGamePoints;
-                this.OpponentGamePoints = secondGamePoints;
-            }
-            else
-            {
-                this.MyGamePoints = secondGamePoints;
-                this.OpponentGamePoints = firstGamePoints;
-            }
-        }
-
-        private void ShowToast(string message)
-        {
-            this.ToastMessage = message;
-            Task.Run(async () =>
-            {
-                await Task.Delay(2500);
-                this.dispatcher.Dispatch(() =>
-                {
-                    if (this.ToastMessage == message)
-                    {
-                        this.ToastMessage = null;
-                    }
-                });
-            });
-        }
-
-        private IEnumerable<Card> SortHand(IEnumerable<Card> cards)
-        {
-            // Sort by suit (visually) then by descending value, with Ace highest.
-            return cards
-                .OrderBy(c => SuitOrder(c.Suit))
-                .ThenByDescending(c => CardOrderValue(c.Type));
-        }
+        // Sort by suit (visually) then by descending value, with Ace highest.
+        private static IEnumerable<Card> SortHand(IEnumerable<Card> cards) => cards
+            .OrderBy(c => SuitOrder(c.Suit))
+            .ThenByDescending(c => CardOrderValue(c.Type));
 
         private static int SuitOrder(CardSuit suit) => suit switch
         {
@@ -1333,6 +518,561 @@ namespace Santase.UI.Game
             CardType.Nine => 1,
             _ => 0,
         };
+
+        private void Subscribe()
+        {
+            this.session.RoundStarted += this.OnRoundStarted;
+            this.session.TurnStarted += this.OnTurnStarted;
+            this.session.MovePlayed += this.OnMovePlayed;
+            this.session.TrickCollected += this.OnTrickCollected;
+            this.session.RoundFinished += this.OnRoundFinished;
+            this.session.GameOver += this.OnGameOver;
+            this.session.GameError += this.OnGameError;
+        }
+
+        private void Unsubscribe()
+        {
+            this.session.RoundStarted -= this.OnRoundStarted;
+            this.session.TurnStarted -= this.OnTurnStarted;
+            this.session.MovePlayed -= this.OnMovePlayed;
+            this.session.TrickCollected -= this.OnTrickCollected;
+            this.session.RoundFinished -= this.OnRoundFinished;
+            this.session.GameOver -= this.OnGameOver;
+            this.session.GameError -= this.OnGameError;
+        }
+
+        private void OnRoundStarted()
+        {
+            this.ClearBothPlayedCards();
+            this.ClearLastTrick();
+            this.ShowSeat();
+            this.StatusMessage = Loc["Status_NewRound"];
+        }
+
+        private void OnTurnStarted(PlayerSlot slot, bool isHuman)
+        {
+            if (!isHuman)
+            {
+                this.IsMyTurn = false;
+                this.StatusMessage = Loc.Format("Status_OpponentTurn", this.OpponentName);
+                return;
+            }
+
+            if (slot != this.mySlot)
+            {
+                // Hot-seat: the other person takes the device before their cards are shown.
+                this.pendingHandoffSlot = slot;
+                this.IsMyTurn = false;
+                this.HandoffMessage = Loc.Format("Handoff_Pass", this.session.GetName(slot));
+                this.IsHandoffOverlayVisible = true;
+                return;
+            }
+
+            this.OfferMove();
+        }
+
+        private void OnHandoffContinue()
+        {
+            if (this.pendingHandoffSlot is not { } next)
+            {
+                return;
+            }
+
+            this.pendingHandoffSlot = null;
+            this.SetPerspective(next);
+            this.IsHandoffOverlayVisible = false;
+            this.OfferMove();
+        }
+
+        // My turn: mark the playable cards (and, as a beginner assist, the K/Q leads that would
+        // announce a marriage) and enable exchanging and closing when the rules allow them.
+        private void OfferMove()
+        {
+            var view = this.session.GetView(this.mySlot);
+            if (view == null)
+            {
+                return;
+            }
+
+            var context = view.CreateTurnContext();
+            var playable = new HashSet<Card>(view.PlayableCards);
+            var hand = view.Hand.ToList();
+            var markAnnounces = AppSettings.AssistsEnabled && context.State.CanAnnounce20Or40 && context.IsFirstPlayerTurn;
+            foreach (var slot in this.MyHand)
+            {
+                slot.IsPlayable = playable.Contains(slot.Card);
+                slot.IsHinted = false;
+                var announce = markAnnounces && slot.IsPlayable
+                    ? AnnounceValidator.Instance.GetPossibleAnnounce(hand, slot.Card, view.TrumpCard)
+                    : Announce.None;
+                slot.AnnounceText = announce switch
+                {
+                    Announce.Forty => "40",
+                    Announce.Twenty => "20",
+                    _ => string.Empty,
+                };
+            }
+
+            this.CanChangeTrump = view.CanChangeTrump;
+            this.CanCloseGame = view.CanClose;
+            this.IsMyTurn = true;
+            this.StatusMessage = Loc["Status_YourTurn"];
+            Haptic(HapticFeedbackType.Click);
+        }
+
+        private void EndMyTurn()
+        {
+            this.IsMyTurn = false;
+            this.CanChangeTrump = false;
+            this.CanCloseGame = false;
+            foreach (var slot in this.MyHand)
+            {
+                slot.IsPlayable = false;
+                slot.IsHinted = false;
+                slot.AnnounceText = string.Empty;
+            }
+        }
+
+        private void OnMovePlayed(MoveInfo move)
+        {
+            var mine = move.Slot == this.mySlot;
+            var who = mine ? Loc["Word_You"] : this.OpponentName;
+            switch (move.Action.Type)
+            {
+                case PlayerActionType.PlayCard:
+                    this.SetPlayedCard(move.Slot, new CardSlot(move.Action.Card));
+                    if (mine)
+                    {
+                        var played = this.MyHand.FirstOrDefault(s => s.Card == move.Action.Card);
+                        if (played != null)
+                        {
+                            this.MyHand.Remove(played);
+                        }
+
+                        this.EndMyTurn();
+                    }
+                    else
+                    {
+                        this.ShowOpponentCards(this.OpponentHand.Count - 1);
+                    }
+
+                    if (move.Announce != Announce.None)
+                    {
+                        this.ShowToast(move.Announce == Announce.Forty
+                            ? Loc.Format("Toast_Announce40", who)
+                            : Loc.Format("Toast_Announce20", who));
+                    }
+
+                    break;
+
+                case PlayerActionType.ChangeTrump:
+                    // The nine goes to the table and the old trump card to the exchanger's hand.
+                    this.TrumpCard = this.session.GetView(this.mySlot)?.TrumpCard;
+                    if (mine)
+                    {
+                        this.EndMyTurn();
+                        this.ShowHand();
+                    }
+
+                    this.ShowToast(Loc.Format("Toast_SwapTrump", who));
+                    break;
+
+                case PlayerActionType.CloseGame:
+                    if (mine)
+                    {
+                        this.EndMyTurn();
+                        this.GameClosedByMe = true;
+                        this.ShowToast(Loc["Toast_YouClosed"]);
+                    }
+                    else
+                    {
+                        this.GameClosedByOpponent = true;
+                        this.ShowToast(Loc.Format("Toast_OppClosed", this.OpponentName));
+                    }
+
+                    this.DeckCount = 0;
+                    break;
+            }
+
+            this.ShowRoundPoints(move.FirstRoundPoints, move.SecondRoundPoints);
+        }
+
+        // The finished trick leaves the table for the "last trick" corner; unless it ended the
+        // round, both players have drawn by now.
+        private void OnTrickCollected(TrickInfo trick)
+        {
+            this.lastTrickSlot1Card = trick.CardOf(PlayerSlot.First) is { } first ? new CardSlot(first) : null;
+            this.lastTrickSlot2Card = trick.CardOf(PlayerSlot.Second) is { } second ? new CardSlot(second) : null;
+            this.RaiseLastTrickChanged();
+            this.ClearBothPlayedCards();
+            if (!trick.RoundOver)
+            {
+                this.ShowDraws();
+            }
+        }
+
+        private void OnRoundFinished(RoundEndInfo info)
+        {
+            var outcome = this.ShowRoundResult(info);
+            this.RoundIWon = outcome == RoundOutcome.Won;
+            this.RoundOpponentWon = outcome == RoundOutcome.Lost;
+            (this.RoundOverlayIcon, this.RoundOverlayTitle) = outcome switch
+            {
+                RoundOutcome.Won => ("\U0001F3C6", Loc["Round_YouWon"]),
+                RoundOutcome.Lost => ("\U0001F0A0", Loc.Format("Round_OppWon", this.OpponentName)),
+                _ => ("\U0001F91D", Loc["Round_Draw"]),
+            };
+            this.IsRoundOverlayVisible = true;
+            Haptic(HapticFeedbackType.LongPress);
+        }
+
+        private void OnRoundOverlayContinue()
+        {
+            this.IsRoundOverlayVisible = false;
+            this.session.Continue();
+        }
+
+        private void OnGameOver(PlayerSlot winner, RoundEndInfo lastRound)
+        {
+            if (winner == PlayerSlot.First)
+            {
+                this.matchWinsSlot1++;
+            }
+            else
+            {
+                this.matchWinsSlot2++;
+            }
+
+            this.ShowRoundResult(lastRound);
+            this.OnPropertyChanged(nameof(this.MyMatchWins));
+            this.OnPropertyChanged(nameof(this.OpponentMatchWins));
+            this.OnPropertyChanged(nameof(this.MatchScoreText));
+            this.OnPropertyChanged(nameof(this.HasMatchHistory));
+
+            var iWon = winner == this.mySlot;
+
+            // Ranked (vs-AI) games move the persisted player rating; the AI is a fixed anchor.
+            if (this.IsRanked)
+            {
+                var change = PlayerRatingStore.RecordResult(this.opponent!.Elo, iWon);
+                var sign = change.Delta >= 0 ? "+" : string.Empty;
+                this.RatingChangeText = Loc.Format("Rating_Change", change.OldElo, change.NewElo, $"{sign}{change.Delta}");
+                this.IsRatingChangeVisible = true;
+            }
+            else
+            {
+                this.IsRatingChangeVisible = false;
+            }
+
+            this.RecordHistory(iWon);
+
+            this.GameOverlayIcon = iWon ? "\U0001F3C6" : "\U0001F494";
+            this.GameOverlayTitle = iWon ? Loc["GameOver_Victory"] : Loc["GameOver_Defeat"];
+            this.GameOverlayBody = Loc.Format("GameOver_WonGame", iWon ? this.MyName : this.OpponentName);
+            this.IsRoundOverlayVisible = false;
+            this.IsGameOverlayVisible = true;
+            this.EndMyTurn();
+            Haptic(HapticFeedbackType.LongPress);
+        }
+
+        private void OnGameError(Exception ex)
+        {
+            this.GameOverlayTitle = Loc["Error_Title"];
+            this.GameOverlayBody = Loc.Format("Error_Body", ex.GetType().Name, ex.Message);
+            this.IsHandoffOverlayVisible = false;
+            this.IsRoundOverlayVisible = false;
+            this.IsGameOverlayVisible = true;
+            this.EndMyTurn();
+        }
+
+        // Shows a finished round from my side (points, award, marriages, game score) and says how
+        // it went for me. The award comes from the engine's scoring, not from comparing points: a
+        // player who closes and misses 66 loses the round with more points.
+        private RoundOutcome ShowRoundResult(RoundEndInfo info)
+        {
+            var first = this.mySlot == PlayerSlot.First;
+            this.MyRoundPoints = first ? info.FirstRoundPoints : info.SecondRoundPoints;
+            this.OpponentRoundPoints = first ? info.SecondRoundPoints : info.FirstRoundPoints;
+            this.UpdateGamePointsForPerspective(info.FirstGamePoints, info.SecondGamePoints);
+
+            var myAnnounces = first ? info.FirstAnnounces : info.SecondAnnounces;
+            var opponentAnnounces = first ? info.SecondAnnounces : info.FirstAnnounces;
+            this.MyAnnouncesText = FormatAnnounces(myAnnounces);
+            this.OpponentAnnouncesText = FormatAnnounces(opponentAnnounces);
+            this.HasAnnounces = myAnnounces.Count > 0 || opponentAnnounces.Count > 0;
+
+            if (info.WinnerSlot is not { } winner)
+            {
+                this.RoundAwardText = string.Empty;
+                return RoundOutcome.Draw;
+            }
+
+            var award = winner == PlayerSlot.First ? info.FirstAwardedGamePoints : info.SecondAwardedGamePoints;
+            var iWon = winner == this.mySlot;
+            this.RoundAwardText = Loc.Format(
+                "Award_Format",
+                iWon ? this.MyName : this.OpponentName,
+                award,
+                award == 1 ? Loc["Word_PointSingular"] : Loc["Word_PointPlural"]);
+            return iWon ? RoundOutcome.Won : RoundOutcome.Lost;
+        }
+
+        private void RecordHistory(bool iWon)
+        {
+            // Only vs-AI games go in history (hot-seat is person against person). MyGamePoints /
+            // OpponentGamePoints already hold the final game-point totals for this perspective.
+            if (this.session.Mode != GameMode.VsAi)
+            {
+                return;
+            }
+
+            var opponentId = this.opponent?.Id ?? string.Empty;
+            MatchHistoryStore.Add(new MatchHistoryEntry(
+                this.OpponentName,
+                this.MyGamePoints,
+                this.OpponentGamePoints,
+                iWon,
+                DateTime.UtcNow,
+                opponentId));
+            OpponentStatsStore.Record(opponentId, iWon);
+        }
+
+        private void OnPlayAgain()
+        {
+            this.IsGameOverlayVisible = false;
+            this.IsRoundOverlayVisible = false;
+            this.IsHandoffOverlayVisible = false;
+            this.pendingHandoffSlot = null;
+            this.ClearBothPlayedCards();
+            this.ClearLastTrick();
+            this.SetPerspective(PlayerSlot.First);
+            this.StatusMessage = Loc["Status_Dealing"];
+            this.session.Restart();
+        }
+
+        private void OnTapCard(CardSlot? slot)
+        {
+            if (slot == null || !slot.IsPlayable || !this.IsMyTurn)
+            {
+                return;
+            }
+
+            this.session.TryPlay(this.mySlot, PlayerAction.PlayCard(slot.Card));
+        }
+
+        private void OnChangeTrump()
+        {
+            if (this.CanChangeTrump)
+            {
+                this.session.TryPlay(this.mySlot, PlayerAction.ChangeTrump());
+            }
+        }
+
+        private void OnCloseGame()
+        {
+            if (this.CanCloseGame)
+            {
+                this.session.TryPlay(this.mySlot, PlayerAction.CloseGame());
+            }
+        }
+
+        // Shows what the hint player would do from my view: highlights the card for a moment, or
+        // explains an exchange / close in a toast.
+        private void OnHint()
+        {
+            if (!this.IsMyTurn)
+            {
+                return;
+            }
+
+            var hint = this.session.GetHint();
+            switch (hint?.Type)
+            {
+                case PlayerActionType.PlayCard:
+                    var suggested = this.MyHand.FirstOrDefault(s => s.Card == hint.Card);
+                    if (suggested == null || !suggested.IsPlayable)
+                    {
+                        this.ShowToast(Loc["Hint_None"]);
+                        return;
+                    }
+
+                    foreach (var slot in this.MyHand)
+                    {
+                        slot.IsHinted = false;
+                    }
+
+                    suggested.IsHinted = true;
+                    this.dispatcher.DispatchDelayed(NoticeDuration, () => suggested.IsHinted = false);
+                    break;
+                case PlayerActionType.ChangeTrump:
+                    this.ShowToast(Loc["Hint_SwapTrump"]);
+                    break;
+                case PlayerActionType.CloseGame:
+                    this.ShowToast(Loc["Hint_CloseGame"]);
+                    break;
+                default:
+                    this.ShowToast(Loc["Hint_None"]);
+                    break;
+            }
+        }
+
+        private void OnLeave()
+        {
+            this.session.Stop();
+            this.IsGameOverlayVisible = false;
+            _ = Microsoft.Maui.Controls.Shell.Current?.GoToAsync("..");
+        }
+
+        // Looks at the table from newMe's seat: names, hands, points and the per-seat cards on the
+        // table (kept by slot, so only the "my/opponent" mapping changes).
+        private void SetPerspective(PlayerSlot newMe)
+        {
+            this.mySlot = newMe;
+            this.MyName = this.session.GetName(newMe);
+            this.OpponentName = this.session.GetName(GameSession.Other(newMe));
+            this.ShowSeat();
+            this.OnPropertyChanged(nameof(this.MyPlayedCard));
+            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
+            this.RaiseLastTrickChanged();
+            this.OnPropertyChanged(nameof(this.MyMatchWins));
+            this.OnPropertyChanged(nameof(this.OpponentMatchWins));
+            this.OnPropertyChanged(nameof(this.MatchScoreText));
+        }
+
+        // Everything my seat's view shows: hands, round and game points, trump, talon, close.
+        private void ShowSeat()
+        {
+            var view = this.session.GetView(this.mySlot);
+            if (view == null)
+            {
+                return;
+            }
+
+            this.ShowHand();
+            this.ShowOpponentCards(OpponentCardCount(view));
+            this.ShowRoundPoints(view.FirstPlayerRoundPoints, view.SecondPlayerRoundPoints);
+            this.UpdateGamePointsForPerspective(view.FirstPlayerTotalPoints, view.SecondPlayerTotalPoints);
+            this.ShowTalon(view);
+            this.GameClosedByMe = view.ClosedBy == view.Seat;
+            this.GameClosedByOpponent = view.ClosedBy != PlayerPosition.NoOne && view.ClosedBy != view.Seat;
+        }
+
+        private void ShowHand()
+        {
+            this.MyHand.Clear();
+            foreach (var card in SortHand(this.session.GetView(this.mySlot)?.Hand ?? Array.Empty<Card>()))
+            {
+                this.MyHand.Add(new CardSlot(card));
+            }
+        }
+
+        // After a trick: the cards just drawn slide into place in my sorted hand, a face-down
+        // card joins the opponent's, and the talon shrinks.
+        private void ShowDraws()
+        {
+            var view = this.session.GetView(this.mySlot);
+            if (view == null)
+            {
+                return;
+            }
+
+            foreach (var card in view.Hand.Where(card => this.MyHand.All(s => s.Card != card)))
+            {
+                var sorted = SortHand(this.MyHand.Select(s => s.Card).Append(card)).ToList();
+                this.MyHand.Insert(sorted.IndexOf(card), new CardSlot(card));
+            }
+
+            this.ShowOpponentCards(OpponentCardCount(view));
+            this.ShowTalon(view);
+        }
+
+        private void ShowTalon(SantaseSeatView view)
+        {
+            this.TrumpCard = view.TrumpCard;
+            this.DeckCount = view.ClosedBy == PlayerPosition.NoOne ? view.CardsLeftInDeck : 0;
+        }
+
+        private void ShowOpponentCards(int count)
+        {
+            count = Math.Max(0, count);
+            while (this.OpponentHand.Count > count)
+            {
+                this.OpponentHand.RemoveAt(this.OpponentHand.Count - 1);
+            }
+
+            while (this.OpponentHand.Count < count)
+            {
+                this.OpponentHand.Add(new CardSlot(FaceDown, isFaceDown: true));
+            }
+
+            this.OpponentCardsCount = count;
+        }
+
+        private static int OpponentCardCount(SantaseSeatView view) =>
+            view.Seat == PlayerPosition.FirstPlayer ? view.SecondPlayerCardCount : view.FirstPlayerCardCount;
+
+        private void ShowRoundPoints(int firstRoundPoints, int secondRoundPoints)
+        {
+            var first = this.mySlot == PlayerSlot.First;
+            this.MyRoundPoints = first ? firstRoundPoints : secondRoundPoints;
+            this.OpponentRoundPoints = first ? secondRoundPoints : firstRoundPoints;
+        }
+
+        private void UpdateGamePointsForPerspective(int firstGamePoints, int secondGamePoints)
+        {
+            var first = this.mySlot == PlayerSlot.First;
+            this.MyGamePoints = first ? firstGamePoints : secondGamePoints;
+            this.OpponentGamePoints = first ? secondGamePoints : firstGamePoints;
+        }
+
+        private void SetPlayedCard(PlayerSlot slot, CardSlot? value)
+        {
+            if (slot == PlayerSlot.First)
+            {
+                this.slot1PlayedCard = value;
+            }
+            else
+            {
+                this.slot2PlayedCard = value;
+            }
+
+            this.OnPropertyChanged(nameof(this.MyPlayedCard));
+            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
+        }
+
+        private void ClearBothPlayedCards()
+        {
+            this.slot1PlayedCard = null;
+            this.slot2PlayedCard = null;
+            this.OnPropertyChanged(nameof(this.MyPlayedCard));
+            this.OnPropertyChanged(nameof(this.OpponentPlayedCard));
+        }
+
+        private void ClearLastTrick()
+        {
+            this.lastTrickSlot1Card = null;
+            this.lastTrickSlot2Card = null;
+            this.RaiseLastTrickChanged();
+        }
+
+        private void RaiseLastTrickChanged()
+        {
+            this.OnPropertyChanged(nameof(this.LastTrickMyCard));
+            this.OnPropertyChanged(nameof(this.LastTrickOpponentCard));
+            this.OnPropertyChanged(nameof(this.HasLastTrick));
+        }
+
+        private void ShowToast(string message)
+        {
+            this.ToastMessage = message;
+            this.dispatcher.DispatchDelayed(NoticeDuration, () =>
+            {
+                if (this.ToastMessage == message)
+                {
+                    this.ToastMessage = null;
+                }
+            });
+        }
 
         private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- The MAUI app's game flow has no MAUI dependencies: compile it here and play whole games with it. -->
+  <ItemGroup>
+    <Compile Include="..\..\UI\Santase.UI\Game\GameMode.cs" Link="Game\GameMode.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\GameSession.cs" Link="Game\GameSession.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\GameSessionModels.cs" Link="Game\GameSessionModels.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Santase.Logic\Santase.Logic.csproj" />
+    <ProjectReference Include="..\..\AI\Santase.AI.ClaudePlayer\Santase.AI.ClaudePlayer.csproj" />
+    <ProjectReference Include="..\..\AI\Santase.AI.DummyPlayer\Santase.AI.DummyPlayer.csproj" />
+    <ProjectReference Include="..\..\AI\Santase.AI.SmartPlayer\Santase.AI.SmartPlayer.csproj" />
+  </ItemGroup>
+
+</Project>

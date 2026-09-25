@@ -24,13 +24,13 @@ dotnet run --project src\UI\Santase.UI.Console\Santase.UI.Console.csproj
 # Run the cross-platform MAUI desktop/mobile UI (Santase.UI).
 dotnet build src\UI\Santase.UI\Santase.UI.csproj -t:Run
 
-# Run the unit tests via CLI (xunit, ~444 tests across 3 projects).
+# Run the unit tests via CLI (xunit, ~458 tests across 4 projects).
 dotnet test src\Santase.sln -c Release
 ```
 
 ### Unit tests
 
-`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, and `Santase.AI.ClaudePlayer.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~407, ClaudePlayer.Tests 33 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests, plus the restore-from-view equivalence tests), SmartPlayer.Tests 4.
+`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, `Santase.AI.ClaudePlayer.Tests` and `Santase.UI.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~407, ClaudePlayer.Tests 33 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests, plus the restore-from-view equivalence tests), SmartPlayer.Tests 4, UI.Tests 14 (the MAUI app's game flow, see below).
 
 Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) live inside the simulator's `Exe` project and are not invoked by the simulator's `Main` or by `dotnet test` (the simulator csproj is `OutputType=Exe`, not a test SDK project) — they're VS-Test-Explorer artifacts.
 
@@ -61,7 +61,7 @@ The **MAUI UI (`Santase.UI`) references `Santase.AI.ClaudePlayer`** (alongside `
 
 Two load-bearing UI facts:
 - **Localization is in-code, not `.resx`.** English + Bulgarian live in plain dictionaries under `Localization/` (`AppStrings.cs`), looked up by `LocalizationManager` — no satellite assemblies, so it's trimming/AOT-safe and identical on every platform. XAML uses `{loc:Tr Key}` (a binding to the manager's indexer, so it updates live); C# uses `LocalizationManager.Instance[...]` / `.Format(...)`. Default is the device locale; an in-app toggle (start page) overrides and persists it. Add a string ⇒ add the key to **both** dictionaries.
-- **Round results come from the game-point delta, not round points.** The engine never passes `RoundResult` to an `IPlayer`, and `UpdatePoints` runs *after* `EndRound`, so `GameSession` defers the round outcome: it reads the engine's public total at the next `StartRound` (or at game over) and the delta vs the round's starting total is the authoritative award/winner. A naive `myRoundPoints > oppRoundPoints` is wrong when a player closes and fails to reach 66 (they have more points but lose) — don't reintroduce it.
+- **The game runs as one async flow on the UI thread, never on a thread of its own.** `Game/GameSession.cs` drives a `SantaseMatch`: a person's turn is an awaited tap (`TryPlay`, checked with `SantaseMatch.Validate`), the computer's turn an awaited think pause plus `IRestorablePlayer.ChooseMove` on its seat's view (computed with `Task.Run`, the only work off the UI thread), a finished trick an awaited table pause, a finished round an awaited `Continue`. Every event (`RoundStarted`, `TurnStarted`, `MovePlayed`, `TrickCollected`, `RoundFinished`, `GameOver`) is raised on the UI thread in play order, so `GameViewModel` updates the screen directly and reads everything else from the seat's `SantaseSeatView`. Round results (winner, game points, draws) come from the engine's round summary, not from comparing round points (a player who closes and misses 66 loses with more points). **Don't reintroduce a game thread, blocking waits, `Thread.Sleep` pacing or callback counting.** `GameSession.cs`, `GameSessionModels.cs` and `GameMode.cs` have no MAUI dependencies: `src/Tests/Santase.UI.Tests` compiles them and plays whole games (hot-seat and against every computer opponent) on a UI-like single-threaded `SynchronizationContext`, checking the event order, scoring, announces, hints, pacing, stop and restart. Keep those files MAUI-free.
 
 ### Engine core (`src/Santase.Logic`)
 

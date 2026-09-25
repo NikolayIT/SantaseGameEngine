@@ -2,280 +2,137 @@ namespace Santase.UI.Game
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
+    using Santase.AI.ClaudePlayer;
     using Santase.Logic;
-    using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
-    using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
 
-    public enum PlayerSlot
-    {
-        First = 1,
-        Second = 2,
-    }
-
-    public sealed class TrickResult
-    {
-        public TrickResult(
-            Card? firstCard,
-            Card? secondCard,
-            Announce firstAnnounce,
-            int firstRoundPoints,
-            int secondRoundPoints)
-        {
-            this.FirstCard = firstCard;
-            this.SecondCard = secondCard;
-            this.FirstAnnounce = firstAnnounce;
-            this.FirstRoundPoints = firstRoundPoints;
-            this.SecondRoundPoints = secondRoundPoints;
-        }
-
-        public Card? FirstCard { get; }
-
-        public Card? SecondCard { get; }
-
-        public Announce FirstAnnounce { get; }
-
-        public int FirstRoundPoints { get; }
-
-        public int SecondRoundPoints { get; }
-    }
-
-    public sealed class RoundEndInfo
-    {
-        public RoundEndInfo(
-            int firstRoundPoints,
-            int secondRoundPoints,
-            int firstGamePoints,
-            int secondGamePoints,
-            int firstAwardedGamePoints,
-            int secondAwardedGamePoints,
-            PlayerSlot winnerSlot,
-            IReadOnlyList<Announce> firstAnnounces,
-            IReadOnlyList<Announce> secondAnnounces,
-            bool isGameOver)
-        {
-            this.FirstRoundPoints = firstRoundPoints;
-            this.SecondRoundPoints = secondRoundPoints;
-            this.FirstGamePoints = firstGamePoints;
-            this.SecondGamePoints = secondGamePoints;
-            this.FirstAwardedGamePoints = firstAwardedGamePoints;
-            this.SecondAwardedGamePoints = secondAwardedGamePoints;
-            this.WinnerSlot = winnerSlot;
-            this.FirstAnnounces = firstAnnounces;
-            this.SecondAnnounces = secondAnnounces;
-            this.IsGameOver = isGameOver;
-        }
-
-        public int FirstRoundPoints { get; }
-
-        public int SecondRoundPoints { get; }
-
-        public int FirstGamePoints { get; }
-
-        public int SecondGamePoints { get; }
-
-        // Game points (1/2/3) the engine awarded for this round: the winner gains, the loser 0.
-        public int FirstAwardedGamePoints { get; }
-
-        public int SecondAwardedGamePoints { get; }
-
-        // The slot the engine actually awarded the round to — authoritative, so it correctly
-        // handles closing-and-failing, schneider/schwarz and the last-trick rule (unlike a naive
-        // round-point comparison, which wrongly called the higher-points player the winner).
-        public PlayerSlot WinnerSlot { get; }
-
-        public IReadOnlyList<Announce> FirstAnnounces { get; }
-
-        public IReadOnlyList<Announce> SecondAnnounces { get; }
-
-        public bool IsGameOver { get; }
-    }
-
+    /// <summary>
+    /// One game of Santase on the device: a <see cref="SantaseMatch"/> played by a single async
+    /// flow. Nothing waits on a thread. A person's turn is an awaited tap
+    /// (<see cref="TryPlay"/>), the computer's turn an awaited thinking pause and move, a finished
+    /// trick an awaited table pause, and a finished round an awaited <see cref="Continue"/>.
+    /// <para>
+    /// Start it on the UI thread: the flow then resumes there after every await, so every event
+    /// is raised on the UI thread, in play order, and handlers can update the screen directly.
+    /// Only the computer's move is computed on the thread pool (the search player thinks for
+    /// ~100 ms), from a snapshot view of its seat.
+    /// </para>
+    /// <para>No MAUI types here: the UI tests compile this file and play whole games with it.</para>
+    /// </summary>
     public sealed class GameSession
     {
-        private readonly object stateLock = new();
+        // The computer (vs-AI games): it plays the second seat and is restored from its view
+        // before every move, so the session keeps no callbacks wired to it.
+        private readonly IRestorablePlayer? computer;
 
-        // Shadow ClaudePlayer mirroring the human's knowledge; answers hint requests (vs-AI only).
-        private readonly HintAdvisor? hintAdvisor;
+        // Answers the human's "what would you play?" from the human's own view (vs-AI games).
+        private readonly ClaudePlayer? hintPlayer;
 
-        private readonly List<Announce> firstRoundAnnounces = new();
+        private readonly Func<int, int>? shuffle;
 
-        private readonly List<Announce> secondRoundAnnounces = new();
+        private SantaseMatch? match;
 
-        private SantaseGame? game;
+        private CancellationTokenSource? stopping;
 
-        private Task? gameTask;
+        private Task running = Task.CompletedTask;
 
-        private int turnEndedCount;
+        // Each Start begins a new run; a stopped run that wakes up late leaves the new one alone.
+        private int runId;
 
-        private int roundEndedCount;
+        private TaskCompletionSource<PlayerAction>? pendingMove;
 
-        private int lastFirstRoundPoints;
+        private PlayerSlot pendingMoveSlot;
 
-        private int lastSecondRoundPoints;
+        private TaskCompletionSource? pendingContinue;
 
-        private TaskCompletionSource<object?>? pendingContinue;
-
-        private Card? currentTrump;
-
-        // PlayerTurnContext.FirstPlayer*/SecondPlayer* on the engine actually track the *trick
-        // leader* and follower, not PlayerPosition.FirstPlayer/SecondPlayer of the game (Round
-        // re-orders Trick's args by the previous trick's winner). We latch the leader's slot on
-        // the first TurnAboutToStart of each trick so HandleTurnEndedFromObserver can translate
-        // engine values into slot-stable ones before publishing TrickResult / RoundEndInfo.
-        private PlayerSlot? currentTrickLeader;
-
-        private bool announceShownThisTrick;
-
-        // Game-point totals as of the start of the in-progress round. The post-round totals (read
-        // at the next StartRound, or at game end) minus these give the authoritative per-round
-        // award and winner — see BuildRoundEndInfo.
-        private int prevFirstGamePoints;
-
-        private int prevSecondGamePoints;
-
-        private bool roundResultPending;
-
-        public GameSession(GameMode mode, string firstPlayerName, string secondPlayerName, AiOpponent? aiOpponent = null)
+        /// <param name="mode">Against the computer (it plays the second seat) or two people on one device.</param>
+        /// <param name="firstPlayerName">The first seat's name.</param>
+        /// <param name="secondPlayerName">The second seat's name.</param>
+        /// <param name="computer">The computer player for <see cref="GameMode.VsAi"/>; null otherwise.</param>
+        /// <param name="pace">The thinking and table pauses.</param>
+        /// <param name="shuffle">The random source for the deals; null shuffles with <see cref="Random.Shared"/>.</param>
+        public GameSession(GameMode mode, string firstPlayerName, string secondPlayerName, IRestorablePlayer? computer, GamePace pace, Func<int, int>? shuffle = null)
         {
+            if (mode == GameMode.VsAi && computer == null)
+            {
+                throw new ArgumentNullException(nameof(computer), "A game against the computer needs a computer player.");
+            }
+
             this.Mode = mode;
             this.FirstPlayerName = firstPlayerName;
             this.SecondPlayerName = secondPlayerName;
-            this.AiOpponent = aiOpponent;
-
-            this.FirstHuman = new HumanPlayer(firstPlayerName);
-            IPlayer firstInner = this.FirstHuman;
-
-            IPlayer secondInner;
-            switch (mode)
+            this.Pace = pace;
+            this.shuffle = shuffle;
+            if (mode == GameMode.VsAi)
             {
-                case GameMode.VsAi:
-                    secondInner = (aiOpponent ?? AiOpponents.All[0]).CreatePlayer();
-                    this.hintAdvisor = new HintAdvisor();
-                    break;
-                case GameMode.HotSeat:
-                    this.SecondHuman = new HumanPlayer(secondPlayerName);
-                    secondInner = this.SecondHuman;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode));
-            }
-
-            var thinkDelayMs = AppSettings.AiThinkDelayMs;
-            this.TrickSettleMs = AppSettings.TrickSettleMs;
-            this.FirstObserver = new PlayerObserver(firstInner) { ThinkDelayMs = thinkDelayMs };
-            this.SecondObserver = new PlayerObserver(secondInner) { ThinkDelayMs = thinkDelayMs };
-
-            this.WireObservers();
-
-            if (this.FirstHuman != null)
-            {
-                this.FirstHuman.TurnRequested += this.OnHumanTurnRequested;
-            }
-
-            if (this.SecondHuman != null)
-            {
-                this.SecondHuman.TurnRequested += this.OnHumanTurnRequested;
+                this.computer = computer;
+                this.hintPlayer = new ClaudePlayer();
             }
         }
 
+        /// <summary>Fires when a round has been dealt (read the seats' views for the cards).</summary>
+        public event Action? RoundStarted;
+
+        /// <summary>Fires when a player is to move; the flag says whether it is a person.</summary>
+        public event Action<PlayerSlot, bool>? TurnStarted;
+
+        /// <summary>Fires after every move: a card played, a trump exchange or a close.</summary>
+        public event Action<MoveInfo>? MovePlayed;
+
+        /// <summary>Fires when a finished trick leaves the table, after the table pause.</summary>
+        public event Action<TrickInfo>? TrickCollected;
+
+        /// <summary>Fires after a round that did not end the game; the game waits for <see cref="Continue"/>.</summary>
+        public event Action<RoundEndInfo>? RoundFinished;
+
+        /// <summary>Fires once when the game is won, with the last round's result.</summary>
+        public event Action<PlayerSlot, RoundEndInfo>? GameOver;
+
+        /// <summary>Fires if the game stops on an unexpected error.</summary>
+        public event Action<Exception>? GameError;
+
         public GameMode Mode { get; }
-
-        public AiOpponent? AiOpponent { get; }
-
-        public bool IsRanked => this.Mode == GameMode.VsAi && this.AiOpponent != null;
 
         public string FirstPlayerName { get; }
 
         public string SecondPlayerName { get; }
 
-        public HumanPlayer? FirstHuman { get; }
+        public GamePace Pace { get; }
 
-        public HumanPlayer? SecondHuman { get; }
-
-        public PlayerObserver FirstObserver { get; }
-
-        public PlayerObserver SecondObserver { get; }
-
-        public int TrickSettleMs { get; set; }
-
-        /// <summary>Game points needed to win the whole game (11 under standard Santase rules).</summary>
-        public int GamePointsTarget => GameRulesProvider.Santase.GamePointsNeededForWin;
-
-        /// <summary>Whether this session can produce move hints (vs-AI games only).</summary>
-        public bool SupportsHints => this.hintAdvisor != null;
-
-        /// <summary>
-        /// The advisor's suggested action for the human turn currently awaiting input.
-        /// Precomputed on the engine thread each time the human's GetTurn starts, so reading it
-        /// from the UI is instant and race-free. Null when no hint is available.
-        /// </summary>
-        public PlayerAction? CurrentHint { get; private set; }
-
-        public int FirstGamePoints => this.game?.FirstPlayerTotalPoints ?? 0;
-
-        public int SecondGamePoints => this.game?.SecondPlayerTotalPoints ?? 0;
-
-        // The final round's result, computed at game over when the totals are final. The game-over
-        // overlay reads this, so the last round isn't surfaced via a separate round overlay.
-        public RoundEndInfo? LastRoundEndInfo { get; private set; }
-
-        public IPlayerActionValidator ActionValidator => PlayerActionValidator.Instance;
-
-        public IAnnounceValidator AnnounceValidator => Santase.Logic.PlayerActionValidate.AnnounceValidator.Instance;
-
+        /// <summary>Gets a value indicating whether a game is in progress (started, not over, not stopped).</summary>
         public bool IsRunning { get; private set; }
 
-        public Task? GameTask => this.gameTask;
+        /// <summary>Gets the game in progress, for callers that want to await its end.</summary>
+        public Task Completion => this.running;
 
-        // Fires once when Start() is called.
-        public event Action? GameStarting;
+        /// <summary>Gets the game points needed to win (11 under standard Santase rules).</summary>
+        public int GamePointsTarget => GameRulesProvider.Santase.GamePointsNeededForWin;
 
-        // Fires once when the game ends. Argument: which slot won.
-        public event Action<PlayerSlot>? GameOver;
+        /// <summary>Gets a value indicating whether <see cref="GetHint"/> can answer (vs-AI games).</summary>
+        public bool SupportsHints => this.hintPlayer != null;
 
-        // Fires when the engine thread crashes with an unexpected exception.
-        public event Action<Exception>? GameError;
+        public static PlayerPosition Position(PlayerSlot slot) =>
+            slot == PlayerSlot.First ? PlayerPosition.FirstPlayer : PlayerPosition.SecondPlayer;
 
-        // Fires once at the start of each round, after both players' StartRound has run.
-        public event Action<int, int, Card>? RoundStarting;
+        public static PlayerSlot Slot(PlayerPosition position) =>
+            position == PlayerPosition.SecondPlayer ? PlayerSlot.Second : PlayerSlot.First;
 
-        // Fires when a hand is initialized at the start of a round (one event per player).
-        public event Action<PlayerSlot, IReadOnlyList<Card>>? PlayerHandInitialized;
+        public static PlayerSlot Other(PlayerSlot slot) =>
+            slot == PlayerSlot.First ? PlayerSlot.Second : PlayerSlot.First;
 
-        // Fires when a player draws a card from the deck after a trick.
-        public event Action<PlayerSlot, Card>? CardDealtToPlayer;
+        public bool IsHumanSlot(PlayerSlot slot) => slot == PlayerSlot.First || this.Mode == GameMode.HotSeat;
 
-        // Fires when an observer's GetTurn begins. isHuman tells the UI whether to expect input.
-        public event Action<PlayerSlot, bool>? TurnStarting;
+        public string GetName(PlayerSlot slot) => slot == PlayerSlot.First ? this.FirstPlayerName : this.SecondPlayerName;
 
-        // Fires when a HumanPlayer is awaiting input. UI should enable card tap on the human's hand.
-        public event Action<PlayerSlot, HumanPlayer, PlayerTurnContext>? HumanInputRequested;
+        /// <summary>What <paramref name="slot"/> may see now, or null before the first deal.</summary>
+        public SantaseSeatView? GetView(PlayerSlot slot) => this.match?.GetView(Position(slot));
 
-        // Fires after a player completes a PlayCard action.
-        public event Action<PlayerSlot, Card>? CardPlayed;
-
-        // Fires after a player swaps the trump 9 for the trump card.
-        public event Action<PlayerSlot, Card>? TrumpCardSwapped;
-
-        // Fires after a player closes the game.
-        public event Action<PlayerSlot>? GameClosed;
-
-        // Fires the moment a player leads a card with a 20/40 marriage. The engine has already
-        // added the announce to that player's round points by this point, so the UI can show it
-        // and bump the score immediately instead of waiting for the trick to settle.
-        public event Action<PlayerSlot, Announce>? AnnouncementMade;
-
-        // Fires after both players' EndTurn has run, so the trick is settled.
-        public event Action<TrickResult>? TrickCompleted;
-
-        // Fires after a round ends (both EndRound calls + game points updated).
-        public event Action<RoundEndInfo>? RoundOver;
+        /// <summary>Whether the game is waiting for a move from the person in <paramref name="slot"/>.</summary>
+        public bool IsAwaitingMove(PlayerSlot slot) => this.pendingMove != null && this.pendingMoveSlot == slot;
 
         public void Start()
         {
@@ -284,444 +141,241 @@ namespace Santase.UI.Game
                 return;
             }
 
+            var game = new SantaseMatch(new SantaseMatchOptions { FirstToPlay = PlayerPosition.FirstPlayer, Shuffle = this.shuffle });
+            this.match = game;
+            this.stopping = new CancellationTokenSource();
             this.IsRunning = true;
-            this.game = new SantaseGame(this.FirstObserver, this.SecondObserver);
-
-            this.GameStarting?.Invoke();
-
-            this.gameTask = Task.Run(() =>
-            {
-                try
-                {
-                    var winner = this.game.Start(PlayerPosition.FirstPlayer);
-                    var winnerSlot = winner == PlayerPosition.FirstPlayer ? PlayerSlot.First : PlayerSlot.Second;
-
-                    // The final round never gets a following StartRound, so resolve its result
-                    // here (totals are final after the engine's last UpdatePoints) for the
-                    // game-over overlay instead of showing a separate round overlay.
-                    if (this.roundResultPending)
-                    {
-                        this.LastRoundEndInfo = this.BuildRoundEndInfo(this.FirstGamePoints, this.SecondGamePoints, isGameOver: true);
-                        this.roundResultPending = false;
-                    }
-
-                    this.GameOver?.Invoke(winnerSlot);
-                }
-                catch (TaskCanceledException)
-                {
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    this.GameError?.Invoke(ex);
-                }
-                finally
-                {
-                    this.IsRunning = false;
-                }
-            });
+            this.running = this.RunAsync(this.running, game, ++this.runId, this.stopping.Token);
         }
 
+        /// <summary>Stops the game in progress (leaving the table). Nothing more is raised for it.</summary>
         public void Stop()
         {
-            this.FirstHuman?.CancelPendingTurn();
-            this.SecondHuman?.CancelPendingTurn();
-            this.pendingContinue?.TrySetCanceled();
+            this.runId++;
+            this.stopping?.Cancel();
+            this.stopping = null;
+            this.pendingMove = null;
+            this.pendingContinue = null;
             this.IsRunning = false;
-        }
-
-        public void Continue()
-        {
-            this.pendingContinue?.TrySetResult(null);
         }
 
         public void Restart()
         {
-            // Wait for any in-flight game task to finish naturally (it will because GameOver
-            // already fired). If it's stuck, Stop() unblocks pending TCSes.
             this.Stop();
-
-            // Reset round/turn bookkeeping so the new game starts clean.
-            lock (this.stateLock)
-            {
-                this.turnEndedCount = 0;
-                this.roundEndedCount = 0;
-                this.lastFirstRoundPoints = 0;
-                this.lastSecondRoundPoints = 0;
-                this.currentTrump = null;
-                this.currentTrickLeader = null;
-                this.announceShownThisTrick = false;
-                this.prevFirstGamePoints = 0;
-                this.prevSecondGamePoints = 0;
-                this.roundResultPending = false;
-                this.firstRoundAnnounces.Clear();
-                this.secondRoundAnnounces.Clear();
-            }
-
-            this.LastRoundEndInfo = null;
-            this.CurrentHint = null;
-            this.pendingContinue = null;
-            this.gameTask = null;
-            this.game = null;
-
             this.Start();
         }
 
-        public bool SubmitPlayCard(HumanPlayer player, Card card)
+        /// <summary>
+        /// The person in <paramref name="slot"/> makes a move. Returns false, changing nothing, when
+        /// it is not their turn or the move is not allowed.
+        /// </summary>
+        public bool TryPlay(PlayerSlot slot, PlayerAction action)
         {
-            return player.TrySubmit(PlayerAction.PlayCard(card));
-        }
-
-        public bool SubmitChangeTrump(HumanPlayer player)
-        {
-            return player.TrySubmit(PlayerAction.ChangeTrump());
-        }
-
-        public bool SubmitCloseGame(HumanPlayer player)
-        {
-            return player.TrySubmit(PlayerAction.CloseGame());
-        }
-
-        public bool IsHumanSlot(PlayerSlot slot)
-        {
-            return slot == PlayerSlot.First ? this.FirstHuman != null : this.SecondHuman != null;
-        }
-
-        public HumanPlayer? GetHuman(PlayerSlot slot)
-        {
-            return slot == PlayerSlot.First ? this.FirstHuman : this.SecondHuman;
-        }
-
-        public string GetName(PlayerSlot slot)
-        {
-            return slot == PlayerSlot.First ? this.FirstPlayerName : this.SecondPlayerName;
-        }
-
-        private void WireObservers()
-        {
-            this.FirstObserver.RoundStarted += (cards, trump, my, opp) =>
+            var move = this.pendingMove;
+            if (move == null || this.pendingMoveSlot != slot || this.match == null)
             {
-                // `my`/`opp` are the first player's totals at the START of this round, i.e. the
-                // engine's totals AFTER the previous round's UpdatePoints. If a round just ended,
-                // surface its result (blocking on the user's Continue) before the new round is
-                // dealt into view — this is the only point where the awarded points are known.
-                if (this.roundResultPending)
-                {
-                    this.ShowRoundResultAndWait(my, opp);
-                }
-
-                this.prevFirstGamePoints = my;
-                this.prevSecondGamePoints = opp;
-
-                lock (this.stateLock)
-                {
-                    this.turnEndedCount = 0;
-                    this.roundEndedCount = 0;
-                    this.lastFirstRoundPoints = 0;
-                    this.lastSecondRoundPoints = 0;
-                    this.currentTrump = trump;
-                    this.currentTrickLeader = null;
-                    this.announceShownThisTrick = false;
-                    this.firstRoundAnnounces.Clear();
-                    this.secondRoundAnnounces.Clear();
-                }
-
-                // Mirror the human's round start into the hint advisor (its StartRound copies
-                // the collection, so sharing `cards` is safe).
-                this.hintAdvisor?.StartRound(cards, trump, my, opp);
-
-                this.RoundStarting?.Invoke(my, opp, trump);
-                this.PlayerHandInitialized?.Invoke(PlayerSlot.First, cards.ToList());
-            };
-
-            this.SecondObserver.RoundStarted += (cards, trump, my, opp) =>
-            {
-                this.PlayerHandInitialized?.Invoke(PlayerSlot.Second, cards.ToList());
-            };
-
-            this.FirstObserver.CardAdded += card =>
-            {
-                this.hintAdvisor?.AddCard(card);
-                this.CardDealtToPlayer?.Invoke(PlayerSlot.First, card);
-            };
-            this.SecondObserver.CardAdded += card => this.CardDealtToPlayer?.Invoke(PlayerSlot.Second, card);
-
-            this.FirstObserver.TurnAboutToStart += context =>
-            {
-                lock (this.stateLock)
-                {
-                    this.currentTrickLeader ??= PlayerSlot.First;
-                }
-
-                // When the follower's turn starts, the leader has already led; if that lead was
-                // a marriage the engine has set context.FirstPlayerAnnounce. Surface it now.
-                this.TryEmitAnnounce(context);
-                this.TurnStarting?.Invoke(PlayerSlot.First, this.FirstHuman != null);
-            };
-            this.SecondObserver.TurnAboutToStart += context =>
-            {
-                lock (this.stateLock)
-                {
-                    this.currentTrickLeader ??= PlayerSlot.Second;
-                }
-
-                this.TryEmitAnnounce(context);
-                this.TurnStarting?.Invoke(PlayerSlot.Second, this.SecondHuman != null);
-            };
-
-            this.FirstObserver.TurnCompleted += action => this.OnTurnCompleted(PlayerSlot.First, action);
-            this.SecondObserver.TurnCompleted += action => this.OnTurnCompleted(PlayerSlot.Second, action);
-
-            // The advisor mirrors only the human seat (slot 1); it must see EndTurn before the
-            // shared handler below sleeps out the trick-settle delay.
-            this.FirstObserver.TurnEnded += context => this.hintAdvisor?.EndTurn(context);
-
-            this.FirstObserver.TurnEnded += this.HandleTurnEndedFromObserver;
-            this.SecondObserver.TurnEnded += this.HandleTurnEndedFromObserver;
-
-            this.FirstObserver.RoundEnded += () =>
-            {
-                this.hintAdvisor?.EndRound();
-                this.HandleRoundEndedFromObserver();
-            };
-            this.SecondObserver.RoundEnded += () => this.HandleRoundEndedFromObserver();
-        }
-
-        private void OnHumanTurnRequested(HumanPlayer player, PlayerTurnContext context)
-        {
-            var slot = ReferenceEquals(player, this.FirstHuman) ? PlayerSlot.First : PlayerSlot.Second;
-
-            if (slot == PlayerSlot.First && this.hintAdvisor != null)
-            {
-                // Precompute the hint eagerly on the engine thread: (a) it is ready the instant
-                // the user asks, (b) every advisor mutation stays on this thread (no races with
-                // the mirrored lifecycle events), and (c) the advisor's internal leader-flag
-                // bookkeeping gets refreshed every trick. ClaudePlayer answers in <10 ms.
-                this.CurrentHint = this.hintAdvisor.ComputeHint(player.CardsSnapshot, context);
+                return false;
             }
 
-            this.HumanInputRequested?.Invoke(slot, player, context);
+            if (this.match.Validate(Position(slot), action) != SantaseActResult.Ok)
+            {
+                return false;
+            }
+
+            this.pendingMove = null;
+            return move.TrySetResult(action);
         }
 
-        private void OnTurnCompleted(PlayerSlot slot, PlayerAction action)
+        /// <summary>Deals the next round after <see cref="RoundFinished"/>.</summary>
+        public void Continue()
         {
-            switch (action.Type)
-            {
-                case PlayerActionType.PlayCard:
-                    this.CardPlayed?.Invoke(slot, action.Card);
-                    break;
-                case PlayerActionType.ChangeTrump:
-                    if (this.currentTrump != null)
-                    {
-                        var newTrump = Card.GetCard(this.currentTrump.Suit, CardType.Nine);
-                        this.currentTrump = newTrump;
-                        this.TrumpCardSwapped?.Invoke(slot, newTrump);
-                    }
-
-                    break;
-                case PlayerActionType.CloseGame:
-                    this.GameClosed?.Invoke(slot);
-                    break;
-            }
+            var next = this.pendingContinue;
+            this.pendingContinue = null;
+            next?.TrySetResult();
         }
 
-        // Surfaces the trick leader's 20/40 marriage exactly once per trick. The engine sets
-        // context.FirstPlayerAnnounce the moment the leader leads the marriage card, so the
-        // follower's turn-start context (or, if the leader announced 40 and went straight out,
-        // the end-of-turn context) carries it. AnnouncementMade is raised outside the lock.
-        private void TryEmitAnnounce(PlayerTurnContext context)
+        /// <summary>The move the hint player would make for the person to move, or null when none is asked.</summary>
+        public PlayerAction? GetHint()
         {
-            PlayerSlot leader;
-            Announce announce;
-            lock (this.stateLock)
+            if (this.hintPlayer == null || this.match == null || this.pendingMove == null)
             {
-                if (this.announceShownThisTrick
-                    || context.FirstPlayedCard == null
-                    || context.FirstPlayerAnnounce == Announce.None
-                    || this.currentTrickLeader == null)
-                {
-                    return;
-                }
-
-                this.announceShownThisTrick = true;
-                leader = this.currentTrickLeader.Value;
-                announce = context.FirstPlayerAnnounce;
-
-                // Accumulate for the end-of-round summary (a player can announce several marriages
-                // across a round). Stored slot-stable so the result overlay can list each side's.
-                if (leader == PlayerSlot.First)
-                {
-                    this.firstRoundAnnounces.Add(announce);
-                }
-                else
-                {
-                    this.secondRoundAnnounces.Add(announce);
-                }
+                return null;
             }
 
-            this.AnnouncementMade?.Invoke(leader, announce);
+            return this.hintPlayer.ChooseMove(this.match.GetView(Position(this.pendingMoveSlot)));
         }
 
-        private void HandleTurnEndedFromObserver(PlayerTurnContext context)
+        private static RoundEndInfo EndOfRound(SantaseMatch game, List<Announce> firstAnnounces, List<Announce> secondAnnounces)
         {
-            // Catches the leader-announces-40-and-goes-out case, where the follower's
-            // TurnAboutToStart never fires. No-op if already surfaced this trick.
-            this.TryEmitAnnounce(context);
-
-            int n;
-            int slotFirstPoints;
-            int slotSecondPoints;
-            Card? slotFirstCard;
-            Card? slotSecondCard;
-            lock (this.stateLock)
-            {
-                this.turnEndedCount++;
-                n = this.turnEndedCount;
-
-                // Translate engine "leader / follower" values into stable slot-1 / slot-2 values.
-                // If TurnAboutToStart never set the leader (shouldn't happen in practice), default
-                // to slot 1 so we don't crash.
-                var leaderIsFirst = (this.currentTrickLeader ?? PlayerSlot.First) == PlayerSlot.First;
-                if (leaderIsFirst)
-                {
-                    slotFirstPoints = context.FirstPlayerRoundPoints;
-                    slotSecondPoints = context.SecondPlayerRoundPoints;
-                    slotFirstCard = context.FirstPlayedCard;
-                    slotSecondCard = context.SecondPlayedCard;
-                }
-                else
-                {
-                    slotFirstPoints = context.SecondPlayerRoundPoints;
-                    slotSecondPoints = context.FirstPlayerRoundPoints;
-                    slotFirstCard = context.SecondPlayedCard;
-                    slotSecondCard = context.FirstPlayedCard;
-                }
-
-                this.lastFirstRoundPoints = slotFirstPoints;
-                this.lastSecondRoundPoints = slotSecondPoints;
-            }
-
-            if (n < 2)
-            {
-                return;
-            }
-
-            lock (this.stateLock)
-            {
-                this.turnEndedCount = 0;
-                this.currentTrickLeader = null;
-                this.announceShownThisTrick = false;
-            }
-
-            var trick = new TrickResult(
-                slotFirstCard,
-                slotSecondCard,
-                context.FirstPlayerAnnounce,
-                slotFirstPoints,
-                slotSecondPoints);
-
-            this.TrickCompleted?.Invoke(trick);
-
-            if (this.TrickSettleMs > 0)
-            {
-                Thread.Sleep(this.TrickSettleMs);
-            }
+            var summary = game.GetView(PlayerPosition.FirstPlayer).PreviousRounds[^1];
+            PlayerSlot? winner = summary.Winner == PlayerPosition.NoOne ? null : Slot(summary.Winner);
+            return new RoundEndInfo(
+                summary.FirstPlayerRoundPoints,
+                summary.SecondPlayerRoundPoints,
+                game.FirstPlayerTotalPoints,
+                game.SecondPlayerTotalPoints,
+                winner == PlayerSlot.First ? summary.GamePoints : 0,
+                winner == PlayerSlot.Second ? summary.GamePoints : 0,
+                winner,
+                firstAnnounces.ToArray(),
+                secondAnnounces.ToArray(),
+                game.IsFinished);
         }
 
-        private void HandleRoundEndedFromObserver()
+        private async Task RunAsync(Task previous, SantaseMatch game, int id, CancellationToken stop)
         {
-            int n;
-            lock (this.stateLock)
-            {
-                this.roundEndedCount++;
-                n = this.roundEndedCount;
-            }
-
-            if (n < 2)
-            {
-                return;
-            }
-
-            lock (this.stateLock)
-            {
-                this.roundEndedCount = 0;
-            }
-
-            // The engine has NOT yet run UpdatePoints (it runs after both EndRound calls return),
-            // so the awarded game points are unknown here. Defer: the next StartRound (or game end)
-            // sees the updated totals and resolves the true winner from the delta. Resolving by
-            // round points here is wrong when a player closed and failed to reach 66.
-            this.roundResultPending = true;
-        }
-
-        private void ShowRoundResultAndWait(int newFirstGamePoints, int newSecondGamePoints)
-        {
-            var info = this.BuildRoundEndInfo(newFirstGamePoints, newSecondGamePoints, isGameOver: false);
-            this.roundResultPending = false;
-
-            this.pendingContinue = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
-            this.RoundOver?.Invoke(info);
-
+            var firstAnnounces = new List<Announce>();
+            var secondAnnounces = new List<Announce>();
             try
             {
-                this.pendingContinue.Task.GetAwaiter().GetResult();
+                // A stopped game ends at its next await, but the computer may be mid-move on the
+                // thread pool; the computer player is one object, so let that move finish first.
+                // (Already complete in the usual case, so the first deal is raised synchronously.)
+                await previous;
+                stop.ThrowIfCancellationRequested();
+
+                game.Start();
+                this.RoundStarted?.Invoke();
+                while (true)
+                {
+                    var slot = Slot(game.ToMove);
+                    PlayerAction action;
+                    if (this.IsHumanSlot(slot))
+                    {
+                        // Waiting for the tap already when TurnStarted fires, so its handlers can
+                        // ask for a hint or play at once.
+                        var tap = this.ExpectMove(slot, stop);
+                        this.TurnStarted?.Invoke(slot, true);
+                        action = await tap;
+                    }
+                    else
+                    {
+                        this.TurnStarted?.Invoke(slot, false);
+                        action = await this.ThinkAsync(game, slot, stop);
+                    }
+
+                    stop.ThrowIfCancellationRequested();
+
+                    var (move, trick) = this.Apply(game, slot, action);
+                    if (move.Announce != Announce.None)
+                    {
+                        (slot == PlayerSlot.First ? firstAnnounces : secondAnnounces).Add(move.Announce);
+                    }
+
+                    this.MovePlayed?.Invoke(move);
+                    if (trick == null)
+                    {
+                        continue;
+                    }
+
+                    await Task.Delay(this.Pace.TrickSettleMs, stop);
+                    this.TrickCollected?.Invoke(trick);
+                    if (!trick.RoundOver)
+                    {
+                        continue;
+                    }
+
+                    var round = EndOfRound(game, firstAnnounces, secondAnnounces);
+                    firstAnnounces.Clear();
+                    secondAnnounces.Clear();
+                    if (game.IsFinished)
+                    {
+                        this.IsRunning = false;
+                        this.GameOver?.Invoke(Slot(game.Winner), round);
+                        return;
+                    }
+
+                    var next = this.ExpectContinue(stop);
+                    this.RoundFinished?.Invoke(round);
+                    await next;
+                    this.RoundStarted?.Invoke();
+                }
             }
-            catch (TaskCanceledException)
+            catch (OperationCanceledException) when (stop.IsCancellationRequested)
             {
+                // Stopped: leaving the table is not an error.
             }
-            catch (OperationCanceledException)
+            catch (Exception ex)
             {
-            }
-            finally
-            {
-                this.pendingContinue = null;
+                // A stopped run has nobody left to tell.
+                if (id == this.runId)
+                {
+                    this.IsRunning = false;
+                    this.GameError?.Invoke(ex);
+                }
             }
         }
 
-        // Resolves the just-ended round from the engine's game-point delta. newFirst/newSecond are
-        // the totals AFTER the round (its UpdatePoints has run); prevFirst/prevSecond were latched
-        // at the round's start, so the difference is exactly that round's award.
-        private RoundEndInfo BuildRoundEndInfo(int newFirstGamePoints, int newSecondGamePoints, bool isGameOver)
+        // The move TryPlay will deliver for slot (cancelled when the game is stopped).
+        private Task<PlayerAction> ExpectMove(PlayerSlot slot, CancellationToken stop)
         {
-            int roundFirst;
-            int roundSecond;
-            List<Announce> firstAnnounces;
-            List<Announce> secondAnnounces;
-            lock (this.stateLock)
+            var move = new TaskCompletionSource<PlayerAction>(TaskCreationOptions.RunContinuationsAsynchronously);
+            this.pendingMoveSlot = slot;
+            this.pendingMove = move;
+            return move.Task.WaitAsync(stop);
+        }
+
+        // The Continue after a finished round (cancelled when the game is stopped).
+        private Task ExpectContinue(CancellationToken stop)
+        {
+            var next = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            this.pendingContinue = next;
+            return next.Task.WaitAsync(stop);
+        }
+
+        private async Task<PlayerAction> ThinkAsync(SantaseMatch game, PlayerSlot slot, CancellationToken stop)
+        {
+            await Task.Delay(this.Pace.ThinkDelayMs, stop);
+            var view = game.GetView(Position(slot));
+            var player = this.computer!;
+            return await Task.Run(() => player.ChooseMove(view), stop);
+        }
+
+        // Makes the move and reads what it did from the match: the announce it made, the round
+        // points after it and, if it finished a trick, that trick (the last trick of the view;
+        // when the trick ended the round, the view is already the next deal's or the final one).
+        private (MoveInfo Move, TrickInfo? Trick) Apply(SantaseMatch game, PlayerSlot slot, PlayerAction action)
+        {
+            var seat = Position(slot);
+            var tricksBefore = game.GetView(seat).Tricks.Count;
+            var roundsBefore = game.RoundsPlayed;
+            var result = game.Act(seat, action);
+            if (result != SantaseActResult.Ok)
             {
-                roundFirst = this.lastFirstRoundPoints;
-                roundSecond = this.lastSecondRoundPoints;
-                firstAnnounces = new List<Announce>(this.firstRoundAnnounces);
-                secondAnnounces = new List<Announce>(this.secondRoundAnnounces);
+                throw new InvalidOperationException($"{this.GetName(slot)}'s move ({action}) was refused: {result}.");
             }
 
-            var awardedFirst = Math.Max(0, newFirstGamePoints - this.prevFirstGamePoints);
-            var awardedSecond = Math.Max(0, newSecondGamePoints - this.prevSecondGamePoints);
+            var view = game.GetView(seat);
+            var roundOver = game.RoundsPlayed > roundsBefore;
+            var finished = roundOver || view.Tricks.Count > tricksBefore ? view.LastTrick : null;
 
-            PlayerSlot winner;
-            if (awardedFirst == 0 && awardedSecond == 0)
+            var announce = Announce.None;
+            if (action.Type == PlayerActionType.PlayCard)
             {
-                // Defensive fallback; a normal round always awards >= 1 to exactly one player.
-                winner = roundFirst >= roundSecond ? PlayerSlot.First : PlayerSlot.Second;
-            }
-            else
-            {
-                winner = awardedFirst >= awardedSecond ? PlayerSlot.First : PlayerSlot.Second;
+                if (finished == null && view.CurrentTrickLeader == seat)
+                {
+                    announce = view.CurrentTrickAnnounce;
+                }
+                else if (finished != null && finished.Leader == seat && finished.FollowCard == null)
+                {
+                    announce = finished.Announce;
+                }
             }
 
-            return new RoundEndInfo(
-                roundFirst,
-                roundSecond,
-                newFirstGamePoints,
-                newSecondGamePoints,
-                awardedFirst,
-                awardedSecond,
-                winner,
-                firstAnnounces,
-                secondAnnounces,
-                isGameOver);
+            var firstRoundPoints = view.FirstPlayerRoundPoints;
+            var secondRoundPoints = view.SecondPlayerRoundPoints;
+            if (roundOver)
+            {
+                var summary = view.PreviousRounds[^1];
+                firstRoundPoints = summary.FirstPlayerRoundPoints;
+                secondRoundPoints = summary.SecondPlayerRoundPoints;
+            }
+
+            var move = new MoveInfo(slot, action, announce, firstRoundPoints, secondRoundPoints);
+            var trick = finished == null
+                ? null
+                : new TrickInfo(Slot(finished.Leader), finished.LeadCard, finished.FollowCard, Slot(finished.Winner), roundOver);
+            return (move, trick);
         }
     }
 }

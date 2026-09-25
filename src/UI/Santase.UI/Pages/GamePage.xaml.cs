@@ -53,8 +53,9 @@ namespace Santase.UI.Pages
             var opponent = mode == GameMode.VsAi ? AiOpponents.ById(this.OpponentId) : null;
             var secondName = opponent?.DisplayName ?? this.SecondName;
 
-            this.session = new GameSession(mode, this.FirstName, secondName, opponent);
-            this.viewModel = new GameViewModel(this.session, this.Dispatcher);
+            var pace = new GamePace(AppSettings.AiThinkDelayMs, AppSettings.TrickSettleMs);
+            this.session = new GameSession(mode, this.FirstName, secondName, opponent?.CreatePlayer(), pace);
+            this.viewModel = new GameViewModel(this.session, opponent, this.Dispatcher);
             this.viewModel.PropertyChanged += this.OnViewModelPropertyChanged;
             this.BindingContext = this.viewModel;
 
@@ -138,8 +139,8 @@ namespace Santase.UI.Pages
             this.viewModel.LeaveCommand.Execute(null);
         }
 
-        // View-only animations reacting to view-model state changes. PropertyChanged is always
-        // raised on the UI thread (the view model dispatches), so animating here is safe.
+        // View-only animations reacting to view-model state changes. The game raises everything on
+        // the UI thread, so animating here is safe.
         private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             var vm = this.viewModel;

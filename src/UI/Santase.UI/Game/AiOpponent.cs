@@ -13,7 +13,7 @@ namespace Santase.UI.Game
 
     /// <summary>
     /// A selectable computer opponent: a display description plus the factory that builds the
-    /// underlying <see cref="IPlayer"/>. The <see cref="Elo"/> values are not guessed — they are
+    /// underlying player (restored from its seat's view before every move). The <see cref="Elo"/> values are not guessed — they are
     /// produced by the simulator's round-robin ELO tournament
     /// (<c>dotnet run ... -- elo</c>) and pasted in here, anchored so the Dummy sits at 1200.
     /// </summary>
@@ -23,7 +23,7 @@ namespace Santase.UI.Game
 
         private readonly string taglineKey;
 
-        public AiOpponent(string id, string avatar, string nameKey, string taglineKey, int difficulty, int elo, Func<IPlayer> factory)
+        public AiOpponent(string id, string avatar, string nameKey, string taglineKey, int difficulty, int elo, Func<IRestorablePlayer> factory)
         {
             this.Id = id;
             this.Avatar = avatar;
@@ -60,7 +60,7 @@ namespace Santase.UI.Game
 
         public int Elo { get; }
 
-        public Func<IPlayer> Factory { get; }
+        public Func<IRestorablePlayer> Factory { get; }
 
         public string DifficultyStars =>
             new string('★', Math.Clamp(this.Difficulty, 0, 5)) +
@@ -84,7 +84,7 @@ namespace Santase.UI.Game
 
         public bool HasRecord => OpponentStatsStore.For(this.Id).Games > 0;
 
-        public IPlayer CreatePlayer() => this.Factory();
+        public IRestorablePlayer CreatePlayer() => this.Factory();
 
         private void RaiseDisplayChanged() => this.Raise(
             nameof(this.DisplayName),
