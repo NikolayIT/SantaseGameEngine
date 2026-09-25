@@ -36,7 +36,6 @@
 
             if (this.CloseGame(context))
             {
-                GlobalStats.GamesClosedByPlayer++;
                 return this.CloseGame();
             }
 

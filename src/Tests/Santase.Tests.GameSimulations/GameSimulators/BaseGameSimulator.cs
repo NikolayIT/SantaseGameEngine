@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
 
-    using Santase.AI.SmartPlayer;
     using Santase.Logic;
     using Santase.Logic.GameMechanics;
 
@@ -14,7 +13,6 @@
         {
             var stopwatch = Stopwatch.StartNew();
 
-            GlobalStats.GamesClosedByPlayer = 0;
             var pointsLock = new object();
             var firstPlayerWins = 0;
             var firstPlayerRoundPoints = 0;

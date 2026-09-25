@@ -10,7 +10,6 @@
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
 
-    using Santase.AI.SmartPlayer;
     using Santase.Logic.Cards;
     using Santase.Logic.Players;
 
@@ -19,7 +18,6 @@
         private static readonly string[] UrlsForSourceCode =
         {
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/src/AI/Santase.AI.SmartPlayer/SmartPlayer.cs",
-            "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/src/AI/Santase.AI.SmartPlayer/GlobalStats.cs",
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/src/AI/Santase.AI.SmartPlayer/Helpers/CardTracker.cs",
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/src/AI/Santase.AI.SmartPlayer/Helpers/OpponentSuitCardsProvider.cs",
             "https://raw.githubusercontent.com/NikolayIT/SantaseGameEngine/master/src/AI/Santase.AI.SmartPlayer/Strategies/BaseChooseCardStrategy.cs",
@@ -99,7 +97,6 @@
 
         public SmartPlayerOld()
         {
-            GlobalStats.GlobalCounterValues[0]++;
             this.compiledPlayer = (IPlayer)Activator.CreateInstance(CompiledPlayerType);
         }
 
