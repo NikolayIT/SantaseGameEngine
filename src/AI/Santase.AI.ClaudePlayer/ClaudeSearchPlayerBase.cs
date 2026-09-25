@@ -77,9 +77,6 @@ namespace Santase.AI.ClaudePlayer
         // Per-depth scratch buffers for the recursive endgame solve (avoids per-call allocation).
         private readonly int[][] endgameMoveBuffers;
 
-        // Reused move buffer for the rollout (and the subclass tree descent).
-        private readonly int[] moveScratch = new int[MaxHandSize];
-
         private readonly int[] unknownPool = new int[24];
         private readonly int[] worldDeck = new int[13];
 
@@ -313,7 +310,7 @@ namespace Santase.AI.ClaudePlayer
         /// </summary>
         protected abstract int RunSearch(PlayerTurnContext context, ICollection<Card> possibleCards);
 
-        protected static bool IsTerminal(SimState state)
+        protected static bool IsTerminal(in SimState state)
         {
             return state.MyPoints >= RoundPointsToWin
                    || state.OppPoints >= RoundPointsToWin
@@ -463,7 +460,7 @@ namespace Santase.AI.ClaudePlayer
         }
 
         // The legal moves for the player to move, as a bit mask of card hashes.
-        protected long GenMovesMask(SimState state)
+        protected long GenMovesMask(in SimState state)
         {
             var hand = state.MyTurn ? state.MyHand : state.OppHand;
 
@@ -499,55 +496,66 @@ namespace Santase.AI.ClaudePlayer
             return hand;
         }
 
-        protected int GenMoves(SimState state, int[] buffer)
+        protected int GenMoves(in SimState state, int[] buffer)
         {
-            return FillFromMask(this.GenMovesMask(state), buffer);
+            return FillFromMask(this.GenMovesMask(in state), buffer);
         }
 
-        protected SimState ApplyMove(SimState state, int move)
+        protected SimState ApplyMove(in SimState state, int move)
         {
             var newState = state;
+            this.ApplyMoveInPlace(ref newState, move);
+            return newState;
+        }
+
+        // Plays one card on the simulator state (the rollout and the tree descent advance a single
+        // state through many plies, so they update it in place instead of copying it per ply).
+        protected void ApplyMoveInPlace(ref SimState state, int move)
+        {
+            var myTurn = state.MyTurn;
+            var phase = state.Phase;
+            var ledHash = state.LedHash;
             var moveMask = 1L << move;
 
-            if (state.MyTurn)
+            if (myTurn)
             {
-                newState.MyHand &= ~moveMask;
+                state.MyHand &= ~moveMask;
             }
             else
             {
-                newState.OppHand &= ~moveMask;
+                state.OppHand &= ~moveMask;
             }
 
-            if (state.LedHash < 0)
+            if (ledHash < 0)
             {
                 // Leading: auto-announce a marriage (engine forces it whenever legal).
                 var announce = 0;
-                if (state.Phase != PhaseStart)
+                if (phase != PhaseStart)
                 {
-                    var handAfter = state.MyTurn ? newState.MyHand : newState.OppHand;
+                    var handAfter = myTurn ? state.MyHand : state.OppHand;
                     if (PartnerInHand(move, handAfter))
                     {
                         announce = SuitByHash[move] == this.worldTrumpSuit ? 40 : 20;
                     }
                 }
 
-                if (state.MyTurn)
+                if (myTurn)
                 {
-                    newState.MyPoints += announce;
+                    state.MyPoints += announce;
                 }
                 else
                 {
-                    newState.OppPoints += announce;
+                    state.OppPoints += announce;
                 }
 
-                newState.LedHash = move;
-                newState.MyTurn = !state.MyTurn;
-                return newState;
+                state.LedHash = move;
+                state.MyTurn = !myTurn;
+                return;
             }
 
             // Following: resolve the trick.
-            var ledSuit = SuitByHash[state.LedHash];
-            var ledValue = ValueByHash[state.LedHash];
+            var ledSuit = SuitByHash[ledHash];
+            var ledValue = ValueByHash[ledHash];
             var moveSuit = SuitByHash[move];
             var moveValue = ValueByHash[move];
             var trickValue = ledValue + moveValue;
@@ -558,55 +566,53 @@ namespace Santase.AI.ClaudePlayer
             bool followerWins = ledSuit == moveSuit
                 ? moveValue > ledValue
                 : moveSuit == this.worldTrumpSuit;
-            var winnerIsMe = state.MyTurn == followerWins;
+            var winnerIsMe = myTurn == followerWins;
 
             if (winnerIsMe)
             {
-                newState.MyPoints += trickValue;
-                newState.MyTricks++;
+                state.MyPoints += trickValue;
+                state.MyTricks++;
             }
             else
             {
-                newState.OppPoints += trickValue;
-                newState.OppTricks++;
+                state.OppPoints += trickValue;
+                state.OppTricks++;
             }
 
-            newState.LedHash = -1;
-            newState.MyTurn = winnerIsMe;
-            newState.LastTrickByMe = winnerIsMe;
+            state.LedHash = -1;
+            state.MyTurn = winnerIsMe;
+            state.LastTrickByMe = winnerIsMe;
 
-            if (state.Phase != PhaseFinal)
+            if (phase != PhaseFinal)
             {
-                if (newState.DrawPtr < this.worldDeckLength)
+                if (state.DrawPtr < this.worldDeckLength)
                 {
-                    var first = this.worldDeck[newState.DrawPtr++];
+                    var first = this.worldDeck[state.DrawPtr++];
                     if (winnerIsMe)
                     {
-                        newState.MyHand |= 1L << first;
+                        state.MyHand |= 1L << first;
                     }
                     else
                     {
-                        newState.OppHand |= 1L << first;
+                        state.OppHand |= 1L << first;
                     }
 
-                    if (newState.DrawPtr < this.worldDeckLength)
+                    if (state.DrawPtr < this.worldDeckLength)
                     {
-                        var second = this.worldDeck[newState.DrawPtr++];
+                        var second = this.worldDeck[state.DrawPtr++];
                         if (winnerIsMe)
                         {
-                            newState.OppHand |= 1L << second;
+                            state.OppHand |= 1L << second;
                         }
                         else
                         {
-                            newState.MyHand |= 1L << second;
+                            state.MyHand |= 1L << second;
                         }
                     }
                 }
 
-                newState.Phase = NextPhase(state.Phase, this.worldDeckLength - newState.DrawPtr);
+                state.Phase = NextPhase(phase, this.worldDeckLength - state.DrawPtr);
             }
-
-            return newState;
         }
 
         // Plays the position out to a terminal with the strong perfect-information rollout policy and
@@ -618,13 +624,12 @@ namespace Santase.AI.ClaudePlayer
                 var bothEmpty = state.MyHand == 0L && state.OppHand == 0L;
                 if (state.MyPoints >= RoundPointsToWin || state.OppPoints >= RoundPointsToWin || bothEmpty)
                 {
-                    var gp = this.SignedGamePoints(state, bothEmpty, out _);
+                    var gp = this.SignedGamePoints(in state, bothEmpty, out _);
                     var reward = 0.5 + (gp / 6d);
                     return reward < 0d ? 0d : (reward > 1d ? 1d : reward);
                 }
 
-                var move = this.RolloutPolicy(state);
-                state = this.ApplyMove(state, move);
+                this.ApplyMoveInPlace(ref state, this.RolloutPolicy(in state));
             }
         }
 
@@ -774,12 +779,13 @@ namespace Santase.AI.ClaudePlayer
             return chosen >= 0 ? chosen : this.FallbackPick(context, possibleCards);
         }
 
-        private int RolloutPolicy(SimState state)
+        private int RolloutPolicy(in SimState state)
         {
-            var count = this.GenMoves(state, this.moveScratch);
-            if (count == 1)
+            var moves = this.GenMovesMask(in state);
+            if ((moves & (moves - 1)) == 0L)
             {
-                return this.moveScratch[0];
+                // A single legal move.
+                return BitOperations.TrailingZeroCount((ulong)moves);
             }
 
             var trump = this.worldTrumpSuit;
@@ -791,7 +797,7 @@ namespace Santase.AI.ClaudePlayer
 
             if (state.LedHash < 0)
             {
-                return this.RolloutLead(count, trump, observeRules, moverHand, otherHand, moverPoints, state.Phase != PhaseStart);
+                return this.RolloutLead(moves, trump, observeRules, moverHand, otherHand, moverPoints, state.Phase != PhaseStart);
             }
 
             // Following: classify each legal move as a winner or loser of this trick, keeping the
@@ -802,9 +808,9 @@ namespace Santase.AI.ClaudePlayer
             var bestWinnerScore = int.MaxValue;
             var bestLoser = -1;
             var bestLoserScore = int.MaxValue;
-            for (var i = 0; i < count; i++)
+            for (var rest = moves; rest != 0L; rest &= rest - 1)
             {
-                var m = this.moveScratch[i];
+                var m = BitOperations.TrailingZeroCount((ulong)rest);
                 var suit = SuitByHash[m];
                 var wins = suit == ledSuit ? ValueByHash[m] > ledValue : suit == trump;
                 var sc = MoveScore(m, moverHand, trump);
@@ -846,14 +852,14 @@ namespace Santase.AI.ClaudePlayer
             return worthTaking ? bestWinner : bestLoser;
         }
 
-        private int RolloutLead(int count, int trump, bool observeRules, long moverHand, long otherHand, int moverPoints, bool canAnnounce)
+        private int RolloutLead(long moves, int trump, bool observeRules, long moverHand, long otherHand, int moverPoints, bool canAnnounce)
         {
             // 1. A marriage announce (or a guaranteed winner) that reaches 66 ends the round now.
             var bestGuaranteed = -1;
             var bestGuaranteedValue = -1;
-            for (var i = 0; i < count; i++)
+            for (var rest = moves; rest != 0L; rest &= rest - 1)
             {
-                var m = this.moveScratch[i];
+                var m = BitOperations.TrailingZeroCount((ulong)rest);
                 var announce = canAnnounce && PartnerInHand(m, moverHand)
                     ? (SuitByHash[m] == trump ? 40 : 20)
                     : 0;
@@ -888,9 +894,9 @@ namespace Santase.AI.ClaudePlayer
             {
                 var bestQueen = -1;
                 var bestQueenRank = -1;
-                for (var i = 0; i < count; i++)
+                for (var rest = moves; rest != 0L; rest &= rest - 1)
                 {
-                    var m = this.moveScratch[i];
+                    var m = BitOperations.TrailingZeroCount((ulong)rest);
                     if (TypeByHash[m] == (int)CardType.Queen && PartnerInHand(m, moverHand))
                     {
                         var rank = SuitByHash[m] == trump ? 1 : 0;
@@ -908,15 +914,16 @@ namespace Santase.AI.ClaudePlayer
                 }
             }
 
-            // 4. Lead the lowest-value safe card (preserves trumps and marriages).
-            var lead = this.moveScratch[0];
-            var leadScore = MoveScore(lead, moverHand, trump);
-            for (var i = 1; i < count; i++)
+            // 4. Lead the lowest-value safe card (preserves trumps and marriages); first wins ties.
+            var lead = -1;
+            var leadScore = int.MaxValue;
+            for (var rest = moves; rest != 0L; rest &= rest - 1)
             {
-                var sc = MoveScore(this.moveScratch[i], moverHand, trump);
+                var m = BitOperations.TrailingZeroCount((ulong)rest);
+                var sc = MoveScore(m, moverHand, trump);
                 if (sc < leadScore)
                 {
-                    lead = this.moveScratch[i];
+                    lead = m;
                     leadScore = sc;
                 }
             }
@@ -1086,7 +1093,7 @@ namespace Santase.AI.ClaudePlayer
             }
         }
 
-        private int SignedGamePoints(SimState state, bool bothEmpty, out int margin)
+        private int SignedGamePoints(in SimState state, bool bothEmpty, out int margin)
         {
             var myPoints = state.MyPoints;
             var opponentPoints = state.OppPoints;

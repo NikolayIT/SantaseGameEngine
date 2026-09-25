@@ -27,26 +27,26 @@ namespace Santase.AI.ClaudePlayer
     public class ClaudePlayerIsmcts : ClaudeSearchPlayerBase
     {
         private const int NodeCapacity = 1 << 17;
-        private const int EdgeCapacity = 1 << 18;
-        private const int IterationCap = 5_000_000;
+        private const int DefaultMaxIterations = 5_000_000;
+        private const int NoNode = -1;
 
-        // Node store (struct-of-arrays). A node is the position reached by a public play sequence;
-        // its statistics are pooled over every determinization that passed through it.
-        private int[] nodeVisits;
-        private double[] nodeValue;
-        private int[] nodeAvailability;
-        private bool[] nodeMover;
-        private int[] nodeChildHead;
+        // Math.Log(n) for small n: the availability counts in the UCB exploration term. Filled with
+        // Math.Log itself, so the search is bit-identical to calling it; larger counts (root-level
+        // children late in a long search) fall back to the call.
+        private const int LogTableSize = 1 << 16;
 
-        // Edge store: a singly-linked list of children per node (variable fan-out — an opponent
-        // decision node accumulates every card the opponent could play across determinizations).
-        private int[] edgeMove;
-        private int[] edgeChild;
-        private int[] edgeNext;
+        private static readonly double[] LogTable = BuildLogTable();
+
+        // Node store (array-of-structs, 32 bytes a node). A node is the position reached by a public
+        // play sequence; its statistics are pooled over every determinization that passed through it.
+        // Children form a singly-linked list (variable fan-out — an opponent decision node
+        // accumulates every card the opponent could play across determinizations), and since every
+        // node has exactly one parent, the incoming move and the sibling link live in the child
+        // itself: selection reads one struct per child instead of touching eight parallel arrays.
+        private Node[] nodes;
 
         private int[] pathBuffer;
         private int nodeCount;
-        private int edgeCount;
 
         // Scratch for emitting the root visit distribution to a PolicyRecorder (distillation only).
         private int[] rootMoveScratch;
@@ -64,6 +64,13 @@ namespace Santase.AI.ClaudePlayer
 
         public override string Name => "Claude Player (ISMCTS)";
 
+        /// <summary>
+        /// Hard cap on search iterations per move, on top of <see cref="ClaudeSearchPlayerBase.TimeLimitMilliseconds"/>.
+        /// With a generous time limit and a seeded <see cref="ClaudeSearchPlayerBase.Rng"/> this makes
+        /// the search fully deterministic and machine-independent (tests, benchmarks).
+        /// </summary>
+        public int MaxIterations { get; set; } = DefaultMaxIterations;
+
         protected override int RunSearch(PlayerTurnContext context, ICollection<Card> possibleCards)
         {
             if (!this.ConfigureMove(context))
@@ -73,8 +80,7 @@ namespace Santase.AI.ClaudePlayer
 
             this.EnsurePool();
             this.nodeCount = 0;
-            this.edgeCount = 0;
-            var rootId = this.NewNode(true);
+            var rootId = this.NewNode(true, -1);
 
             var start = Stopwatch.GetTimestamp();
             var limitTicks = (long)this.TimeLimitMilliseconds * Stopwatch.Frequency / 1000L;
@@ -85,7 +91,7 @@ namespace Santase.AI.ClaudePlayer
                 this.RunIteration(rootId, this.SampleWorld());
                 iterations++;
             }
-            while (iterations < IterationCap && Stopwatch.GetTimestamp() - start < limitTicks);
+            while (iterations < this.MaxIterations && Stopwatch.GetTimestamp() - start < limitTicks);
 
             if (this.PolicyRecorder != null)
             {
@@ -95,15 +101,26 @@ namespace Santase.AI.ClaudePlayer
             return this.PickRootMove(rootId);
         }
 
+        private static double[] BuildLogTable()
+        {
+            var table = new double[LogTableSize];
+            for (var n = 0; n < table.Length; n++)
+            {
+                table[n] = Math.Log(n);
+            }
+
+            return table;
+        }
+
         // Gathers the root children (our legal moves) and their visit counts, then hands them to the
         // base recorder, which turns them into a (features, visit-distribution) distillation sample.
         private void RecordRootPolicy(PlayerTurnContext context, int rootId)
         {
             var count = 0;
-            for (var e = this.nodeChildHead[rootId]; e != -1; e = this.edgeNext[e])
+            for (var c = this.nodes[rootId].FirstChild; c != NoNode; c = this.nodes[c].NextSibling)
             {
-                this.rootMoveScratch[count] = this.edgeMove[e];
-                this.rootVisitScratch[count] = this.nodeVisits[this.edgeChild[e]];
+                this.rootMoveScratch[count] = this.nodes[c].Move;
+                this.rootVisitScratch[count] = this.nodes[c].Visits;
                 count++;
             }
 
@@ -118,71 +135,72 @@ namespace Santase.AI.ClaudePlayer
 
             while (true)
             {
-                if (IsTerminal(state))
+                if (IsTerminal(in state))
                 {
                     break;
                 }
 
-                var legalMask = this.GenMovesMask(state);
+                var legalMask = this.GenMovesMask(in state);
                 if (legalMask == 0L)
                 {
                     break;
                 }
 
-                var moverIsMe = this.nodeMover[nodeId];
+                var moverIsMe = this.nodes[nodeId].MoverIsMe;
 
                 // Walk existing children once: bump availability for those legal in this world, pick
                 // the best by ISMCTS-UCB, and record which legal moves are already in the tree.
                 long covered = 0L;
-                var bestChild = -1;
+                var bestChild = NoNode;
                 var bestMove = -1;
                 var bestUcb = double.NegativeInfinity;
-                for (var e = this.nodeChildHead[nodeId]; e != -1; e = this.edgeNext[e])
+                for (var c = this.nodes[nodeId].FirstChild; c != NoNode; c = this.nodes[c].NextSibling)
                 {
-                    var move = this.edgeMove[e];
+                    ref var child = ref this.nodes[c];
+                    var move = child.Move;
                     if (((legalMask >> move) & 1L) == 0L)
                     {
                         continue;
                     }
 
-                    var child = this.edgeChild[e];
                     covered |= 1L << move;
-                    var availability = ++this.nodeAvailability[child];
-                    var visits = this.nodeVisits[child];
-                    var mean = this.nodeValue[child] / visits;
+                    var availability = ++child.Availability;
+                    var visits = child.Visits;
+                    var mean = child.Value / visits;
                     var exploit = moverIsMe ? mean : 1d - mean;
-                    var ucb = exploit + (this.ExplorationConstant * Math.Sqrt(Math.Log(availability) / visits));
+                    var logAvailability = availability < LogTableSize ? LogTable[availability] : Math.Log(availability);
+                    var ucb = exploit + (this.ExplorationConstant * Math.Sqrt(logAvailability / visits));
                     if (ucb > bestUcb)
                     {
                         bestUcb = ucb;
-                        bestChild = child;
+                        bestChild = c;
                         bestMove = move;
                     }
                 }
 
                 var untried = legalMask & ~covered;
-                if (untried != 0L && this.nodeCount < NodeCapacity && this.edgeCount < EdgeCapacity)
+                if (untried != 0L && this.nodeCount < NodeCapacity)
                 {
                     // Expand one untried legal move. The pick is arbitrary (lowest hash) on
                     // purpose: expanding the rollout policy's preferred move first measured
                     // -0.7pp in mirror A/B (see the ISMCTS notes in CLAUDE.md).
                     var move = BitOperations.TrailingZeroCount((ulong)untried);
-                    state = this.ApplyMove(state, move);
-                    var childId = this.NewNode(state.MyTurn);
-                    this.nodeAvailability[childId] = 1;
-                    this.AddEdge(nodeId, move, childId);
+                    this.ApplyMoveInPlace(ref state, move);
+                    var childId = this.NewNode(state.MyTurn, move);
+                    this.nodes[childId].Availability = 1;
+                    this.AddChild(nodeId, childId);
                     nodeId = childId;
                     this.pathBuffer[pathLen++] = nodeId;
                     break;
                 }
 
-                if (bestChild < 0)
+                if (bestChild == NoNode)
                 {
                     // Tree is full and this node has no child legal in this world — roll out here.
                     break;
                 }
 
-                state = this.ApplyMove(state, bestMove);
+                this.ApplyMoveInPlace(ref state, bestMove);
                 nodeId = bestChild;
                 this.pathBuffer[pathLen++] = nodeId;
             }
@@ -191,9 +209,9 @@ namespace Santase.AI.ClaudePlayer
 
             for (var k = 0; k < pathLen; k++)
             {
-                var id = this.pathBuffer[k];
-                this.nodeVisits[id]++;
-                this.nodeValue[id] += reward;
+                ref var node = ref this.nodes[this.pathBuffer[k]];
+                node.Visits++;
+                node.Value += reward;
             }
         }
 
@@ -204,58 +222,50 @@ namespace Santase.AI.ClaudePlayer
             var best = -1;
             var bestVisits = -1;
             var bestMean = double.NegativeInfinity;
-            for (var e = this.nodeChildHead[rootId]; e != -1; e = this.edgeNext[e])
+            for (var c = this.nodes[rootId].FirstChild; c != NoNode; c = this.nodes[c].NextSibling)
             {
-                var child = this.edgeChild[e];
-                var visits = this.nodeVisits[child];
-                var mean = visits > 0 ? this.nodeValue[child] / visits : 0d;
+                var visits = this.nodes[c].Visits;
+                var mean = visits > 0 ? this.nodes[c].Value / visits : 0d;
                 if (visits > bestVisits || (visits == bestVisits && mean > bestMean))
                 {
                     bestVisits = visits;
                     bestMean = mean;
-                    best = this.edgeMove[e];
+                    best = this.nodes[c].Move;
                 }
             }
 
             return best;
         }
 
-        private void AddEdge(int parent, int move, int child)
+        // Prepends: the newest child is walked first, which is part of the (deterministic) search.
+        private void AddChild(int parent, int child)
         {
-            var e = this.edgeCount++;
-            this.edgeMove[e] = move;
-            this.edgeChild[e] = child;
-            this.edgeNext[e] = this.nodeChildHead[parent];
-            this.nodeChildHead[parent] = e;
+            this.nodes[child].NextSibling = this.nodes[parent].FirstChild;
+            this.nodes[parent].FirstChild = child;
         }
 
-        private int NewNode(bool moverIsMe)
+        private int NewNode(bool moverIsMe, int move)
         {
             var id = this.nodeCount++;
-            this.nodeVisits[id] = 0;
-            this.nodeValue[id] = 0d;
-            this.nodeAvailability[id] = 0;
-            this.nodeMover[id] = moverIsMe;
-            this.nodeChildHead[id] = -1;
+            this.nodes[id] = new Node
+            {
+                Move = move,
+                FirstChild = NoNode,
+                NextSibling = NoNode,
+                MoverIsMe = moverIsMe,
+            };
+
             return id;
         }
 
         private void EnsurePool()
         {
-            if (this.nodeVisits != null)
+            if (this.nodes != null)
             {
                 return;
             }
 
-            this.nodeVisits = new int[NodeCapacity];
-            this.nodeValue = new double[NodeCapacity];
-            this.nodeAvailability = new int[NodeCapacity];
-            this.nodeMover = new bool[NodeCapacity];
-            this.nodeChildHead = new int[NodeCapacity];
-
-            this.edgeMove = new int[EdgeCapacity];
-            this.edgeChild = new int[EdgeCapacity];
-            this.edgeNext = new int[EdgeCapacity];
+            this.nodes = new Node[NodeCapacity];
 
             // A round is at most 24 plies, so any root-to-leaf path fits comfortably.
             this.pathBuffer = new int[32];
@@ -263,6 +273,24 @@ namespace Santase.AI.ClaudePlayer
             // Root fan-out is our own legal moves (<= hand size); 24 is a safe upper bound.
             this.rootMoveScratch = new int[24];
             this.rootVisitScratch = new int[24];
+        }
+
+        private struct Node
+        {
+            // Sum of rollout rewards (our perspective, in [0, 1]) over the iterations through here.
+            public double Value;
+            public int Visits;
+
+            // Iterations in which this node's move was legal while its parent was being selected.
+            public int Availability;
+
+            // The card played from the parent to reach this node (-1 at the root).
+            public int Move;
+            public int FirstChild;
+            public int NextSibling;
+
+            // Whether we are the player to move AT this node.
+            public bool MoverIsMe;
         }
     }
 }
