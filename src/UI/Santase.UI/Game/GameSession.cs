@@ -43,6 +43,9 @@ namespace Santase.UI.Game
         // Each Start begins a new run; a stopped run that wakes up late leaves the new one alone.
         private int runId;
 
+        // Counts Start calls (runId also moves on Stop).
+        private int starts;
+
         private TaskCompletionSource<PlayerAction>? pendingMove;
 
         private PlayerSlot pendingMoveSlot;
@@ -148,7 +151,17 @@ namespace Santase.UI.Game
             this.match = null;
             this.stopping = new CancellationTokenSource();
             this.IsRunning = true;
-            this.running = this.RunAsync(this.running, game, ++this.runId, this.stopping.Token);
+            var start = ++this.starts;
+            var run = this.RunAsync(this.running, game, ++this.runId, this.stopping.Token);
+
+            // The run raises the deal and the first turn before it returns here. If a handler of
+            // those restarted the game, the new game's run is already in place: keep it. (The run
+            // started here stops at its next check without touching the computer, so the new one
+            // does not need to wait for it.)
+            if (start == this.starts)
+            {
+                this.running = run;
+            }
         }
 
         /// <summary>Stops the game in progress (leaving the table). Nothing more is raised for it.</summary>

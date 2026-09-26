@@ -426,6 +426,46 @@ namespace Santase.UI.Tests
             Assert.NotNull(table.Winner);
         });
 
+        // The deal and the first turn are raised inside Start() itself. A handler that restarted
+        // the game there left Completion on the stopped game (Start stored its run after the new
+        // game had already been started from the handler), so awaiting it returned at once while
+        // the new game was still being played.
+        [Theory]
+        [InlineData("deal")]
+        [InlineData("turn")]
+        public void RestartingDuringStartShouldLeaveTheNewGameInProgress(string restartOn) => UiThread.Run(async () =>
+        {
+            var session = HotSeat(16);
+            var table = new TableDriver(session, 16);
+            var restarted = false;
+            void RestartOnce()
+            {
+                if (!restarted)
+                {
+                    restarted = true;
+                    session.Restart();
+                }
+            }
+
+            if (restartOn == "deal")
+            {
+                session.RoundStarted += RestartOnce;
+            }
+            else
+            {
+                session.TurnStarted += (_, _) => RestartOnce();
+            }
+
+            session.Start();
+
+            Assert.True(restarted);
+            Assert.True(session.IsRunning);
+            await session.Completion.WaitAsync(TimeSpan.FromSeconds(60));
+            Assert.Empty(table.Errors);
+            Assert.NotNull(table.Winner);
+            Assert.False(session.IsRunning);
+        });
+
         [Fact]
         public void RestartShouldStartANewGameAndTheStoppedOneShouldStaySilent() => UiThread.Run(async () =>
         {
