@@ -63,6 +63,7 @@ Create the app in https://play.google.com/console, then complete:
 ## Technical readiness (already handled in code)
 
 - target SDK = API 36 (.NET 10 Android) — above Play's current minimum target.
-- min SDK = API 21 (Android 5.0).
+- min SDK = API 24 (Android 7.0): Play's automatic protection (Protected with Play, on for this app)
+  refuses bundles below 24. It was 21 until 1.2; Android 5-6 devices stay on 1.1.
 - Custom app icon + splash (`Resources/AppIcon`, `Resources/Splash`); no template assets.
 - Permissions: `INTERNET` + `ACCESS_NETWORK_STATE`, reserved for the upcoming online mode.
