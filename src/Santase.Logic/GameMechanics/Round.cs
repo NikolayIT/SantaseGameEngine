@@ -111,6 +111,12 @@
 
         public Card SwappedTrumpCard { get; private set; }
 
+        // How many tricks were finished when the Nine was exchanged / the talon closed (neither is
+        // allowed on the first trick, so 0 means it did not happen).
+        public int TrumpSwappedAfterTricks { get; private set; }
+
+        public int ClosedAfterTricks { get; private set; }
+
         // The finished tricks, in order; null unless the round records its history.
         public IReadOnlyList<SantaseTrick> Tricks => this.tricks;
 
@@ -226,6 +232,7 @@
                         var nineOfTrump = Card.GetCard(oldTrumpCard.Suit, CardType.Nine);
                         this.TrumpSwappedBy = this.leader;
                         this.SwappedTrumpCard = oldTrumpCard;
+                        this.TrumpSwappedAfterTricks = this.TricksPlayed;
                         this.deck.ChangeTrumpCard(nineOfTrump);
                         this.context.TrumpCard = nineOfTrump;
                         leaderInfo.Cards.Remove(nineOfTrump);
@@ -239,6 +246,7 @@
                         this.stateManager.State.Close();
                         this.context.State = this.stateManager.State;
                         leaderInfo.GameCloser = true;
+                        this.ClosedAfterTricks = this.TricksPlayed;
                         return true;
                     }
             }

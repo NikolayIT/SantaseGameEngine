@@ -40,9 +40,23 @@
         public Card SwappedTrumpCard { get; init; }
 
         /// <summary>
+        /// Gets how many of <see cref="Tricks"/> were finished when the Nine was exchanged: it was
+        /// exchanged just before the lead of the next one. 0 when nobody exchanged (an exchange is
+        /// never allowed on the first trick).
+        /// </summary>
+        public int TrumpSwappedAfterTricks { get; init; }
+
+        /// <summary>
         /// Gets who closed the talon, if anyone.
         /// </summary>
         public PlayerPosition ClosedBy { get; init; }
+
+        /// <summary>
+        /// Gets how many of <see cref="Tricks"/> were finished when the talon was closed: it was
+        /// closed just before the lead of the next one. 0 when nobody closed (closing is never
+        /// allowed on the first trick).
+        /// </summary>
+        public int ClosedAfterTricks { get; init; }
 
         /// <summary>
         /// Gets how the round was scored; null for the round a match was stopped in

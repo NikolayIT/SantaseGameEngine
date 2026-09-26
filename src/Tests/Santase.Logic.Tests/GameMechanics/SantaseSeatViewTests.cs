@@ -368,6 +368,66 @@
             Assert.True(endedByALead > 0, "No match ended with a 20/40 lead.");
         }
 
+        // A record is everything that happened: dealing each recorded deal again and making the
+        // recorded moves replays the match exactly, down to an identical record. That needs when
+        // the Nine was exchanged and when the talon was closed (the record only said by whom: the
+        // exchange could have been made at any of the exchanger's leads).
+        [Fact]
+        public void AMatchShouldReplayExactlyFromItsRecord()
+        {
+            var exchangesAndCloses = 0;
+            for (var seed = 0; seed < 40; seed++)
+            {
+                var random = new Random(4000 + seed);
+                var match = StartMatch(random);
+                while (!match.IsFinished)
+                {
+                    match.Act(match.ToMove, RandomMove(match.GetView(match.ToMove), random));
+                }
+
+                var record = match.GetRecord();
+                var deals = record.Rounds.Select(r => StackedDeal.ForOrder(r.Deal.Reverse().ToList())).ToList();
+                var draws = 0;
+                var replay = new SantaseMatch(new SantaseMatchOptions
+                {
+                    FirstToPlay = record.Rounds[0].FirstToPlay,
+                    Shuffle = max => deals[draws++ / 23](max),
+                });
+                replay.Start();
+                foreach (var round in record.Rounds)
+                {
+                    for (var t = 0; t < round.Tricks.Count; t++)
+                    {
+                        // An exchange comes before a close at the same lead (a closed talon allows none).
+                        if (round.TrumpSwappedBy != PlayerPosition.NoOne && round.TrumpSwappedAfterTricks == t)
+                        {
+                            Assert.Equal(SantaseActResult.Ok, replay.Act(round.TrumpSwappedBy, PlayerAction.ChangeTrump()));
+                            exchangesAndCloses++;
+                        }
+
+                        if (round.ClosedBy != PlayerPosition.NoOne && round.ClosedAfterTricks == t)
+                        {
+                            Assert.Equal(SantaseActResult.Ok, replay.Act(round.ClosedBy, PlayerAction.CloseGame()));
+                            exchangesAndCloses++;
+                        }
+
+                        var trick = round.Tricks[t];
+                        Assert.Equal(SantaseActResult.Ok, replay.Act(trick.Leader, PlayerAction.PlayCard(trick.LeadCard)));
+                        if (trick.FollowCard != null)
+                        {
+                            var follower = trick.Leader == PlayerPosition.FirstPlayer ? PlayerPosition.SecondPlayer : PlayerPosition.FirstPlayer;
+                            Assert.Equal(SantaseActResult.Ok, replay.Act(follower, PlayerAction.PlayCard(trick.FollowCard)));
+                        }
+                    }
+                }
+
+                Assert.True(replay.IsFinished);
+                Assert.Equal(ModelCopy.Describe(record), ModelCopy.Describe(replay.GetRecord()));
+            }
+
+            Assert.True(exchangesAndCloses > 20);
+        }
+
         [Fact]
         public void TheRecordedDealShouldBeTheDealInDrawOrder()
         {

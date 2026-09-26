@@ -309,7 +309,9 @@
                     Tricks = tricks.ToArray(),
                     TrumpSwappedBy = this.round.TrumpSwappedBy,
                     SwappedTrumpCard = this.round.SwappedTrumpCard,
+                    TrumpSwappedAfterTricks = this.round.TrumpSwappedAfterTricks,
                     ClosedBy = ClosedBy(this.round.FirstPlayer, this.round.SecondPlayer),
+                    ClosedAfterTricks = this.round.ClosedAfterTricks,
                 });
             }
 
@@ -512,7 +514,9 @@
                     Tricks = ToArray(this.round.Tricks),
                     TrumpSwappedBy = this.round.TrumpSwappedBy,
                     SwappedTrumpCard = this.round.SwappedTrumpCard,
+                    TrumpSwappedAfterTricks = this.round.TrumpSwappedAfterTricks,
                     ClosedBy = roundResult.GameClosedBy,
+                    ClosedAfterTricks = this.round.ClosedAfterTricks,
                     Result = new SantaseRoundSummary
                     {
                         FirstPlayerRoundPoints = roundResult.FirstPlayer.RoundPoints,
