@@ -396,6 +396,36 @@ namespace Santase.UI.Tests
             AssertPlayOrder(table.Events.Skip(eventsAtRestart).ToList());
         });
 
+        // After a restart the new game is dealt only once the stopped game's computer move is
+        // done (the computer is one object). Until then there is nothing to show: GetView is null,
+        // as before any deal; it used to throw ("Start the match first") from the undealt match.
+        [Fact]
+        public void TheViewOfARestartedGameShouldBeNullUntilItIsDealt() => UiThread.Run(async () =>
+        {
+            var computer = new SlowComputer { Rng = new Random(1) };
+            var session = new GameSession(GameMode.VsAi, "Ann", "Dummy", computer, GamePace.Instant, new Random(14).Next);
+            var table = new TableDriver(session, 14);
+            session.Start();
+            await Task.Run(() => Assert.True(computer.Thinking.Wait(TimeSpan.FromSeconds(30))));
+
+            session.Restart();
+
+            Assert.True(session.IsRunning);
+            Assert.Null(session.GetView(PlayerSlot.First));
+            Assert.Null(session.GetView(PlayerSlot.Second));
+            Assert.False(session.IsAwaitingMove(PlayerSlot.First));
+            Assert.Null(session.GetHint());
+
+            var dealt = new TaskCompletionSource();
+            session.RoundStarted += () => dealt.TrySetResult();
+            computer.Release.Set();
+            await dealt.Task.WaitAsync(TimeSpan.FromSeconds(30));
+            Assert.Equal(6, session.GetView(PlayerSlot.First)!.Hand.Count);
+            await session.Completion.WaitAsync(TimeSpan.FromSeconds(60));
+            Assert.Empty(table.Errors);
+            Assert.NotNull(table.Winner);
+        });
+
         [Fact]
         public void RestartShouldStartANewGameAndTheStoppedOneShouldStaySilent() => UiThread.Run(async () =>
         {
@@ -507,6 +537,21 @@ namespace Santase.UI.Tests
         public void AGameAgainstTheComputerNeedsAComputer()
         {
             Assert.Throws<ArgumentNullException>(() => new GameSession(GameMode.VsAi, "a", "b", null, GamePace.Instant));
+        }
+
+        // A computer that takes its time: it thinks until released.
+        private sealed class SlowComputer : DummyPlayerChangingTrump
+        {
+            public ManualResetEventSlim Thinking { get; } = new ManualResetEventSlim();
+
+            public ManualResetEventSlim Release { get; } = new ManualResetEventSlim();
+
+            public override PlayerAction GetTurn(PlayerTurnContext context)
+            {
+                this.Thinking.Set();
+                this.Release.Wait(TimeSpan.FromSeconds(30));
+                return base.GetTurn(context);
+            }
         }
 
         private static GameSession HotSeat(int seed) =>

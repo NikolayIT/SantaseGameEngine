@@ -142,7 +142,10 @@ namespace Santase.UI.Game
             }
 
             var game = new SantaseMatch(new SantaseMatchOptions { FirstToPlay = PlayerPosition.FirstPlayer, Shuffle = this.shuffle });
-            this.match = game;
+
+            // No views until the new game is dealt (after a restart, the stopped game may still
+            // be finishing the computer's move).
+            this.match = null;
             this.stopping = new CancellationTokenSource();
             this.IsRunning = true;
             this.running = this.RunAsync(this.running, game, ++this.runId, this.stopping.Token);
@@ -234,6 +237,7 @@ namespace Santase.UI.Game
                 await previous;
                 stop.ThrowIfCancellationRequested();
 
+                this.match = game;
                 game.Start();
                 this.RoundStarted?.Invoke();
                 while (true)
