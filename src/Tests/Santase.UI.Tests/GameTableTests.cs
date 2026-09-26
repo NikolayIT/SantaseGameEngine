@@ -126,6 +126,35 @@ namespace Santase.UI.Tests
             }
         });
 
+        // An unexpected error ends the game on the game-over overlay. After a finished ranked game
+        // and "play again", that overlay kept the last result's trophy (or broken heart) and its
+        // rating change above the error.
+        [Fact]
+        public void AnErrorAfterARankedGameShouldShowOnlyTheError() => UiThread.Run(async () =>
+        {
+            var computer = new ExplodingComputer { Rng = new Random(3) };
+            var opponent = AiOpponents.ById("dummy");
+            var session = new GameSession(GameMode.VsAi, "Ann", opponent.DisplayName, computer, GamePace.Instant, new Random(3).Next);
+            var table = new GameViewModel(session, opponent, new FakeTableHost());
+            var tester = new TableTester(session, table, 3);
+            table.StartGame();
+            await tester.PlayToTheEndAsync();
+            Assert.True(table.IsRatingChangeVisible);
+
+            computer.Explode = true;
+            table.PlayAgainCommand.Execute(null);
+            await tester.StepAsync();
+            await tester.Until(() => table.IsGameOverlayVisible, "the error");
+
+            Assert.Equal(Loc["Error_Title"], table.GameOverlayTitle);
+            Assert.Contains("The computer broke", table.GameOverlayBody);
+            Assert.Equal("\u26A0\uFE0F", table.GameOverlayIcon);
+            Assert.False(table.IsRatingChangeVisible);
+            Assert.False(table.IsMyTurn);
+            Assert.Equal(1, PlayerRatingStore.GamesPlayed);
+            table.Dispose();
+        });
+
         internal static (GameSession Session, GameViewModel Table, FakeTableHost Host) HotSeatTable(int seed, GamePace? pace = null)
         {
             var session = new GameSession(GameMode.HotSeat, "Ann", "Bob", null, pace ?? GamePace.Instant, new Random(seed).Next);
@@ -145,6 +174,14 @@ namespace Santase.UI.Tests
             var session = new GameSession(GameMode.VsAi, "Ann", opponent.DisplayName, computer, pace ?? GamePace.Instant, new Random(seed).Next);
             var host = new FakeTableHost();
             return (session, new GameViewModel(session, opponent, host), host);
+        }
+
+        private sealed class ExplodingComputer : DummyPlayerChangingTrump
+        {
+            public bool Explode { get; set; }
+
+            public override PlayerAction GetTurn(PlayerTurnContext context) =>
+                this.Explode ? throw new InvalidOperationException("The computer broke.") : base.GetTurn(context);
         }
     }
 }

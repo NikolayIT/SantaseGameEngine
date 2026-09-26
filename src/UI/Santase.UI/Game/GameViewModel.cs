@@ -767,8 +767,11 @@ namespace Santase.UI.Game
             this.Vibrate(isLong: true);
         }
 
+        // The game-over overlay shows the error; nothing of an earlier game's result may stay on it.
         private void OnGameError(Exception ex)
         {
+            this.GameOverlayIcon = "\u26A0\uFE0F";
+            this.IsRatingChangeVisible = false;
             this.GameOverlayTitle = Loc["Error_Title"];
             this.GameOverlayBody = Loc.Format("Error_Body", ex.GetType().Name, ex.Message);
             this.IsHandoffOverlayVisible = false;
