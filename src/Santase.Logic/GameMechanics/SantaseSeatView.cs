@@ -105,12 +105,14 @@
         public int SecondPlayerRoundPoints { get; init; }
 
         /// <summary>
-        /// Gets how many tricks the first player has won this round.
+        /// Gets how many tricks the first player has won this round (a 20/40 lead that ended the
+        /// round before an answer won no cards, so it is not one).
         /// </summary>
         public int FirstPlayerTricksWon { get; init; }
 
         /// <summary>
-        /// Gets how many tricks the second player has won this round.
+        /// Gets how many tricks the second player has won this round (a 20/40 lead that ended the
+        /// round before an answer won no cards, so it is not one).
         /// </summary>
         public int SecondPlayerTricksWon { get; init; }
 

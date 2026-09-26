@@ -341,12 +341,14 @@
             return first.GameCloser ? PlayerPosition.FirstPlayer : (second.GameCloser ? PlayerPosition.SecondPlayer : PlayerPosition.NoOne);
         }
 
+        // A lead whose 20/40 took the leader to 66 ended the round before an answer: the leader
+        // won no cards with it, so it is not a trick won (the scoring agrees: see RoundResult).
         private static int TricksWonBy(IReadOnlyList<SantaseTrick> tricks, PlayerPosition player)
         {
             var count = 0;
             foreach (var trick in tricks)
             {
-                if (trick.Winner == player)
+                if (trick.Winner == player && trick.FollowCard != null)
                 {
                     count++;
                 }

@@ -340,6 +340,34 @@
             }
         }
 
+        // After the match the view still shows the last round, which may have ended with a 20/40
+        // that took the leader to 66 before the answer. That lead won no cards: tricks won count
+        // only the tricks the engine scored (the cards each player took), as mid-round views do.
+        [Fact]
+        public void TricksWonAfterTheMatchShouldNotCountALeadThatEndedTheRound()
+        {
+            var endedByALead = 0;
+            for (var seed = 0; seed < 200; seed++)
+            {
+                var random = new Random(3000 + seed);
+                var match = StartMatch(random);
+                while (!match.IsFinished)
+                {
+                    match.Act(match.ToMove, RandomMove(match.GetView(match.ToMove), random));
+                }
+
+                var final = match.GetFinalView();
+                Assert.Equal(match.CurrentRound.FirstPlayer.TrickCards.Count / 2, final.FirstPlayerTricksWon);
+                Assert.Equal(match.CurrentRound.SecondPlayer.TrickCards.Count / 2, final.SecondPlayerTricksWon);
+                if (final.Tricks[^1].FollowCard == null)
+                {
+                    endedByALead++;
+                }
+            }
+
+            Assert.True(endedByALead > 0, "No match ended with a 20/40 lead.");
+        }
+
         [Fact]
         public void TheRecordedDealShouldBeTheDealInDrawOrder()
         {
