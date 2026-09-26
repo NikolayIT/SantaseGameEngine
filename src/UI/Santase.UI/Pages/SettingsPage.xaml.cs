@@ -12,6 +12,9 @@ namespace Santase.UI.Pages
 
     public partial class SettingsPage : ContentPage
     {
+        // A double tap on Back goes back once.
+        private readonly OneAtATime navigation = new();
+
         private const string RepoUrl = "https://github.com/NikolayIT/SantaseGameEngine";
 
         public SettingsPage()
@@ -33,7 +36,7 @@ namespace Santase.UI.Pages
 
         private async void OnBack(object? sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("..");
+            await this.navigation.RunAsync(() => Shell.Current.GoToAsync(".."));
         }
 
         private void OnLanguageEn(object? sender, EventArgs e)

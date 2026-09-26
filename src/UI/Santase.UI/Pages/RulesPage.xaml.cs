@@ -7,10 +7,14 @@ namespace Santase.UI.Pages
     using Microsoft.Maui.Controls.Shapes;
     using Microsoft.Maui.Graphics;
 
+    using Santase.UI.Game;
     using Santase.UI.Localization;
 
     public partial class RulesPage : ContentPage
     {
+        // A double tap on Back goes back once.
+        private readonly OneAtATime navigation = new();
+
         // (emoji, titleKey, bodyKey) per section, in reading order.
         private static readonly (string Icon, string TitleKey, string BodyKey)[] Sections =
         {
@@ -37,7 +41,7 @@ namespace Santase.UI.Pages
 
         private async void OnBack(object? sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("..");
+            await this.navigation.RunAsync(() => Shell.Current.GoToAsync(".."));
         }
 
         // Rebuilt on every appearance so a language switch (done on the start page) is reflected.

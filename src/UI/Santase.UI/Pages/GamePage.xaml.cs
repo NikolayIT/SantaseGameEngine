@@ -14,6 +14,9 @@ namespace Santase.UI.Pages
     [QueryProperty(nameof(OpponentId), "opponent")]
     public partial class GamePage : ContentPage, IGameTableHost
     {
+        // One leave prompt at a time (the back button and Menu both ask).
+        private readonly OneAtATime leaving = new();
+
         private GameSession? session;
 
         private GameViewModel? viewModel;
@@ -97,13 +100,13 @@ namespace Santase.UI.Pages
 
         protected override bool OnBackButtonPressed()
         {
-            _ = this.ConfirmAndLeaveAsync();
+            _ = this.leaving.RunAsync(this.ConfirmAndLeaveAsync);
             return true; // Handled — leaving goes through the confirmation prompt below.
         }
 
         private async void OnMenuClicked(object? sender, EventArgs e)
         {
-            await this.ConfirmAndLeaveAsync();
+            await this.leaving.RunAsync(this.ConfirmAndLeaveAsync);
         }
 
         // Closing is the one irreversible in-game action a player can regret (fail to reach 66
@@ -121,9 +124,10 @@ namespace Santase.UI.Pages
                 mgr.Format("Close_Message", this.viewModel.OpponentName),
                 mgr["Close_Confirm"],
                 mgr["Common_Cancel"]);
-            if (confirmed)
+            // The page may have gone away while the question was up.
+            if (confirmed && this.viewModel is { } table)
             {
-                this.viewModel.CloseGameCommand.Execute(null);
+                table.CloseGameCommand.Execute(null);
             }
         }
 
@@ -152,7 +156,8 @@ namespace Santase.UI.Pages
                 }
             }
 
-            this.viewModel.LeaveCommand.Execute(null);
+            // The page may have gone away while the question was up.
+            this.viewModel?.LeaveCommand.Execute(null);
         }
 
         // View-only animations reacting to view-model state changes. The game raises everything on

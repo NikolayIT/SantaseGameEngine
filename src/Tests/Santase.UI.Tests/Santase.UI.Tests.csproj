@@ -28,6 +28,7 @@
     <Compile Include="..\..\UI\Santase.UI\Game\GameViewModel.cs" Link="App\Game\GameViewModel.cs" />
     <Compile Include="..\..\UI\Santase.UI\Game\IGameTableHost.cs" Link="App\Game\IGameTableHost.cs" />
     <Compile Include="..\..\UI\Santase.UI\Game\MatchHistoryStore.cs" Link="App\Game\MatchHistoryStore.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\OneAtATime.cs" Link="App\Game\OneAtATime.cs" />
     <Compile Include="..\..\UI\Santase.UI\Game\OpponentStatsStore.cs" Link="App\Game\OpponentStatsStore.cs" />
     <Compile Include="..\..\UI\Santase.UI\Game\PlayerRatingStore.cs" Link="App\Game\PlayerRatingStore.cs" />
     <Compile Include="..\..\UI\Santase.UI\Game\RelayCommand.cs" Link="App\Game\RelayCommand.cs" />

@@ -16,11 +16,14 @@ namespace Santase.UI.Pages
 
     public partial class StartPage : ContentPage
     {
+        // A double tap opens one page: two quick taps on an opponent used to open two games.
+        private readonly OneAtATime navigation = new();
+
         public StartPage()
         {
             this.InitializeComponent();
 
-            this.SelectOpponentCommand = new RelayCommand<AiOpponent>(opponent => _ = this.OnSelectOpponent(opponent));
+            this.SelectOpponentCommand = new RelayCommand<AiOpponent>(opponent => _ = this.navigation.RunAsync(() => this.OnSelectOpponent(opponent)));
 
             // Set once; AiOpponent raises PropertyChanged on a language switch or a stats update,
             // so the bound rows refresh in place (no list rebuild needed).
@@ -45,17 +48,17 @@ namespace Santase.UI.Pages
 
         private async void OnOpenSettings(object? sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("SettingsPage");
+            await this.navigation.RunAsync(() => Shell.Current.GoToAsync("SettingsPage"));
         }
 
         private async void OnOpenStatistics(object? sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("StatisticsPage");
+            await this.navigation.RunAsync(() => Shell.Current.GoToAsync("StatisticsPage"));
         }
 
         private async void OnOpenRules(object? sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("RulesPage");
+            await this.navigation.RunAsync(() => Shell.Current.GoToAsync("RulesPage"));
         }
 
         private void OnPlayerNameChanged(object? sender, EventArgs e)
@@ -168,12 +171,17 @@ namespace Santase.UI.Pages
 
         private async void OnPlayHotSeat(object? sender, EventArgs e)
         {
+            await this.navigation.RunAsync(this.PlayHotSeatAsync);
+        }
+
+        private Task PlayHotSeatAsync()
+        {
             var mgr = LocalizationManager.Instance;
             var first = this.ResolveFirstPlayerName();
             var second = string.IsNullOrWhiteSpace(this.SecondPlayerEntry.Text) ? mgr["Start_Player2"] : this.SecondPlayerEntry.Text.Trim();
 
             var query = $"?mode={GameMode.HotSeat}&first={Uri.EscapeDataString(first)}&second={Uri.EscapeDataString(second)}";
-            await Shell.Current.GoToAsync($"GamePage{query}");
+            return Shell.Current.GoToAsync($"GamePage{query}");
         }
 
         private Task OnSelectOpponent(AiOpponent? opponent)

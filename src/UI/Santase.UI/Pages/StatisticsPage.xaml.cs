@@ -14,6 +14,9 @@ namespace Santase.UI.Pages
 
     public partial class StatisticsPage : ContentPage
     {
+        // A double tap on Back goes back once.
+        private readonly OneAtATime navigation = new();
+
         public StatisticsPage()
         {
             this.InitializeComponent();
@@ -27,7 +30,7 @@ namespace Santase.UI.Pages
 
         private async void OnBack(object? sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("..");
+            await this.navigation.RunAsync(() => Shell.Current.GoToAsync(".."));
         }
 
         private void Populate()
