@@ -169,15 +169,15 @@ namespace Santase.UI.Localization
             ["Rules_Play_Title"] = "Playing tricks",
             ["Rules_Play_Body"] = "The leader plays a card and the opponent answers. The higher card of the led suit wins the trick, but any trump beats any non-trump. While cards remain in the deck you may answer with any card — no need to follow suit. After each trick both players draw a card, and the trick winner leads next. Points from the two cards in every trick you win count toward 66.",
             ["Rules_Marriages_Title"] = "Marriages — 20 & 40",
-            ["Rules_Marriages_Body"] = "Holding the King and Queen of the same suit is a marriage. Lead either of them and the marriage is announced automatically: 20 points, or 40 in the trump suit. The badges on your cards show when a lead would announce a marriage.",
+            ["Rules_Marriages_Body"] = "Holding the King and Queen of the same suit is a marriage. Lead either of them (from the second trick of a round on) and the marriage is announced automatically: 20 points, or 40 in the trump suit. The badges on your cards show when a lead would announce a marriage.",
             ["Rules_Nine_Title"] = "The trump nine",
-            ["Rules_Nine_Body"] = "If you hold the 9 of trumps, it is your lead, and more than two cards remain in the deck, you may swap the 9 for the face-up trump card — trading your weakest trump for a stronger one.",
+            ["Rules_Nine_Body"] = "If you hold the 9 of trumps, it is your lead (not on the round's first trick), and more than two cards remain in the deck, you may swap the 9 for the face-up trump card — trading your weakest trump for a stronger one.",
             ["Rules_Closing_Title"] = "Closing the game",
-            ["Rules_Closing_Body"] = "When it is your lead (with more than two cards in the deck) you may close: no more cards are drawn and strict rules begin immediately. Close when your hand looks strong enough to reach 66 — if you fall short, your opponent scores 3 game points.",
+            ["Rules_Closing_Body"] = "When it is your lead (after the round's first trick, with more than two cards in the deck) you may close: no more cards are drawn and strict rules begin immediately. Close when your hand looks strong enough to reach 66 — if you fall short, your opponent scores 3 game points.",
             ["Rules_Endgame_Title"] = "When the deck is out",
             ["Rules_Endgame_Body"] = "Once the deck is exhausted or the game is closed, strict rules apply: you must follow suit, you must beat the led card if you can, and you must trump when you cannot follow suit. If nobody closed, winning the very last trick earns a +10 bonus.",
             ["Rules_Scoring_Title"] = "Winning a round",
-            ["Rules_Scoring_Body"] = "The moment you collect 66 or more points, the round ends in your favour. The winner earns game points: 1 if the loser has 33 or more, 2 if the loser has fewer than 33, and 3 if the loser took no tricks at all. If nobody reaches 66 by the last trick, the higher total wins 1 game point.",
+            ["Rules_Scoring_Body"] = "The moment you collect 66 or more points, the round ends in your favour. The winner earns game points: 1 if the loser has 33 or more, 2 if the loser has fewer than 33, and 3 if the loser took no tricks at all. If nobody reaches 66 before the last trick, the higher total (with the +10 for the last trick) wins 1 game point; at 65–65 nobody scores.",
             ["Rules_Match_Title"] = "Winning the game",
             ["Rules_Match_Body"] = "Game points add up round after round. The first player to reach 11 game points wins. Ranked games against the computer also move your ELO rating — beat stronger opponents to climb faster.",
         };
@@ -337,22 +337,25 @@ namespace Santase.UI.Localization
             ["Rules_Title"] = "Как се играе",
             ["Rules_Intro"] = "Сантасето (66, Шнапсен) е игра с взятки за двама. Печели ръце, за да събираш точки за играта — първият, стигнал 11 точки, печели.",
             ["Rules_Cards_Title"] = "Карти и точки",
-            ["Rules_Cards_Body"] = "Тестето има 24 карти: 9, J, Q, K, 10 и A от всяка боя. Точки: Асо 11 · Десетка 10 · Поп 4 · Дама 3 · Вале 2 · Девятка 0. Всеки играч получава шест карти, а една карта се обръща — нейната боя е коз за ръката.",
+            ["Rules_Cards_Body"] = "Тестето има 24 карти: 9, J, Q, K, 10 и A от всяка боя. Точки: Асо 11 · Десетка 10 · Поп 4 · Дама 3 · Вале 2 · Деветка 0. Всеки играч получава шест карти, а една карта се обръща — нейната боя е коз за ръката.",
             ["Rules_Play_Title"] = "Взятките",
             ["Rules_Play_Body"] = "Водещият играе карта, противникът отговаря. По-високата карта от исканата боя печели взятката, но всеки коз бие всяка друга карта. Докато в тестето има карти, може да отговаряш с каквато и да е карта — не си длъжен да отговаряш на боята. След всяка взятка двамата теглят по карта, а победителят води следващата. Точките от двете карти във всяка спечелена взятка се броят към 66.",
             ["Rules_Marriages_Title"] = "Анонси — 20 и 40",
-            ["Rules_Marriages_Body"] = "Поп и дама от една боя правят анонс (двойка). Поведи с една от двете карти и анонсът се обявява автоматично: 20 точки, а в козовата боя — 40. Значките върху картите ти показват кога воденето ще обяви анонс.",
-            ["Rules_Nine_Title"] = "Козовата девятка",
-            ["Rules_Nine_Body"] = "Ако държиш козовата девятка, ти водиш и в тестето има повече от две карти, може да я смениш с обърнатия коз — даваш най-слабия си коз за по-силен.",
+            ["Rules_Marriages_Body"] = "Поп и дама от една боя правят анонс (двойка). Поведи с една от двете карти (от втората взятка на ръката нататък) и анонсът се обявява автоматично: 20 точки, а в козовата боя — 40. Значките върху картите ти показват кога воденето ще обяви анонс.",
+            ["Rules_Nine_Title"] = "Козовата деветка",
+            ["Rules_Nine_Body"] = "Ако държиш козовата деветка, ти водиш (не в първата взятка на ръката) и в тестето има повече от две карти, може да я смениш с обърнатия коз — даваш най-слабия си коз за по-силен.",
             ["Rules_Closing_Title"] = "Затваряне",
-            ["Rules_Closing_Body"] = "Когато водиш (и в тестето има повече от две карти), може да затвориш: спира тегленето и веднага влизат строгите правила. Затваряй, когато ръката ти изглежда достатъчна за 66 — ако не стигнеш, противникът печели 3 точки.",
+            ["Rules_Closing_Body"] = "Когато водиш (след първата взятка на ръката и докато в тестето има повече от две карти), може да затвориш: спира тегленето и веднага влизат строгите правила. Затваряй, когато ръката ти изглежда достатъчна за 66 — ако не стигнеш, противникът печели 3 точки.",
             ["Rules_Endgame_Title"] = "Когато тестето свърши",
             ["Rules_Endgame_Body"] = "Щом тестето се изчерпи или играта е затворена, важат строгите правила: длъжен си да отговаряш на боята, да качваш, ако можеш, и да цакаш с коз, когато нямаш от боята. Ако никой не е затварял, последната взятка носи бонус +10.",
             ["Rules_Scoring_Title"] = "Печелене на ръката",
-            ["Rules_Scoring_Body"] = "В момента, в който събереш 66 или повече точки, ръката приключва в твоя полза. Победителят взима точки за играта: 1, ако губещият има 33 или повече; 2, ако има под 33; и 3, ако не е взел нито една взятка. Ако никой не стигне 66 до последната взятка, по-високият сбор носи 1 точка.",
+            ["Rules_Scoring_Body"] = "В момента, в който събереш 66 или повече точки, ръката приключва в твоя полза. Победителят взима точки за играта: 1, ако губещият има 33 или повече; 2, ако има под 33; и 3, ако не е взел нито една взятка. Ако никой не стигне 66 преди последната взятка, по-високият сбор (с бонуса +10 за последната взятка) носи 1 точка; при 65 на 65 никой не печели точки.",
             ["Rules_Match_Title"] = "Печелене на играта",
             ["Rules_Match_Body"] = "Точките за играта се трупат ръка след ръка. Първият, стигнал 11 точки, печели. Игрите срещу компютъра движат и твоя ELO рейтинг — побеждавай по-силни противници, за да се изкачваш по-бързо.",
         };
+
+        /// <summary>The whole table of one language (the tests compare the two).</summary>
+        public static IReadOnlyDictionary<string, string> Table(string lang) => lang == LocalizationManager.Bulgarian ? Bg : En;
 
         public static string Get(string lang, string key)
         {
