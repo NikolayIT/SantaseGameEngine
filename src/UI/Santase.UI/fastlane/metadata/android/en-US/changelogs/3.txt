@@ -1,0 +1,6 @@
+What's new in 1.2:
+• Stronger computer opponents, with updated ratings
+• A smoother, more reliable game table
+• Two players on one device: the device is passed without the last player's cards showing, and the winner is celebrated at the end
+• The win rate shows its decimal (12.5%)
+• Fixes: a double tap no longer opens two screens or deals two games; hints and messages stay up for their full time; the game history names opponents in the current language; clearer rules
