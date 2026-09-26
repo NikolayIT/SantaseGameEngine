@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
 
     using Santase.Logic.Cards;
 
@@ -68,6 +69,42 @@
                     Assert.Same(card, Card.GetCard(suit, type));
                 }
             }
+        }
+
+        [Fact]
+        public void FromHashCodeShouldReturnTheSameInstanceForAllTwentyFourCards()
+        {
+            foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
+            {
+                foreach (CardType type in Enum.GetValues(typeof(CardType)))
+                {
+                    var card = Card.GetCard(suit, type);
+                    Assert.Same(card, Card.FromHashCode(card.GetHashCode()));
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(0)] // Club, rank 0
+        [InlineData(2)] // Club, rank 2
+        [InlineData(8)] // Club, rank 8
+        [InlineData(15)] // Diamond, rank 2
+        [InlineData(53)]
+        [InlineData(int.MaxValue)]
+        [InlineData(int.MinValue)]
+        public void FromHashCodeShouldRejectAnythingThatIsNotASantaseCard(int hashCode)
+        {
+            Assert.Throws<IndexOutOfRangeException>(() => Card.FromHashCode(hashCode));
+        }
+
+        // Every Card is shared by the whole process, so their table must not be writable from
+        // outside the engine: Card.Cards was a public array (never on nuget.org), where one
+        // "Card.Cards[1] = null" would have broken every game after it. Bots use Card.FromHashCode.
+        [Fact]
+        public void CardShouldExposeNoPublicStaticFields()
+        {
+            Assert.Empty(typeof(Card).GetFields(BindingFlags.Public | BindingFlags.Static));
         }
 
         [Theory]

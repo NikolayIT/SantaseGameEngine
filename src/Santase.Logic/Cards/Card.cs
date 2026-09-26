@@ -7,7 +7,9 @@
     /// </summary>
     public sealed class Card
     {
-        public static readonly Card[] Cards = new Card[53];
+        // The 24 cards by hash code (suit * 13 + rank); the unused ranks 2-8 are empty. Internal: the
+        // whole process shares these instances, so no code outside the engine may write into it.
+        internal static readonly Card[] Cards = new Card[53];
 
         private static readonly int[] CardValues = { 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 10, 2, 3, 4 };
 
@@ -51,6 +53,24 @@
             if (card == null)
             {
                 throw new IndexOutOfRangeException("Invalid suit and type given.");
+            }
+
+            return card;
+        }
+
+        /// <summary>
+        /// Gets the card whose <see cref="GetHashCode"/> is <paramref name="hashCode"/>, for players that
+        /// keep cards as bits of a mask.
+        /// </summary>
+        /// <param name="hashCode">A card's hash code: suit * 13 + rank (Ace 1, Nine 9 ... King 13).</param>
+        /// <returns>The shared instance of that card.</returns>
+        /// <exception cref="IndexOutOfRangeException">No Santase card has that hash code.</exception>
+        public static Card FromHashCode(int hashCode)
+        {
+            var card = (uint)hashCode < (uint)Cards.Length ? Cards[hashCode] : null;
+            if (card == null)
+            {
+                throw new IndexOutOfRangeException("Invalid card hash code given.");
             }
 
             return card;

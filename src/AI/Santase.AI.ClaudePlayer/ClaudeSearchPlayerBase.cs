@@ -342,7 +342,7 @@ namespace Santase.AI.ClaudePlayer
 
             var possibleCards = this.PlayerActionValidator.GetPossibleCardsToPlay(context, this.Cards);
             var chosenHash = this.ChooseCard(context, possibleCards);
-            return this.PlayCard(Card.Cards[chosenHash]);
+            return this.PlayCard(Card.FromHashCode(chosenHash));
         }
 
         /// <summary>
@@ -704,7 +704,7 @@ namespace Santase.AI.ClaudePlayer
             var distribution = new float[NeuralFeatureEncoder.CardCount];
             for (var i = 0; i < count; i++)
             {
-                var index = NeuralFeatureEncoder.CardIndex(Card.Cards[moveHashes[i]]);
+                var index = NeuralFeatureEncoder.CardIndex(Card.FromHashCode(moveHashes[i]));
                 distribution[index] += visitCounts[i] / (float)totalVisits;
             }
 
@@ -1326,7 +1326,7 @@ namespace Santase.AI.ClaudePlayer
                 return;
             }
 
-            var partner = Card.Cards[BitOperations.TrailingZeroCount((ulong)partnerBit)];
+            var partner = Card.FromHashCode(BitOperations.TrailingZeroCount((ulong)partnerBit));
             if (this.UnknownCards.Contains(partner))
             {
                 this.oppKnownMask |= partnerBit;

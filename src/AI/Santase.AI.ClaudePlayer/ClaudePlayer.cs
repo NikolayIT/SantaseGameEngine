@@ -354,7 +354,7 @@
             }
 
             // Defensive: if minimax somehow picked a move the validator would reject, defer.
-            var best = Card.Cards[bestHash];
+            var best = Card.FromHashCode(bestHash);
             return possibleCards.Contains(best) ? best : null;
         }
 

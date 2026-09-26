@@ -33,7 +33,7 @@ Rules and fixes
 - The +10 for the last trick is awarded only when all 24 cards are played and nobody closed.
 - The round phases follow the talon, so rule variants with other deal sizes play correctly; SantaseMatch refuses rules no match can play.
 - A move with no action or no card is rejected as invalid instead of crashing, and the engine always computes a move's announce itself.
-- Card.GetCard throws for anything that is not a Santase card; CardCollection rejects null.
+- Card.GetCard and Card.FromHashCode throw for anything that is not a Santase card; CardCollection rejects null.
 
 Performance
 - About 2x the engine throughput of 2.0.0 and far fewer allocations: allocation-free CardCollection enumeration, incremental round points, an in-place shuffle.

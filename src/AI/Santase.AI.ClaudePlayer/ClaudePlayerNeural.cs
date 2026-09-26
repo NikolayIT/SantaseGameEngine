@@ -358,7 +358,7 @@ namespace Santase.AI.ClaudePlayer
                 return null;
             }
 
-            var best = Card.Cards[bestHash];
+            var best = Card.FromHashCode(bestHash);
             return possibleCards.Contains(best) ? best : null;
         }
     }
