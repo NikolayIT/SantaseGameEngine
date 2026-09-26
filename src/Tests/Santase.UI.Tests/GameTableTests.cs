@@ -40,6 +40,28 @@ namespace Santase.UI.Tests
             Assert.Empty(MatchHistoryStore.All());
         });
 
+        // Hot-seat: while the device is passed, the "pass the device" screen covers the table but
+        // is not fully opaque, so the person who just played must not leave their cards face up
+        // under it (they did: the hand stayed until the next person tapped "Ready").
+        [Fact]
+        public void HotSeatHandoffShouldHideTheHandOfThePersonWhoJustPlayed() => UiThread.Run(async () =>
+        {
+            for (var seed = 20; seed < 24; seed++)
+            {
+                var (session, table, _) = HotSeatTable(seed);
+                var tester = new TableTester(session, table, seed);
+                tester.OnHandoff = next =>
+                {
+                    Assert.True(table.IsHandoffOverlayVisible);
+                    Assert.DoesNotContain(table.MyHand, card => !card.IsFaceDown);
+                };
+                table.StartGame();
+                await tester.PlayToTheEndAsync();
+                Assert.True(tester.Handoffs > 10);
+                table.Dispose();
+            }
+        });
+
         [Theory]
         [InlineData("dummy")]
         [InlineData("smart")]

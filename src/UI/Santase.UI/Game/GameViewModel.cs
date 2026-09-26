@@ -542,8 +542,11 @@ namespace Santase.UI.Game
 
             if (slot != this.mySlot)
             {
-                // Hot-seat: the other person takes the device before their cards are shown.
+                // Hot-seat: the other person takes the device before their cards are shown, and
+                // the cards of the person who just played go away first (the handoff screen is not
+                // fully opaque). OnHandoffContinue shows the new seat's hand.
                 this.pendingHandoffSlot = slot;
+                this.MyHand.Clear();
                 this.IsMyTurn = false;
                 this.HandoffMessage = Loc.Format("Handoff_Pass", this.session.GetName(slot));
                 this.IsHandoffOverlayVisible = true;
