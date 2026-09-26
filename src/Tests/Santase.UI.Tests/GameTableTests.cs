@@ -155,6 +155,55 @@ namespace Santase.UI.Tests
             table.Dispose();
         });
 
+        // A hint highlights a card (or explains an exchange in a toast) for a while. Pressed again
+        // before that time is up, the second hint must get its full time too: the first press's
+        // timer used to clear the highlight (and a toast with the same text) early.
+        [Fact]
+        public void ARepeatedHintShouldStayForItsFullTime() => UiThread.Run(async () =>
+        {
+            var highlightChecked = false;
+            var toastChecked = false;
+            for (var seed = 40; seed < 70 && !(highlightChecked && toastChecked); seed++)
+            {
+                var (session, table, host) = VsComputerTable("dummy", seed);
+                var tester = new TableTester(session, table, seed);
+                tester.OnDecision = _ =>
+                {
+                    host.RunTimers();
+                    var hint = session.GetHint()!;
+                    if (hint.Type == PlayerActionType.PlayCard && !highlightChecked)
+                    {
+                        table.HintCommand.Execute(null);
+                        var hinted = Assert.Single(table.MyHand, card => card.IsHinted);
+                        Assert.Same(hint.Card, hinted.Card);
+                        table.HintCommand.Execute(null);
+                        host.RunOldestTimer();
+                        Assert.True(hinted.IsHinted);
+                        host.RunOldestTimer();
+                        Assert.False(hinted.IsHinted);
+                        highlightChecked = true;
+                    }
+                    else if (hint.Type == PlayerActionType.ChangeTrump && !toastChecked)
+                    {
+                        table.HintCommand.Execute(null);
+                        Assert.Equal(Loc["Hint_SwapTrump"], table.ToastMessage);
+                        table.HintCommand.Execute(null);
+                        host.RunOldestTimer();
+                        Assert.Equal(Loc["Hint_SwapTrump"], table.ToastMessage);
+                        host.RunOldestTimer();
+                        Assert.Null(table.ToastMessage);
+                        toastChecked = true;
+                    }
+                };
+                table.StartGame();
+                await tester.PlayToTheEndAsync();
+                table.Dispose();
+            }
+
+            Assert.True(highlightChecked);
+            Assert.True(toastChecked);
+        });
+
         internal static (GameSession Session, GameViewModel Table, FakeTableHost Host) HotSeatTable(int seed, GamePace? pace = null)
         {
             var session = new GameSession(GameMode.HotSeat, "Ann", "Bob", null, pace ?? GamePace.Instant, new Random(seed).Next);

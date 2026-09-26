@@ -120,6 +120,11 @@ namespace Santase.UI.Game
 
         private CardSlot? lastTrickSlot2Card;
 
+        // Each toast and hint highlight is cleared by its own timer, unless a newer one took over.
+        private int toastVersion;
+
+        private int hintVersion;
+
         public GameViewModel(GameSession session, AiOpponent? opponent, IGameTableHost host)
         {
             this.session = session;
@@ -897,7 +902,14 @@ namespace Santase.UI.Game
                     }
 
                     suggested.IsHinted = true;
-                    this.host.After(NoticeDuration, () => suggested.IsHinted = false);
+                    var version = ++this.hintVersion;
+                    this.host.After(NoticeDuration, () =>
+                    {
+                        if (this.hintVersion == version)
+                        {
+                            suggested.IsHinted = false;
+                        }
+                    });
                     break;
                 case PlayerActionType.ChangeTrump:
                     this.ShowToast(Loc["Hint_SwapTrump"]);
@@ -1060,9 +1072,10 @@ namespace Santase.UI.Game
         private void ShowToast(string message)
         {
             this.ToastMessage = message;
+            var version = ++this.toastVersion;
             this.host.After(NoticeDuration, () =>
             {
-                if (this.ToastMessage == message)
+                if (this.toastVersion == version)
                 {
                     this.ToastMessage = null;
                 }

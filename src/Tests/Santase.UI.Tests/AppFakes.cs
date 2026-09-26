@@ -52,6 +52,14 @@ namespace Santase.UI.Tests
 
         public void Leave() => this.Leaves++;
 
+        // Runs the oldest timer still waiting.
+        public void RunOldestTimer()
+        {
+            var (_, action) = this.Timers[0];
+            this.Timers.RemoveAt(0);
+            action();
+        }
+
         // Runs the timers set so far (not the ones they set).
         public void RunTimers()
         {
