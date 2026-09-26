@@ -18,9 +18,6 @@ dotnet build src\Santase.sln -c Release
 # This is the primary regression test for AI changes. Always run in Release.
 dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj
 
-# Run the human-playable Console UI (net10.0).
-dotnet run --project src\UI\Santase.UI.Console\Santase.UI.Console.csproj
-
 # Run the cross-platform MAUI desktop/mobile UI (Santase.UI).
 dotnet build src\UI\Santase.UI\Santase.UI.csproj -t:Run
 
@@ -45,9 +42,9 @@ Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) li
 ### Layering (dependencies flow downward)
 
 ```
-   Santase.UI.Console   Santase.UI (MAUI)   Santase.Tests.GameSimulations (+ unit tests)
-            │                 │                              │
-            └─────────────────┴──────────────┬───────────────┘
+          Santase.UI (MAUI)          Santase.Tests.GameSimulations (+ unit tests)
+                  │                              │
+                  └──────────────┬───────────────┘
                                  ▼
      AI players (ClaudePlayer/ClaudePlayerNeural, SmartPlayer, DummyPlayer, External *.dll)
                                  │
@@ -155,7 +152,7 @@ StyleCop.Analyzers is enforced via `src/Rules.ruleset` + `src/stylecop.json`, ap
 
 A few files in the repo describe an older state and were not updated when the UWP / Mobile Blazor Bindings / Android UI projects were removed (commit `262e270`):
 
-- `README.md` still advertises the Windows Universal App (Microsoft Store) and the Mobile Blazor Bindings Android UI, and says **Visual Studio 2017** is required. The current solution file is tagged Visual Studio 18. The old UWP/Android UIs were removed in `262e270`; the UIs that remain are the Console UI (`Santase.UI.Console`) and a newer cross-platform **MAUI** desktop/mobile UI (`Santase.UI`, added after `262e270` in `2dec948`→`c5a2163`), both in `src/Santase.sln`.
+- `README.md` still advertises the Windows Universal App (Microsoft Store) and the Mobile Blazor Bindings Android UI, and says **Visual Studio 2017** is required. The current solution file is tagged Visual Studio 18. The old UWP/Android UIs were removed in `262e270`; the only UI that remains is the cross-platform **MAUI** desktop/mobile app (`Santase.UI`, added after `262e270` in `2dec948`→`c5a2163`), in `src/Santase.sln`. The old console UI (`Santase.UI.Console`, a blocking `IPlayer` loop against SmartPlayer only) was removed in September 2026.
 - `azure-pipelines.yml` still builds the solution via `VSBuild` with UWP-specific MSBuild args (`AppxBundlePlatforms`, `AppxBundle=Always`, `UapAppxPackageBuildMode=StoreUpload`). With the UWP project gone, the pipeline is effectively dead until rewritten — assume CI is not currently green.
 
 When working on related areas (CI, packaging, docs), check these against current reality before trusting them.

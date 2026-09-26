@@ -39,7 +39,6 @@ src/AI/Santase.AI.DummyPlayer   Baseline legal-random players
 src/AI/Santase.AI.SmartPlayer   Heuristic AI player
 src/AI/Santase.AI.ClaudePlayer  AI player (incl. an optional neural variant)
 src/AI/External/*.dll           Third-party binary AI players (no source)
-src/UI/Santase.UI.Console       Human-playable console UI (.NET 10)
 src/UI/Santase.UI               Cross-platform .NET MAUI app (Android / iOS / macOS / Windows)
 src/Tests/Santase.Logic.Tests             xUnit tests for the engine (255 tests)
 src/Tests/Santase.AI.SmartPlayer.Tests    xUnit tests for SmartPlayer
@@ -66,9 +65,6 @@ dotnet test src\Santase.sln -c Release
 
 # Run the AI benchmark / game simulator (the primary regression check for AI changes).
 dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj
-
-# Play against the AI in the console.
-dotnet run --project src\UI\Santase.UI.Console\Santase.UI.Console.csproj
 ```
 
 The `Santase.Logic` library is extensively unit tested (255 tests in

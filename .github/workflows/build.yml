@@ -48,7 +48,6 @@ jobs:
           dotnet build src/Tests/Santase.AI.ClaudePlayer.Tests/Santase.AI.ClaudePlayer.Tests.csproj -c Release
           dotnet build src/Tests/Santase.UI.Tests/Santase.UI.Tests.csproj -c Release
           dotnet build src/Tests/Santase.Tests.GameSimulations/Santase.Tests.GameSimulations.csproj -c Release
-          dotnet build src/UI/Santase.UI.Console/Santase.UI.Console.csproj -c Release
 
       - name: Test
         run: |
