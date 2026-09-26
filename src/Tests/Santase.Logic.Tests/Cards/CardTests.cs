@@ -37,6 +37,39 @@
             Assert.Throws<IndexOutOfRangeException>(() => Card.GetCard(CardSuit.Spade, cardTypeValue));
         }
 
+        // A host mapping its own numbers to cards must get an error for anything that is not a
+        // Santase card, never another card (rank 0 used to be the previous suit's King, 14 the
+        // next suit's Ace) or null (the ranks 2-8, which Santase does not use).
+        [Theory]
+        [InlineData(1, 0)] // Diamond, rank 0
+        [InlineData(0, 14)] // Club, rank 14
+        [InlineData(2, 2)] // Heart, rank 2
+        [InlineData(0, 8)] // Club, rank 8
+        [InlineData(0, 0)] // Club, rank 0
+        [InlineData(4, 0)]
+        [InlineData(4, 1)] // suit 4, Ace
+        [InlineData(-1, 13)] // suit -1, King
+        [InlineData(3, -1)] // Spade, rank -1
+        public void GetCardShouldRejectAnythingThatIsNotASantaseCard(int suit, int type)
+        {
+            Assert.Throws<IndexOutOfRangeException>(() => Card.GetCard((CardSuit)suit, (CardType)type));
+        }
+
+        [Fact]
+        public void GetCardShouldReturnTheCardAskedForForAllTwentyFourCards()
+        {
+            foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
+            {
+                foreach (CardType type in Enum.GetValues(typeof(CardType)))
+                {
+                    var card = Card.GetCard(suit, type);
+                    Assert.Equal(suit, card.Suit);
+                    Assert.Equal(type, card.Type);
+                    Assert.Same(card, Card.GetCard(suit, type));
+                }
+            }
+        }
+
         [Theory]
         [InlineData(true, CardSuit.Spade, CardType.Ace, CardSuit.Spade, CardType.Ace)]
         [InlineData(false, CardSuit.Heart, CardType.Jack, CardSuit.Heart, CardType.Queen)]

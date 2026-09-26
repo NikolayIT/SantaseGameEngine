@@ -44,13 +44,16 @@
 
         public static Card GetCard(CardSuit suit, CardType type)
         {
-            var code = ((int)suit * 13) + (int)type;
-            if (code < 0 || code > 52)
+            // A range check on the code alone let rank 0 or 14 wrap into the neighbouring suit (0
+            // was the King of the previous suit); the ranks 2-8 are empty slots (null).
+            var inRange = suit >= CardSuit.Club && suit <= CardSuit.Spade && type >= CardType.Ace && type <= CardType.King;
+            var card = inRange ? Cards[((int)suit * 13) + (int)type] : null;
+            if (card == null)
             {
                 throw new IndexOutOfRangeException("Invalid suit and type given.");
             }
 
-            return Cards[code];
+            return card;
         }
 
         public int GetValue()
