@@ -4,6 +4,7 @@ namespace Santase.UI.Tests
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Santase.AI.ClaudePlayer;
@@ -257,6 +258,142 @@ namespace Santase.UI.Tests
             session.Start();
             await roundOver.Task;
             await AssertStopsQuietly(session, table);
+        });
+
+        // Leaving the table can happen inside an event handler (a person taps "leave" while the
+        // screen updates, or the page goes away): nothing more may be raised or awaited then. The
+        // flow used to check for a stop only after its awaits, so a stop from RoundStarted,
+        // MovePlayed or TrickCollected still armed the next person's move and raised TurnStarted.
+        [Theory]
+        [InlineData("deal")]
+        [InlineData("turn")]
+        [InlineData("lead")]
+        [InlineData("trick")]
+        [InlineData("round result")]
+        public void StoppingFromAnEventHandlerShouldEndTheGameRightThere(string stopOn) => UiThread.Run(async () =>
+        {
+            var session = HotSeat(11);
+            var table = new TableDriver(session, 11);
+            var eventsAtStop = -1;
+            void StopHere()
+            {
+                if (eventsAtStop < 0)
+                {
+                    eventsAtStop = table.Events.Count;
+                    session.Stop();
+                }
+            }
+
+            switch (stopOn)
+            {
+                case "deal":
+                    session.RoundStarted += StopHere;
+                    break;
+                case "turn":
+                    session.TurnStarted += (_, _) => StopHere();
+                    break;
+                case "lead":
+                    session.MovePlayed += move => StopHere();
+                    break;
+                case "trick":
+                    session.TrickCollected += trick => StopHere();
+                    break;
+                default:
+                    session.RoundFinished += round => StopHere();
+                    break;
+            }
+
+            session.Start();
+            await session.Completion.WaitAsync(TimeSpan.FromSeconds(60));
+            await Task.Delay(30);
+
+            Assert.True(eventsAtStop > 0);
+            Assert.Equal(eventsAtStop, table.Events.Count);
+            Assert.False(session.IsRunning);
+            Assert.False(session.IsAwaitingMove(PlayerSlot.First));
+            Assert.False(session.IsAwaitingMove(PlayerSlot.Second));
+            Assert.False(session.TryPlay(PlayerSlot.First, PlayerAction.CloseGame()));
+            Assert.False(session.TryPlay(PlayerSlot.Second, PlayerAction.CloseGame()));
+            Assert.Empty(table.Errors);
+        });
+
+        // A wait that ended just before the stop has already queued its continuation on the UI
+        // thread: the table pause (its timer fired) or the Continue after a round (completed on
+        // the thread pool). That continuation must not raise the trick or the next deal. Here the
+        // UI thread is kept busy until the wait is over, then the game is stopped.
+        [Theory]
+        [InlineData("table pause")]
+        [InlineData("continue")]
+        public void AWaitThatEndedJustBeforeAStopShouldRaiseNothing(string wait) => UiThread.Run(async () =>
+        {
+            var session = new GameSession(GameMode.HotSeat, "Ann", "Bob", null, new GamePace(0, 1), new Random(13).Next);
+            var table = new TableDriver(session, 13);
+            var eventsAtStop = -1;
+            void StopOnceTheWaitIsOver()
+            {
+                SynchronizationContext.Current!.Post(
+                    _ =>
+                    {
+                        Thread.Sleep(100);
+                        eventsAtStop = table.Events.Count;
+                        session.Stop();
+                    },
+                    null);
+            }
+
+            if (wait == "table pause")
+            {
+                session.MovePlayed += move =>
+                {
+                    if (eventsAtStop < 0 && table.Moves.Count(m => m.Move.Action.Type == PlayerActionType.PlayCard) == 2)
+                    {
+                        StopOnceTheWaitIsOver();
+                    }
+                };
+            }
+            else
+            {
+                // The driver continues first (it subscribed first), then the stop is queued.
+                session.RoundFinished += _ => StopOnceTheWaitIsOver();
+            }
+
+            session.Start();
+            await session.Completion.WaitAsync(TimeSpan.FromSeconds(60));
+            await Task.Delay(30);
+
+            Assert.True(eventsAtStop > 0);
+            Assert.Equal(eventsAtStop, table.Events.Count);
+            Assert.False(session.IsAwaitingMove(PlayerSlot.First));
+            Assert.False(session.IsAwaitingMove(PlayerSlot.Second));
+            Assert.Empty(table.Errors);
+        });
+
+        // "Play again" from inside an event handler: the stopped game must not go on to its next
+        // turn (it used to raise TurnStarted for the old game, whose handlers then read the new,
+        // not yet dealt one); the new game starts with its deal and plays cleanly to the end.
+        [Fact]
+        public void RestartingFromAnEventHandlerShouldStartOneCleanGame() => UiThread.Run(async () =>
+        {
+            var session = HotSeat(12);
+            var table = new TableDriver(session, 12);
+            var eventsAtRestart = -1;
+            session.MovePlayed += _ =>
+            {
+                if (eventsAtRestart < 0)
+                {
+                    eventsAtRestart = table.Events.Count;
+                    session.Restart();
+                }
+            };
+
+            session.Start();
+            await session.Completion.WaitAsync(TimeSpan.FromSeconds(60));
+            await session.Completion.WaitAsync(TimeSpan.FromSeconds(60));
+
+            Assert.Empty(table.Errors);
+            Assert.NotNull(table.Winner);
+            Assert.Equal("round", table.Events[eventsAtRestart]);
+            AssertPlayOrder(table.Events.Skip(eventsAtRestart).ToList());
         });
 
         [Fact]

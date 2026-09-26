@@ -238,6 +238,11 @@ namespace Santase.UI.Game
                 this.RoundStarted?.Invoke();
                 while (true)
                 {
+                    // A handler of the last event may have stopped the game (or restarted it). The
+                    // same check follows every await: a wait that ended just before a stop has
+                    // already queued its continuation, which must not raise anything.
+                    stop.ThrowIfCancellationRequested();
+
                     var slot = Slot(game.ToMove);
                     PlayerAction action;
                     if (this.IsHumanSlot(slot))
@@ -269,7 +274,9 @@ namespace Santase.UI.Game
                     }
 
                     await Task.Delay(this.Pace.TrickSettleMs, stop);
+                    stop.ThrowIfCancellationRequested();
                     this.TrickCollected?.Invoke(trick);
+                    stop.ThrowIfCancellationRequested();
                     if (!trick.RoundOver)
                     {
                         continue;
@@ -288,6 +295,7 @@ namespace Santase.UI.Game
                     var next = this.ExpectContinue(stop);
                     this.RoundFinished?.Invoke(round);
                     await next;
+                    stop.ThrowIfCancellationRequested();
                     this.RoundStarted?.Invoke();
                 }
             }
