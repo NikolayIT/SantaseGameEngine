@@ -1,6 +1,7 @@
 namespace Santase.UI.Tests
 {
     using System;
+    using System.Threading.Tasks;
 
     using Santase.AI.ClaudePlayer;
     using Santase.AI.DummyPlayer;
@@ -202,6 +203,30 @@ namespace Santase.UI.Tests
 
             Assert.True(highlightChecked);
             Assert.True(toastChecked);
+        });
+
+        // "Play again" deals one new game, however fast it is tapped twice. A second tap used to
+        // stop the game just dealt and deal another one.
+        [Fact]
+        public void PlayAgainTappedTwiceShouldDealOneNewGame() => UiThread.Run(async () =>
+        {
+            var (session, table, _) = VsComputerTable("dummy", seed: 8);
+            var tester = new TableTester(session, table, 8);
+            table.StartGame();
+            await tester.PlayToTheEndAsync();
+
+            var deals = 0;
+            session.RoundStarted += () => deals++;
+            table.PlayAgainCommand.Execute(null);
+            table.PlayAgainCommand.Execute(null);
+            await tester.Until(() => table.IsMyTurn, "the first move of the new game");
+            await Task.Delay(50);
+
+            Assert.Equal(1, deals);
+            Assert.True(session.IsAwaitingMove(PlayerSlot.First));
+            await tester.PlayToTheEndAsync();
+            Assert.Equal(2, PlayerRatingStore.GamesPlayed);
+            table.Dispose();
         });
 
         internal static (GameSession Session, GameViewModel Table, FakeTableHost Host) HotSeatTable(int seed, GamePace? pace = null)

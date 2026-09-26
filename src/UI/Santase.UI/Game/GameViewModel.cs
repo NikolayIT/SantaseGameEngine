@@ -839,6 +839,12 @@ namespace Santase.UI.Game
 
         private void OnPlayAgain()
         {
+            // Only from the game-over (or error) screen, once: a double tap must not deal twice.
+            if (!this.IsGameOverlayVisible)
+            {
+                return;
+            }
+
             this.IsGameOverlayVisible = false;
             this.IsRoundOverlayVisible = false;
             this.IsHandoffOverlayVisible = false;
