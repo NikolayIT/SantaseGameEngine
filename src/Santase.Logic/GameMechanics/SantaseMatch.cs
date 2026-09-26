@@ -67,7 +67,8 @@
         /// </summary>
         /// <param name="firstPlayerObserver">Receives the first player's callbacks (not GetTurn); may be null.</param>
         /// <param name="secondPlayerObserver">Receives the second player's callbacks (not GetTurn); may be null.</param>
-        /// <param name="options">The match settings; null uses the defaults.</param>
+        /// <param name="options">The match settings; null uses the defaults. Rules a match cannot be
+        /// played by (a deal leaving no talon, targets below 1) throw <see cref="ArgumentOutOfRangeException"/>.</param>
         public SantaseMatch(IPlayer firstPlayerObserver, IPlayer secondPlayerObserver, SantaseMatchOptions options = null)
         {
             options ??= new SantaseMatchOptions();
@@ -76,9 +77,12 @@
                 throw new ArgumentOutOfRangeException(nameof(options), options.FirstToPlay, "FirstToPlay must be the first or the second player.");
             }
 
+            var rules = options.Rules ?? GameRulesProvider.Santase;
+            CheckRules(rules);
+
             this.firstObserver = firstPlayerObserver;
             this.secondObserver = secondPlayerObserver;
-            this.gameRules = options.Rules ?? GameRulesProvider.Santase;
+            this.gameRules = rules;
             this.logger = options.Logger ?? new NoLogger();
             this.shuffle = options.Shuffle;
             this.recordHistory = options.RecordHistory;
@@ -334,6 +338,29 @@
             }
 
             return roundWinnerPoints;
+        }
+
+        // Rules a match cannot be played by: a deal that leaves no talon (the face-up trump card
+        // is the talon's last card) or deals nothing, and targets of 0 or less, which a match or a
+        // round would meet before anyone played (the match "won" before a deal, or every round a
+        // 0-0 draw, dealt again forever).
+        private static void CheckRules(IGameRules rules)
+        {
+            const int DeckSize = 24;
+            if (rules.CardsAtStartOfTheRound < 1 || rules.CardsAtStartOfTheRound * 2 > DeckSize - 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rules), rules.CardsAtStartOfTheRound, "CardsAtStartOfTheRound must leave a talon of at least 2 cards: 1 to 11.");
+            }
+
+            if (rules.GamePointsNeededForWin < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rules), rules.GamePointsNeededForWin, "GamePointsNeededForWin must be at least 1.");
+            }
+
+            if (rules.RoundPointsForGoingOut < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rules), rules.RoundPointsForGoingOut, "RoundPointsForGoingOut must be at least 1.");
+            }
         }
 
         private static PlayerPosition ClosedBy(RoundPlayerInfo first, RoundPlayerInfo second)

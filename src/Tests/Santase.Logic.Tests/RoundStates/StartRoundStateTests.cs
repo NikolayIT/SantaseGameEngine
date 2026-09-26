@@ -63,6 +63,26 @@
             haveStateMock.Verify(x => x.SetState(It.IsAny<MoreThanTwoCardsLeftRoundState>()), Times.Once);
         }
 
+        // A variant that deals more cards (IGameRules.CardsAtStartOfTheRound 10 or 11) has 2 or no
+        // cards left after the first trick.
+        [Fact]
+        public void PlayHandShouldChangeTheStateToTwoCardsLeftRoundStateWhenTwoCardsAreLeft()
+        {
+            var haveStateMock = new Mock<IStateManager>();
+            var roundState = new StartRoundState(haveStateMock.Object);
+            roundState.PlayHand(2);
+            haveStateMock.Verify(x => x.SetState(It.IsAny<TwoCardsLeftRoundState>()), Times.Once);
+        }
+
+        [Fact]
+        public void PlayHandShouldChangeTheStateToFinalRoundStateWhenNoCardsAreLeft()
+        {
+            var haveStateMock = new Mock<IStateManager>();
+            var roundState = new StartRoundState(haveStateMock.Object);
+            roundState.PlayHand(0);
+            haveStateMock.Verify(x => x.SetState(It.IsAny<FinalRoundState>()), Times.Once);
+        }
+
         [Fact]
         public void CloseShouldNotChangeGameState()
         {
