@@ -3,7 +3,8 @@
     using Santase.Logic.Cards;
 
     /// <summary>
-    /// One finished trick.
+    /// One finished trick (and, in the record of a stopped match, the card left unanswered on the
+    /// table: see <see cref="SantaseRoundRecord.Tricks"/>).
     /// </summary>
     public sealed class SantaseTrick
     {
@@ -24,12 +25,13 @@
 
         /// <summary>
         /// Gets the answer, or null when the announce took the leader to the target and ended the
-        /// round before the follower played.
+        /// round before the follower played (or the match was stopped before the answer).
         /// </summary>
         public Card FollowCard { get; init; }
 
         /// <summary>
-        /// Gets the trick winner (the leader when <see cref="FollowCard"/> is null).
+        /// Gets the trick winner (the leader when <see cref="FollowCard"/> is null; nobody for the
+        /// unanswered card of a stopped match).
         /// </summary>
         public PlayerPosition Winner { get; init; }
 

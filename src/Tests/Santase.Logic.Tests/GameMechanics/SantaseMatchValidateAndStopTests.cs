@@ -6,6 +6,7 @@
 
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
+    using Santase.Logic.PlayerActionValidate;
     using Santase.Logic.Players;
     using Santase.Tests.Shared;
 
@@ -162,6 +163,52 @@
             Assert.Equal(PlayerPosition.NoOne, record.Rounds[2].ClosedBy);
         }
 
+        // Stopped while a card is on the table (here a 20/40 lead, already counted in the leader's
+        // points): the record keeps that card and its announce as the unfinished round's last
+        // trick, with no answer and no winner, so every card that left a hand is in the record.
+        [Fact]
+        public void StopWithACardOnTheTableShouldRecordTheUnansweredLead()
+        {
+            for (var seed = 0; seed < 100; seed++)
+            {
+                var random = new Random(seed);
+                var match = new SantaseMatch(new SantaseMatchOptions { Shuffle = random.Next });
+                match.Start();
+                Card lead = null;
+                PlayUntil(match, random, () => (lead = MarriageLeadThatKeepsTheRoundGoing(match)) != null);
+                if (lead == null)
+                {
+                    continue;
+                }
+
+                var leader = match.ToMove;
+                var cardsLeftInDeck = match.GetView(leader).CardsLeftInDeck;
+                Assert.Equal(SantaseActResult.Ok, match.Act(leader, PlayerAction.PlayCard(lead)));
+                match.Stop();
+
+                var final = match.GetFinalView();
+                var unfinished = match.GetRecord().Rounds.Last();
+                Assert.Null(unfinished.Result);
+                Assert.Equal(final.Tricks.Select(Describe), unfinished.Tricks.Take(final.Tricks.Count).Select(Describe));
+                Assert.Equal(final.Tricks.Count + 1, unfinished.Tricks.Count);
+
+                var unanswered = unfinished.Tricks.Last();
+                Assert.Equal(leader, unanswered.Leader);
+                Assert.Same(lead, unanswered.LeadCard);
+                Assert.NotEqual(Announce.None, unanswered.Announce);
+                Assert.Equal(final.CurrentTrickAnnounce, unanswered.Announce);
+                Assert.Null(unanswered.FollowCard);
+                Assert.Equal(PlayerPosition.NoOne, unanswered.Winner);
+                Assert.Equal(cardsLeftInDeck, unanswered.CardsLeftInDeck);
+
+                var cardsPlayed = unfinished.Tricks.Sum(t => t.FollowCard == null ? 1 : 2);
+                Assert.Equal(24 - final.FirstPlayerCardCount - final.SecondPlayerCardCount - final.CardsLeftInDeck, cardsPlayed);
+                return;
+            }
+
+            Assert.Fail("No game with a 20/40 lead that keeps the round going.");
+        }
+
         [Fact]
         public void StopShouldNotChangeAFinishedMatch()
         {
@@ -198,6 +245,25 @@
                 var view = match.GetView(match.ToMove);
                 Assert.Equal(SantaseActResult.Ok, match.Act(match.ToMove, PlayerAction.PlayCard(view.PlayableCards[random.Next(view.PlayableCards.Count)])));
             }
+        }
+
+        // A King or Queen the player to move can lead with its partner in hand, if announcing it
+        // leaves them below 66 (so the card stays on the table); otherwise null.
+        private static Card MarriageLeadThatKeepsTheRoundGoing(SantaseMatch match)
+        {
+            var view = match.GetView(match.ToMove);
+            var context = view.CreateTurnContext();
+            if (!context.IsFirstPlayerTurn || !context.State.CanAnnounce20Or40)
+            {
+                return null;
+            }
+
+            var points = view.Seat == PlayerPosition.FirstPlayer ? view.FirstPlayerRoundPoints : view.SecondPlayerRoundPoints;
+            return view.PlayableCards.FirstOrDefault(card =>
+            {
+                var announce = AnnounceValidator.Instance.GetPossibleAnnounce(view.Hand.ToList(), card, view.TrumpCard);
+                return announce != Announce.None && points + (int)announce < 66;
+            });
         }
 
         private static IEnumerable<PlayerAction> AllMoves()

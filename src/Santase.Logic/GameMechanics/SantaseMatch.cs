@@ -214,7 +214,8 @@
         /// Ends the match before the rules do: a resignation, a timeout, an abandoned table. No more
         /// moves are accepted, the observers get no more callbacks, and <see cref="GetFinalView"/> and
         /// <see cref="GetRecord"/> become available, with the unfinished round last (its
-        /// <see cref="SantaseRoundRecord.Result"/> is null). There is no <see cref="Winner"/>: who won
+        /// <see cref="SantaseRoundRecord.Result"/> is null; a card led and not yet answered is its
+        /// last trick, with no follow card and no winner). There is no <see cref="Winner"/>: who won
         /// is the caller's decision. Does nothing on a match that is already over.
         /// </summary>
         public void Stop()
@@ -273,12 +274,27 @@
             var rounds = new List<SantaseRoundRecord>(this.finishedRounds);
             if (this.IsStopped)
             {
-                // The round the match was stopped in, as far as it got.
+                // The round the match was stopped in, as far as it got: a card led and not yet
+                // answered is its last trick, with no answer and no winner.
+                var tricks = new List<SantaseTrick>(this.round.Tricks);
+                var context = this.round.Context;
+                if (context?.FirstPlayedCard != null)
+                {
+                    tricks.Add(new SantaseTrick
+                    {
+                        Leader = this.round.Leader,
+                        LeadCard = context.FirstPlayedCard,
+                        Announce = context.FirstPlayerAnnounce,
+                        Winner = PlayerPosition.NoOne,
+                        CardsLeftInDeck = context.CardsLeftInDeck,
+                    });
+                }
+
                 rounds.Add(new SantaseRoundRecord
                 {
                     FirstToPlay = this.round.FirstToPlay,
                     Deal = this.round.Deal ?? Array.Empty<Card>(),
-                    Tricks = ToArray(this.round.Tricks),
+                    Tricks = tricks.ToArray(),
                     TrumpSwappedBy = this.round.TrumpSwappedBy,
                     SwappedTrumpCard = this.round.SwappedTrumpCard,
                     ClosedBy = ClosedBy(this.round.FirstPlayer, this.round.SecondPlayer),

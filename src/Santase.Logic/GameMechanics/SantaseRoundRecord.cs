@@ -23,7 +23,9 @@
         public IReadOnlyList<Card> Deal { get; init; }
 
         /// <summary>
-        /// Gets the finished tricks, in order.
+        /// Gets the finished tricks, in order. In the round a match was stopped in, a card led and
+        /// not yet answered comes last, with no <see cref="SantaseTrick.FollowCard"/> and
+        /// <see cref="PlayerPosition.NoOne"/> as the winner.
         /// </summary>
         public IReadOnlyList<SantaseTrick> Tricks { get; init; }
 
