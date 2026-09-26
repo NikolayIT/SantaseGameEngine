@@ -17,7 +17,14 @@ namespace Santase.UI.Game
             this.OpponentId = opponentId;
         }
 
+        /// <summary>Gets the opponent's name in the language of the game (as stored).</summary>
         public string OpponentName { get; }
+
+        /// <summary>
+        /// Gets the opponent's name in the current language; the stored name for a record without a
+        /// known opponent id (from app v1.0).
+        /// </summary>
+        public string OpponentDisplayName => AiOpponents.Find(this.OpponentId)?.DisplayName ?? this.OpponentName;
 
         /// <summary>Stable, language-independent opponent id (empty on records from app v1.0).</summary>
         public string OpponentId { get; }

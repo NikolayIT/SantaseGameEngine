@@ -149,7 +149,11 @@ namespace Santase.UI.Game
                 () => new ClaudePlayerIsmcts()),
         };
 
-        public static AiOpponent ById(string? id) =>
-            All.FirstOrDefault(o => string.Equals(o.Id, id, StringComparison.OrdinalIgnoreCase)) ?? All[0];
+        /// <summary>The opponent with this id, or the first (easiest) one for an unknown id.</summary>
+        public static AiOpponent ById(string? id) => Find(id) ?? All[0];
+
+        /// <summary>The opponent with this id, or null for an unknown one.</summary>
+        public static AiOpponent? Find(string? id) =>
+            All.FirstOrDefault(o => string.Equals(o.Id, id, StringComparison.OrdinalIgnoreCase));
     }
 }

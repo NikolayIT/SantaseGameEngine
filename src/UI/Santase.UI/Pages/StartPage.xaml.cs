@@ -127,7 +127,7 @@ namespace Santase.UI.Pages
 
             var versus = new Label
             {
-                Text = $"{mgr["History_Vs"]} {entry.OpponentName}",
+                Text = $"{mgr["History_Vs"]} {entry.OpponentDisplayName}",
                 TextColor = Color.FromArgb("#C7D2BD"),
                 FontSize = 13,
                 VerticalOptions = LayoutOptions.Center,
