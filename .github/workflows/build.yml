@@ -35,7 +35,7 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: ${{ runner.os }}-nuget-
 
-      # src/Santase.sln also contains UI/Santase.UI, the MAUI app: it needs the
+      # src/Santase.slnx also contains UI/Santase.UI, the MAUI app: it needs the
       # MAUI workloads and targets net10.0-ios/maccatalyst, which cannot build on
       # a Windows runner. So the projects are built individually instead of the
       # solution. These cover everything else through their references:

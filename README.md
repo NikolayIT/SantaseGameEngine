@@ -32,7 +32,7 @@ exactly):
 ## Repository layout
 
 ```
-src/Santase.sln                 Visual Studio 2026 solution
+src/Santase.slnx                Solution (XML .slnx: Visual Studio 2026, Rider, dotnet CLI)
 
 src/Santase.Logic               The engine — the SantaseGameEngine NuGet package
 src/AI/Santase.AI.DummyPlayer   Baseline legal-random players
@@ -58,10 +58,10 @@ src/Tests/Santase.Tests.GameSimulations   Parallel AI benchmark / game simulator
 
 ```powershell
 # Restore + build the whole solution (Release recommended).
-dotnet build src\Santase.sln -c Release
+dotnet build src\Santase.slnx -c Release
 
 # Run the unit tests (xUnit).
-dotnet test src\Santase.sln -c Release
+dotnet test src\Santase.slnx -c Release
 
 # Run the AI benchmark / game simulator (the primary regression check for AI changes).
 dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj

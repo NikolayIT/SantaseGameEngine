@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 C# implementation of the **Santase / 66 / Schnapsen / Sechsundsechzig** two-player trick-taking card game. The engine in `src/Santase.Logic` is shipped as the [SantaseGameEngine](https://www.nuget.org/packages/SantaseGameEngine) NuGet package; everything else is AI players, a console UI, and a parallel simulator harness used to benchmark AI strength.
 
-Solution: `src/Santase.sln`. The commands below assume the repo root is the working directory.
+Solution: `src/Santase.slnx` (the XML solution format; migrated from `Santase.sln` in September 2026, when the UWP-era ARM/x64/x86 platforms, all mapped to Any CPU, were dropped). The commands below assume the repo root is the working directory.
 
 ## Build, test, run
 
 ```powershell
 # Restore + build the whole solution (Release recommended; the simulator is benchmark-grade).
-dotnet build src\Santase.sln -c Release
+dotnet build src\Santase.slnx -c Release
 
 # Run the AI benchmark / game simulator (net10.0 console app, parallelized to all cores).
 # This is the primary regression test for AI changes. Always run in Release.
@@ -22,7 +22,7 @@ dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.
 dotnet build src\UI\Santase.UI\Santase.UI.csproj -t:Run
 
 # Run the unit tests via CLI (xunit, ~527 tests across 4 projects).
-dotnet test src\Santase.sln -c Release
+dotnet test src\Santase.slnx -c Release
 ```
 
 ### Unit tests
@@ -113,7 +113,7 @@ A `net10.0` console app (not an xUnit project, despite its location). `Main` run
 
 ## Retraining the neural net (`tools/NeuralTrainer`)
 
-`ClaudePlayerNeural`'s weights are produced by `tools/NeuralTrainer` — a `net10.0` console app that **is deliberately not in `src/Santase.sln`**. It's dev-only offline tooling (its only output is the already-committed `weights.bin`), so keeping it out of the solution stops `dotnet build src\Santase.sln` from compiling non-product code and keeps "what ships" unambiguous. It `ProjectReference`s `Santase.AI.ClaudePlayer`, so an API break there is caught the next time you build the tool, not by a plain sln build. Pure CPU (parallel self-play across all cores) — there is no GPU path; "use the GPU" would require an external-dependency rewrite (TorchSharp/ONNX) that contradicts the pure-managed/Android constraint.
+`ClaudePlayerNeural`'s weights are produced by `tools/NeuralTrainer` — a `net10.0` console app that **is deliberately not in `src/Santase.slnx`**. It's dev-only offline tooling (its only output is the already-committed `weights.bin`), so keeping it out of the solution stops `dotnet build src\Santase.slnx` from compiling non-product code and keeps "what ships" unambiguous. It `ProjectReference`s `Santase.AI.ClaudePlayer`, so an API break there is caught the next time you build the tool, not by a plain sln build. Pure CPU (parallel self-play across all cores) — there is no GPU path; "use the GPU" would require an external-dependency rewrite (TorchSharp/ONNX) that contradicts the pure-managed/Android constraint.
 
 Three subcommands cover the core training pipeline (the current shipped net adds an ISMCTS-distillation warm-start — see below):
 
@@ -152,7 +152,7 @@ StyleCop.Analyzers is enforced via `src/Rules.ruleset` + `src/stylecop.json`, ap
 
 A few files in the repo describe an older state and were not updated when the UWP / Mobile Blazor Bindings / Android UI projects were removed (commit `262e270`):
 
-- `README.md` still advertises the Windows Universal App (Microsoft Store) and the Mobile Blazor Bindings Android UI, and says **Visual Studio 2017** is required. The current solution file is tagged Visual Studio 18. The old UWP/Android UIs were removed in `262e270`; the only UI that remains is the cross-platform **MAUI** desktop/mobile app (`Santase.UI`, added after `262e270` in `2dec948`→`c5a2163`), in `src/Santase.sln`. The old console UI (`Santase.UI.Console`, a blocking `IPlayer` loop against SmartPlayer only) was removed in September 2026.
+- `README.md` still advertises the Windows Universal App (Microsoft Store) and the Mobile Blazor Bindings Android UI, and says **Visual Studio 2017** is required. The solution is now `src/Santase.slnx` (Visual Studio 2026 / Rider / dotnet CLI). The old UWP/Android UIs were removed in `262e270`; the only UI that remains is the cross-platform **MAUI** desktop/mobile app (`Santase.UI`, added after `262e270` in `2dec948`→`c5a2163`), in `src/Santase.slnx`. The old console UI (`Santase.UI.Console`, a blocking `IPlayer` loop against SmartPlayer only) was removed in September 2026.
 - `azure-pipelines.yml` still builds the solution via `VSBuild` with UWP-specific MSBuild args (`AppxBundlePlatforms`, `AppxBundle=Always`, `UapAppxPackageBuildMode=StoreUpload`). With the UWP project gone, the pipeline is effectively dead until rewritten — assume CI is not currently green.
 
 When working on related areas (CI, packaging, docs), check these against current reality before trusting them.

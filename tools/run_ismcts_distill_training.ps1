@@ -44,7 +44,7 @@ function Die($msg)  { Write-Error $msg; exit 1 }
 Step "Pipeline start: Games=$Games BudgetMs=$BudgetMs SupervisedEpochs=$SupervisedEpochs PpoHours=$PpoHours ValidateGames=$ValidateGames"
 
 Step 'Build (Release)'
-dotnet build src/Santase.sln -c Release --nologo -v quiet
+dotnet build src/Santase.slnx -c Release --nologo -v quiet
 if ($LASTEXITCODE -ne 0) { Die 'solution build failed' }
 dotnet build $trainer -c Release --nologo -v quiet
 if ($LASTEXITCODE -ne 0) { Die 'trainer build failed' }

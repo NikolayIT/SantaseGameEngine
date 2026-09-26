@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/AI/">
+    <Project Path="AI/Santase.AI.ClaudePlayer/Santase.AI.ClaudePlayer.csproj" />
+    <Project Path="AI/Santase.AI.DummyPlayer/Santase.AI.DummyPlayer.csproj" />
+    <Project Path="AI/Santase.AI.SmartPlayer/Santase.AI.SmartPlayer.csproj" />
+  </Folder>
+  <Folder Name="/AI/External/">
+    <File Path="AI/External/Santase.AI.BotskoPlayer.dll" />
+    <File Path="AI/External/Santase.AI.NinjaPlayer.dll" />
+    <File Path="AI/External/Santase.AI.ProPlayer.dll" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Santase.AI.ClaudePlayer.Tests/Santase.AI.ClaudePlayer.Tests.csproj" />
+    <Project Path="Tests/Santase.AI.SmartPlayer.Tests/Santase.AI.SmartPlayer.Tests.csproj" />
+    <Project Path="Tests/Santase.Logic.Tests/Santase.Logic.Tests.csproj" />
+    <Project Path="Tests/Santase.Tests.GameSimulations/Santase.Tests.GameSimulations.csproj" />
+    <Project Path="Tests/Santase.UI.Tests/Santase.UI.Tests.csproj" />
+  </Folder>
+  <Folder Name="/UI/">
+    <Project Path="UI/Santase.UI/Santase.UI.csproj" />
+  </Folder>
+  <Project Path="Santase.Logic/Santase.Logic.csproj" />
+</Solution>

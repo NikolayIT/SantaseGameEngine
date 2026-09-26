@@ -67,13 +67,13 @@ and closed-Phase-2 card choice.
 | `src/AI/Santase.AI.ClaudePlayer/Neural/weights_supervised.bin` | Supervised-clone baseline; PPO warm-start; revert point. |
 | `src/AI/Santase.AI.ClaudePlayer/ClaudePlayerNeural.cs` | The player: minimax endgame + NN policy + rule gates. Shipped. |
 | `src/AI/Santase.AI.ClaudePlayer/ClaudePlayer.cs` | The heuristic player; also the supervised "teacher". Shipped. |
-| `tools/NeuralTrainer/` | Offline trainer (not in `Santase.sln`). `--supervised` / `--ppo` / `--validate`. |
+| `tools/NeuralTrainer/` | Offline trainer (not in `Santase.slnx`). `--supervised` / `--ppo` / `--validate`. |
 | `src/Tests/Santase.Tests.GameSimulations/` | Benchmark harness + `--gen-training-data` dataset export. |
 | `src/Tests/Santase.AI.ClaudePlayer.Tests/` | 23 unit tests (net, encoder, legal-move, player-vs-bot). |
 
 Everything under `Neural/` is **pure managed C#**. The trainer references
 `Santase.AI.ClaudePlayer` but is dev-only tooling kept out of the solution so
-`dotnet build src\Santase.sln` never compiles non-product code.
+`dotnet build src\Santase.slnx` never compiles non-product code.
 
 ---
 
