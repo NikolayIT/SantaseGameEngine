@@ -188,7 +188,9 @@
                 return SantaseActResult.InvalidAction;
             }
 
-            if (this.round.IsFinished)
+            // An observer may have stopped the match in one of this action's callbacks: the action
+            // stands, but the round it finished is not scored and nothing more is dealt.
+            if (this.round.IsFinished && !this.IsStopped)
             {
                 this.OnRoundFinished();
             }
@@ -221,6 +223,12 @@
         /// <see cref="SantaseRoundRecord.Result"/> is null; a card led and not yet answered is its
         /// last trick, with no follow card and no winner). There is no <see cref="Winner"/>: who won
         /// is the caller's decision. Does nothing on a match that is already over.
+        /// <para>
+        /// Called from an observer's callback, it takes effect once the <see cref="Start"/> or
+        /// <see cref="Act"/> that made the callback has finished its step: the step's remaining
+        /// callbacks still arrive (the other seat's EndTurn, the draws, EndRound), but a round it
+        /// finished is not scored and no further round is dealt.
+        /// </para>
         /// </summary>
         public void Stop()
         {

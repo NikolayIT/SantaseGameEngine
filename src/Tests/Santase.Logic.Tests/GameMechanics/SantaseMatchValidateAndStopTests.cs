@@ -209,6 +209,35 @@
             Assert.Fail("No game with a 20/40 lead that keeps the round going.");
         }
 
+        // A host's observer may stop the match from a callback (e.g. EndRound, when it learns a
+        // player has left). The step in progress finishes its callbacks, but the finished round is
+        // not scored, no next round is dealt and nobody wins. It used to carry on: the round was
+        // scored and the next one dealt (StartRound to both seats) after the stop.
+        [Fact]
+        public void StopFromAnObserversCallbackShouldEndTheMatchAfterThatStep()
+        {
+            var stopper = new StoppingObserver();
+            var other = new CountingObserver();
+            var random = new Random(15);
+            var match = new SantaseMatch(stopper, other, new SantaseMatchOptions { Shuffle = random.Next });
+            stopper.Match = match;
+            match.Start();
+            PlayUntil(match, random, () => false);
+
+            Assert.True(match.IsStopped);
+            Assert.Equal(PlayerPosition.NoOne, match.Winner);
+            Assert.Equal(0, match.RoundsPlayed);
+            Assert.Equal(0, match.FirstPlayerTotalPoints + match.SecondPlayerTotalPoints);
+            Assert.Equal(1, stopper.StartRounds);
+            Assert.Equal(1, stopper.EndRounds);
+            Assert.Equal(0, stopper.EndGames + other.EndGames);
+
+            var round = Assert.Single(match.GetRecord().Rounds);
+            Assert.Null(round.Result);
+            Assert.NotEmpty(round.Tricks);
+            Assert.Equal(round.Tricks.Select(Describe), match.GetFinalView().Tricks.Select(Describe));
+        }
+
         [Fact]
         public void StopShouldNotChangeAFinishedMatch()
         {
@@ -287,6 +316,42 @@
             return ModelCopy.Describe(match.GetView(PlayerPosition.FirstPlayer))
                 + ModelCopy.Describe(match.GetView(PlayerPosition.SecondPlayer))
                 + match.ToMove + match.CurrentRound.TricksPlayed;
+        }
+
+        // Stops the match when its first round ends.
+        private sealed class StoppingObserver : BasePlayer
+        {
+            public override string Name => "stopper";
+
+            public SantaseMatch Match { get; set; }
+
+            public int StartRounds { get; private set; }
+
+            public int EndRounds { get; private set; }
+
+            public int EndGames { get; private set; }
+
+            public override void StartRound(ICollection<Card> cards, Card trumpCard, int myTotalPoints, int opponentTotalPoints)
+            {
+                this.StartRounds++;
+                base.StartRound(cards, trumpCard, myTotalPoints, opponentTotalPoints);
+            }
+
+            public override void EndRound()
+            {
+                this.EndRounds++;
+                this.Match.Stop();
+            }
+
+            public override void EndGame(bool amIWinner)
+            {
+                this.EndGames++;
+            }
+
+            public override PlayerAction GetTurn(PlayerTurnContext context)
+            {
+                throw new InvalidOperationException("Observers are never asked for a move.");
+            }
         }
 
         private sealed class CountingObserver : BasePlayer
