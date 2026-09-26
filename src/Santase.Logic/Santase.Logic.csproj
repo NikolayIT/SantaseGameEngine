@@ -7,22 +7,52 @@
 
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
-    <Version>3.1.0</Version>
+    <Version>3.0.0</Version>
     <Copyright>Copyright (c) 2015-2026 Nikolay Kostov</Copyright>
-    <PackageProjectUrl>https://github.com/NikolayIT/SantaseGameEngine</PackageProjectUrl>
     <Authors>Nikolay.IT</Authors>
-    <RepositoryUrl>https://github.com/NikolayIT/SantaseGameEngine</RepositoryUrl>
     <Product>Santase Card Game Engine</Product>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageId>SantaseGameEngine</PackageId>
-    <PackageTags>Santase, 66, Сантасе, Sixty-six, Sechsundsechzig, Schnapsen, card game</PackageTags>
-    <PackageReleaseNotes>3.1.0: SantaseMatch, a step-by-step match that never waits for a player (Act / Validate / Stop), an injectable shuffle with a documented deal order, per-seat views and match records as plain models, and IRestorablePlayer for bots that decide from a view. SantaseGame and IPlayer are unchanged. Targets .NET 10.</PackageReleaseNotes>
-    <PackageIconUrl></PackageIconUrl>
-    <Description>Game engine for Santase (known as 66, Сантасе, Sixty-six or Sechsundsechzig). It is a fast 6-card game for 2 players played with a deck of 24 cards consisting of the Ace, Ten, King, Queen, Jack and Nine.</Description>
+    <Description>Game engine for Santase (known as 66, Сантасе, Sixty-six, Sechsundsechzig or Schnapsen), the fast two-player trick-taking card game played with 24 cards: the Ace, Ten, King, Queen, Jack and Nine of each suit. Plays whole matches between bots, or one move at a time with per-seat views and replayable match records for user interfaces and game servers.</Description>
+    <PackageTags>Santase;66;Сантасе;Sixty-six;Sechsundsechzig;Schnapsen;card game;game engine</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>GitHub</RepositoryType>
+    <PackageProjectUrl>https://github.com/NikolayIT/SantaseGameEngine</PackageProjectUrl>
     <PackageIcon>Logo_300x300.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>
+3.0.0 (the first release since 2.0.0 in 2018)
+
+New
+- SantaseMatch: a match driven one action at a time that never waits for a player (Start, ToMove, Act, Validate, Stop), for user interfaces and game servers. SantaseGame, which plays a whole match between two IPlayers, now runs on it.
+- Per-seat views (SantaseSeatView) and match records (SantaseMatchRecord) as plain models. A view never shows the opponent's hand and rebuilds the exact PlayerTurnContext; a record replays the match exactly.
+- IRestorablePlayer: a bot rebuilds its memory from a view, so no bot object has to live between moves.
+- An injectable random source for every deal (SantaseMatchOptions.Shuffle, SantaseGame, Deck) with a documented deal order.
+- CardCode: cards as short text codes (9C, 10D, JH, QS, KC, AH).
+- CardWinnerLogic.GetWinner: the trick-winner rule as a static method.
+
+Rules and fixes
+- The +10 for the last trick is awarded only when all 24 cards are played and nobody closed.
+- The round phases follow the talon, so rule variants with other deal sizes play correctly; SantaseMatch refuses rules no match can play.
+- A move with no action or no card is rejected as invalid instead of crashing, and the engine always computes a move's announce itself.
+- Card.GetCard throws for anything that is not a Santase card; CardCollection rejects null.
+
+Performance
+- About 2x the engine throughput of 2.0.0 and far fewer allocations: allocation-free CardCollection enumeration, incremental round points, an in-place shuffle.
+
+Breaking changes
+- Targets .NET 10 (was .NET Standard 2.0).
+- Removed RandomProvider and EnumerableExtensions.Shuffle (pass a random source instead). Card is sealed. IRoundWinnerPointsLogic.GetWinnerPoints takes the last trick's winner.
+- PlayerActionValidator.GetPossibleCardsToPlay returns a CardCollection for a CardCollection hand; it is still typed ICollection&lt;Card&gt;, so do not cast it to List&lt;Card&gt;.
+    </PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/NikolayIT/SantaseGameEngine</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- IntelliSense for the documented API; documenting every member is not required (see stylecop.json). -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,6 +65,10 @@
 
   <ItemGroup>
     <None Include="..\..\assets\Logo_300x300.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="README.md">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

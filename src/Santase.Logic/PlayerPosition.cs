@@ -3,17 +3,17 @@
     public enum PlayerPosition
     {
         /// <summary>
-        /// No one is in position
+        /// No player: for example, no winner yet or a drawn round.
         /// </summary>
         NoOne = 0,
 
         /// <summary>
-        /// The first player is in position
+        /// The first player.
         /// </summary>
         FirstPlayer = 1,
 
         /// <summary>
-        /// The second player is in position
+        /// The second player.
         /// </summary>
         SecondPlayer = 2,
     }

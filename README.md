@@ -40,9 +40,10 @@ src/AI/Santase.AI.SmartPlayer   Heuristic AI player
 src/AI/Santase.AI.ClaudePlayer  AI player (incl. an optional neural variant)
 src/AI/External/*.dll           Third-party binary AI players (no source)
 src/UI/Santase.UI               Cross-platform .NET MAUI app (Android / iOS / macOS / Windows)
-src/Tests/Santase.Logic.Tests             xUnit tests for the engine (255 tests)
+src/Tests/Santase.Logic.Tests             xUnit tests for the engine (442 tests)
 src/Tests/Santase.AI.SmartPlayer.Tests    xUnit tests for SmartPlayer
 src/Tests/Santase.AI.ClaudePlayer.Tests   xUnit tests for ClaudePlayer
+src/Tests/Santase.UI.Tests                xUnit tests playing the MAUI app's game flow and game table
 src/Tests/Santase.Tests.GameSimulations   Parallel AI benchmark / game simulator
 ```
 
@@ -67,7 +68,7 @@ dotnet test src\Santase.slnx -c Release
 dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.Tests.GameSimulations.csproj
 ```
 
-The `Santase.Logic` library is extensively unit tested (255 tests in
+The `Santase.Logic` library is extensively unit tested (442 tests in
 `Santase.Logic.Tests`).
 
 NuGet package: <https://www.nuget.org/packages/SantaseGameEngine>

@@ -3,32 +3,32 @@
     public enum CardType
     {
         /// <summary>
-        /// 9
+        /// The Nine, worth 0 points.
         /// </summary>
         Nine = 9,
 
         /// <summary>
-        /// 10
+        /// The Ten, worth 10 points.
         /// </summary>
         Ten = 10,
 
         /// <summary>
-        /// J
+        /// The Jack, worth 2 points.
         /// </summary>
         Jack = 11,
 
         /// <summary>
-        /// Q
+        /// The Queen, worth 3 points.
         /// </summary>
         Queen = 12,
 
         /// <summary>
-        /// K
+        /// The King, worth 4 points.
         /// </summary>
         King = 13,
 
         /// <summary>
-        /// A
+        /// The Ace, worth 11 points.
         /// </summary>
         Ace = 1,
     }
