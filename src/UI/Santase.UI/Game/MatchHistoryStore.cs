@@ -5,8 +5,6 @@ namespace Santase.UI.Game
     using System.Globalization;
     using System.Linq;
 
-    using Microsoft.Maui.Storage;
-
     public sealed class MatchHistoryEntry
     {
         public MatchHistoryEntry(string opponentName, int myScore, int opponentScore, bool won, DateTime whenUtc, string opponentId = "")
@@ -36,7 +34,7 @@ namespace Santase.UI.Game
     }
 
     /// <summary>
-    /// Completed vs-AI games, persisted on the device via MAUI <see cref="Preferences"/>. Stored
+    /// Completed vs-AI games, persisted on the device (see <see cref="SettingsStore"/>). Stored
     /// as one delimited line per game (pipe-separated fields, newline-separated records) — no JSON,
     /// so it's trimming/AOT-safe on every platform. Newest first, capped at <see cref="MaxEntries"/>.
     /// </summary>
@@ -49,7 +47,7 @@ namespace Santase.UI.Game
 
         public static IReadOnlyList<MatchHistoryEntry> All()
         {
-            var raw = Preferences.Default.Get(Key, string.Empty);
+            var raw = SettingsStore.Current.Get(Key, string.Empty);
             if (string.IsNullOrEmpty(raw))
             {
                 return Array.Empty<MatchHistoryEntry>();
@@ -85,10 +83,10 @@ namespace Santase.UI.Game
                 list = list.GetRange(0, MaxEntries);
             }
 
-            Preferences.Default.Set(Key, string.Join(RecordSeparator.ToString(), list.Select(Encode)));
+            SettingsStore.Current.Set(Key, string.Join(RecordSeparator.ToString(), list.Select(Encode)));
         }
 
-        public static void Clear() => Preferences.Default.Remove(Key);
+        public static void Clear() => SettingsStore.Current.Remove(Key);
 
         private static string Encode(MatchHistoryEntry e) => string.Join(
             FieldSeparator.ToString(),

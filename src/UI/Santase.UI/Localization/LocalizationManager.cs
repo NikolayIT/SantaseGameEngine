@@ -3,7 +3,7 @@ namespace Santase.UI.Localization
     using System.ComponentModel;
     using System.Globalization;
 
-    using Microsoft.Maui.Storage;
+    using Santase.UI.Game;
 
     /// <summary>
     /// App-wide language state for the two supported languages (English + Bulgarian). Defaults to
@@ -50,7 +50,7 @@ namespace Santase.UI.Localization
             }
 
             this.language = normalized;
-            Preferences.Default.Set(LanguageKey, normalized);
+            SettingsStore.Current.Set(LanguageKey, normalized);
             ApplyThreadCulture(normalized);
 
             // Empty name = "all properties changed" (refresh every bound value); the indexer name
@@ -68,7 +68,7 @@ namespace Santase.UI.Localization
 
         private static string ResolveInitialLanguage()
         {
-            var saved = Preferences.Default.Get(LanguageKey, string.Empty);
+            var saved = SettingsStore.Current.Get(LanguageKey, string.Empty);
             var resolved = saved == English || saved == Bulgarian
                 ? saved
                 : (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == Bulgarian ? Bulgarian : English);

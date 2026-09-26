@@ -1,7 +1,5 @@
 namespace Santase.UI.Game
 {
-    using Microsoft.Maui.Storage;
-
     public enum GameSpeed
     {
         Relaxed = 0,
@@ -10,7 +8,7 @@ namespace Santase.UI.Game
     }
 
     /// <summary>
-    /// Device-persisted app options (MAUI <see cref="Preferences"/>). All values have sensible
+    /// Device-persisted app options (see <see cref="SettingsStore"/>). All values have sensible
     /// defaults so a fresh install needs no setup screen. The speed presets translate into the
     /// game's <see cref="GamePace"/> (AI think delay + trick settle time).
     /// </summary>
@@ -23,27 +21,27 @@ namespace Santase.UI.Game
 
         public static GameSpeed Speed
         {
-            get => (GameSpeed)Preferences.Default.Get(SpeedKey, (int)GameSpeed.Normal);
-            set => Preferences.Default.Set(SpeedKey, (int)value);
+            get => (GameSpeed)SettingsStore.Current.Get(SpeedKey, (int)GameSpeed.Normal);
+            set => SettingsStore.Current.Set(SpeedKey, (int)value);
         }
 
         public static bool HapticsEnabled
         {
-            get => Preferences.Default.Get(HapticsKey, true);
-            set => Preferences.Default.Set(HapticsKey, value);
+            get => SettingsStore.Current.Get(HapticsKey, true);
+            set => SettingsStore.Current.Set(HapticsKey, value);
         }
 
         /// <summary>Beginner assists: 20/40 badges on own cards + the in-game hint button.</summary>
         public static bool AssistsEnabled
         {
-            get => Preferences.Default.Get(AssistsKey, true);
-            set => Preferences.Default.Set(AssistsKey, value);
+            get => SettingsStore.Current.Get(AssistsKey, true);
+            set => SettingsStore.Current.Set(AssistsKey, value);
         }
 
         public static string PlayerName
         {
-            get => Preferences.Default.Get(PlayerNameKey, string.Empty);
-            set => Preferences.Default.Set(PlayerNameKey, value ?? string.Empty);
+            get => SettingsStore.Current.Get(PlayerNameKey, string.Empty);
+            set => SettingsStore.Current.Set(PlayerNameKey, value ?? string.Empty);
         }
 
         public static int AiThinkDelayMs => Speed switch

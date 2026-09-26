@@ -3,11 +3,9 @@ namespace Santase.UI.Game
     using System;
     using System.Collections.Generic;
 
-    using Microsoft.Maui.Storage;
-
     /// <summary>
-    /// Lifetime win/loss tallies per AI opponent, persisted via MAUI <see cref="Preferences"/>
-    /// (one pair of counters per opponent id). Unlike <see cref="MatchHistoryStore"/>, which is
+    /// Lifetime win/loss tallies per AI opponent, persisted on the device (one pair of counters
+    /// per opponent id; see <see cref="SettingsStore"/>). Unlike <see cref="MatchHistoryStore"/>, which is
     /// capped, these run forever — they feed the "Your record: 3W – 1L" line on the start page
     /// and the per-opponent table on the statistics page.
     /// </summary>
@@ -21,8 +19,8 @@ namespace Santase.UI.Game
 
         public static (int Games, int Wins) For(string opponentId)
         {
-            var games = Preferences.Default.Get(GamesKeyPrefix + opponentId, 0);
-            var wins = Preferences.Default.Get(WinsKeyPrefix + opponentId, 0);
+            var games = SettingsStore.Current.Get(GamesKeyPrefix + opponentId, 0);
+            var wins = SettingsStore.Current.Get(WinsKeyPrefix + opponentId, 0);
             return (games, Math.Min(wins, games));
         }
 
@@ -34,10 +32,10 @@ namespace Santase.UI.Game
             }
 
             var (games, wins) = For(opponentId);
-            Preferences.Default.Set(GamesKeyPrefix + opponentId, games + 1);
+            SettingsStore.Current.Set(GamesKeyPrefix + opponentId, games + 1);
             if (won)
             {
-                Preferences.Default.Set(WinsKeyPrefix + opponentId, wins + 1);
+                SettingsStore.Current.Set(WinsKeyPrefix + opponentId, wins + 1);
             }
 
             Changed?.Invoke();
@@ -47,8 +45,8 @@ namespace Santase.UI.Game
         {
             foreach (var id in opponentIds)
             {
-                Preferences.Default.Remove(GamesKeyPrefix + id);
-                Preferences.Default.Remove(WinsKeyPrefix + id);
+                SettingsStore.Current.Remove(GamesKeyPrefix + id);
+                SettingsStore.Current.Remove(WinsKeyPrefix + id);
             }
 
             Changed?.Invoke();

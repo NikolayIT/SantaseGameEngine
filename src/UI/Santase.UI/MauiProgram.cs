@@ -6,6 +6,9 @@ namespace Santase.UI
     {
         public static MauiApp CreateMauiApp()
         {
+            // Before anything reads a setting (the language is resolved on first use).
+            Game.SettingsStore.Current = new Game.PreferencesSettingsStore();
+
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()

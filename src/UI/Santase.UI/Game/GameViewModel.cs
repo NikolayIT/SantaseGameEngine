@@ -8,9 +8,6 @@ namespace Santase.UI.Game
     using System.Runtime.CompilerServices;
     using System.Windows.Input;
 
-    using Microsoft.Maui.Devices;
-    using Microsoft.Maui.Dispatching;
-
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
@@ -22,7 +19,8 @@ namespace Santase.UI.Game
     /// The game table. It shows one seat's view of the <see cref="GameSession"/> ("my" seat: the
     /// person in a game against the computer, the seat to move in a hot-seat game) and turns taps
     /// into moves. The session raises its events on the UI thread, so every handler here updates
-    /// the screen directly; the dispatcher is only used to time toasts and hint highlights.
+    /// the screen directly; the host times toasts and hint highlights. No MAUI types here: the UI
+    /// tests compile this file and play whole games through its commands.
     /// </summary>
     public sealed class GameViewModel : INotifyPropertyChanged, IDisposable
     {
@@ -37,7 +35,7 @@ namespace Santase.UI.Game
 
         private readonly AiOpponent? opponent;
 
-        private readonly IDispatcher dispatcher;
+        private readonly IGameTableHost host;
 
         // Hot-seat: the seat that must take the device before it can move.
         private PlayerSlot? pendingHandoffSlot;
@@ -122,11 +120,11 @@ namespace Santase.UI.Game
 
         private CardSlot? lastTrickSlot2Card;
 
-        public GameViewModel(GameSession session, AiOpponent? opponent, IDispatcher dispatcher)
+        public GameViewModel(GameSession session, AiOpponent? opponent, IGameTableHost host)
         {
             this.session = session;
             this.opponent = opponent;
-            this.dispatcher = dispatcher;
+            this.host = host;
 
             this.MyHand = new ObservableCollection<CardSlot>();
             this.OpponentHand = new ObservableCollection<CardSlot>();
@@ -467,22 +465,6 @@ namespace Santase.UI.Game
             this.session.Stop();
         }
 
-        private static void Haptic(HapticFeedbackType type)
-        {
-            if (!AppSettings.HapticsEnabled)
-            {
-                return;
-            }
-
-            try
-            {
-                HapticFeedback.Default.Perform(type);
-            }
-            catch
-            {
-                // Not supported on this platform (e.g. desktop) — silently skip.
-            }
-        }
 
         private static string FormatAnnounces(IReadOnlyList<Announce> announces)
         {
@@ -617,7 +599,7 @@ namespace Santase.UI.Game
             this.CanCloseGame = view.CanClose;
             this.IsMyTurn = true;
             this.StatusMessage = Loc["Status_YourTurn"];
-            Haptic(HapticFeedbackType.Click);
+            this.Vibrate(isLong: false);
         }
 
         private void EndMyTurn()
@@ -723,7 +705,7 @@ namespace Santase.UI.Game
                 _ => ("\U0001F91D", Loc["Round_Draw"]),
             };
             this.IsRoundOverlayVisible = true;
-            Haptic(HapticFeedbackType.LongPress);
+            this.Vibrate(isLong: true);
         }
 
         private void OnRoundOverlayContinue()
@@ -772,7 +754,7 @@ namespace Santase.UI.Game
             this.IsRoundOverlayVisible = false;
             this.IsGameOverlayVisible = true;
             this.EndMyTurn();
-            Haptic(HapticFeedbackType.LongPress);
+            this.Vibrate(isLong: true);
         }
 
         private void OnGameError(Exception ex)
@@ -902,7 +884,7 @@ namespace Santase.UI.Game
                     }
 
                     suggested.IsHinted = true;
-                    this.dispatcher.DispatchDelayed(NoticeDuration, () => suggested.IsHinted = false);
+                    this.host.After(NoticeDuration, () => suggested.IsHinted = false);
                     break;
                 case PlayerActionType.ChangeTrump:
                     this.ShowToast(Loc["Hint_SwapTrump"]);
@@ -920,7 +902,7 @@ namespace Santase.UI.Game
         {
             this.session.Stop();
             this.IsGameOverlayVisible = false;
-            _ = Microsoft.Maui.Controls.Shell.Current?.GoToAsync("..");
+            this.host.Leave();
         }
 
         // Looks at the table from newMe's seat: names, hands, points and the per-seat cards on the
@@ -1065,13 +1047,21 @@ namespace Santase.UI.Game
         private void ShowToast(string message)
         {
             this.ToastMessage = message;
-            this.dispatcher.DispatchDelayed(NoticeDuration, () =>
+            this.host.After(NoticeDuration, () =>
             {
                 if (this.ToastMessage == message)
                 {
                     this.ToastMessage = null;
                 }
             });
+        }
+
+        private void Vibrate(bool isLong)
+        {
+            if (AppSettings.HapticsEnabled)
+            {
+                this.host.Vibrate(isLong);
+            }
         }
 
         private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)

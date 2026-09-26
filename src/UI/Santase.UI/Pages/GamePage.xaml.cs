@@ -12,7 +12,7 @@ namespace Santase.UI.Pages
     [QueryProperty(nameof(FirstName), "first")]
     [QueryProperty(nameof(SecondName), "second")]
     [QueryProperty(nameof(OpponentId), "opponent")]
-    public partial class GamePage : ContentPage
+    public partial class GamePage : ContentPage, IGameTableHost
     {
         private GameSession? session;
 
@@ -55,12 +55,28 @@ namespace Santase.UI.Pages
 
             var pace = new GamePace(AppSettings.AiThinkDelayMs, AppSettings.TrickSettleMs);
             this.session = new GameSession(mode, this.FirstName, secondName, opponent?.CreatePlayer(), pace);
-            this.viewModel = new GameViewModel(this.session, opponent, this.Dispatcher);
+            this.viewModel = new GameViewModel(this.session, opponent, this);
             this.viewModel.PropertyChanged += this.OnViewModelPropertyChanged;
             this.BindingContext = this.viewModel;
 
             this.viewModel.StartGame();
         }
+
+        void IGameTableHost.After(TimeSpan delay, Action action) => this.Dispatcher.DispatchDelayed(delay, action);
+
+        void IGameTableHost.Vibrate(bool isLong)
+        {
+            try
+            {
+                HapticFeedback.Default.Perform(isLong ? HapticFeedbackType.LongPress : HapticFeedbackType.Click);
+            }
+            catch
+            {
+                // Not supported on this platform (e.g. desktop) — silently skip.
+            }
+        }
+
+        void IGameTableHost.Leave() => _ = Shell.Current?.GoToAsync("..");
 
         protected override void OnDisappearing()
         {

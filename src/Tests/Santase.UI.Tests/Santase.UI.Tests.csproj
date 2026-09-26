@@ -13,11 +13,27 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- The MAUI app's game flow has no MAUI dependencies: compile it here and play whole games with it. -->
+  <!--
+    The MAUI app's game flow and game table have no MAUI dependencies: compile them here and play
+    whole games through them. Everything MAUI stays behind ISettingsStore and IGameTableHost.
+  -->
   <ItemGroup>
-    <Compile Include="..\..\UI\Santase.UI\Game\GameMode.cs" Link="Game\GameMode.cs" />
-    <Compile Include="..\..\UI\Santase.UI\Game\GameSession.cs" Link="Game\GameSession.cs" />
-    <Compile Include="..\..\UI\Santase.UI\Game\GameSessionModels.cs" Link="Game\GameSessionModels.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\AiOpponent.cs" Link="App\Game\AiOpponent.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\AppSettings.cs" Link="App\Game\AppSettings.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\CardImageProvider.cs" Link="App\Game\CardImageProvider.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\CardSlot.cs" Link="App\Game\CardSlot.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\GameMode.cs" Link="App\Game\GameMode.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\GameSession.cs" Link="App\Game\GameSession.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\GameSessionModels.cs" Link="App\Game\GameSessionModels.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\GameViewModel.cs" Link="App\Game\GameViewModel.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\IGameTableHost.cs" Link="App\Game\IGameTableHost.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\MatchHistoryStore.cs" Link="App\Game\MatchHistoryStore.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\OpponentStatsStore.cs" Link="App\Game\OpponentStatsStore.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\PlayerRatingStore.cs" Link="App\Game\PlayerRatingStore.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\RelayCommand.cs" Link="App\Game\RelayCommand.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\SettingsStore.cs" Link="App\Game\SettingsStore.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Localization\AppStrings.cs" Link="App\Localization\AppStrings.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Localization\LocalizationManager.cs" Link="App\Localization\LocalizationManager.cs" />
   </ItemGroup>
 
   <ItemGroup>
