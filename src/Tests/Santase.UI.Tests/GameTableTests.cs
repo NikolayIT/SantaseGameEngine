@@ -62,6 +62,40 @@ namespace Santase.UI.Tests
             }
         });
 
+        // Hot-seat: the game-over screen must celebrate the winner, whoever made the last move.
+        // It was told from the last mover's side, so when they had lost it said "Defeat" (with
+        // the winner's name underneath).
+        [Fact]
+        public void HotSeatGameOverShouldBeToldFromTheWinnersSide() => UiThread.Run(async () =>
+        {
+            var lastMoverLost = 0;
+            for (var seed = 30; seed < 40; seed++)
+            {
+                var (session, table, _) = HotSeatTable(seed);
+                var tester = new TableTester(session, table, seed);
+                PlayerSlot? lastMover = null;
+                session.MovePlayed += move => lastMover = move.Slot;
+                table.StartGame();
+                await tester.PlayToTheEndAsync();
+
+                var winner = tester.Winner!.Value;
+                if (lastMover != winner)
+                {
+                    lastMoverLost++;
+                }
+
+                Assert.Equal(Loc["GameOver_Victory"], table.GameOverlayTitle);
+                Assert.Equal("\U0001F3C6", table.GameOverlayIcon);
+                Assert.Equal(session.GetName(winner), table.MyName);
+                Assert.True(table.MyGamePoints >= 11);
+                Assert.True(table.OpponentGamePoints < 11);
+                Assert.False(table.IsRatingChangeVisible);
+                table.Dispose();
+            }
+
+            Assert.True(lastMoverLost > 0);
+        });
+
         [Theory]
         [InlineData("dummy")]
         [InlineData("smart")]

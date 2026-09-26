@@ -719,6 +719,13 @@ namespace Santase.UI.Game
 
         private void OnGameOver(PlayerSlot winner, RoundEndInfo lastRound)
         {
+            // Two people on one device: whoever happened to make the last move is holding it, so
+            // the result is told from the winner's side, not as a defeat to the last mover.
+            if (this.session.Mode == GameMode.HotSeat && winner != this.mySlot)
+            {
+                this.SetPerspective(winner);
+            }
+
             if (winner == PlayerSlot.First)
             {
                 this.matchWinsSlot1++;
