@@ -17,7 +17,9 @@
     <Project Path="Tests/Santase.UI.Tests/Santase.UI.Tests.csproj" />
   </Folder>
   <Folder Name="/UI/">
-    <Project Path="UI/Santase.UI/Santase.UI.csproj" />
+    <Project Path="UI/Santase.UI/Santase.UI.csproj">
+      <Deploy />
+    </Project>
   </Folder>
   <Project Path="Santase.Logic/Santase.Logic.csproj" />
 </Solution>
