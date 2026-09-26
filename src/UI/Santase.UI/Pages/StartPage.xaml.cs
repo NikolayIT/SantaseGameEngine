@@ -7,6 +7,7 @@ namespace Santase.UI.Pages
     using System.Windows.Input;
 
     using Microsoft.Maui;
+    using Microsoft.Maui.ApplicationModel;
     using Microsoft.Maui.Controls;
     using Microsoft.Maui.Controls.Shapes;
     using Microsoft.Maui.Graphics;
@@ -30,6 +31,9 @@ namespace Santase.UI.Pages
             BindableLayout.SetItemsSource(this.OpponentList, AiOpponents.All);
 
             this.FirstPlayerEntry.Text = AppSettings.PlayerName;
+
+            // The installed version, not a copy in the page (the 1.2 build still said v1.1).
+            this.FooterLabel.Text = $"v{AppInfo.Current.VersionString} · github.com/NikolayIT/SantaseGameEngine";
         }
 
         public ICommand SelectOpponentCommand { get; }
