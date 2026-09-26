@@ -8,6 +8,7 @@ namespace Santase.UI.Tests
     using Santase.Logic;
     using Santase.Logic.Cards;
     using Santase.Logic.GameMechanics;
+    using Santase.Logic.PlayerActionValidate;
     using Santase.UI.Game;
     using Santase.UI.Localization;
 
@@ -210,6 +211,21 @@ namespace Santase.UI.Tests
             Assert.Equal(view.CanChangeTrump, this.table.CanChangeTrump);
             Assert.Equal(view.CanClose, this.table.CanCloseGame);
 
+            // Beginner assists: 20/40 on the playable K/Q whose lead would announce, and the hint
+            // button (against the computer only).
+            var context = view.CreateTurnContext();
+            var assists = AppSettings.AssistsEnabled;
+            foreach (var card in this.table.MyHand)
+            {
+                var announce = assists && context.IsFirstPlayerTurn && context.State.CanAnnounce20Or40 && card.IsPlayable
+                    ? AnnounceValidator.Instance.GetPossibleAnnounce(view.Hand.ToList(), card.Card, view.TrumpCard)
+                    : Announce.None;
+                Assert.Equal(announce == Announce.None ? string.Empty : ((int)announce).ToString(), card.AnnounceText);
+                Assert.False(card.IsHinted);
+            }
+
+            Assert.Equal(assists && this.session.Mode == GameMode.VsAi, this.table.IsHintVisible);
+
             var opponentCards = slot == PlayerSlot.First ? view.SecondPlayerCardCount : view.FirstPlayerCardCount;
             Assert.Equal(opponentCards, this.table.OpponentHand.Count);
             Assert.Equal(opponentCards, this.table.OpponentCardsCount);
@@ -258,6 +274,33 @@ namespace Santase.UI.Tests
                 ? Loc["Round_Draw"]
                 : (round.WinnerSlot == me ? Loc["Round_YouWon"] : Loc.Format("Round_OppWon", this.table.OpponentName));
             Assert.Equal(title, this.table.RoundOverlayTitle);
+            CheckRoundDetails(round, me);
+        }
+
+        // The marriages each side announced and the game points awarded, as the round screen
+        // lists them.
+        private void CheckRoundDetails(RoundEndInfo round, PlayerSlot me)
+        {
+            static string Announces(IReadOnlyList<Announce> announces) =>
+                announces.Count == 0 ? "—" : string.Join("   ", announces.Select(a => ((int)a).ToString()));
+
+            var mine = me == PlayerSlot.First ? round.FirstAnnounces : round.SecondAnnounces;
+            var theirs = me == PlayerSlot.First ? round.SecondAnnounces : round.FirstAnnounces;
+            Assert.Equal(Announces(mine), this.table.MyAnnouncesText);
+            Assert.Equal(Announces(theirs), this.table.OpponentAnnouncesText);
+            Assert.Equal(mine.Count + theirs.Count > 0, this.table.HasAnnounces);
+
+            if (round.WinnerSlot is not { } winner)
+            {
+                Assert.Equal(string.Empty, this.table.RoundAwardText);
+                return;
+            }
+
+            var award = winner == PlayerSlot.First ? round.FirstAwardedGamePoints : round.SecondAwardedGamePoints;
+            Assert.InRange(award, 1, 3);
+            Assert.Equal(
+                Loc.Format("Award_Format", this.session.GetName(winner), award, award == 1 ? Loc["Word_PointSingular"] : Loc["Word_PointPlural"]),
+                this.table.RoundAwardText);
         }
 
         private void CheckGameOver()
@@ -267,6 +310,7 @@ namespace Santase.UI.Tests
             Assert.False(this.table.IsMyTurn);
             Assert.False(this.table.IsRoundOverlayVisible);
             Assert.Equal(Loc.Format("GameOver_WonGame", this.session.GetName(winner)), this.table.GameOverlayBody);
+            this.CheckRoundDetails(this.Rounds[^1], this.ShownSlot);
             Assert.True(this.Rounds[^1].FirstGamePoints >= 11 || this.Rounds[^1].SecondGamePoints >= 11);
         }
     }

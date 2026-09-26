@@ -41,6 +41,23 @@ namespace Santase.UI.Tests
             Assert.Empty(MatchHistoryStore.All());
         });
 
+        // With the beginner assists off the table shows no 20/40 badges and no hint button (the
+        // tester checks both at every decision, against the setting).
+        [Fact]
+        public void WithAssistsOffTheTableShouldShowNoBadgesOrHints() => UiThread.Run(async () =>
+        {
+            AppSettings.AssistsEnabled = false;
+            foreach (var seed in new[] { 1, 2 })
+            {
+                var (session, table, _) = seed == 1 ? VsComputerTable("claude", seed) : HotSeatTable(seed);
+                var tester = new TableTester(session, table, seed);
+                table.StartGame();
+                await tester.PlayToTheEndAsync();
+                Assert.False(table.IsHintVisible);
+                table.Dispose();
+            }
+        });
+
         // Hot-seat: while the device is passed, the "pass the device" screen covers the table but
         // is not fully opaque, so the person who just played must not leave their cards face up
         // under it (they did: the hand stayed until the next person tapped "Ready").
