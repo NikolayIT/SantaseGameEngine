@@ -21,8 +21,11 @@ Santase is a 6-card, two-player trick-taking game. The goal is to be the first t
 deal is awarded 1, 2 or 3 *game points*. The first player to **11 game points** wins the
 whole game.
 
-The engine entry point is `SantaseGame` in `src/Santase.Logic/GameMechanics/SantaseGame.cs`.
-A game is run with `new SantaseGame(playerA, playerB).Start()`.
+The rules live in `SantaseMatch` (`src/Santase.Logic/GameMechanics/SantaseMatch.cs`), a match
+driven one action at a time: `Start()`, then read `ToMove`, give that player
+`CreateTurnContext()` (or their `GetView(seat)`) and pass their move to `Act`. `SantaseGame`
+(`SantaseGame.cs`) plays a whole match between two `IPlayer`s with that loop:
+`new SantaseGame(playerA, playerB).Start()`.
 
 ---
 
@@ -35,12 +38,13 @@ In code:
 
 - `Cards/CardType.cs` — `Nine, Ten, Jack, Queen, King, Ace`
 - `Cards/CardSuit.cs` — `Club, Diamond, Heart, Spade`
-- `Cards/Deck.cs` — builds all 24 cards and shuffles them through `RandomProvider` for
-  every new deal.
+- `Cards/Deck.cs` — the 24 cards, shuffled for every new deal with `Random.Shared` or the
+  match's own random source (`SantaseMatchOptions.Shuffle`). The draw order is documented on
+  `Deck`, so a deal can be recreated from the random numbers it was built from.
 
 **`Card` is a flyweight** (`Cards/Card.cs`): all 24 cards are pre-instantiated in a static
-array. Always use `Card.GetCard(suit, type)` — the public constructor is marked
-`[Obsolete]` precisely so it is not used. This makes card equality (`==` / `Equals`) an
+array. Always use `Card.GetCard(suit, type)` (it throws for any suit or rank that is not a
+Santase card) — the public constructor is marked `[Obsolete]` precisely so it is not used. This makes card equality (`==` / `Equals`) an
 effective pointer compare, which the hot simulator loops rely on.
 
 ---
@@ -108,23 +112,14 @@ Conceptually, before play:
 - The next (13th) card is turned face up — its suit is the **trump suit** for the deal.
 - The remaining 11 cards lie across the turned-up trump and form the **talon** (stock).
 
-In code this ceremony is simplified: a `Deck` is constructed from 24 shuffled cards;
-`listOfCards[0]` is declared the `TrumpCard` (it sits at the *bottom* of the talon and is
-drawn **last**); subsequent cards are drawn from the top (`GetNextCard` removes from the
-end of the list). Statistically this is equivalent to the physical 3-3 + turn-trump + 3-3
-deal — every distribution is equally likely.
+In code this ceremony is simplified: `Deck` shuffles the 24 cards once (Fisher-Yates). The
+card at position 0 is the face-up `TrumpCard` (it sits at the *bottom* of the talon and is
+drawn **last**); `GetNextCard` draws from the other end. Statistically this is equivalent to
+the physical 3-3 + turn-trump + 3-3 deal — every distribution is equally likely.
 
-```csharp
-// Cards/Deck.cs
-public Deck()
-{
-    this.listOfCards = AllCards.Shuffle().ToList();
-    this.TrumpCard = this.listOfCards[0];
-}
-```
-
-`Round.CallStartRoundAndDealCards` gives each player
-`GameRulesProvider.Santase.CardsAtStartOfTheRound = 6` cards.
+`Round.Start` deals each player `IGameRules.CardsAtStartOfTheRound` cards (6 under the
+standard rules, `SantaseGameRules`): the first player's six, then the second player's. A
+match's record keeps every deal in this draw order (`SantaseRoundRecord.Deal`).
 
 ---
 
@@ -132,22 +127,23 @@ public Deck()
 
 **The winner of the previous deal deals; the dealer's opponent leads.**
 
-In code, `firstToPlay` in `SantaseGame` is the *opener of the next deal* (= the dealer's
-opponent). After each deal, `UpdatePoints` switches it to the loser of that deal:
+In code, `SantaseMatch.FirstToPlay` is the *opener of the next deal* (= the dealer's
+opponent; the first deal's opener is `SantaseMatchOptions.FirstToPlay`). After each deal,
+`UpdatePoints` switches it to the loser of that deal:
 
 ```csharp
-// SantaseGame.cs
+// SantaseMatch.cs
 case PlayerPosition.FirstPlayer:
     this.FirstPlayerTotalPoints += roundWinnerPoints.Points;
-    this.firstToPlay = PlayerPosition.SecondPlayer; // the loser opens next
+    this.FirstToPlay = PlayerPosition.SecondPlayer; // the loser opens next
     break;
 case PlayerPosition.SecondPlayer:
     this.SecondPlayerTotalPoints += roundWinnerPoints.Points;
-    this.firstToPlay = PlayerPosition.FirstPlayer;
+    this.FirstToPlay = PlayerPosition.FirstPlayer;
     break;
 ```
 
-On a **draw** the `switch` matches no case — `firstToPlay` is left unchanged, so the
+On a **draw** the `switch` matches no case — `FirstToPlay` is left unchanged, so the
 **same player opens the next deal too** (the same dealer deals again). See §14.
 
 ---
@@ -162,11 +158,13 @@ plays one card; the follower responds with one card. The winner is decided by
 - Draws the first card from the talon (if the phase allows drawing).
 - Leads the next trick.
 
-The values of the two played cards are added to the trick winner's `RoundPoints` via the
-`RoundPlayerInfo.RoundPoints` getter, which sums `TrickCards` + `Announces`.
+The values of the two played cards are added to the trick winner's
+`RoundPlayerInfo.RoundPoints`, a running total of the cards won (`TrickCards`) and the
+marriages announced (`Announces`).
 
-Reviewing already-played talon cards between tricks is the player's responsibility — the
-engine simply exposes no API for that information.
+Whether a player may look back at the tricks already played is up to whoever presents the
+game: every seat's view carries the round's tricks (`SantaseSeatView.Tricks`, which bots use),
+and the `IPlayer` callbacks report each trick as it ends (`EndTurn`).
 
 ---
 
@@ -183,9 +181,11 @@ pattern** in `src/Santase.Logic/RoundStates/`, coordinated by `StateManager`:
 | Talon empty or closed | `FinalRoundState` | **true** | true | false | false | **false** |
 
 State transitions (`PlayHand` is called after each trick with the cards left in the talon):
-`StartRoundState` → (after trick 1) `MoreThanTwoCardsLeftRoundState` → (when talon hits 2)
-`TwoCardsLeftRoundState` → (after the next trick) `FinalRoundState`. Closing jumps straight
-to `FinalRoundState` via `BaseRoundState.Close()`.
+`StartRoundState` → (after trick 1, 10 cards left) `MoreThanTwoCardsLeftRoundState` → (when
+the talon hits 2) `TwoCardsLeftRoundState` → (after the next trick) `FinalRoundState`. After
+the first trick the phase follows the talon, so a rule variant dealing more cards
+(`CardsAtStartOfTheRound` 10 or 11) goes straight to `TwoCardsLeftRoundState` or
+`FinalRoundState`. Closing jumps straight to `FinalRoundState` via `BaseRoundState.Close()`.
 
 ### 8.1 Phase 1: open talon (`ShouldObserveRules = false`)
 
@@ -255,19 +255,27 @@ trick. So any player who announces has already won at least one trick.
 ### 9.3 An announcement can take you to 66
 
 If the announcement raises your total to 66+, you **win the deal at the moment of the
-announcement**, without playing a second card to the trick. `Trick.Play()` handles this:
+announcement**, without playing a second card to the trick. `Round.LeaderActs` (internal,
+reached through `SantaseMatch.Act`) handles this:
 
 ```csharp
-this.firstToPlay.Cards.Remove(firstPlayerAction.Card);
+// Round.cs
+leaderInfo.Cards.Remove(action.Card);
 
-if (this.firstToPlay.RoundPoints >= this.gameRules.RoundPointsForGoingOut)
+if (leaderRoundPoints >= this.gameRules.RoundPointsForGoingOut)
 {
-    // The deal ends before the second player plays.
-    this.firstToPlay.Player.EndTurn(context);
-    this.secondToPlay.Player.EndTurn(context);
-    return this.firstToPlay;
+    // The announce took the leader to the target: the round ends before the follower
+    // plays. Both players are told about the lead, and the leader counts as the trick
+    // winner (for who draws first and who leads next).
+    leaderInfo.Player?.EndTurn(this.context);
+    this.Info(Other(this.leader)).Player?.EndTurn(this.context);
+    this.CompleteTrick(this.leader);
+    return true;
 }
 ```
+
+In the round's history such a lead is a trick with no answer (`SantaseTrick.FollowCard` is
+null), won by the leader. It takes no cards, so it is not counted as a trick won.
 
 Validation: `AnnounceValidator.cs` returns `Announce.Forty` or `Announce.Twenty` when the
 led card is a King or Queen, the partner card is in hand, and the player is on lead.
@@ -282,6 +290,7 @@ card under the talon**.
 ### Conditions
 
 - The player is **on lead** (`IsFirstPlayerTurn`).
+- **Not the first trick** (`StartRoundState.CanChangeTrump = false`).
 - The talon has **more than 2 cards** (`CanChangeTrump = true` only in
   `MoreThanTwoCardsLeftRoundState`).
 - The exchange happens **between tricks** — never mid-trick.
@@ -302,22 +311,28 @@ In code: `ChangeTrumpActionValidator.cs` plus the `BaseRoundState` flags.
 3. They take the old face-up trump card into hand.
 4. The Nine is then drawn naturally as the last card when the talon is exhausted.
 
-Implementation: `Trick.GetFirstPlayerAction` handles the `ChangeTrump` action:
+Implementation: `Round.LeaderActs` handles the `ChangeTrump` action:
 
 ```csharp
+// Round.cs
 case PlayerActionType.ChangeTrump:
 {
+    // The leader swaps the Nine of trumps for the face-up trump card and leads again.
     var oldTrumpCard = this.deck.TrumpCard;
     var nineOfTrump = Card.GetCard(oldTrumpCard.Suit, CardType.Nine);
-
+    this.TrumpSwappedBy = this.leader;
+    this.SwappedTrumpCard = oldTrumpCard;
+    this.TrumpSwappedAfterTricks = this.TricksPlayed;
     this.deck.ChangeTrumpCard(nineOfTrump);
-    context.TrumpCard = nineOfTrump;
-
-    playerInfo.Cards.Remove(nineOfTrump);
-    playerInfo.Cards.Add(oldTrumpCard);
-    continue; // the player continues — may close / announce / play
+    this.context.TrumpCard = nineOfTrump;
+    leaderInfo.Cards.Remove(nineOfTrump);
+    leaderInfo.Cards.Add(oldTrumpCard);
+    return true; // the same player is still to move: they may close, then lead
 }
 ```
+
+The match record keeps who exchanged, the card they took and after how many tricks
+(`SantaseRoundRecord.TrumpSwappedBy`, `SwappedTrumpCard`, `TrumpSwappedAfterTricks`).
 
 ### Implicit requirement: at least one trick already won
 
@@ -344,15 +359,18 @@ only the cards in hand.
 - Play moves to `FinalRoundState`: strict rules (see §8.2), no further drawing.
 - The **+10 last-trick bonus is suspended** (see §12).
 
-Implementation: `Trick.GetFirstPlayerAction`:
+Implementation: `Round.LeaderActs`:
 
 ```csharp
+// Round.cs
 case PlayerActionType.CloseGame:
 {
+    // The leader closes the talon and leads again.
     this.stateManager.State.Close();   // → FinalRoundState
-    context.State = this.stateManager.State;
-    playerInfo.GameCloser = true;      // remember who closed
-    continue;
+    this.context.State = this.stateManager.State;
+    leaderInfo.GameCloser = true;      // remember who closed
+    this.ClosedAfterTricks = this.TricksPlayed;
+    return true;
 }
 ```
 
@@ -365,8 +383,10 @@ When a player is on lead they may chain several actions before playing a card:
 3. Announce a marriage (when leading the King/Queen).
 4. The card actually played.
 
-The loop in `GetFirstPlayerAction` accepts repeated `ChangeTrump` and `CloseGame` actions
-before the final `PlayCard`.
+An exchange or a close keeps the same player to move (`SantaseMatch.ToMove` does not
+change), so they can exchange, then close, then lead. Neither can be repeated: after an
+exchange the Nine is no longer in hand, and after a close the state is `FinalRoundState`,
+which allows neither — so an exchange has to come before the close.
 
 ---
 
@@ -395,13 +415,13 @@ if (gameClosedBy == PlayerPosition.NoOne)
 }
 ```
 
-`lastTrickWinner` is decided in `Round.Play()`:
+`lastTrickWinner` is decided in `Round.Finish()`:
 
 ```csharp
-var bothHandsEmpty = this.firstPlayer.Cards.Count == 0
-                  && this.secondPlayer.Cards.Count == 0;
+// Round.cs
+var bothHandsEmpty = this.firstPlayer.Cards.Count == 0 && this.secondPlayer.Cards.Count == 0;
 var lastTrickWinnerForBonus = bothHandsEmpty ? this.lastTrickWinner : PlayerPosition.NoOne;
-return new RoundResult(this.firstPlayer, this.secondPlayer, lastTrickWinnerForBonus);
+this.Result = new RoundResult(this.firstPlayer, this.secondPlayer, lastTrickWinnerForBonus);
 ```
 
 So the bonus applies only when **both hands are empty** (the deal ran to the natural end).
@@ -447,8 +467,9 @@ player gets, based on:
        else (O has 1–32 and at least a trick): P wins 2 game points.
 ```
 
-(Step 4 corresponds to lines 52–63 of `RoundWinnerPointsPointsLogic.cs`; it is reachable
-through direct unit tests of the scoring class but not through ordinary game play.)
+(Step 4 is the block marked "Unreachable through real engine play" in
+`RoundWinnerPointsPointsLogic.cs`; it is reachable through direct unit tests of the scoring
+class but not through ordinary game play.)
 
 ### 13.2 Table
 
@@ -473,7 +494,8 @@ This is an **implementation choice** of this engine. Bulgarian sources split:
 
 This engine follows the strict variant (**always 3**), matching the common "simple close"
 rule. Pagat instead gives **2** game points (3 if the opponent had no trick when the close
-happened). Implementation: `RoundWinnerPointsPointsLogic.cs:30-44`.
+happened). Implementation: the failed-close checks at the top of
+`RoundWinnerPointsPointsLogic.GetWinnerPoints`, before the totals are compared.
 
 ---
 
@@ -497,8 +519,8 @@ if (firstPlayerPoints == secondPlayerPoints)
 }
 ```
 
-`SantaseGame.UpdatePoints` handles `Winner = NoOne` by falling through the `switch` — no
-case runs, so `firstToPlay` is untouched.
+`SantaseMatch.UpdatePoints` handles `Winner = NoOne` by falling through the `switch` — no
+case runs, so `FirstToPlay` is untouched.
 
 ### When a draw actually occurs
 
@@ -508,8 +530,9 @@ With the +10 bonus from §12, a draw arises only if:
 - the totals are equal after the +10 is applied (e.g. 60–70 before the bonus → 70–70 after
   if the loser of card points won the last trick).
 
-With a closed talon a draw can occur only if `gameClosedBy != NoOne`, the closer reached
-≥ 66, and both totals are equal — an extremely rare combination.
+With a closed talon a draw cannot happen: a closer below 66 loses 3 game points before the
+totals are compared, and a closer who reaches 66 ends the deal at that moment, with the
+opponent still below 66 (the deal ends as soon as either player reaches 66).
 
 Tests: `RoundWinnerPointsPointsLogicTestsForSantase.GetWinnerPointsShouldYieldDrawWhenScoresStillEqualAfterBonus`
 and `SantaseGameTests.DrawnRoundShouldNotAwardPointsAndShouldKeepTheSameOpener`.
@@ -520,13 +543,18 @@ and `SantaseGameTests.DrawnRoundShouldNotAwardPointsAndShouldKeepTheSameOpener`.
 
 ### Winning a deal
 
-A deal ends in one of two cases (`Round.IsFinished`):
+A deal ends in one of two cases, checked by `Round.Continue()` before every trick (and, for
+a marriage that reaches 66, right after the lead — §9.3):
 
 ```csharp
-if (firstPlayer.RoundPoints  >= 66) return true;   // someone reached 66
-if (secondPlayer.RoundPoints >= 66) return true;
-return firstPlayer.Cards.Count == 0
-    && secondPlayer.Cards.Count == 0;              // talon and hands exhausted
+// Round.cs
+if (this.firstPlayer.RoundPoints >= this.gameRules.RoundPointsForGoingOut      // someone reached 66
+    || this.secondPlayer.RoundPoints >= this.gameRules.RoundPointsForGoingOut
+    || (this.firstPlayer.Cards.Count == 0 && this.secondPlayer.Cards.Count == 0)) // hands exhausted
+{
+    this.Finish();
+    return;
+}
 ```
 
 The deal winner is the player whose `roundWinnerPoints.Winner` equals their position
@@ -534,15 +562,17 @@ The deal winner is the player whose `roundWinnerPoints.Winner` equals their posi
 
 ### Winning the game
 
-`SantaseGame.GameWinner()`:
+`SantaseMatch.GetMatchWinner()`:
 
 ```csharp
-if (FirstPlayerTotalPoints  >= 11) return FirstPlayer;
-if (SecondPlayerTotalPoints >= 11) return SecondPlayer;
-return NoOne;
+if (this.FirstPlayerTotalPoints >= this.gameRules.GamePointsNeededForWin) return PlayerPosition.FirstPlayer;
+if (this.SecondPlayerTotalPoints >= this.gameRules.GamePointsNeededForWin) return PlayerPosition.SecondPlayer;
+return PlayerPosition.NoOne;
 ```
 
-The main loop in `Start()` plays deals until one player reaches or passes 11 game points.
+After each deal `SantaseMatch` deals the next one, until one player reaches or passes 11
+game points (`SantaseGameRules.GamePointsNeededForWin`). A host can end a match early with
+`SantaseMatch.Stop()` (a resignation or an abandoned table): it then has no winner.
 
 ---
 
@@ -582,9 +612,10 @@ Deals are played until one player reaches 11 game points.
 
 | Concept | File |
 |---------|------|
-| Game entry point | `GameMechanics/SantaseGame.cs` |
-| One deal (round) | `GameMechanics/Round.cs` (internal) |
-| One trick | `GameMechanics/Trick.cs` (internal) |
+| A match, one action at a time (the rules' flow) | `GameMechanics/SantaseMatch.cs` |
+| A whole match between two `IPlayer`s | `GameMechanics/SantaseGame.cs` |
+| One deal (round), trick by trick | `GameMechanics/Round.cs` (internal) |
+| What a seat may see; the match record | `GameMechanics/SantaseSeatView.cs`, `SantaseMatchRecord.cs` |
 | Deal result | `GameMechanics/RoundResult.cs` |
 | Per-player deal state | `GameMechanics/RoundPlayerInfo.cs` |
 | Context passed to the AI each turn | `Players/PlayerTurnContext.cs` |
