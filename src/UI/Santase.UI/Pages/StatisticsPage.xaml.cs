@@ -45,9 +45,7 @@ namespace Santase.UI.Pages
             this.PeakEloLabel.Text = PlayerRatingStore.PeakElo.ToString(CultureInfo.InvariantCulture);
             this.GamesLabel.Text = games.ToString(CultureInfo.InvariantCulture);
             this.WinLossLabel.Text = $"{wins}{mgr["History_Win"]} – {losses}{mgr["History_Loss"]}";
-            this.WinRateLabel.Text = games > 0
-                ? $"{(int)Math.Round(100.0 * wins / games)}%"
-                : "—";
+            this.WinRateLabel.Text = StatsText.WinRate(wins, games);
 
             this.StreakLabel.Text = BuildStreakText(mgr);
 
@@ -142,7 +140,7 @@ namespace Santase.UI.Pages
                 });
                 right.Children.Add(new Label
                 {
-                    Text = $"{(int)Math.Round(100.0 * wins / games)}%",
+                    Text = StatsText.WinRate(wins, games),
                     TextColor = Color.FromArgb("#B9C7B0"),
                     FontSize = 11,
                     HorizontalOptions = LayoutOptions.End,

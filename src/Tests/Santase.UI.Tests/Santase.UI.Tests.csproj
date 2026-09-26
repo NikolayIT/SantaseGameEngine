@@ -33,6 +33,7 @@
     <Compile Include="..\..\UI\Santase.UI\Game\PlayerRatingStore.cs" Link="App\Game\PlayerRatingStore.cs" />
     <Compile Include="..\..\UI\Santase.UI\Game\RelayCommand.cs" Link="App\Game\RelayCommand.cs" />
     <Compile Include="..\..\UI\Santase.UI\Game\SettingsStore.cs" Link="App\Game\SettingsStore.cs" />
+    <Compile Include="..\..\UI\Santase.UI\Game\StatsText.cs" Link="App\Game\StatsText.cs" />
     <Compile Include="..\..\UI\Santase.UI\Localization\AppStrings.cs" Link="App\Localization\AppStrings.cs" />
     <Compile Include="..\..\UI\Santase.UI\Localization\LocalizationManager.cs" Link="App\Localization\LocalizationManager.cs" />
   </ItemGroup>
