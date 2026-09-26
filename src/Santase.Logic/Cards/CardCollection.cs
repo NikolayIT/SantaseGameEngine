@@ -1,5 +1,6 @@
 ﻿namespace Santase.Logic.Cards
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Numerics;
@@ -18,8 +19,20 @@
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CardCollection"/> class from a card mask:
+        /// bit <c>card.GetHashCode()</c> set for each card in it.
+        /// </summary>
+        /// <param name="bitMask">The cards; only the 24 Santase cards' bits
+        /// (<see cref="AllSantaseCardsBitMask"/>) may be set.</param>
         public CardCollection(long bitMask)
         {
+            // Any other bit is no card: enumerating it gave null (or threw IndexOutOfRange).
+            if ((bitMask & ~AllSantaseCardsBitMask) != 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bitMask), bitMask, "Only the bits of the 24 Santase cards may be set.");
+            }
+
             this.cards = bitMask;
             this.Count = this.CalculateCount();
         }
@@ -53,6 +66,11 @@
 
         public void Add(Card item)
         {
+            if (item == null)
+            {
+                throw new ArgumentNullException(nameof(item));
+            }
+
             if (!this.Contains(item))
             {
                 unchecked
@@ -69,13 +87,24 @@
             this.Count = 0;
         }
 
+        // No card (null) is in no collection, as with the framework's collections.
         public bool Contains(Card item)
         {
-            return ((this.cards >> item.GetHashCode()) & 1) == 1;
+            return item != null && ((this.cards >> item.GetHashCode()) & 1) == 1;
         }
 
         public void CopyTo(Card[] array, int arrayIndex)
         {
+            if (array == null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            if (arrayIndex < 0 || array.Length - arrayIndex < this.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, "The cards do not fit in the array from that index.");
+            }
+
             var bits = this.cards;
             while (bits != 0)
             {

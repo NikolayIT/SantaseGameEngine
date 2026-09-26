@@ -11,6 +11,55 @@
 
     public class CardCollectionTests
     {
+        // The ICollection<Card> contract for "no card": Contains(null) is false and Remove(null)
+        // removes nothing, as with List and HashSet; Add(null) is refused. All three threw
+        // NullReferenceException.
+        [Fact]
+        public void NoCardShouldBeInNoCollection()
+        {
+            var cards = new CardCollection { Card.GetCard(CardSuit.Heart, CardType.Ace) };
+            Assert.False(cards.Contains(null));
+            Assert.False(cards.Remove(null));
+            Assert.Throws<ArgumentNullException>(() => cards.Add(null));
+            Assert.Single(cards);
+            Assert.False(new CardCollection().Contains(null));
+        }
+
+        // A mask may only hold the 24 cards' bits: bit 0, the bits of ranks 2-8 and bits 53-63 are
+        // no card, and enumerating them gave null or threw IndexOutOfRangeException.
+        [Theory]
+        [InlineData(1L)]
+        [InlineData(1L << 2)]
+        [InlineData(1L << 53)]
+        [InlineData(1L << 63)]
+        [InlineData(-1L)]
+        public void AMaskShouldHoldOnlySantaseCards(long mask)
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new CardCollection(mask));
+        }
+
+        [Fact]
+        public void AMaskOfAllSantaseCardsShouldHoldThe24Cards()
+        {
+            var all = new CardCollection(CardCollection.AllSantaseCardsBitMask);
+            Assert.Equal(24, all.Count);
+            Assert.Equal(24, all.Distinct().Count());
+            Assert.All(all, Assert.NotNull);
+        }
+
+        [Fact]
+        public void CopyToShouldRefuseAnArrayTheCardsDoNotFitIn()
+        {
+            var cards = new CardCollection { Card.GetCard(CardSuit.Heart, CardType.Ace), Card.GetCard(CardSuit.Club, CardType.Nine) };
+            Assert.Throws<ArgumentNullException>(() => cards.CopyTo(null, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => cards.CopyTo(new Card[2], -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => cards.CopyTo(new Card[2], 1));
+            var array = new Card[3];
+            cards.CopyTo(array, 1);
+            Assert.Null(array[0]);
+            Assert.Equal(2, array.Count(c => c != null));
+        }
+
         [Fact]
         public void IsReadOnlyShouldReturnFalse()
         {
