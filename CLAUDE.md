@@ -34,7 +34,7 @@ Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) li
 ### Platform notes
 
 - Every project targets `net10.0`. Before the .NET 10 migration the library + AI projects were `netstandard2.0`, the simulator was `netcoreapp3.1`, and the console UI was `net5.0` — recent commits in `git log` still reference those frameworks if you need to compare.
-- `Santase.Logic` is the published [SantaseGameEngine](https://www.nuget.org/packages/SantaseGameEngine) NuGet package — bumping its TFM is a breaking change for downstream consumers (package version `3.1.0`: the server-facing `SantaseMatch` API, views and restorable bots; not yet pushed to nuget.org as of September 2026). The three bot projects are packable too (`SantaseGameEngine.ClaudePlayer` / `.SmartPlayer` / `.DummyPlayer`, depending on the engine package); CI packs all four into the `nuget-package` artifact.
+- `Santase.Logic` is the published [SantaseGameEngine](https://www.nuget.org/packages/SantaseGameEngine) NuGet package — bumping its TFM is a breaking change for downstream consumers (package version `3.0.0`, September 2026: the first release since 2.0.0 in 2018, with the server-facing `SantaseMatch` API, views and restorable bots; the package README is `src/Santase.Logic/README.md`). The three bot projects are packable too (`SantaseGameEngine.ClaudePlayer` / `.SmartPlayer` / `.DummyPlayer`, depending on the engine package; not on nuget.org); CI packs all four into the `nuget-package` artifact. See *Releasing* below.
 - The third-party AI players in `src/AI/External/*.dll` (`BotskoPlayer`, `NinjaPlayer`, `ProPlayer`) are binary references — no source. They're `.NETPortable` (PCL) assemblies, which load fine from `net10.0`. Treat their `IPlayer` contract as load-bearing for the simulator.
 
 ## Architecture
@@ -148,11 +148,7 @@ StyleCop.Analyzers is enforced via `src/Rules.ruleset` + `src/stylecop.json`, ap
 - `companyName` is `Santase`. Documentation is **not** required on interfaces or internal elements.
 - Two-letter Hungarian prefixes are explicitly whitelisted: `db at or up it un x y id ip bg am my`. Don't rename fields that use them.
 
-## Known-stale artifacts in the repo
+## Releasing
 
-A few files in the repo describe an older state and were not updated when the UWP / Mobile Blazor Bindings / Android UI projects were removed (commit `262e270`):
-
-- `README.md` still advertises the Windows Universal App (Microsoft Store) and the Mobile Blazor Bindings Android UI, and says **Visual Studio 2017** is required. The solution is now `src/Santase.slnx` (Visual Studio 2026 / Rider / dotnet CLI). The old UWP/Android UIs were removed in `262e270`; the only UI that remains is the cross-platform **MAUI** desktop/mobile app (`Santase.UI`, added after `262e270` in `2dec948`→`c5a2163`), in `src/Santase.slnx`. The old console UI (`Santase.UI.Console`, a blocking `IPlayer` loop against SmartPlayer only) was removed in September 2026.
-- `azure-pipelines.yml` still builds the solution via `VSBuild` with UWP-specific MSBuild args (`AppxBundlePlatforms`, `AppxBundle=Always`, `UapAppxPackageBuildMode=StoreUpload`). With the UWP project gone, the pipeline is effectively dead until rewritten — assume CI is not currently green.
-
-When working on related areas (CI, packaging, docs), check these against current reality before trusting them.
+- **Engine (NuGet).** Bump `<Version>` and `<PackageReleaseNotes>` in `src/Santase.Logic/Santase.Logic.csproj`, push, then publish a GitHub release whose tag is exactly that version (`3.0.0`, no `v`, like the old `1.0`…`2.0` tags). `.github/workflows/publish.yml` checks the tag against the csproj, builds and tests, packs the `.nupkg` + `.snupkg` and pushes them with nuget.org **Trusted Publishing** (`NuGet/login` exchanges the workflow's OIDC token for a one-hour key; the nuget.org policy names this repo, `publish.yml` and the `release` environment; the `NUGET_USER` secret is the nuget.org profile name). It then attaches both files to the release. A pushed version can never be replaced, only unlisted. Only the engine package is published; the bot packages stay CI artifacts.
+- **Android app (Google Play).** Bump `ApplicationDisplayVersion` and the integer `ApplicationVersion` (the versionCode) in `Santase.UI.csproj`, add `fastlane/metadata/android/{en-US,bg}/changelogs/<versionCode>.txt` (Play caps release notes at 500 characters), and build the signed bundle with `src/UI/Santase.UI/publish-android.ps1` (see `PLAYSTORE.md`). Play's automatic protection is on for the app and refuses bundles below API 24. The bundle goes up through the Play Developer API with the studio's service account (outside this repo); the browser upload does not work for a ~30 MB bundle.
