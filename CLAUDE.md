@@ -21,13 +21,13 @@ dotnet run -c Release --project src\Tests\Santase.Tests.GameSimulations\Santase.
 # Run the cross-platform MAUI desktop/mobile UI (Santase.UI).
 dotnet build src\UI\Santase.UI\Santase.UI.csproj -t:Run
 
-# Run the unit tests via CLI (xunit, ~527 tests across 4 projects).
+# Run the unit tests via CLI (xunit, ~524 tests across 4 projects).
 dotnet test src\Santase.slnx -c Release
 ```
 
 ### Unit tests
 
-`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, `Santase.AI.ClaudePlayer.Tests` and `Santase.UI.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~445, ClaudePlayer.Tests 33 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests, plus the restore-from-view equivalence tests), SmartPlayer.Tests 4, UI.Tests 45 (the MAUI app's game flow, game table, stores and strings, see below).
+`Santase.Logic.Tests`, `Santase.AI.SmartPlayer.Tests`, `Santase.AI.ClaudePlayer.Tests` and `Santase.UI.Tests` are xUnit test projects targeting `net10.0` with `Microsoft.NET.Test.Sdk` + `xunit.runner.visualstudio` referenced — they run via both `dotnet test` and Visual Studio's Test Explorer. Approx. counts: Logic.Tests ~442, ClaudePlayer.Tests 33 (neural net / feature encoder / legal-move + player-vs-bot smoke, incl. 3 `ClaudePlayerIsmcts` smoke tests, plus the restore-from-view equivalence tests), SmartPlayer.Tests 4, UI.Tests 45 (the MAUI app's game flow, game table, stores and strings, see below).
 
 Tests in `Santase.Tests.GameSimulations/Tests/` (the `*LoggerTests.cs` files) live inside the simulator's `Exe` project and are not invoked by the simulator's `Main` or by `dotnet test` (the simulator csproj is `OutputType=Exe`, not a test SDK project) — they're VS-Test-Explorer artifacts.
 
