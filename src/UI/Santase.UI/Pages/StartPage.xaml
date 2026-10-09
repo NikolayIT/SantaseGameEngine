@@ -226,6 +226,27 @@
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
 
+                <!-- Play people online: hands over to ednaigra.com in the browser (no network play in the app) -->
+                <VerticalStackLayout Spacing="2">
+                    <Button x:Name="OnlinePlayButton"
+                            Text="{loc:Tr Start_PlayOnline}"
+                            Clicked="OnPlayOnline"
+                            LineBreakMode="WordWrap"
+                            SemanticProperties.Hint="{loc:Tr Start_OnlineHint}"
+                            MinimumHeightRequest="48"
+                            Padding="10,4"
+                            FontSize="14"
+                            CornerRadius="12"
+                            BackgroundColor="Transparent"
+                            BorderColor="#59E2B864"
+                            BorderWidth="1"
+                            TextColor="{StaticResource GoldHighlight}" />
+                    <Label Text="ednaigra.com"
+                           FontSize="10"
+                           HorizontalOptions="Center"
+                           TextColor="#99FFFFFF" />
+                </VerticalStackLayout>
+
                 <!-- Recent games -->
                 <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
                     <Label Grid.Column="0"

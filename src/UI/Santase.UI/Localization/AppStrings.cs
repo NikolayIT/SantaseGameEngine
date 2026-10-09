@@ -30,6 +30,9 @@ namespace Santase.UI.Localization
             ["Start_Player1"] = "Player 1",
             ["Start_Player2"] = "Player 2",
             ["Start_Subtitle"] = "66 · Schnapsen · Sechsundsechzig",
+            ["Start_PlayOnline"] = "Play people online",
+            ["Start_OnlineHint"] = "Opens ednaigra.com in your browser",
+            ["Start_OnlineUnavailable"] = "The browser could not open. Try again, or visit ednaigra.com to play Santase online.",
 
             // ----- Opponents -----
             ["Opp_Dummy_Name"] = "Lucky",
@@ -202,6 +205,9 @@ namespace Santase.UI.Localization
             ["Start_Player1"] = "Играч 1",
             ["Start_Player2"] = "Играч 2",
             ["Start_Subtitle"] = "66 · Шнапсен · Сантасе",
+            ["Start_PlayOnline"] = "Играй с хора онлайн",
+            ["Start_OnlineHint"] = "Отваря ednaigra.com в браузъра",
+            ["Start_OnlineUnavailable"] = "Браузърът не се отвори. Опитай отново или отвори ednaigra.com за онлайн сантасе.",
 
             // ----- Opponents -----
             ["Opp_Dummy_Name"] = "Късметлия",

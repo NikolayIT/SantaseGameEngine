@@ -17,14 +17,16 @@ namespace Santase.UI.Pages
 
     public partial class StartPage : ContentPage
     {
-        // A double tap opens one page: two quick taps on an opponent used to open two games.
-        private readonly OneAtATime navigation = new();
+        // One page action at a time, and only while the page is shown: a double tap opens one page
+        // (two quick taps on an opponent used to open two games), and the online button's failure
+        // notice belongs to the page visit that opened the browser.
+        private readonly PageActions actions = new();
 
         public StartPage()
         {
             this.InitializeComponent();
 
-            this.SelectOpponentCommand = new RelayCommand<AiOpponent>(opponent => _ = this.navigation.RunAsync(() => this.OnSelectOpponent(opponent)));
+            this.SelectOpponentCommand = new RelayCommand<AiOpponent>(opponent => _ = this.actions.RunAsync(() => this.OnSelectOpponent(opponent)));
 
             // Set once; AiOpponent raises PropertyChanged on a language switch or a stats update,
             // so the bound rows refresh in place (no list rebuild needed).
@@ -41,7 +43,14 @@ namespace Santase.UI.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            this.actions.Activate();
             this.ApplyTexts();
+        }
+
+        protected override void OnDisappearing()
+        {
+            this.actions.Deactivate();
+            base.OnDisappearing();
         }
 
         private void OnToggleLanguage(object? sender, EventArgs e)
@@ -52,17 +61,31 @@ namespace Santase.UI.Pages
 
         private async void OnOpenSettings(object? sender, EventArgs e)
         {
-            await this.navigation.RunAsync(() => Shell.Current.GoToAsync("SettingsPage"));
+            await this.actions.RunAsync(() => Shell.Current.GoToAsync("SettingsPage"));
         }
 
         private async void OnOpenStatistics(object? sender, EventArgs e)
         {
-            await this.navigation.RunAsync(() => Shell.Current.GoToAsync("StatisticsPage"));
+            await this.actions.RunAsync(() => Shell.Current.GoToAsync("StatisticsPage"));
         }
 
         private async void OnOpenRules(object? sender, EventArgs e)
         {
-            await this.navigation.RunAsync(() => Shell.Current.GoToAsync("RulesPage"));
+            await this.actions.RunAsync(() => Shell.Current.GoToAsync("RulesPage"));
+        }
+
+        private async void OnPlayOnline(object? sender, EventArgs e)
+        {
+            // Leaving for the browser keeps a typed name: the entry may not lose focus first.
+            this.OnPlayerNameChanged(sender, e);
+            await OnlinePlay.OpenAsync(
+                this.actions,
+                url => Browser.Default.OpenAsync(url, BrowserLaunchMode.SystemPreferred),
+                () =>
+                {
+                    var text = LocalizationManager.Instance;
+                    return this.DisplayAlertAsync(text["Start_PlayOnline"], text["Start_OnlineUnavailable"], "OK");
+                });
         }
 
         private void OnPlayerNameChanged(object? sender, EventArgs e)
@@ -175,7 +198,7 @@ namespace Santase.UI.Pages
 
         private async void OnPlayHotSeat(object? sender, EventArgs e)
         {
-            await this.navigation.RunAsync(this.PlayHotSeatAsync);
+            await this.actions.RunAsync(this.PlayHotSeatAsync);
         }
 
         private Task PlayHotSeatAsync()
