@@ -73,9 +73,11 @@ run() {
       failed=1
       break
     fi
-    if ! xcrun simctl spawn "$udid" launchctl list | grep -q "UIKitApplication:$bundle"; then
+    # Not grep -q: closing the pipe early kills launchctl, which pipefail reports as a failure.
+    if ! xcrun simctl spawn "$udid" launchctl list 2> /dev/null | grep "UIKitApplication:$bundle" > /dev/null; then
       sleep 2
       if [ ! -f "$data/shots-done.txt" ]; then
+        sleep 20 # A crash report takes a moment to appear.
         echo "::error::The app stopped during the $name pass."
         failed=1
         break
@@ -94,7 +96,7 @@ run() {
   if [ "$failed" = 1 ]; then
     mkdir -p "$out/crashes"
     cp -R "$HOME/Library/Logs/DiagnosticReports/." "$out/crashes/" 2> /dev/null || true
-    xcrun simctl spawn "$udid" log show --last 10m --style compact --predicate "process CONTAINS 'Santase'" > "$out/crashes/$name-log.txt" 2> /dev/null || true
+    xcrun simctl spawn "$udid" log show --last 10m --style compact --predicate "process CONTAINS 'Santase' OR eventMessage CONTAINS '$bundle'" > "$out/crashes/$name-log.txt" 2> /dev/null || true
     exit 1
   fi
   xcrun simctl terminate "$udid" "$bundle" || true

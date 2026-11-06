@@ -40,8 +40,9 @@
 		<RuntimeIdentifier Condition="'$(StoreShots)' == 'true'">iossimulator-arm64</RuntimeIdentifier>
 		<DefineConstants Condition="'$(StoreShots)' == 'true'">$(DefineConstants);STORE_SHOTS</DefineConstants>
 
-		<!-- All code is compiled ahead of time, as iOS has no JIT; the interpreter only runs what that compiler could not foresee instead of crashing. -->
-		<MtouchInterpreter Condition="'$(Configuration)' == 'Release'">-all</MtouchInterpreter>
+		<!-- All code is compiled ahead of time, as iOS has no JIT; the interpreter only runs what that compiler could not foresee instead of crashing.
+		     Not in the simulator build: there it turns 8 minutes into an hour, and the pass is stricter with nothing to fall back on. -->
+		<MtouchInterpreter Condition="'$(Configuration)' == 'Release' And '$(StoreShots)' != 'true'">-all</MtouchInterpreter>
 	</PropertyGroup>
 
 	<ItemGroup>

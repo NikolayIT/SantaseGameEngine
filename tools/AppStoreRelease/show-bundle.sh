@@ -14,6 +14,11 @@ for key in CFBundleIdentifier CFBundleName CFBundleDisplayName CFBundleShortVers
   echo "$key: $(buddy "$key" | tr '\n' ' ')"
 done
 
+echo "CFBundleIcons: $(buddy CFBundleIcons | tr -s ' 
+' ' ')"
+echo "Largest files (KB):"
+find "$app" -type f -exec du -k {} + | sort -rn | awk 'NR <= 8' | sed "s|$app/||"
+
 ls -d "$app"/*.lproj
 ls "$app" | grep -i -E 'PrivacyInfo|AppIcon|Assets.car' || true
 

@@ -93,6 +93,8 @@ Differences from Android:
   keyboard match it, and the status bar stays light.
 - **Ahead of time.** iOS has no JIT. Release builds compile everything ahead of time and keep the
   interpreter for what the compiler could not foresee (`MtouchInterpreter=-all`), rather than crash.
+  It costs about 7 MB of the IPA (Belot measured 52 against 59 MB). The simulator build leaves it
+  out: with it the build takes an hour instead of 8 minutes, and the pass is stricter without it.
 - **The workload is pinned** to set `10.0.401` (iOS SDK 26.5, Xcode 26.6) in `select-xcode.sh`:
   newer sets carry iOS SDK 27, which needs Xcode 27, and GitHub's newest image, `macos-26`, stops at
   26.6. Move it when GitHub has `macos-27`.

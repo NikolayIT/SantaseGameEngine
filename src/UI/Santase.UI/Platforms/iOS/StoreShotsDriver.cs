@@ -2,6 +2,7 @@
 namespace Santase.UI
 {
     using System.Globalization;
+    using System.Runtime.CompilerServices;
 
     using Santase.AI.ClaudePlayer;
     using Santase.Logic.Players;
@@ -51,6 +52,9 @@ namespace Santase.UI
         {
             Log($"Device culture {CultureInfo.CurrentUICulture.Name}; preferred {string.Join(' ', Foundation.NSLocale.PreferredLanguages)}");
             Log($"Language without a saved choice: {LocalizationManager.Instance.Language}");
+            Log($"Dynamic code: supported {RuntimeFeature.IsDynamicCodeSupported}, compiled {RuntimeFeature.IsDynamicCodeCompiled}");
+            AppDomain.CurrentDomain.UnhandledException += (_, args) => Log("UNHANDLED: " + args.ExceptionObject);
+            TaskScheduler.UnobservedTaskException += (_, args) => Log("UNOBSERVED: " + args.Exception);
             if (string.IsNullOrEmpty(Language))
             {
                 return;
@@ -138,6 +142,7 @@ namespace Santase.UI
             using var table = new GameViewModel(session, opponent, new QuietHost());
             table.StartGame();
             var decisions = 0;
+            var hinted = false;
             while (true)
             {
                 await Until(() => table.IsGameOverlayVisible || table.IsRoundOverlayVisible || table.IsHandoffOverlayVisible || table.IsMyTurn || error != null, "a decision");
@@ -161,12 +166,17 @@ namespace Santase.UI
                 }
                 else
                 {
-                    if (++decisions % 7 == 0 && table.IsHintVisible)
+                    // A move on its way to the session leaves the turn showing for a moment.
+                    if (Move(session, table) && ++decisions % 7 == 0)
                     {
-                        table.HintCommand.Execute(null);
+                        hinted = true;
                     }
+                }
 
-                    Move(session, table);
+                if (hinted && table.IsHintVisible)
+                {
+                    hinted = false;
+                    table.HintCommand.Execute(null);
                 }
 
                 await Task.Yield();
@@ -366,8 +376,9 @@ namespace Santase.UI
         }
 
         // Against the computer what the hint says; two people play random legal moves. A move
-        // already made may still be on its way to the session, which then has no hint to give.
-        private static void Move(GameSession session, GameViewModel table)
+        // already made may still be on its way to the session, which then has no hint to give:
+        // false if nothing was asked of the table.
+        private static bool Move(GameSession session, GameViewModel table)
         {
             var playable = table.MyHand.Where(x => x.IsPlayable).ToList();
             if (session.Mode == GameMode.HotSeat)
@@ -384,8 +395,12 @@ namespace Santase.UI
                 {
                     table.TapCardCommand.Execute(playable[Random.Next(playable.Count)]);
                 }
+                else
+                {
+                    return false;
+                }
 
-                return;
+                return true;
             }
 
             var hint = session.GetHint();
@@ -400,7 +415,11 @@ namespace Santase.UI
                 case PlayerActionType.PlayCard:
                     table.TapCardCommand.Execute(table.MyHand.First(x => x.Card == hint.Card));
                     break;
+                default:
+                    return false;
             }
+
+            return true;
         }
 
         private static async Task ShootAsync(string name, int settleMs = 1500)
@@ -411,7 +430,8 @@ namespace Santase.UI
             var temporary = request + ".tmp";
             await File.WriteAllTextAsync(temporary, name);
             File.Move(temporary, request);
-            await Until(() => !File.Exists(request), "the screenshot " + name, 60);
+            // simctl io has been seen to take over a minute on a hosted runner.
+            await Until(() => !File.Exists(request), "the screenshot " + name, 300);
             Log("Shot " + name);
         }
 
