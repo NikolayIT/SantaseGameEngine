@@ -146,6 +146,9 @@ namespace Santase.UI.Localization
             ["Settings_Version"] = "Version {0}",
             ["Settings_OpenSource"] = "Open source on GitHub",
             ["Settings_EngineNote"] = "Powered by the SantaseGameEngine — the same engine that trains the AI opponents.",
+            ["Settings_PrivacyPolicy"] = "Privacy policy",
+            ["Settings_PrivacyPolicyHint"] = "Opens the privacy policy in your browser",
+            ["Settings_PrivacyPolicyUnavailable"] = "The browser could not open. Try again, or visit https://nksolutions.com/santase/privacy-policy.html.",
 
             // ----- Statistics page -----
             ["Stats_Title"] = "Statistics",
@@ -321,6 +324,9 @@ namespace Santase.UI.Localization
             ["Settings_Version"] = "Версия {0}",
             ["Settings_OpenSource"] = "Отворен код в GitHub",
             ["Settings_EngineNote"] = "Задвижвана от SantaseGameEngine — същият енджин, който обучава компютърните противници.",
+            ["Settings_PrivacyPolicy"] = "Политика за поверителност",
+            ["Settings_PrivacyPolicyHint"] = "Отваря политиката за поверителност в браузъра",
+            ["Settings_PrivacyPolicyUnavailable"] = "Браузърът не се отвори. Опитай отново или отвори https://nksolutions.com/santase/privacy-policy.html.",
 
             // ----- Statistics page -----
             ["Stats_Title"] = "Статистика",

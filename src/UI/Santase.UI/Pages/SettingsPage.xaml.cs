@@ -12,8 +12,9 @@ namespace Santase.UI.Pages
 
     public partial class SettingsPage : ContentPage
     {
-        // A double tap on Back goes back once.
-        private readonly OneAtATime navigation = new();
+        // One action at a time, while the page is shown: a double tap on Back goes back once, and
+        // the policy link's failure notice belongs to the page visit that opened the browser.
+        private readonly PageActions actions = new();
 
         private const string RepoUrl = "https://github.com/NikolayIT/SantaseGameEngine";
 
@@ -25,6 +26,7 @@ namespace Santase.UI.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            this.actions.Activate();
 
             this.HapticsSwitch.IsToggled = AppSettings.HapticsEnabled;
             this.AssistsSwitch.IsToggled = AppSettings.AssistsEnabled;
@@ -34,9 +36,15 @@ namespace Santase.UI.Pages
             this.RefreshSpeedButtons();
         }
 
+        protected override void OnDisappearing()
+        {
+            this.actions.Deactivate();
+            base.OnDisappearing();
+        }
+
         private async void OnBack(object? sender, EventArgs e)
         {
-            await this.navigation.RunAsync(() => Shell.Current.GoToAsync(".."));
+            await this.actions.RunAsync(() => Shell.Current.GoToAsync(".."));
         }
 
         private void OnLanguageEn(object? sender, EventArgs e)
@@ -89,11 +97,23 @@ namespace Santase.UI.Pages
             await this.DisplayAlertAsync(mgr["Settings_ResetStats"], mgr["Reset_Done"], "OK");
         }
 
+        private async void OnOpenPrivacyPolicy(object? sender, EventArgs e)
+        {
+            await PrivacyPolicy.OpenAsync(
+                this.actions,
+                ExternalBrowser.OpenAsync,
+                () =>
+                {
+                    var text = LocalizationManager.Instance;
+                    return this.DisplayAlertAsync(text["Settings_PrivacyPolicy"], text["Settings_PrivacyPolicyUnavailable"], "OK");
+                });
+        }
+
         private async void OnOpenGitHub(object? sender, EventArgs e)
         {
             try
             {
-                await Browser.Default.OpenAsync(RepoUrl, BrowserLaunchMode.SystemPreferred);
+                await ExternalBrowser.OpenAsync(RepoUrl);
             }
             catch
             {

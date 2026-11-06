@@ -174,7 +174,7 @@ namespace Santase.UI.Tests
             var handler = code[start..end];
             Assert.Contains("OnlinePlay.OpenAsync(", handler);
             Assert.Contains("this.actions,", handler);
-            Assert.Contains("Browser.Default.OpenAsync(url, BrowserLaunchMode.SystemPreferred)", handler);
+            Assert.Contains("ExternalBrowser.OpenAsync,", handler);
             Assert.Contains("text[\"Start_OnlineUnavailable\"]", handler);
             Assert.Contains("this.DisplayAlertAsync", handler);
 

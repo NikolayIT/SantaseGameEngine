@@ -192,6 +192,16 @@
                         <Label Text="{loc:Tr Settings_EngineNote}"
                                FontSize="12"
                                TextColor="#C7D2BD" />
+                        <Button Text="{loc:Tr Settings_PrivacyPolicy}"
+                                SemanticProperties.Hint="{loc:Tr Settings_PrivacyPolicyHint}"
+                                Clicked="OnOpenPrivacyPolicy"
+                                FontSize="13"
+                                TextColor="{StaticResource GoldHighlight}"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                Padding="0"
+                                MinimumHeightRequest="44"
+                                HorizontalOptions="Start" />
                         <Label Text="{loc:Tr Settings_OpenSource}"
                                FontSize="13"
                                TextColor="{StaticResource GoldHighlight}"

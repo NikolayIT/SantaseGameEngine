@@ -80,7 +80,7 @@ namespace Santase.UI.Pages
             this.OnPlayerNameChanged(sender, e);
             await OnlinePlay.OpenAsync(
                 this.actions,
-                url => Browser.Default.OpenAsync(url, BrowserLaunchMode.SystemPreferred),
+                ExternalBrowser.OpenAsync,
                 () =>
                 {
                     var text = LocalizationManager.Instance;
