@@ -95,6 +95,10 @@ Differences from Android:
   interpreter for what the compiler could not foresee (`MtouchInterpreter=-all`), rather than crash.
   It costs about 7 MB of the IPA (Belot measured 52 against 59 MB). The simulator build leaves it
   out: with it the build takes an hour instead of 8 minutes, and the pass is stricter without it.
+- **Text size.** The table keeps its size whatever the system's text size is (`GamePage.KeepTextSize`):
+  it is cards of a fixed size with one line of status above and below, and bigger text wrapped the
+  names letter by letter and pushed the hand over the status bar. The round and game screens scroll
+  and follow the system, like every other page.
 - **The workload is pinned** to set `10.0.401` (iOS SDK 26.5, Xcode 26.6) in `select-xcode.sh`:
   newer sets carry iOS SDK 27, which needs Xcode 27, and GitHub's newest image, `macos-26`, stops at
   26.6. Move it when GitHub has `macos-27`.

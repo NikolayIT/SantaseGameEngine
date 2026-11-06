@@ -17,19 +17,6 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <!-- The overlays stop at the safe area (the status bar, the Dynamic Island): the page around them dims with them. -->
-    <ContentPage.Triggers>
-        <DataTrigger TargetType="ContentPage" Binding="{Binding IsHandoffOverlayVisible}" Value="True">
-            <Setter Property="BackgroundColor" Value="#071E0F" />
-        </DataTrigger>
-        <DataTrigger TargetType="ContentPage" Binding="{Binding IsRoundOverlayVisible}" Value="True">
-            <Setter Property="BackgroundColor" Value="#020904" />
-        </DataTrigger>
-        <DataTrigger TargetType="ContentPage" Binding="{Binding IsGameOverlayVisible}" Value="True">
-            <Setter Property="BackgroundColor" Value="#010603" />
-        </DataTrigger>
-    </ContentPage.Triggers>
-
     <Grid>
         <!-- ===== Felt background ===== -->
         <Grid.Background>
@@ -41,7 +28,8 @@
         </Grid.Background>
 
         <!-- ===== Main game grid ===== -->
-        <Grid Padding="10,12"
+        <Grid x:Name="TableRoot"
+              Padding="10,12"
               RowDefinitions="Auto,Auto,*,Auto,Auto"
               RowSpacing="6">
 
@@ -351,6 +339,7 @@
                                             Margin="5,4,0,0">
                                         <Label Text="{Binding AnnounceText}"
                                                TextColor="#1A1006"
+                                               FontAutoScalingEnabled="False"
                                                FontSize="10"
                                                FontAttributes="Bold" />
                                     </Border>
@@ -442,7 +431,8 @@
         </Grid>
 
         <!-- ===== Menu button (top-right overlay) ===== -->
-        <Button Text="{loc:Tr Game_Menu}"
+        <Button x:Name="MenuButton"
+                Text="{loc:Tr Game_Menu}"
                 Clicked="OnMenuClicked"
                 HorizontalOptions="End"
                 VerticalOptions="Start"
@@ -557,6 +547,7 @@
                                            FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            LineBreakMode="NoWrap"
+                                           FontAutoScalingEnabled="False"
                                            TextColor="#E2B864"
                                            IsVisible="{Binding RoundIWon}" />
                                 </VerticalStackLayout>
@@ -581,6 +572,7 @@
                                            FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            LineBreakMode="NoWrap"
+                                           FontAutoScalingEnabled="False"
                                            TextColor="#E2B864"
                                            IsVisible="{Binding RoundOpponentWon}" />
                                 </VerticalStackLayout>

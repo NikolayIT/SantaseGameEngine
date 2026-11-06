@@ -21,11 +21,16 @@ namespace Santase.UI.Pages
 
         private GameViewModel? viewModel;
 
+        private readonly Color feltColor;
+
         private bool started;
 
         public GamePage()
         {
             this.InitializeComponent();
+            this.feltColor = this.BackgroundColor;
+            KeepTextSize(this.TableRoot);
+            KeepTextSize(this.MenuButton);
         }
 
         public string ModeRaw { get; set; } = nameof(GameMode.VsAi);
@@ -183,6 +188,16 @@ namespace Santase.UI.Pages
                 return;
             }
 
+            // The overlays stop at the safe area (the status bar, the Dynamic Island), so the page
+            // around them dims with them. The colours are theirs over the felt.
+            if (e.PropertyName is nameof(GameViewModel.IsHandoffOverlayVisible) or nameof(GameViewModel.IsRoundOverlayVisible) or nameof(GameViewModel.IsGameOverlayVisible))
+            {
+                this.BackgroundColor = vm.IsGameOverlayVisible ? Color.FromArgb("#010603")
+                    : vm.IsRoundOverlayVisible ? Color.FromArgb("#020904")
+                    : vm.IsHandoffOverlayVisible ? Color.FromArgb("#071E0F")
+                    : this.feltColor;
+            }
+
             switch (e.PropertyName)
             {
                 case nameof(GameViewModel.MyPlayedCard) when vm.MyPlayedCard != null:
@@ -226,6 +241,33 @@ namespace Santase.UI.Pages
             element.CancelAnimations();
             element.Opacity = 0;
             _ = element.FadeToAsync(1.0, 220, Easing.CubicOut);
+        }
+
+        // The table is laid out for a phone: cards of a fixed size with one line of status above
+        // and below them. A bigger system text size wrapped the names letter by letter and pushed
+        // the hand over the status bar, so here the text keeps its size. The round and game
+        // screens, which scroll, and the other pages still follow the system.
+        private static void KeepTextSize(IVisualTreeElement element)
+        {
+            switch (element)
+            {
+                case Label label:
+                    label.FontAutoScalingEnabled = false;
+                    foreach (var span in label.FormattedText?.Spans ?? Enumerable.Empty<Span>())
+                    {
+                        span.FontAutoScalingEnabled = false;
+                    }
+
+                    break;
+                case Button button:
+                    button.FontAutoScalingEnabled = false;
+                    break;
+            }
+
+            foreach (var child in element.GetVisualChildren())
+            {
+                KeepTextSize(child);
+            }
         }
 
         // Card games get abandoned mid-hand when the screen sleeps; keep it awake during play.
