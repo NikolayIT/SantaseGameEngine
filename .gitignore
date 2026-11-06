@@ -26,3 +26,10 @@ tools/EngineBench/_bench/
 *.keystore
 *.jks
 signing.user.props
+
+# Apple signing material lives outside this public repository (store/app-store/README.md).
+artifacts/
+keys/
+*.p8
+*.p12
+*.mobileprovision

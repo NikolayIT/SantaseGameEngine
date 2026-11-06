@@ -36,10 +36,18 @@ namespace Santase.UI.Pages
 
         public string OpponentId { get; set; } = "smart";
 
+        // The page itself is going back, not a gesture of the system (see AppShell.OnNavigating).
+        internal bool IsLeaving { get; private set; }
+
+#if STORE_SHOTS
+        internal GameSession? Session => this.session;
+
+#endif
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
+            this.IsLeaving = false;
             SetKeepScreenOn(true);
 
             if (this.started)
@@ -79,7 +87,11 @@ namespace Santase.UI.Pages
             }
         }
 
-        void IGameTableHost.Leave() => _ = Shell.Current?.GoToAsync("..");
+        void IGameTableHost.Leave()
+        {
+            this.IsLeaving = true;
+            _ = Shell.Current?.GoToAsync("..");
+        }
 
         protected override void OnDisappearing()
         {
@@ -138,6 +150,7 @@ namespace Santase.UI.Pages
         {
             if (this.viewModel == null)
             {
+                this.IsLeaving = true;
                 await Shell.Current.GoToAsync("..");
                 return;
             }

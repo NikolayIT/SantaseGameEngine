@@ -8,6 +8,9 @@ namespace Santase.UI
         {
             // Before anything reads a setting (the language is resolved on first use).
             Game.SettingsStore.Current = new Game.PreferencesSettingsStore();
+#if STORE_SHOTS
+            StoreShotsDriver.Prepare();
+#endif
 
             var builder = MauiApp.CreateBuilder();
             builder
