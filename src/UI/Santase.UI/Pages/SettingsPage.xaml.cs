@@ -21,6 +21,7 @@ namespace Santase.UI.Pages
         public SettingsPage()
         {
             this.InitializeComponent();
+            PageBackground.CoverTheWholeScreen(this);
         }
 
         protected override void OnAppearing()

@@ -25,6 +25,7 @@ namespace Santase.UI.Pages
         public StartPage()
         {
             this.InitializeComponent();
+            PageBackground.CoverTheWholeScreen(this);
 
             this.SelectOpponentCommand = new RelayCommand<AiOpponent>(opponent => _ = this.actions.RunAsync(() => this.OnSelectOpponent(opponent)));
 

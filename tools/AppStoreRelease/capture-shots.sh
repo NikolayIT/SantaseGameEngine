@@ -59,7 +59,7 @@ run() {
   SIMCTL_CHILD_SANTASE_SHOT_SCENES="$scenes" \
     xcrun simctl launch "$udid" "$bundle" "$@"
 
-  local deadline=$((SECONDS + 2400)) failed=0
+  local deadline=$((SECONDS + 2400)) failed=0 polls=0
   while [ ! -f "$data/shots-done.txt" ]; do
     if [ -f "$data/shot-request.txt" ]; then
       local shot
@@ -73,8 +73,10 @@ run() {
       failed=1
       break
     fi
-    # Not grep -q: closing the pipe early kills launchctl, which pipefail reports as a failure.
-    if ! xcrun simctl spawn "$udid" launchctl list 2> /dev/null | grep "UIKitApplication:$bundle" > /dev/null; then
+    # Now and then, as a spawn is slow and a stalled one holds up the screenshots. Not grep -q:
+    # closing the pipe early kills launchctl, which pipefail reports as a failure.
+    polls=$((polls + 1))
+    if [ $((polls % 50)) = 0 ] && ! xcrun simctl spawn "$udid" launchctl list 2> /dev/null | grep "UIKitApplication:$bundle" > /dev/null; then
       sleep 2
       if [ ! -f "$data/shots-done.txt" ]; then
         sleep 20 # A crash report takes a moment to appear.

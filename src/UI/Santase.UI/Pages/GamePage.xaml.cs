@@ -21,14 +21,18 @@ namespace Santase.UI.Pages
 
         private GameViewModel? viewModel;
 
-        private readonly Color feltColor;
+        // As dark as the table under the round, game and hand-off screens' dimming.
+        private static readonly SolidColorBrush OverlayBackdrop = new(Color.FromArgb("#020805"));
+
+        private readonly Brush felt;
 
         private bool started;
 
         public GamePage()
         {
             this.InitializeComponent();
-            this.feltColor = this.BackgroundColor;
+            PageBackground.CoverTheWholeScreen(this);
+            this.felt = this.Background;
             KeepTextSize(this.TableRoot);
             KeepTextSize(this.MenuButton);
         }
@@ -188,14 +192,12 @@ namespace Santase.UI.Pages
                 return;
             }
 
-            // The overlays stop at the safe area (the status bar, the Dynamic Island), so the page
-            // around them dims with them. The colours are theirs over the felt.
+            // The overlays dim the table inside the safe area, and on an iPhone the page around
+            // them, behind the status bar and the home indicator, has to go as dark. It takes
+            // Background: changing BackgroundColor did nothing there (measured on the simulator).
             if (e.PropertyName is nameof(GameViewModel.IsHandoffOverlayVisible) or nameof(GameViewModel.IsRoundOverlayVisible) or nameof(GameViewModel.IsGameOverlayVisible))
             {
-                this.BackgroundColor = vm.IsGameOverlayVisible ? Color.FromArgb("#010603")
-                    : vm.IsRoundOverlayVisible ? Color.FromArgb("#020904")
-                    : vm.IsHandoffOverlayVisible ? Color.FromArgb("#071E0F")
-                    : this.feltColor;
+                this.Background = vm.IsHandoffOverlayVisible || vm.IsRoundOverlayVisible || vm.IsGameOverlayVisible ? OverlayBackdrop : this.felt;
             }
 
             switch (e.PropertyName)

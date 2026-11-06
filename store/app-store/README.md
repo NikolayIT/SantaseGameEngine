@@ -95,6 +95,9 @@ Differences from Android:
   interpreter for what the compiler could not foresee (`MtouchInterpreter=-all`), rather than crash.
   It costs about 7 MB of the IPA (Belot measured 52 against 59 MB). The simulator build leaves it
   out: with it the build takes an hour instead of 8 minutes, and the pass is stricter without it.
+- **The felt covers the whole screen** (`Pages/PageBackground.cs`, as Belot's): a gradient on a page's
+  content would end at the safe area. The round, game and hand-off screens darken the page around their
+  dimming; only `Background` does that, `BackgroundColor` and a XAML trigger on it changed nothing.
 - **Text size.** The table keeps its size whatever the system's text size is (`GamePage.KeepTextSize`):
   it is cards of a fixed size with one line of status above and below, and bigger text wrapped the
   names letter by letter and pushed the hand over the status bar. The round and game screens scroll
@@ -149,3 +152,7 @@ https://apps.apple.com/app/id6831495222:
   `assetDeliveryState` before retrying, since a retry deletes the set and starts over.
 - App Store text: no emoji, no em dash, and no other platform or store named (`listing.mjs` checks).
 - No TestFlight groups: the owner does not want them.
+- Look at every shot before uploading: the simulator can lay a system banner over one ("Ready for
+  Apple Intelligence" came over the English `04-closed` on 6 November 2026).
+- The `Play people online` button leads to a website that sells a VIP membership (guideline 3.1.1
+  restricts links to purchases), which the review notes say. If App Review objects, hide the button on iOS.

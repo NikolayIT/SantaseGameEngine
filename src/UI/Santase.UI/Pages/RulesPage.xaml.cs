@@ -31,6 +31,7 @@ namespace Santase.UI.Pages
         public RulesPage()
         {
             this.InitializeComponent();
+            PageBackground.CoverTheWholeScreen(this);
         }
 
         protected override void OnAppearing()
