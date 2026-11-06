@@ -1,0 +1,56 @@
+{
+  "appleId": "",
+  "sku": "santase-ios",
+  "copyright": "2026 NK Solutions EOOD",
+  "supportUrl": "https://santase.nksolutions.com/",
+  "marketingUrl": "https://santase.nksolutions.com/",
+  "privacyPolicyUrl": "https://santase.nksolutions.com/privacy-policy.html",
+  "categories": {
+    "primaryCategory": "GAMES",
+    "primarySubcategoryOne": "GAMES_CARD",
+    "primarySubcategoryTwo": "GAMES_STRATEGY"
+  },
+  "contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
+  "ageRating": {
+    "parentalControls": false,
+    "ageAssurance": false,
+    "unrestrictedWebAccess": false,
+    "userGeneratedContent": false,
+    "socialMedia": false,
+    "messagingAndChat": false,
+    "advertising": false,
+    "profanityOrCrudeHumor": "NONE",
+    "horrorOrFearThemes": "NONE",
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "medicalOrTreatmentInformation": "NONE",
+    "healthOrWellnessTopics": false,
+    "matureOrSuggestiveThemes": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "sexualContentGraphicAndNudity": "NONE",
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealistic": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "gunsOrOtherWeapons": "NONE",
+    "gambling": false,
+    "gamblingSimulated": "NONE",
+    "contests": "NONE",
+    "lootBox": false
+  },
+  "reviewNotes": "Santase opens on its home screen, so no sign-in, demo account or internet connection is needed: tap any opponent under \"Choose your opponent\" to start a game against the computer. The app is in English and Bulgarian (the language button is on the home screen).\n\nSantase, also known as 66 or Schnapsen, is a traditional trick-taking card game for two players. \"How to play\" on the home screen has the rules. The person plays the bottom seat, and the Hint button suggests a move. A game is left through the Menu button, which asks first; for that reason the swipe from the screen's edge is off on the table only. Two people can also play each other on one device, from the bottom of the home screen.\n\nThe game is played for points alone: there is no betting, no money of any kind, no in-app purchases, no ads and no account. All data stays on the device.\n\nThe \"Play people online\" button on the home screen opens our separate website ednaigra.com in Safari, and the links in Settings (the privacy policy and the source code on GitHub) open in Safari as well. There is no multiplayer inside the app.",
+  "screenshotFolders": {
+    "en-US": "en",
+    "en-GB": "bg"
+  },
+  "screenshots": [
+    "01-gameplay.png",
+    "02-marriage.png",
+    "03-hint.png",
+    "04-closed.png",
+    "05-result.png",
+    "06-victory.png",
+    "07-opponents.png",
+    "08-statistics.png",
+    "09-rules.png"
+  ],
+  "excludedTerritories": ["CHN"]
+}
