@@ -11,6 +11,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { del, editableRecords, getAll, patch, post, settings } from './asc-api.mjs';
+import { withoutAlpha } from './png.mjs';
 
 // App Store Connect's slot for the 6.9" iPhones; one set covers every iPhone.
 const DISPLAY_TYPE = 'APP_IPHONE_67';
@@ -45,7 +46,7 @@ async function uploadSet(locale, folder) {
   // Reserve, upload the parts Apple asks for, then commit with the checksum.
   const ids = [];
   for (const name of settings.screenshots) {
-    const bytes = readFileSync(path.join(folder, name));
+    const bytes = withoutAlpha(readFileSync(path.join(folder, name)));
     const reservation = (await post('/v1/appScreenshots', {
       data: {
         type: 'appScreenshots',

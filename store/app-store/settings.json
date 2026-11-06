@@ -43,12 +43,12 @@
   },
   "screenshots": [
     "01-gameplay.png",
+    "07-opponents.png",
     "02-marriage.png",
     "03-hint.png",
-    "04-closed.png",
-    "05-result.png",
     "06-victory.png",
-    "07-opponents.png",
+    "05-result.png",
+    "04-closed.png",
     "08-statistics.png",
     "09-rules.png"
   ],

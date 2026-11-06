@@ -336,11 +336,11 @@ namespace Santase.UI
             else if (wanted.Contains("03-hint") && table.OpponentPlayedCard == null && table.HasLastTrick && inHand == 6)
             {
                 table.HintCommand.Execute(null);
-                if (table.MyHand.Any(x => x.IsHinted))
+                if (table.MyHand.FirstOrDefault(x => x.IsHinted) is { } hinted)
                 {
-                    // The mark stays for 2.5 s.
+                    // The mark goes after 2.5 s, and a screenshot can take longer than that.
                     wanted.Remove("03-hint");
-                    await ShootAsync("03-hint", settleMs: 400);
+                    await ShootAsync("03-hint", settleMs: 400, hold: () => hinted.IsHinted = true);
                 }
             }
             else if (wanted.Contains("04-closed") && !wanted.Contains("01-gameplay") && !wanted.Contains("02-marriage") && !wanted.Contains("03-hint"))
@@ -380,6 +380,11 @@ namespace Santase.UI
         // false if nothing was asked of the table.
         private static bool Move(GameSession session, GameViewModel table)
         {
+            if (!session.IsAwaitingMove(PlayerSlot.First) && !session.IsAwaitingMove(PlayerSlot.Second))
+            {
+                return false;
+            }
+
             var playable = table.MyHand.Where(x => x.IsPlayable).ToList();
             if (session.Mode == GameMode.HotSeat)
             {
@@ -422,7 +427,7 @@ namespace Santase.UI
             return true;
         }
 
-        private static async Task ShootAsync(string name, int settleMs = 1500)
+        private static async Task ShootAsync(string name, int settleMs = 1500, Action? hold = null)
         {
             // The animations settle first.
             await Task.Delay(settleMs);
@@ -431,7 +436,14 @@ namespace Santase.UI
             await File.WriteAllTextAsync(temporary, name);
             File.Move(temporary, request);
             // simctl io has been seen to take over a minute on a hosted runner.
-            await Until(() => !File.Exists(request), "the screenshot " + name, 300);
+            await Until(
+                () =>
+                {
+                    hold?.Invoke();
+                    return !File.Exists(request);
+                },
+                "the screenshot " + name,
+                300);
             Log("Shot " + name);
         }
 

@@ -134,6 +134,10 @@ if small="$(xcrun simctl create "store-shots-small" "$small_type" "$runtime")"; 
   udid="$small"
   boot
   run small bg 0 "01-gameplay,05-result,06-gameover,07-opponents,10-settings"
+
+  # And with the system's text a good deal bigger: nothing may end up out of reach.
+  xcrun simctl ui "$udid" content_size accessibility-medium
+  run small-big-text bg 0 "01-gameplay,05-result,06-gameover,07-opponents"
 else
   echo "::warning::No $small_type simulator with $runtime: the small screen was not checked."
 fi

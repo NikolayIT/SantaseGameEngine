@@ -114,10 +114,12 @@ simulator on an Apple Silicon runner, where the build runs ahead-of-time compile
    app's Documents, and `capture-shots.sh` takes it with `simctl io` (1320×2868, the 6.9" iPhone's
    size, status bar set to Apple's usual 9:41), with `10-settings` for checking only;
 4. a run with no language chosen on a Bulgarian iPhone, which must start in Bulgarian;
-5. the tallest screens, in Bulgarian, on an iPhone SE (`small` in the artifact), for looking at:
-   the round and game overlays have no scrolling.
+5. the tallest screens, in Bulgarian, on an iPhone SE (`small` in the artifact), at the normal text
+   size and at a much bigger one (`small-big-text`), for looking at: nothing may end up out of reach.
 
-The artifact holds the shots, each pass's `log.txt` and, after a failure, the crash reports.
+The artifact holds the shots, each pass's `log.txt` and, after a failure, the crash reports. The log
+says `Dynamic code: supported False, compiled False`, which is what shows it ran ahead of time.
+`simctl` writes RGBA; `screenshots.mjs` removes the alpha channel before uploading.
 
 **This is a simulator, not a device.** Nothing here has run on a real iPhone. App Review's device
 is the first; install it from TestFlight on a phone before a release that changes the iOS layer.
