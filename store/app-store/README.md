@@ -5,6 +5,9 @@ App Store Connect app **Santase 66: Offline Card Game** · Apple ID `6831495222`
 Gods & Magic one (its `store/APP_STORE.md`), with the differences a public repository and a MAUI app
 need, the same way as Belot's. The Google Play counterpart is `src/UI/Santase.UI/PLAYSTORE.md`.
 
+Version 1.2 (build 9, commit `916605c`) went to App Review on 6 November 2026, to release to everyone on
+approval.
+
 ## Files
 
 - `<locale>.json` – each locale's `name`, `subtitle`, `keywords`, `promotionalText` and
@@ -148,8 +151,9 @@ https://apps.apple.com/app/id6831495222:
   leaves them out gets a 409.
 - A new app's first version already exists as `1.0`; `release.mjs --create` renames it.
 - Creating a locale's app info localization also creates its version localization.
-- `screenshots.mjs` waits five minutes per locale for Apple to process its images; read
-  `assetDeliveryState` before retrying, since a retry deletes the set and starts over.
+- `screenshots.mjs` waits five minutes per locale for Apple to process its images, and can report
+  `FAIL ... still processing` although they arrived (`en-US` on 6 November 2026, all `COMPLETE` minutes
+  later); read `assetDeliveryState` before retrying, since a retry deletes the set and starts over.
 - App Store text: no emoji, no em dash, and no other platform or store named (`listing.mjs` checks).
 - No TestFlight groups: the owner does not want them.
 - Look at every shot before uploading: the simulator can lay a system banner over one ("Ready for
