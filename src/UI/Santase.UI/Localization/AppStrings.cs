@@ -15,7 +15,7 @@ namespace Santase.UI.Localization
             // ----- Start page -----
             ["Start_YourRating"] = "Your rating",
             ["Start_NoGames"] = "Play a ranked game to start earning rating",
-            ["Start_RecordFormat"] = "{0} games · {1} won · {2} lost",
+            ["Start_RecordFormat"] = "Games: {0} · Won: {1} · Lost: {2}",
             ["Start_Statistics"] = "Statistics",
             ["Start_Settings"] = "Settings",
             ["Start_HowToPlay"] = "How to play",
@@ -165,7 +165,7 @@ namespace Santase.UI.Localization
             ["Stats_HistoryHeader"] = "GAME HISTORY",
             ["Stats_Empty"] = "No ranked games yet. Beat an opponent to start your record!",
             ["Stats_NotPlayed"] = "Not played yet",
-            ["Stats_GamesFormat"] = "{0} games",
+            ["Stats_GamesFormat"] = "Games: {0}",
 
             // ----- How to play page -----
             ["Rules_Title"] = "How to play",
@@ -193,7 +193,7 @@ namespace Santase.UI.Localization
             // ----- Start page -----
             ["Start_YourRating"] = "Твоят рейтинг",
             ["Start_NoGames"] = "Изиграй игра срещу компютъра, за да трупаш рейтинг",
-            ["Start_RecordFormat"] = "{0} игри · {1} победи · {2} загуби",
+            ["Start_RecordFormat"] = "Игри: {0} · Победи: {1} · Загуби: {2}",
             ["Start_Statistics"] = "Статистика",
             ["Start_Settings"] = "Настройки",
             ["Start_HowToPlay"] = "Как се играе",
@@ -343,7 +343,7 @@ namespace Santase.UI.Localization
             ["Stats_HistoryHeader"] = "ИСТОРИЯ НА ИГРИТЕ",
             ["Stats_Empty"] = "Още няма изиграни игри. Победи някой противник, за да започнеш статистика!",
             ["Stats_NotPlayed"] = "Още не сте играли",
-            ["Stats_GamesFormat"] = "{0} игри",
+            ["Stats_GamesFormat"] = "Игри: {0}",
 
             // ----- How to play page -----
             ["Rules_Title"] = "Как се играе",

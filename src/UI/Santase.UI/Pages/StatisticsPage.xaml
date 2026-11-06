@@ -76,10 +76,15 @@
                         <VerticalStackLayout Spacing="2">
                             <Label Text="{loc:Tr Stats_WinRate}" FontSize="11" TextColor="#C7D2BD" />
                             <Label x:Name="WinRateLabel" FontSize="26" FontAttributes="Bold" TextColor="White" />
-                            <Label x:Name="StreakLabel" FontSize="11" TextColor="#B9C7B0" />
                         </VerticalStackLayout>
                     </Border>
                 </Grid>
+
+                <!-- Below the tiles: in a tile the line was cut after "Best". -->
+                <Label x:Name="StreakLabel"
+                       FontSize="12"
+                       TextColor="#B9C7B0"
+                       HorizontalTextAlignment="Center" />
 
                 <Label x:Name="EmptyLabel"
                        Text="{loc:Tr Stats_Empty}"

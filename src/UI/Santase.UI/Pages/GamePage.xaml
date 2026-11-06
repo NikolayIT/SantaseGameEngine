@@ -17,6 +17,19 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    <!-- The overlays stop at the safe area (the status bar, the Dynamic Island): the page around them dims with them. -->
+    <ContentPage.Triggers>
+        <DataTrigger TargetType="ContentPage" Binding="{Binding IsHandoffOverlayVisible}" Value="True">
+            <Setter Property="BackgroundColor" Value="#071E0F" />
+        </DataTrigger>
+        <DataTrigger TargetType="ContentPage" Binding="{Binding IsRoundOverlayVisible}" Value="True">
+            <Setter Property="BackgroundColor" Value="#020904" />
+        </DataTrigger>
+        <DataTrigger TargetType="ContentPage" Binding="{Binding IsGameOverlayVisible}" Value="True">
+            <Setter Property="BackgroundColor" Value="#010603" />
+        </DataTrigger>
+    </ContentPage.Triggers>
+
     <Grid>
         <!-- ===== Felt background ===== -->
         <Grid.Background>
@@ -356,10 +369,10 @@
             <Border Grid.Row="4"
                     StrokeShape="RoundRectangle 14"
                     StrokeThickness="0"
-                    Padding="14,8"
+                    Padding="10,8"
                     BackgroundColor="#33000000"
                     Opacity="{Binding MyTurnIndicatorOpacity}">
-                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="8">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="6">
                     <Ellipse Grid.Column="0"
                              WidthRequest="10"
                              HeightRequest="10"
@@ -372,6 +385,8 @@
                            FontAttributes="Bold"
                            FontSize="15"
                            Margin="0,0,6,0"
+                           MaximumWidthRequest="96"
+                           LineBreakMode="TailTruncation"
                            VerticalOptions="Center" />
                     <Border Grid.Column="2"
                             StrokeShape="RoundRectangle 8"
@@ -415,7 +430,7 @@
                             HeightRequest="34"
                             FontSize="12"
                             FontAttributes="Bold"
-                            Padding="12,0"
+                            Padding="8,0"
                             CornerRadius="10"
                             BackgroundColor="#26FFFFFF"
                             BorderColor="{StaticResource GoldAccent}"
@@ -489,6 +504,8 @@
         <Grid x:Name="RoundOverlayRoot"
               IsVisible="{Binding IsRoundOverlayVisible}"
               BackgroundColor="#D9000000">
+            <!-- Scrolls so that a big system text size cannot push Continue off the screen and strand the game. -->
+            <ScrollView VerticalOptions="Center" Padding="0,12">
             <Border StrokeShape="RoundRectangle 18"
                     StrokeThickness="0"
                     BackgroundColor="#F8F4E6"
@@ -515,6 +532,7 @@
                             StrokeThickness="0"
                             BackgroundColor="#0B3D1A"
                             Padding="20,14"
+                            MinimumWidthRequest="260"
                             HorizontalOptions="Fill">
                         <VerticalStackLayout Spacing="6">
                             <Label Text="{loc:Tr Round_ScoreHeader}"
@@ -538,6 +556,7 @@
                                            CharacterSpacing="2"
                                            FontAttributes="Bold"
                                            HorizontalOptions="Center"
+                                           LineBreakMode="NoWrap"
                                            TextColor="#E2B864"
                                            IsVisible="{Binding RoundIWon}" />
                                 </VerticalStackLayout>
@@ -561,6 +580,7 @@
                                            CharacterSpacing="2"
                                            FontAttributes="Bold"
                                            HorizontalOptions="Center"
+                                           LineBreakMode="NoWrap"
                                            TextColor="#E2B864"
                                            IsVisible="{Binding RoundOpponentWon}" />
                                 </VerticalStackLayout>
@@ -663,12 +683,14 @@
                             CornerRadius="12" />
                 </VerticalStackLayout>
             </Border>
+            </ScrollView>
         </Grid>
 
         <!-- ===== Game-end overlay ===== -->
         <Grid x:Name="GameOverlayRoot"
               IsVisible="{Binding IsGameOverlayVisible}"
               BackgroundColor="#E5000000">
+            <ScrollView VerticalOptions="Center" Padding="0,12">
             <Border StrokeShape="RoundRectangle 22"
                     StrokeThickness="0"
                     BackgroundColor="#F8F4E6"
@@ -792,6 +814,7 @@
                             CornerRadius="12" />
                 </VerticalStackLayout>
             </Border>
+            </ScrollView>
         </Grid>
     </Grid>
 </ContentPage>
