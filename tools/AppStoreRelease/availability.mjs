@@ -70,10 +70,19 @@ async function setTerritories() {
   });
 }
 
-const hasPrice = async () => (await get(`/v1/apps/${APP_APPLE_ID}/appPriceSchedule`).catch(() => null)) !== null;
+// A new app already has a price schedule, an empty one: only a manual price means a price is set.
+async function hasPrice() {
+  const schedule = await get(`/v1/apps/${APP_APPLE_ID}/appPriceSchedule`).catch(() => null);
+  return schedule !== null && (await get(`/v1/appPriceSchedules/${schedule.data.id}/manualPrices?limit=1`)).data.length > 0;
+}
+
+async function hasTerritories() {
+  const availability = await get(`/v1/apps/${APP_APPLE_ID}/appAvailabilityV2`).catch(() => null);
+  return availability !== null && (await get(`/v2/appAvailabilities/${availability.data.id}/territoryAvailabilities?limit=1`)).data.length > 0;
+}
 
 if (process.argv.includes('--apply')) {
   if (!(await hasPrice())) await setFree();
-  await setTerritories();
+  if (!(await hasTerritories())) await setTerritories();
 }
 await show();

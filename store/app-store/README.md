@@ -1,6 +1,6 @@
 # App Store listing and release – Santase (iPhone)
 
-App Store Connect app **Santase 66: Offline Card Game** · bundle `com.nksolutions.santase` · SKU
+App Store Connect app **Santase 66: Offline Card Game** · Apple ID `6831495222` · bundle `com.nksolutions.santase` · SKU
 `santase-ios` · seller NK Solutions EOOD, developer name NK Games Studio. The pipeline follows the
 Gods & Magic one (its `store/APP_STORE.md`), with the differences a public repository and a MAUI app
 need, the same way as Belot's. The Google Play counterpart is `src/UI/Santase.UI/PLAYSTORE.md`.
@@ -123,7 +123,7 @@ is the first; install it from TestFlight on a phone before a release that change
 ## When the app goes live
 
 The first approved version is released automatically. Once its page answers at
-`https://apps.apple.com/app/id<appleId>`:
+https://apps.apple.com/app/id6831495222:
 
 - add the App Store link beside Google Play on the publisher site (`nksolutions.com` repository,
   `public/santase/index.html`);
